@@ -15,7 +15,7 @@
  */
 
 import { useApi, configApiRef } from '@backstage/core-plugin-api';
-import { Link } from '@backstage/core-components';
+import { Link, Progress, ErrorPanel } from '@backstage/core-components';
 import {
   IconButton,
   List,
@@ -32,32 +32,24 @@ import {
   StackOverflowQuestionsContentProps,
 } from '../../types';
 
-/**
- * A component to display a list of stack overflow questions on the homepage.
- *
- * @public
- */
-
 export const Content = (props: StackOverflowQuestionsContentProps) => {
   const { requestParams } = props;
   const configApi = useApi(configApiRef);
   const baseUrl = configApi.getOptionalString('stackoverflow.baseUrl');
 
-  const { value, loading, error } = useAsync(async (): Promise<
-    StackOverflowQuestion[]
-  > => {
+  const { value, loading, error } = useAsync(async () => {
     const params = requestParams ? `?${qs.stringify(requestParams)}` : '';
     const response = await fetch(`${baseUrl}/questions${params}`);
     const data = await response.json();
-    return data.items;
+    return data.items as StackOverflowQuestion[];
   }, []);
 
   if (loading) {
-    return <p>loading...</p>;
+    return <Progress />;
   }
 
-  if (error || !value || !value.length) {
-    return <p>could not load questions</p>;
+  if (error) {
+    return <ErrorPanel error={error} />;
   }
 
   const getSecondaryText = (answer_count: Number) =>
@@ -65,21 +57,22 @@ export const Content = (props: StackOverflowQuestionsContentProps) => {
 
   return (
     <List>
-      {value.map(question => (
-        <ListItem key={question.link}>
-          <Link to={question.link}>
-            <ListItemText
-              primary={question.title}
-              secondary={getSecondaryText(question.answer_count)}
-            />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" aria-label="external-link">
-                <OpenInNewIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </Link>
-        </ListItem>
-      ))}
+      {value?.length &&
+        value.map(question => (
+          <ListItem key={question.link}>
+            <Link to={question.link}>
+              <ListItemText
+                primary={question.title}
+                secondary={getSecondaryText(question.answer_count)}
+              />
+              <ListItemSecondaryAction>
+                <IconButton edge="end" aria-label="external-link">
+                  <OpenInNewIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </Link>
+          </ListItem>
+        ))}
     </List>
   );
 };

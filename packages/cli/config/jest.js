@@ -188,6 +188,8 @@ async function getRootConfig() {
 
   return {
     rootDir: targetPath,
+    coverageProvider: 'v8',
+    collectCoverageFrom: ['**/*.{js,jsx,ts,tsx,mjs,cjs}', '!**/*.d.ts'],
     projects: configs,
   };
 }

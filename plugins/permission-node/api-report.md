@@ -45,9 +45,10 @@ export type ApplyConditionsResponseEntry = Identified<DefinitivePolicyDecision>;
 export type Condition<TRule> = TRule extends PermissionRule<
   any,
   any,
+  infer TResourceType,
   infer TParams
 >
-  ? (...params: TParams) => PermissionCondition<TParams>
+  ? (...params: TParams) => PermissionCondition<TResourceType, TParams>
   : never;
 
 // @public
@@ -60,7 +61,7 @@ export type ConditionalPolicyDecision = {
 
 // @public
 export type Conditions<
-  TRules extends Record<string, PermissionRule<any, any>>,
+  TRules extends Record<string, PermissionRule<any, any, any>>,
 > = {
   [Name in keyof TRules]: Condition<TRules[Name]>;
 };
@@ -74,7 +75,10 @@ export type ConditionTransformer<TQuery> = (
 export const createConditionExports: <
   TResourceType extends string,
   TResource,
-  TRules extends Record<string, PermissionRule<TResource, any, unknown[]>>,
+  TRules extends Record<
+    string,
+    PermissionRule<TResource, any, TResourceType, unknown[]>
+  >,
 >(options: {
   pluginId: string;
   resourceType: TResourceType;
@@ -83,30 +87,35 @@ export const createConditionExports: <
   conditions: Conditions<TRules>;
   createConditionalDecision: (
     permission: ResourcePermission<TResourceType>,
-    conditions: PermissionCriteria<PermissionCondition>,
+    conditions: PermissionCriteria<
+      PermissionCondition<TResourceType, unknown[]>
+    >,
   ) => ConditionalPolicyDecision;
 };
 
 // @public
-export const createConditionFactory: <TParams extends any[]>(
-  rule: PermissionRule<unknown, unknown, TParams>,
-) => (...params: TParams) => {
-  rule: string;
-  params: TParams;
-};
+export const createConditionFactory: <
+  TResourceType extends string,
+  TParams extends any[],
+>(
+  rule: PermissionRule<unknown, unknown, TResourceType, TParams>,
+) => (...params: TParams) => PermissionCondition<TResourceType, TParams>;
 
 // @public
 export const createConditionTransformer: <
   TQuery,
-  TRules extends PermissionRule<any, TQuery, unknown[]>[],
+  TRules extends PermissionRule<any, TQuery, string, unknown[]>[],
 >(
   permissionRules: [...TRules],
 ) => ConditionTransformer<TQuery>;
 
 // @public
-export const createPermissionIntegrationRouter: <TResource>(options: {
-  resourceType: string;
-  rules: PermissionRule<TResource, any, unknown[]>[];
+export const createPermissionIntegrationRouter: <
+  TResourceType extends string,
+  TResource,
+>(options: {
+  resourceType: TResourceType;
+  rules: PermissionRule<TResource, any, NoInfer<TResourceType>, unknown[]>[];
   getResources: (resourceRefs: string[]) => Promise<(TResource | undefined)[]>;
 }) => express.Router;
 
@@ -114,10 +123,11 @@ export const createPermissionIntegrationRouter: <TResource>(options: {
 export const createPermissionRule: <
   TResource,
   TQuery,
+  TResourceType extends string,
   TParams extends unknown[],
 >(
-  rule: PermissionRule<TResource, TQuery, TParams>,
-) => PermissionRule<TResource, TQuery, TParams>;
+  rule: PermissionRule<TResource, TQuery, TResourceType, TParams>,
+) => PermissionRule<TResource, TQuery, TResourceType, TParams>;
 
 // @public
 export type DefinitivePolicyDecision = {
@@ -140,11 +150,13 @@ export const isOrCriteria: <T>(
 ) => criteria is AnyOfCriteria<T>;
 
 // @public
-export const makeCreatePermissionRule: <TResource, TQuery>() => <
-  TParams extends unknown[],
->(
-  rule: PermissionRule<TResource, TQuery, TParams>,
-) => PermissionRule<TResource, TQuery, TParams>;
+export const makeCreatePermissionRule: <
+  TResource,
+  TQuery,
+  TResourceType extends string,
+>() => <TParams extends unknown[]>(
+  rule: PermissionRule<TResource, TQuery, TResourceType, TParams>,
+) => PermissionRule<TResource, TQuery, TResourceType, TParams>;
 
 // @public
 export interface PermissionPolicy {
@@ -159,10 +171,12 @@ export interface PermissionPolicy {
 export type PermissionRule<
   TResource,
   TQuery,
+  TResourceType extends string,
   TParams extends unknown[] = unknown[],
 > = {
   name: string;
   description: string;
+  resourceType: TResourceType;
   apply(resource: TResource, ...params: TParams): boolean;
   toQuery(...params: TParams): PermissionCriteria<TQuery>;
 };

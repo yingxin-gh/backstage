@@ -78,7 +78,10 @@ import { Config } from '@backstage/config';
 import { Logger } from 'winston';
 import { connectEntityProviders } from '../processing/connectEntityProviders';
 import { permissionRules as catalogPermissionRules } from '../permissions/rules';
-import { PermissionAuthorizer } from '@backstage/plugin-permission-common';
+import {
+  Permission,
+  PermissionAuthorizer,
+} from '@backstage/plugin-permission-common';
 import {
   PermissionRule,
   createConditionTransformer,
@@ -86,8 +89,27 @@ import {
 } from '@backstage/plugin-permission-node';
 import { AuthorizedEntitiesCatalog } from './AuthorizedEntitiesCatalog';
 import { basicEntityFilter } from './request/basicEntityFilter';
-import { RESOURCE_TYPE_CATALOG_ENTITY } from '@backstage/plugin-catalog-common';
+import {
+  catalogEntityCreatePermission,
+  catalogEntityDeletePermission,
+  catalogEntityReadPermission,
+  catalogEntityRefreshPermission,
+  catalogLocationCreatePermission,
+  catalogLocationDeletePermission,
+  catalogLocationReadPermission,
+  RESOURCE_TYPE_CATALOG_ENTITY,
+} from '@backstage/plugin-catalog-common';
 import { AuthorizedLocationService } from './AuthorizedLocationService';
+
+const catalogPermissions: Permission[] = [
+  catalogEntityReadPermission,
+  catalogEntityCreatePermission,
+  catalogEntityDeletePermission,
+  catalogEntityRefreshPermission,
+  catalogLocationCreatePermission,
+  catalogLocationDeletePermission,
+  catalogLocationReadPermission,
+];
 
 /** @public */
 export type CatalogEnvironment = {
@@ -415,6 +437,7 @@ export class CatalogBuilder {
         );
       },
       rules: this.permissionRules,
+      permissions: catalogPermissions,
     });
     const stitcher = new Stitcher(dbClient, logger);
 

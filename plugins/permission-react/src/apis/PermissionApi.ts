@@ -17,6 +17,7 @@
 import {
   AuthorizeQuery,
   AuthorizeDecision,
+  Permission,
 } from '@backstage/plugin-permission-common';
 import { ApiRef, createApiRef } from '@backstage/core-plugin-api';
 
@@ -28,6 +29,7 @@ import { ApiRef, createApiRef } from '@backstage/core-plugin-api';
  */
 export type PermissionApi = {
   authorize(request: AuthorizeQuery): Promise<AuthorizeDecision>;
+  getAllPermissions(): Promise<Permission[]>;
 };
 
 /**

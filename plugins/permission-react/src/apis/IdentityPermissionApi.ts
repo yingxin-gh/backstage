@@ -20,7 +20,6 @@ import {
   AuthorizeQuery,
   AuthorizeDecision,
   PermissionClient,
-  PermissionAggregator,
 } from '@backstage/plugin-permission-common';
 import { Config } from '@backstage/config';
 
@@ -33,7 +32,6 @@ export class IdentityPermissionApi implements PermissionApi {
   private constructor(
     private readonly permissionClient: PermissionClient,
     private readonly identityApi: IdentityApi,
-    private readonly permissionAggregator: PermissionAggregator,
   ) {}
 
   static create(options: {
@@ -43,16 +41,7 @@ export class IdentityPermissionApi implements PermissionApi {
   }) {
     const { config, discovery, identity } = options;
     const permissionClient = new PermissionClient({ discovery, config });
-    const permissionedPlugins =
-      config.getOptionalStringArray('permission.permissionedPlugins') ?? [];
-    const permissionAggregator = new PermissionAggregator(permissionedPlugins, {
-      discovery,
-    });
-    return new IdentityPermissionApi(
-      permissionClient,
-      identity,
-      permissionAggregator,
-    );
+    return new IdentityPermissionApi(permissionClient, identity);
   }
 
   async authorize(request: AuthorizeQuery): Promise<AuthorizeDecision> {
@@ -61,9 +50,5 @@ export class IdentityPermissionApi implements PermissionApi {
       await this.identityApi.getCredentials(),
     );
     return response[0];
-  }
-
-  getAllPermissions() {
-    return this.permissionAggregator.getAllPermissions();
   }
 }

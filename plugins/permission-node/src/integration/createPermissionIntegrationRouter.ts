@@ -162,76 +162,80 @@ const applyConditions = <TResource>(
  *
  * @public
  */
-export const createPermissionIntegrationRouter = <TResource>(options: {
-  resourceType: string;
-  rules: PermissionRule<TResource, any>[];
-  getResources: (
-    resourceRefs: string[],
-  ) => Promise<Array<TResource | undefined>>;
-  permissions: Array<Permission>;
-}): express.Router => {
-  const { resourceType, rules, getResources, permissions } = options;
+export const createPermissionIntegrationRouter = <TResource>(
+  permissions: Array<Permission>,
+  options?: {
+    resourceType: string;
+    rules: PermissionRule<TResource, any>[];
+    getResources: (
+      resourceRefs: string[],
+    ) => Promise<Array<TResource | undefined>>;
+  },
+): express.Router => {
   const router = Router();
-
-  const getRule = createGetRule(rules);
-
-  const assertValidResourceTypes = (
-    requests: ApplyConditionsRequestEntry[],
-  ) => {
-    const invalidResourceTypes = requests
-      .filter(request => request.resourceType !== resourceType)
-      .map(request => request.resourceType);
-
-    if (invalidResourceTypes.length) {
-      throw new InputError(
-        `Unexpected resource types: ${invalidResourceTypes.join(', ')}.`,
-      );
-    }
-  };
-
   router.use(express.json());
-
-  router.post(
-    '/.well-known/backstage/permissions/apply-conditions',
-    async (req, res: Response<ApplyConditionsResponse | string>) => {
-      const parseResult = applyConditionsRequestSchema.safeParse(req.body);
-
-      if (!parseResult.success) {
-        throw new InputError(parseResult.error.toString());
-      }
-
-      const body = parseResult.data;
-
-      assertValidResourceTypes(body.items);
-
-      const resourceRefs = Array.from(
-        new Set(body.items.map(({ resourceRef }) => resourceRef)),
-      );
-      const resourceArray = await getResources(resourceRefs);
-      const resources = resourceRefs.reduce((acc, resourceRef, index) => {
-        acc[resourceRef] = resourceArray[index];
-
-        return acc;
-      }, {} as Record<string, TResource | undefined>);
-
-      return res.status(200).json({
-        items: body.items.map(request => ({
-          id: request.id,
-          result: applyConditions(
-            request.conditions,
-            resources[request.resourceRef],
-            getRule,
-          )
-            ? AuthorizeResult.ALLOW
-            : AuthorizeResult.DENY,
-        })),
-      });
-    },
-  );
 
   router.get('/.well-known/backstage/permissions/permission-list', (_, res) => {
     return res.status(200).json({ permissions });
   });
+
+  if (options) {
+    const { resourceType, rules, getResources } = options;
+
+    const getRule = createGetRule(rules);
+
+    const assertValidResourceTypes = (
+      requests: ApplyConditionsRequestEntry[],
+    ) => {
+      const invalidResourceTypes = requests
+        .filter(request => request.resourceType !== resourceType)
+        .map(request => request.resourceType);
+
+      if (invalidResourceTypes.length) {
+        throw new InputError(
+          `Unexpected resource types: ${invalidResourceTypes.join(', ')}.`,
+        );
+      }
+    };
+
+    router.post(
+      '/.well-known/backstage/permissions/apply-conditions',
+      async (req, res: Response<ApplyConditionsResponse | string>) => {
+        const parseResult = applyConditionsRequestSchema.safeParse(req.body);
+
+        if (!parseResult.success) {
+          throw new InputError(parseResult.error.toString());
+        }
+
+        const body = parseResult.data;
+
+        assertValidResourceTypes(body.items);
+
+        const resourceRefs = Array.from(
+          new Set(body.items.map(({ resourceRef }) => resourceRef)),
+        );
+        const resourceArray = await getResources(resourceRefs);
+        const resources = resourceRefs.reduce((acc, resourceRef, index) => {
+          acc[resourceRef] = resourceArray[index];
+
+          return acc;
+        }, {} as Record<string, TResource | undefined>);
+
+        return res.status(200).json({
+          items: body.items.map(request => ({
+            id: request.id,
+            result: applyConditions(
+              request.conditions,
+              resources[request.resourceRef],
+              getRule,
+            )
+              ? AuthorizeResult.ALLOW
+              : AuthorizeResult.DENY,
+          })),
+        });
+      },
+    );
+  }
 
   router.use(errorHandler());
 

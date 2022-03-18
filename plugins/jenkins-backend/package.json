@@ -33,6 +33,7 @@
     "@backstage/plugin-auth-node": "^0.1.6",
     "@backstage/plugin-jenkins-common": "^0.1.2",
     "@backstage/plugin-permission-common": "^0.5.3",
+    "@backstage/plugin-permission-node": "^0.5.5",
     "@types/express": "^4.17.6",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",

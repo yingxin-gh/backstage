@@ -21,7 +21,15 @@ import { Permission } from './permission';
  * requests.
  * @public
  */
-export type Identified<T> = T & { id: string };
+export type IdentifiedPermissionMessage<T> = T & { id: string };
+
+/**
+ * A batch of request or response items.
+ * @public
+ */
+export type PermissionMessageBatch<T> = {
+  items: IdentifiedPermissionMessage<T>[];
+};
 
 /**
  * The result of an authorization request.
@@ -43,38 +51,57 @@ export enum AuthorizeResult {
 }
 
 /**
- * An individual request for {@link PermissionClient#authorize}.
+ * An individual request sent to the permission backend.
  * @public
  */
-export type AuthorizeQuery = {
+export type EvaluatePermissionRequest = {
   permission: Permission;
   resourceRef?: string;
 };
 
 /**
- * A batch of authorization requests from {@link PermissionClient#authorize}.
+ * A batch of requests sent to the permission backend.
  * @public
  */
-export type AuthorizeRequest = {
-  items: Identified<AuthorizeQuery>[];
+export type EvaluatePermissionRequestBatch =
+  PermissionMessageBatch<EvaluatePermissionRequest>;
+
+/**
+ * An individual response from the permission backend.
+ * @public
+ */
+export type EvaluatePermissionResponse =
+  | { result: AuthorizeResult.ALLOW | AuthorizeResult.DENY }
+  | {
+      result: AuthorizeResult.CONDITIONAL;
+      conditions: PermissionCriteria<PermissionCondition>;
+    };
+
+/**
+ * A batch of responses from the permission backend.
+ * @public
+ */
+export type EvaluatePermissionResponseBatch =
+  PermissionMessageBatch<EvaluatePermissionResponse>;
+
+/**
+ * Options for authorization requests.
+ * @public
+ */
+export type EvaluatorRequestOptions = {
+  token?: string;
 };
 
 /**
- * An request for a {@link @backstage/plugin-permission-node#PermissionPolicy}
- * to evaluate a permission..
- *
- * @remarks
- *
- * This differs from {@link AuthorizeQuery} in that `resourceRef` should never
- * be provided. This forces policies to be written in a way that's compatible
- * with filtering collections of resources at data load time.
- *
+ * A client interacting with the permission backend can implement this evaluator interface.
  * @public
  */
-export type PolicyQuery<TPermission extends Permission = Permission> = {
-  permission: TPermission;
-  resourceRef?: never;
-};
+export interface PermissionEvaluator {
+  authorize(
+    requests: EvaluatePermissionRequest[],
+    options?: EvaluatorRequestOptions,
+  ): Promise<EvaluatePermissionResponse[]>;
+}
 
 /**
  * A definitive decision returned by a
@@ -101,10 +128,6 @@ export type DefinitivePolicyDecision = {
  * that the returned conditions hold when evaluated. The conditions will be
  * evaluated by the corresponding plugin which knows about the referenced
  * permission rules.
- *
- * Similar to {@link @backstage/permission-common#AuthorizeDecision}, but with
- * the plugin and resource identifiers needed to evaluate the returned
- * conditions.
  * @public
  */
 export type ConditionalPolicyDecision = {
@@ -176,22 +199,3 @@ export type PermissionCriteria<TQuery> =
   | AnyOfCriteria<TQuery>
   | NotCriteria<TQuery>
   | TQuery;
-
-/**
- * An individual authorization response from {@link PermissionClient#authorize}.
- * @public
- */
-export type AuthorizeDecision =
-  | { result: AuthorizeResult.ALLOW | AuthorizeResult.DENY }
-  | {
-      result: AuthorizeResult.CONDITIONAL;
-      conditions: PermissionCriteria<PermissionCondition>;
-    };
-
-/**
- * A batch of authorization responses from {@link PermissionClient#authorize}.
- * @public
- */
-export type AuthorizeResponse = {
-  items: Identified<AuthorizeDecision>[];
-};

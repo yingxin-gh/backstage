@@ -16,15 +16,17 @@
 
 export { AuthorizeResult } from './api';
 export type {
-  PolicyQuery,
   PolicyDecision,
   ConditionalPolicyDecision,
   DefinitivePolicyDecision,
-  AuthorizeQuery,
-  AuthorizeRequest,
-  AuthorizeDecision,
-  AuthorizeResponse,
-  Identified,
+  IdentifiedPermissionMessage,
+  PermissionMessageBatch,
+  EvaluatePermissionRequest,
+  EvaluatePermissionRequestBatch,
+  EvaluatePermissionResponse,
+  EvaluatePermissionResponseBatch,
+  EvaluatorRequestOptions,
+  PermissionEvaluator,
   PermissionCondition,
   PermissionCriteria,
   AllOfCriteria,
@@ -36,8 +38,6 @@ export type {
   BasicPermission,
   PermissionAttributes,
   Permission,
-  PermissionAuthorizer,
   PermissionBase,
   ResourcePermission,
-  AuthorizeRequestOptions,
 } from './permission';

@@ -15,10 +15,24 @@
  */
 
 import {
+  Permission,
   PolicyDecision,
-  PolicyQuery,
 } from '@backstage/plugin-permission-common';
 import { BackstageIdentityResponse } from '@backstage/plugin-auth-node';
+
+/**
+ * An request for a {@link PermissionPolicy} to evaluate a permission.
+ *
+ * @remarks
+ *
+ * Unlike other parts of the permission API, policies don't accept a `resourceRef`. This constraint
+ * decouples policies from the logic required to load and apply conditions to specific resources.
+ *
+ * @public
+ */
+export type PolicyRequest<TPermission extends Permission = Permission> = {
+  permission: TPermission;
+};
 
 /**
  * A policy to evaluate authorization requests for any permissioned action performed in Backstage.
@@ -38,7 +52,7 @@ import { BackstageIdentityResponse } from '@backstage/plugin-auth-node';
  */
 export interface PermissionPolicy {
   handle(
-    request: PolicyQuery,
+    request: PolicyRequest,
     user?: BackstageIdentityResponse,
   ): Promise<PolicyDecision>;
 }

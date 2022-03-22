@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { AuthorizeQuery, AuthorizeDecision } from './api';
-
 /**
  * The attributes related to a given permission; these should be generic and widely applicable to
  * all permissions in the system.
@@ -87,22 +85,3 @@ export type ResourcePermission<TResourceType extends string = string> =
       resourceType: TResourceType;
     }
   >;
-
-/**
- * A client interacting with the permission backend can implement this authorizer interface.
- * @public
- */
-export interface PermissionAuthorizer {
-  authorize(
-    queries: AuthorizeQuery[],
-    options?: AuthorizeRequestOptions,
-  ): Promise<AuthorizeDecision[]>;
-}
-
-/**
- * Options for authorization requests.
- * @public
- */
-export type AuthorizeRequestOptions = {
-  token?: string;
-};

@@ -21,19 +21,18 @@ import * as uuid from 'uuid';
 import { z } from 'zod';
 import {
   AuthorizeResult,
-  AuthorizeQuery,
-  AuthorizeDecision,
-  Identified,
   PermissionCriteria,
   PermissionCondition,
-  AuthorizeResponse,
-  AuthorizeRequest,
+  PermissionEvaluator,
+  EvaluatePermissionRequest,
+  EvaluatorRequestOptions,
+  EvaluatePermissionResponse,
+  EvaluatePermissionRequestBatch,
+  IdentifiedPermissionMessage,
+  EvaluatePermissionResponseBatch,
 } from './types/api';
 import { DiscoveryApi } from './types/discovery';
-import {
-  PermissionAuthorizer,
-  AuthorizeRequestOptions,
-} from './types/permission';
+import {} from './types/permission';
 
 const permissionCriteriaSchema: z.ZodSchema<
   PermissionCriteria<PermissionCondition>
@@ -80,7 +79,7 @@ const responseSchema = z.object({
  * An isomorphic client for requesting authorization for Backstage permissions.
  * @public
  */
-export class PermissionClient implements PermissionAuthorizer {
+export class PermissionClient implements PermissionEvaluator {
   private readonly enabled: boolean;
   private readonly discovery: DiscoveryApi;
 
@@ -107,20 +106,20 @@ export class PermissionClient implements PermissionAuthorizer {
    * @public
    */
   async authorize(
-    queries: AuthorizeQuery[],
-    options?: AuthorizeRequestOptions,
-  ): Promise<AuthorizeDecision[]> {
+    requests: EvaluatePermissionRequest[],
+    options?: EvaluatorRequestOptions,
+  ): Promise<EvaluatePermissionResponse[]> {
     // TODO(permissions): it would be great to provide some kind of typing guarantee that
     // conditional responses will only ever be returned for requests containing a resourceType
     // but no resourceRef. That way clients who aren't prepared to handle filtering according
     // to conditions can be guaranteed that they won't unexpectedly get a CONDITIONAL response.
 
     if (!this.enabled) {
-      return queries.map(_ => ({ result: AuthorizeResult.ALLOW }));
+      return requests.map(_ => ({ result: AuthorizeResult.ALLOW }));
     }
 
-    const request: AuthorizeRequest = {
-      items: queries.map(query => ({
+    const request: EvaluatePermissionRequestBatch = {
+      items: requests.map(query => ({
         id: uuid.v4(),
         ...query,
       })),
@@ -145,7 +144,7 @@ export class PermissionClient implements PermissionAuthorizer {
     const responsesById = responseBody.items.reduce((acc, r) => {
       acc[r.id] = r;
       return acc;
-    }, {} as Record<string, Identified<AuthorizeDecision>>);
+    }, {} as Record<string, IdentifiedPermissionMessage<EvaluatePermissionResponse>>);
 
     return request.items.map(query => responsesById[query.id]);
   }
@@ -155,9 +154,9 @@ export class PermissionClient implements PermissionAuthorizer {
   }
 
   private assertValidResponse(
-    request: AuthorizeRequest,
+    request: EvaluatePermissionRequestBatch,
     json: any,
-  ): asserts json is AuthorizeResponse {
+  ): asserts json is EvaluatePermissionResponseBatch {
     const authorizedResponses = responseSchema.parse(json);
     const responseIds = authorizedResponses.items.map(r => r.id);
     const hasAllRequestIds = request.items.every(r =>

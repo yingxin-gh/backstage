@@ -182,11 +182,12 @@ export async function createConfig(
       },
       plugins: [
         new LinkedPackageResolvePlugin(paths.rootNodeModules, externalPkgs),
-        new ModuleScopePlugin(
-          [paths.targetSrc, paths.targetDev],
-          [paths.targetPackageJson],
-        ),
-      ],
+        !isDev &&
+          new ModuleScopePlugin(
+            [paths.targetSrc, paths.targetDev],
+            [paths.targetPackageJson],
+          ),
+      ].filter(Boolean),
       alias: resolveAliases,
     },
     module: {
@@ -276,14 +277,12 @@ export async function createBackendConfig(
       modules: [paths.rootNodeModules, ...moduleDirs],
       plugins: [
         new LinkedPackageResolvePlugin(paths.rootNodeModules, externalPkgs),
-        new ModuleScopePlugin(
-          [paths.targetSrc, paths.targetDev],
-          [paths.targetPackageJson],
-        ),
-      ],
-      alias: {
-        'react-dom': '@hot-loader/react-dom',
-      },
+        !isDev &&
+          new ModuleScopePlugin(
+            [paths.targetSrc, paths.targetDev],
+            [paths.targetPackageJson],
+          ),
+      ].filter(Boolean),
     },
     module: {
       rules: loaders,

@@ -16,7 +16,7 @@
 
 import { ConfigReader } from '@backstage/config';
 import {
-  AuthorizeDecision,
+  EvaluatePermissionResponse,
   AuthorizeResult,
   createPermission,
   PermissionAuthorizer,
@@ -239,7 +239,7 @@ describe('AuthorizedSearchEngine', () => {
           }
           return {
             result: AuthorizeResult.CONDITIONAL,
-          } as AuthorizeDecision;
+          } as EvaluatePermissionResponse;
         }
 
         return {
@@ -290,7 +290,7 @@ describe('AuthorizedSearchEngine', () => {
 
         return {
           result: AuthorizeResult.CONDITIONAL,
-        } as AuthorizeDecision;
+        } as EvaluatePermissionResponse;
       }),
     );
 
@@ -332,7 +332,9 @@ describe('AuthorizedSearchEngine', () => {
             result: AuthorizeResult.ALLOW,
           };
         }
-        return { result: AuthorizeResult.CONDITIONAL } as AuthorizeDecision;
+        return {
+          result: AuthorizeResult.CONDITIONAL,
+        } as EvaluatePermissionResponse;
       }),
     );
 
@@ -409,7 +411,9 @@ describe('AuthorizedSearchEngine', () => {
                 : AuthorizeResult.ALLOW,
           };
         }
-        return { result: AuthorizeResult.CONDITIONAL } as AuthorizeDecision;
+        return {
+          result: AuthorizeResult.CONDITIONAL,
+        } as EvaluatePermissionResponse;
       }),
     );
 
@@ -491,7 +495,9 @@ describe('AuthorizedSearchEngine', () => {
         if (query.resourceRef) {
           return { result: AuthorizeResult.ALLOW };
         }
-        return { result: AuthorizeResult.CONDITIONAL } as AuthorizeDecision;
+        return {
+          result: AuthorizeResult.CONDITIONAL,
+        } as EvaluatePermissionResponse;
       }),
     );
 

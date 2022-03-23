@@ -1,5 +1,16 @@
 # @backstage/plugin-catalog-react
 
+## 1.0.1-next.1
+
+### Patch Changes
+
+- 0ffd88a90e: Prevent permissions with types other than `ResourcePermission<'catalog-entity'>` from being used with the `useEntityPermission` hook.
+- 4431873583: Update `usePermission` usage.
+- Updated dependencies
+  - @backstage/plugin-permission-react@0.4.0-next.0
+  - @backstage/plugin-catalog-common@1.0.1-next.1
+  - @backstage/plugin-permission-common@0.5.4-next.0
+
 ## 1.0.1-next.0
 
 ### Patch Changes

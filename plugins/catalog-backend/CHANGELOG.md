@@ -1,5 +1,16 @@
 # @backstage/plugin-catalog-backend
 
+## 1.0.1-next.1
+
+### Patch Changes
+
+- ada4446733: Specify type of `visibilityPermission` property on collators and collator factories.
+- Updated dependencies
+  - @backstage/plugin-catalog-common@1.0.1-next.1
+  - @backstage/plugin-permission-common@0.5.4-next.0
+  - @backstage/plugin-permission-node@0.5.6-next.1
+  - @backstage/plugin-search-common@0.3.3-next.1
+
 ## 1.0.1-next.0
 
 ### Patch Changes

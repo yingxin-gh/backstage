@@ -1,5 +1,13 @@
 # @backstage/plugin-permission-common
 
+## 0.5.4-next.0
+
+### Patch Changes
+
+- 95284162d6: - Add more specific `Permission` types.
+  - Add `createPermission` helper to infer the appropriate type for some permission input.
+  - Add `isResourcePermission` helper to refine Permissions to ResourcePermissions.
+
 ## 0.5.3
 
 ### Patch Changes

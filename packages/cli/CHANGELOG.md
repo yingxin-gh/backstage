@@ -1,5 +1,12 @@
 # @backstage/cli
 
+## 0.16.1-next.1
+
+### Patch Changes
+
+- c54ce828bd: build(deps): bump `eslint-plugin-jest` from 25.3.4 to 26.1.2
+- 7e7ba704be: build(deps): bump `@spotify/eslint-config-base` from 12.0.0 to 13.0.0
+
 ## 0.16.1-next.0
 
 ### Patch Changes

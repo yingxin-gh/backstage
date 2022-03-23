@@ -1,5 +1,25 @@
 # example-backend
 
+## 0.2.70-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-catalog-backend@1.0.1-next.1
+  - @backstage/plugin-techdocs-backend@1.0.1-next.1
+  - @backstage/plugin-scaffolder-backend@1.1.0-next.1
+  - @backstage/plugin-search-backend@0.5.0-next.1
+  - @backstage/backend-tasks@0.3.0-next.1
+  - @backstage/plugin-tech-insights-node@0.2.9-next.1
+  - @backstage/plugin-tech-insights-backend-module-jsonfc@0.1.15-next.1
+  - @backstage/plugin-tech-insights-backend@0.3.0-next.1
+  - @backstage/plugin-permission-backend@0.5.6-next.1
+  - @backstage/plugin-permission-common@0.5.4-next.0
+  - @backstage/plugin-scaffolder-backend-module-rails@0.3.6-next.1
+  - example-app@0.2.70-next.1
+  - @backstage/plugin-jenkins-backend@0.1.20-next.1
+  - @backstage/plugin-permission-node@0.5.6-next.1
+
 ## 0.2.70-next.0
 
 ### Patch Changes

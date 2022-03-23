@@ -1,5 +1,20 @@
 # example-app
 
+## 0.2.70-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-permission-react@0.4.0-next.0
+  - @backstage/plugin-catalog-react@1.0.1-next.1
+  - @backstage/cli@0.16.1-next.1
+  - @backstage/plugin-catalog-common@1.0.1-next.1
+  - @backstage/plugin-catalog@1.1.0-next.1
+  - @backstage/plugin-scaffolder@1.0.1-next.1
+  - @backstage/app-defaults@1.0.1-next.1
+  - @backstage/plugin-api-docs@0.8.4-next.1
+  - @backstage/plugin-search-common@0.3.3-next.1
+
 ## 0.2.70-next.0
 
 ### Patch Changes

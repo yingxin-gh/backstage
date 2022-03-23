@@ -1,5 +1,13 @@
 # @backstage/test-utils
 
+## 1.0.1-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-permission-react@0.4.0-next.0
+  - @backstage/plugin-permission-common@0.5.4-next.0
+
 ## 1.0.1-next.0
 
 ### Patch Changes

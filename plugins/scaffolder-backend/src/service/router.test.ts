@@ -15,18 +15,6 @@
  */
 
 const mockAccess = jest.fn();
-jest.doMock('fs-extra', () => ({
-  access: mockAccess,
-  promises: {
-    access: mockAccess,
-  },
-  constants: {
-    F_OK: 0,
-    W_OK: 1,
-  },
-  mkdir: jest.fn(),
-  remove: jest.fn(),
-}));
 
 import {
   DatabaseManager,
@@ -49,6 +37,19 @@ import request from 'supertest';
 import { createRouter, DatabaseTaskStore, TaskBroker } from '../index';
 import { StorageTaskBroker } from '../scaffolder/tasks/StorageTaskBroker';
 import { stringifyEntityRef } from '@backstage/catalog-model';
+
+jest.mock('fs-extra', () => ({
+  access: mockAccess,
+  promises: {
+    access: mockAccess,
+  },
+  constants: {
+    F_OK: 0,
+    W_OK: 1,
+  },
+  mkdir: jest.fn(),
+  remove: jest.fn(),
+}));
 
 const createCatalogClient = (template: any) =>
   ({

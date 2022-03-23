@@ -102,10 +102,7 @@ async function getProjectConfig(targetPath, displayName) {
     },
 
     transform: {
-      '\\.(js|jsx|ts|tsx|mjs|cjs)$': [
-        require.resolve('./jestSucraseTransform.js'),
-        { enableSourceMaps: Boolean(process.env.ENABLE_SOURCE_MAPS) },
-      ],
+      '^.+\\.(t|j)sx?$': '@swc/jest',
       '\\.(bmp|gif|jpg|jpeg|png|frag|xml|svg|eot|woff|woff2|ttf)$':
         require.resolve('./jestFileTransform.js'),
       '\\.(yaml)$': require.resolve('jest-transform-yaml'),

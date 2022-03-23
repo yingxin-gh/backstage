@@ -172,7 +172,8 @@ integrations:
     #   rawBaseUrl: https://ghe.example.net/raw
     #   token: ${GHE_TOKEN}
   gitlab:
-    - host: gitlab.com
+    - host: lols.lols.com
+      apiBaseUrl: https://lols.lols.com/api
       token: ${GITLAB_TOKEN}
   bitbucket:
     - host: bitbucket.org

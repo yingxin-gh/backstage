@@ -20,21 +20,21 @@ const crypto = require('crypto');
 const glob = require('util').promisify(require('glob'));
 const { version } = require('../package.json');
 
-const transformIgnorePattern = [
-  '@material-ui',
-  '@rjsf',
-  'ajv',
-  'core-js',
-  'jest-.*',
-  'jsdom',
-  'knex',
-  'react',
-  'react-dom',
-  'highlight\\.js',
-  'prismjs',
-  'react-use',
-  'typescript',
-].join('|');
+// const transformIgnorePattern = [
+//   '@material-ui',
+//   '@rjsf',
+//   'ajv',
+//   'core-js',
+//   'jest-.*',
+//   'jsdom',
+//   'knex',
+//   'react',
+//   'react-dom',
+//   'highlight\\.js',
+//   'prismjs',
+//   'react-use',
+//   'typescript',
+// ].join('|');
 
 async function getProjectConfig(targetPath, displayName) {
   const configJsPath = path.resolve(targetPath, 'jest.config.js');
@@ -111,7 +111,7 @@ async function getProjectConfig(targetPath, displayName) {
     // A bit more opinionated
     testMatch: ['**/*.test.{js,jsx,ts,tsx,mjs,cjs}'],
 
-    transformIgnorePatterns: [`/node_modules/(?:${transformIgnorePattern})/`],
+    transformIgnorePatterns: [`/node_modules/`],
   };
 
   // Use src/setupTests.ts as the default location for configuring test env

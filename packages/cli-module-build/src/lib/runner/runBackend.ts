@@ -24,6 +24,7 @@ import { isAbsolute as isAbsolutePath } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 
 import spawn from 'cross-spawn';
+import { startEmbeddedDb } from './startEmbeddedDb';
 
 const loaderArgs = [
   '--enable-source-maps',
@@ -56,6 +57,16 @@ export async function runBackend(options: RunBackendOptions) {
   // Set up the parent IPC server and bind the available services
   const server = new IpcServer();
   ServerDataStore.bind(server);
+
+  const extraEnv: Record<string, string> = {};
+
+  if (process.env.EXPERIMENTAL_DEV_DB) {
+    const db = await startEmbeddedDb();
+    extraEnv.APP_CONFIG_backend_database = JSON.stringify({
+      client: 'pg',
+      connection: db.connection,
+    });
+  }
 
   let exiting = false;
   let firstStart = true;
@@ -134,6 +145,7 @@ export async function runBackend(options: RunBackendOptions) {
         cwd: options.targetDir,
         env: {
           ...process.env,
+          ...extraEnv,
           BACKSTAGE_CLI_LINKED_WORKSPACE: options.linkedWorkspace,
           BACKSTAGE_CLI_CHANNEL: '1',
           ESBK_TSCONFIG_PATH: targetPaths.resolveRoot('tsconfig.json'),

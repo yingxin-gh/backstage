@@ -15,9 +15,19 @@
  */
 
 import {
+  type AnalyzeLocationEntityField as _AnalyzeLocationEntityField,
+  type AnalyzeLocationExistingEntity as _AnalyzeLocationExistingEntity,
+  type AnalyzeLocationGenerateEntity as _AnalyzeLocationGenerateEntity,
+  type AnalyzeLocationRequest as _AnalyzeLocationRequest,
+  type AnalyzeLocationResponse as _AnalyzeLocationResponse,
+  type LocationSpec as _LocationSpec,
+} from '@backstage/plugin-catalog-common';
+import {
   locationSpecToMetadataName as _locationSpecToMetadataName,
   locationSpecToLocationEntity as _locationSpecToLocationEntity,
   processingResult as _processingResult,
+  type EntitiesSearchFilter as _EntitiesSearchFilter,
+  type EntityFilter as _EntityFilter,
   type DeferredEntity as _DeferredEntity,
   type EntityRelationSpec as _EntityRelationSpec,
   type CatalogProcessor as _CatalogProcessor,
@@ -33,8 +43,18 @@ import {
   type EntityProvider as _EntityProvider,
   type EntityProviderConnection as _EntityProviderConnection,
   type EntityProviderMutation as _EntityProviderMutation,
+  type AnalyzeOptions as _AnalyzeOptions,
+  type PlaceholderResolver as _PlaceholderResolver,
+  type PlaceholderResolverParams as _PlaceholderResolverParams,
+  type PlaceholderResolverRead as _PlaceholderResolverRead,
+  type PlaceholderResolverResolveUrl as _PlaceholderResolverResolveUrl,
+  type LocationAnalyzer as _LocationAnalyzer,
+  type ScmLocationAnalyzer as _ScmLocationAnalyzer,
 } from '@backstage/plugin-catalog-node';
-import { type LocationSpec as _LocationSpec } from '@backstage/plugin-catalog-common';
+import {
+  defaultCatalogCollatorEntityTransformer as _defaultCatalogCollatorEntityTransformer,
+  type CatalogCollatorEntityTransformer as _CatalogCollatorEntityTransformer,
+} from '@backstage/plugin-search-backend-module-catalog';
 
 /**
  * @public
@@ -51,6 +71,16 @@ export const locationSpecToLocationEntity = _locationSpecToLocationEntity;
  * @deprecated import from `@backstage/plugin-catalog-node` instead
  */
 export const processingResult = _processingResult;
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type EntitiesSearchFilter = _EntitiesSearchFilter;
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type EntityFilter = _EntityFilter;
 /**
  * @public
  * @deprecated import from `@backstage/plugin-catalog-node` instead
@@ -141,3 +171,97 @@ export type EntityProviderMutation = _EntityProviderMutation;
  * @deprecated use the same type from `@backstage/plugin-catalog-common` instead
  */
 export type LocationSpec = _LocationSpec;
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type AnalyzeOptions = _AnalyzeOptions;
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type LocationAnalyzer = _LocationAnalyzer;
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type ScmLocationAnalyzer = _ScmLocationAnalyzer;
+
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type PlaceholderResolver = _PlaceholderResolver;
+
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type PlaceholderResolverParams = _PlaceholderResolverParams;
+
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type PlaceholderResolverRead = _PlaceholderResolverRead;
+
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-catalog-node` instead
+ */
+export type PlaceholderResolverResolveUrl = _PlaceholderResolverResolveUrl;
+
+/**
+ * @public
+ * @deprecated use the same type from `@backstage/plugin-catalog-common` instead
+ */
+export type AnalyzeLocationRequest = _AnalyzeLocationRequest;
+/**
+ * @public
+ * @deprecated use the same type from `@backstage/plugin-catalog-common` instead
+ */
+export type AnalyzeLocationResponse = _AnalyzeLocationResponse;
+
+/**
+ * If the folder pointed to already contained catalog info yaml files, they are
+ * read and emitted like this so that the frontend can inform the user that it
+ * located them and can make sure to register them as well if they weren't
+ * already
+ * @public
+ * @deprecated use the same type from `@backstage/plugin-catalog-common` instead
+ */
+export type AnalyzeLocationExistingEntity = _AnalyzeLocationExistingEntity;
+/**
+ * This is some form of representation of what the analyzer could deduce.
+ * We should probably have a chat about how this can best be conveyed to
+ * the frontend. It'll probably contain a (possibly incomplete) entity, plus
+ * enough info for the frontend to know what form data to show to the user
+ * for overriding/completing the info.
+ * @public
+ * @deprecated use the same type from `@backstage/plugin-catalog-common` instead
+ */
+export type AnalyzeLocationGenerateEntity = _AnalyzeLocationGenerateEntity;
+
+/**
+ *
+ * This is where I get really vague. Something like this perhaps? Or it could be
+ * something like a json-schema that contains enough info for the frontend to
+ * be able to present a form and explanations
+ * @public
+ * @deprecated use the same type from `@backstage/plugin-catalog-common` instead
+ */
+export type AnalyzeLocationEntityField = _AnalyzeLocationEntityField;
+
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-search-backend-module-catalog` instead
+ */
+export const defaultCatalogCollatorEntityTransformer =
+  _defaultCatalogCollatorEntityTransformer;
+
+/**
+ * @public
+ * @deprecated import from `@backstage/plugin-search-backend-module-catalog` instead
+ */
+export type CatalogCollatorEntityTransformer =
+  _CatalogCollatorEntityTransformer;

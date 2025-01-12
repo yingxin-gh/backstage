@@ -4,6 +4,8 @@ title: 4. Authorizing access to paginated data
 description: Explains how to authorize access to paginated data in a Backstage plugin
 ---
 
+This documentation is written for [the new backend system](../../backend-system/index.md) which is the default since Backstage [version 1.24](../../releases/v1.24.0.md). If you are still on the old backend system, you may want to read [its own article](./04-authorizing-access-to-paginated-data--old.md) instead, and [consider migrating](../../backend-system/building-backends/08-migrating.md)!
+
 Authorizing `GET /todos` is similar to the update endpoint, in that it should be possible to authorize access based on the characteristics of each resource. However, we'll need to authorize a list of resources for this endpoint.
 
 One possible solution may leverage the batching functionality to authorize all of the todos, and then returning only the ones for which the decision was `ALLOW`:
@@ -11,7 +13,7 @@ One possible solution may leverage the batching functionality to authorize all o
 ```ts
 router.get('/todos', async (req, res) => {
   /* highlight-add-next-line */
-  const token = IdentityClient.getBearerToken(req.header('authorization'));
+  const credentials = await httpAuth.credentials(req, { allow: ['user'] });
 
   /* highlight-remove-next-line */
   res.json(getAll());
@@ -22,6 +24,7 @@ router.get('/todos', async (req, res) => {
       permission: todoListReadPermission,
       resourceRef: id,
     })),
+    { credentials },
   );
 
   const filteredItems = decisions.filter(
@@ -36,7 +39,11 @@ This approach will work for simple cases, but it has a downside: it forces us to
 
 To avoid this situation, the permissions framework has support for filtering items in the data source itself. In this part of the tutorial, we'll describe the steps required to use that behavior.
 
-> Note: in order to perform authorization filtering in this way, the data source must allow filters to be logically combined with AND, OR, and NOT operators. The conditional decisions returned by the permissions framework use a [nested object](https://backstage.io/docs/reference/plugin-permission-common.permissioncriteria) to combine conditions. If you're implementing a filter API from scratch, we recommend using the same shape for ease of interoperability. If not, you'll need to implement a function which transforms the nested object into your own format.
+:::note Note
+
+In order to perform authorization filtering in this way, the data source must allow filters to be logically combined with AND, OR, and NOT operators. The conditional decisions returned by the permissions framework use a [nested object](https://backstage.io/docs/reference/plugin-permission-common.permissioncriteria) to combine conditions. If you're implementing a filter API from scratch, we recommend using the same shape for ease of interoperability. If not, you'll need to implement a function which transforms the nested object into your own format.
+
+:::
 
 ## Creating the read permission
 
@@ -66,22 +73,18 @@ export const todoListReadPermission = createPermission({
 });
 /* highlight-add-end */
 
-/* highlight-add-next-line */
 export const todoListPermissions = [
   todoListCreatePermission,
   todoListUpdatePermission,
-];
-/* highlight-add-next-line */
-export const todoListPermissions = [
-  todoListCreatePermission,
-  todoListUpdatePermission,
+  /* highlight-add-start */
   todoListReadPermission,
+  /* highlight-add-end */
 ];
 ```
 
 ## Using conditional policy decisions
 
-So far we've only used the `PermissionEvaluator.authorize` method, which will evaluate conditional decisions before returning a result. In this step, we want to evaluate conditional decisions within our plugin, so we'll use `PermissionEvaluator.authorizeConditional` instead.
+So far we've only used the `PermissionsService.authorize` method, which will evaluate conditional decisions before returning a result. In this step, we want to evaluate conditional decisions within our plugin, so we'll use `PermissionsService.authorizeConditional` instead.
 
 ```ts title="plugins/todo-list-backend/src/service/router.ts"
 /* highlight-remove-next-line */
@@ -98,12 +101,28 @@ import { add, getAll, getTodo, update } from './todos';
 /* highlight-add-next-line */
 import { add, getAll, getTodo, TodoFilter, update } from './todos';
 import {
-  todosListCreate,
-  todosListUpdate,
+  TODO_LIST_RESOURCE_TYPE,
+  todoListCreatePermission,
+  todoListUpdatePermission,
   /* highlight-add-next-line */
   todoListReadPermission,
-  TODO_LIST_RESOURCE_TYPE,
 } from './permissions';
+
+// ...
+
+const permissionIntegrationRouter = createPermissionIntegrationRouter({
+  /* highlight-remove-next-line */
+  permissions: [todoListCreatePermission, todoListUpdatePermission],
+  /* highlight-add-next-line */
+  permissions: [todoListCreatePermission, todoListUpdatePermission, todoListReadPermission],
+  getResources: async resourceRefs => {
+    return resourceRefs.map(getTodo);
+  },
+  resourceType: TODO_LIST_RESOURCE_TYPE,
+  rules: Object.values(rules),
+});
+
+// ...
 
 /* highlight-add-next-line */
 const transformConditions: ConditionTransformer<TodoFilter> = createConditionTransformer(Object.values(rules));
@@ -112,13 +131,11 @@ const transformConditions: ConditionTransformer<TodoFilter> = createConditionTra
 router.get('/todos', async (_req, res) => {
 /* highlight-add-start */
 router.get('/todos', async (req, res) => {
-  const token = getBearerTokenFromAuthorizationHeader(
-    req.header('authorization'),
-  );
+  const credentials = await httpAuth.credentials(req, { allow: ['user'] });
 
   const decision = (
     await permissions.authorizeConditional([{ permission: todoListReadPermission }], {
-      token,
+      credentials,
     })
   )[0];
 

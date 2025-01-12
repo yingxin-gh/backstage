@@ -25,14 +25,18 @@ import svgr from '@svgr/rollup';
 import dts from 'rollup-plugin-dts';
 import json from '@rollup/plugin-json';
 import yaml from '@rollup/plugin-yaml';
-import { RollupOptions, OutputOptions, RollupWarning } from 'rollup';
+import {
+  RollupOptions,
+  OutputOptions,
+  WarningHandlerWithDefault,
+} from 'rollup';
 
 import { forwardFileImports } from './plugins';
 import { BuildOptions, Output } from './types';
 import { paths } from '../paths';
+import { BackstagePackageJson } from '@backstage/cli-node';
 import { svgrTemplate } from '../svgrTemplate';
-import { ExtendedPackageJSON } from '../monorepo';
-import { readEntryPoints } from '../monorepo/entryPoints';
+import { readEntryPoints } from '../entryPoints';
 
 const SCRIPT_EXTS = ['.js', '.jsx', '.ts', '.tsx'];
 
@@ -49,6 +53,21 @@ function isFileImport(source: string) {
   return false;
 }
 
+function buildInternalImportPattern(options: BuildOptions) {
+  const inlinedPackages = options.workspacePackages.filter(
+    pkg => pkg.packageJson.backstage?.inline,
+  );
+  for (const { packageJson } of inlinedPackages) {
+    if (!packageJson.private) {
+      throw new Error(
+        `Inlined package ${packageJson.name} must be marked as private`,
+      );
+    }
+  }
+  const names = inlinedPackages.map(pkg => pkg.packageJson.name);
+  return new RegExp(`^(?:${names.join('|')})(?:$|/)`);
+}
+
 export async function makeRollupConfigs(
   options: BuildOptions,
 ): Promise<RollupOptions[]> {
@@ -58,10 +77,10 @@ export async function makeRollupConfigs(
   let targetPkg = options.packageJson;
   if (!targetPkg) {
     const packagePath = resolvePath(targetDir, 'package.json');
-    targetPkg = (await fs.readJson(packagePath)) as ExtendedPackageJSON;
+    targetPkg = (await fs.readJson(packagePath)) as BackstagePackageJson;
   }
 
-  const onwarn = ({ code, message }: RollupWarning) => {
+  const onwarn: WarningHandlerWithDefault = ({ code, message }) => {
     if (code === 'EMPTY_BUNDLE') {
       return; // We don't care about this one
     }
@@ -79,26 +98,52 @@ export async function makeRollupConfigs(
     SCRIPT_EXTS.includes(e.ext),
   );
 
+  const internalImportPattern = buildInternalImportPattern(options);
+  const external = (
+    source: string,
+    importer: string | undefined,
+    isResolved: boolean,
+  ) =>
+    Boolean(
+      importer &&
+        !isResolved &&
+        !internalImportPattern.test(source) &&
+        !isFileImport(source),
+    );
+
   if (options.outputs.has(Output.cjs) || options.outputs.has(Output.esm)) {
     const output = new Array<OutputOptions>();
     const mainFields = ['module', 'main'];
 
+    // Avoid using node_modules as a directory name, since it's trimmed from published packages.
+    // This can happen when inlining dependencies such as style-inject added for css injection.
+    const rewriteNodeModules = (name: string) =>
+      name.replaceAll('node_modules', 'node_modules_dist');
+
     if (options.outputs.has(Output.cjs)) {
       output.push({
         dir: distDir,
-        entryFileNames: `[name].cjs.js`,
+        entryFileNames: chunkInfo =>
+          `${rewriteNodeModules(chunkInfo.name)}.cjs.js`,
         chunkFileNames: `cjs/[name]-[hash].cjs.js`,
         format: 'commonjs',
+        interop: 'compat',
         sourcemap: true,
+        preserveModules: true,
+        preserveModulesRoot: `${targetDir}/src`,
+        exports: 'named',
       });
     }
     if (options.outputs.has(Output.esm)) {
       output.push({
         dir: distDir,
-        entryFileNames: `[name].esm.js`,
+        entryFileNames: chunkInfo =>
+          `${rewriteNodeModules(chunkInfo.name)}.esm.js`,
         chunkFileNames: `esm/[name]-[hash].esm.js`,
         format: 'module',
         sourcemap: true,
+        preserveModules: true,
+        preserveModulesRoot: `${targetDir}/src`,
       });
       // Assume we're building for the browser if ESM output is included
       mainFields.unshift('browser');
@@ -110,10 +155,10 @@ export async function makeRollupConfigs(
       ),
       output,
       onwarn,
+      makeAbsoluteExternalsRelative: false,
       preserveEntrySignatures: 'strict',
       // All module imports are always marked as external
-      external: (source, importer, isResolved) =>
-        Boolean(importer && !isResolved && !isFileImport(source)),
+      external,
       plugins: [
         resolve({ mainFields }),
         commonjs({
@@ -129,6 +174,7 @@ export async function makeRollupConfigs(
             /\.gif$/,
             /\.jpg$/,
             /\.jpeg$/,
+            /\.webp$/,
             /\.eot$/,
             /\.woff$/,
             /\.woff2$/,
@@ -143,21 +189,21 @@ export async function makeRollupConfigs(
           template: svgrTemplate,
         }),
         esbuild({
-          target: 'es2019',
+          target: 'ES2022',
           minify: options.minify,
         }),
       ],
     });
   }
 
-  if (options.outputs.has(Output.types) && !options.useApiExtractor) {
+  if (options.outputs.has(Output.types)) {
     const input = Object.fromEntries(
       scriptEntryPoints.map(e => [
         e.name,
         paths.resolveTargetRoot(
           'dist-types',
           relativePath(paths.targetRoot, targetDir),
-          e.path.replace(/\.ts$/, '.d.ts'),
+          e.path.replace(/\.(?:ts|tsx)$/, '.d.ts'),
         ),
       ]),
     );
@@ -182,18 +228,11 @@ export async function makeRollupConfigs(
         chunkFileNames: `types/[name]-[hash].d.ts`,
         format: 'es',
       },
-      external: [
-        /\.css$/,
-        /\.scss$/,
-        /\.sass$/,
-        /\.svg$/,
-        /\.eot$/,
-        /\.woff$/,
-        /\.woff2$/,
-        /\.ttf$/,
-      ],
+      external: (source, importer, isResolved) =>
+        /\.css|scss|sass|svg|eot|woff|woff2|ttf$/.test(source) ||
+        external(source, importer, isResolved),
       onwarn,
-      plugins: [dts()],
+      plugins: [dts({ respectExternal: true })],
     });
   }
 

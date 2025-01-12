@@ -14,38 +14,38 @@
  * limitations under the License.
  */
 
+import { groupBy } from 'lodash';
 import {
-  resolve as resolvePath,
-  relative as relativePath,
   basename,
   join,
+  relative as relativePath,
+  resolve as resolvePath,
 } from 'path';
-import { execFile } from 'child_process';
 import fs from 'fs-extra';
 import {
+  CompilerState,
   Extractor,
   ExtractorConfig,
-  CompilerState,
   ExtractorLogLevel,
   ExtractorMessage,
 } from '@microsoft/api-extractor';
 import { Program } from 'typescript';
 import {
-  DocNode,
-  IDocNodeContainerParameters,
-  TSDocTagSyntaxKind,
-  TSDocConfiguration,
-  Standardization,
   DocBlockTag,
-  DocPlainText,
   DocLinkTag,
+  DocNode,
+  DocPlainText,
+  IDocNodeContainerParameters,
+  Standardization,
+  TSDocConfiguration,
+  TSDocTagSyntaxKind,
 } from '@microsoft/tsdoc';
 import { TSDocConfigFile } from '@microsoft/tsdoc-config';
 import {
-  ApiPackage,
-  ApiModel,
   ApiItem,
   ApiItemKind,
+  ApiModel,
+  ApiPackage,
 } from '@microsoft/api-extractor-model';
 import {
   IMarkdownDocumenterOptions,
@@ -61,8 +61,9 @@ import {
 import { IMarkdownEmitterContext } from '@microsoft/api-documenter/lib/markdown/MarkdownEmitter';
 import { AstDeclaration } from '@microsoft/api-extractor/lib/analyzer/AstDeclaration';
 import { paths as cliPaths } from '../../lib/paths';
-import minimatch from 'minimatch';
-import { getPackageExportNames } from '../../lib/entryPoints';
+import { minimatch } from 'minimatch';
+import { getPackageExportDetails } from '../../lib/getPackageExportDetails';
+import { createBinRunner } from '../util';
 
 const tmpDir = cliPaths.resolveTargetRoot(
   './node_modules/.cache/api-extractor',
@@ -144,7 +145,7 @@ ApiReportGenerator.generateReviewFileContent =
           if (!localName) {
             // Sometimes the symbol name is suffixed with a number to disambiguate,
             // e.g. "Props_14" instead of "Props" if there are multiple Props interfaces
-            // so we tyry to strip that suffix and look up the symbol again.
+            // so we try to strip that suffix and look up the symbol again.
             const [, trimmedSymbolName] = symbolName.match(/(.*)_\d+/) || [];
             localName = (sourceFile as any).identifiers?.get(trimmedSymbolName);
           }
@@ -289,10 +290,10 @@ function logApiReportInstructions() {
     '*************************************************************************************',
   );
   console.log(
-    '* You have uncommitted changes to the public API of a package.                      *',
+    '* You have uncommitted changes to the public API or reports of a package.           *',
   );
   console.log(
-    '* To solve this, run `yarn build:api-reports` and commit all api-report.md changes. *',
+    '* To solve this, run `yarn build:api-reports` and commit all md file changes.       *',
   );
   console.log(
     '*************************************************************************************',
@@ -302,9 +303,15 @@ function logApiReportInstructions() {
 
 async function findPackageEntryPoints(packageDirs: string[]): Promise<
   Array<{
+    // package dir relative to root, e.g. "packages/backend-app-api"
     packageDir: string;
+    // the name of the export, e.g. "index" or "alpha"
     name: string;
-    usesExperimentalTypeBuild?: boolean;
+    // the path within the dist directory for this export, e.g. "alpha.d.ts"
+    distPath: string;
+    // the path within the dist-types directory of this package for this export,
+    // e.g. "src/entrypoints/foo/index.d.ts"
+    distTypesPath: string;
   }>
 > {
   return Promise.all(
@@ -313,15 +320,9 @@ async function findPackageEntryPoints(packageDirs: string[]): Promise<
         cliPaths.resolveTargetRoot(packageDir, 'package.json'),
       );
 
-      return (
-        getPackageExportNames(pkg)?.map(name => ({ packageDir, name })) ?? {
-          packageDir,
-          name: 'index',
-          usesExperimentalTypeBuild: pkg.scripts?.build?.includes(
-            '--experimental-type-build',
-          ),
-        }
-      );
+      return getPackageExportDetails(pkg).map(details => {
+        return { packageDir, ...details };
+      });
     }),
   ).then(results => results.flat());
 }
@@ -347,13 +348,23 @@ export async function runApiExtraction({
 }: ApiExtractionOptions) {
   await fs.remove(outputDir);
 
-  const packageEntryPoints = await findPackageEntryPoints(packageDirs);
+  // The collection of all entry points of all packages, as a single list
+  const allEntryPoints = await findPackageEntryPoints(packageDirs);
 
-  const entryPoints = packageEntryPoints.map(({ packageDir, name }) => {
-    return cliPaths.resolveTargetRoot(
-      `./dist-types/${packageDir}/src/${name}.d.ts`,
-    );
-  });
+  // The path (relative to the root) to ALL dist-types entry points (e.g.
+  // "dist-types/packages/backend-app-api/src/index.d.ts"). These are used as
+  // "extra"/contextual entry points for the extractor so that it can see the
+  // full context of things that are required by the local entry point being
+  // inspected.
+  const allDistTypesEntryPointPaths = allEntryPoints.map(
+    ({ packageDir, distTypesPath }) => {
+      return cliPaths.resolveTargetRoot(
+        './dist-types',
+        packageDir,
+        distTypesPath,
+      );
+    },
+  );
 
   let compilerState: CompilerState | undefined = undefined;
 
@@ -365,13 +376,12 @@ export async function runApiExtraction({
       logLevel: 'none',
     };
   }
+
   const warnings = new Array<string>();
 
-  for (const {
-    packageDir,
-    name,
-    usesExperimentalTypeBuild,
-  } of packageEntryPoints) {
+  for (const [packageDir, packageEntryPoints] of Object.entries(
+    groupBy(allEntryPoints, ep => ep.packageDir),
+  )) {
     console.log(`## Processing ${packageDir}`);
     const noBail = Array.isArray(allowWarnings)
       ? allowWarnings.some(aw => aw === packageDir || minimatch(packageDir, aw))
@@ -383,209 +393,252 @@ export async function runApiExtraction({
       packageDir,
     );
 
-    const prefix = name === 'index' ? '' : `${name}-`;
-    const reportFileName = `${prefix}api-report.md`;
-    const reportPath = resolvePath(projectFolder, reportFileName);
+    const remainingReportFiles = new Set(
+      fs.readdirSync(projectFolder).filter(
+        filename =>
+          // https://regex101.com/r/QDZIV0/2
+          filename !== 'knip-report.md' &&
+          // this has to temporarily match all old api report formats
+          filename.match(/^.*?(api-)?report(-[^.-]+)?(.*?)\.md$/),
+      ),
+    );
 
-    const warningCountBefore = await countApiReportWarnings(reportPath);
+    for (const packageEntryPoint of packageEntryPoints) {
+      const suffix =
+        packageEntryPoint.name === 'index' ? '' : `-${packageEntryPoint.name}`;
+      const reportFileName = `report${suffix}`;
+      const reportPath = resolvePath(projectFolder, `${reportFileName}.api.md`);
 
-    const extractorConfig = ExtractorConfig.prepare({
-      configObject: {
-        mainEntryPointFilePath: resolvePath(packageFolder, `src/${name}.d.ts`),
-        bundledPackages: [],
+      const warningCountBefore = await countApiReportWarnings(reportPath);
 
-        compiler: {
-          tsconfigFilePath,
-        },
-
-        apiReport: {
-          enabled: true,
-          reportFileName,
-          reportFolder: projectFolder,
-          reportTempFolder: resolvePath(
-            outputDir,
-            `${prefix}<unscopedPackageName>`,
+      const extractorConfig = ExtractorConfig.prepare({
+        configObject: {
+          mainEntryPointFilePath: resolvePath(
+            packageFolder,
+            packageEntryPoint.distTypesPath,
           ),
-        },
+          bundledPackages: [],
 
-        docModel: {
-          // TODO(Rugvip): This skips docs for non-index entry points. We can try to work around it, but
-          //               most likely it makes sense to wait for API Extractor to natively support exports.
-          enabled: name === 'index',
-          apiJsonFilePath: resolvePath(
-            outputDir,
-            `${prefix}<unscopedPackageName>.api.json`,
-          ),
-        },
+          compiler: {
+            tsconfigFilePath,
+          },
 
-        dtsRollup: {
-          enabled: false,
-        },
+          apiReport: {
+            enabled: true,
+            reportFileName,
+            reportFolder: projectFolder,
+            reportTempFolder: resolvePath(
+              outputDir,
+              `<unscopedPackageName>${suffix}`,
+            ),
+          },
 
-        tsdocMetadata: {
-          enabled: false,
-        },
+          docModel: {
+            // TODO(Rugvip): This skips docs for non-index entry points. We can try to work around it, but
+            //               most likely it makes sense to wait for API Extractor to natively support exports.
+            enabled: packageEntryPoint.name === 'index',
+            apiJsonFilePath: resolvePath(
+              outputDir,
+              `<unscopedPackageName>${suffix}.api.json`,
+            ),
+          },
 
-        messages: {
-          // Silence compiler warnings, as these will prevent the CI build to work
-          compilerMessageReporting: {
-            default: {
-              logLevel: 'none' as ExtractorLogLevel.None,
-              // These contain absolute file paths, so can't be included in the report
-              // addToApiReportFile: true,
+          dtsRollup: {
+            enabled: false,
+          },
+
+          tsdocMetadata: {
+            enabled: false,
+          },
+
+          messages: {
+            // Silence compiler warnings, as these will prevent the CI build to work
+            compilerMessageReporting: {
+              default: {
+                logLevel: 'none' as ExtractorLogLevel.None,
+                // These contain absolute file paths, so can't be included in the report
+                // addToApiReportFile: true,
+              },
+            },
+            extractorMessageReporting: {
+              default: {
+                logLevel: 'warning' as ExtractorLogLevel.Warning,
+                addToApiReportFile: true,
+              },
+              ...messagesConf,
+            },
+            tsdocMessageReporting: {
+              default: {
+                logLevel: 'warning' as ExtractorLogLevel.Warning,
+                addToApiReportFile: true,
+              },
             },
           },
-          extractorMessageReporting: {
-            default: {
-              logLevel: 'warning' as ExtractorLogLevel.Warning,
-              addToApiReportFile: true,
-            },
-            ...messagesConf,
-          },
-          tsdocMessageReporting: {
-            default: {
-              logLevel: 'warning' as ExtractorLogLevel.Warning,
-              addToApiReportFile: true,
-            },
-          },
+
+          newlineKind: 'lf',
+
+          projectFolder,
         },
-
-        newlineKind: 'lf',
-
-        projectFolder,
-      },
-      configObjectFullPath: projectFolder,
-      packageJsonFullPath: resolvePath(projectFolder, 'package.json'),
-      tsdocConfigFile: await getTsDocConfig(),
-      ignoreMissingEntryPoint: true,
-    });
-
-    // The `packageFolder` needs to point to the location within `dist-types` in order for relative
-    // paths to be logged. Unfortunately the `prepare` method above derives it from the `packageJsonFullPath`,
-    // which needs to point to the actual file, so we override `packageFolder` afterwards.
-    (
-      extractorConfig as {
-        packageFolder: string;
-      }
-    ).packageFolder = packageFolder;
-
-    if (!compilerState) {
-      compilerState = CompilerState.create(extractorConfig, {
-        additionalEntryPoints: entryPoints,
+        configObjectFullPath: projectFolder,
+        packageJsonFullPath: resolvePath(projectFolder, 'package.json'),
+        tsdocConfigFile: await getTsDocConfig(),
+        ignoreMissingEntryPoint: true,
       });
-    }
 
-    // Message verbosity can't be configured, so just skip the check instead
-    (Extractor as any)._checkCompilerCompatibility = () => {};
+      // remove extracted reports from current list
+      for (const reportConfig of extractorConfig.reportConfigs) {
+        remainingReportFiles.delete(reportConfig.fileName);
+      }
 
-    let shouldLogInstructions = false;
-    let conflictingFile: undefined | string = undefined;
-
-    // Invoke API Extractor
-    const extractorResult = Extractor.invoke(extractorConfig, {
-      localBuild: isLocalBuild,
-      showVerboseMessages: false,
-      showDiagnostics: false,
-      messageCallback(message) {
-        if (message.text.includes('The API report file is missing')) {
-          shouldLogInstructions = true;
+      // The `packageFolder` needs to point to the location within `dist-types` in order for relative
+      // paths to be logged. Unfortunately the `prepare` method above derives it from the `packageJsonFullPath`,
+      // which needs to point to the actual file, so we override `packageFolder` afterwards.
+      (
+        extractorConfig as {
+          packageFolder: string;
         }
-        if (
-          message.text.includes(
-            'You have changed the public API signature for this project.',
-          )
-        ) {
-          shouldLogInstructions = true;
-          const match = message.text.match(
-            /Please copy the file "(.*)" to "api-report\.md"/,
-          );
-          if (match) {
-            conflictingFile = match[1];
+      ).packageFolder = packageFolder;
+
+      if (!compilerState) {
+        compilerState = CompilerState.create(extractorConfig, {
+          additionalEntryPoints: allDistTypesEntryPointPaths,
+        });
+      }
+
+      // Message verbosity can't be configured, so just skip the check instead
+      (Extractor as any)._checkCompilerCompatibility = () => {};
+
+      let shouldLogInstructions = false;
+      let conflictingFile: undefined | string = undefined;
+
+      // Invoke API Extractor
+      const extractorResult = Extractor.invoke(extractorConfig, {
+        localBuild: isLocalBuild,
+        showVerboseMessages: false,
+        showDiagnostics: false,
+        messageCallback(message) {
+          if (message.text.includes('The API report file is missing')) {
+            shouldLogInstructions = true;
           }
-        }
-      },
-      compilerState,
-    });
 
-    // This release tag validation makes sure that the release tag of known entry points match expectations.
-    // The root index entrypoint is only allowed @public exports, while /alpha and /beta only allow @alpha and @beta.
-    if (
-      validateReleaseTags &&
-      !usesExperimentalTypeBuild &&
-      fs.pathExistsSync(extractorConfig.reportFilePath)
-    ) {
-      if (['index', 'alpha', 'beta'].includes(name)) {
-        const report = await fs.readFile(
-          extractorConfig.reportFilePath,
-          'utf8',
-        );
-        const lines = report.split(/\r?\n/);
-        const expectedTag = name === 'index' ? 'public' : name;
-        for (let i = 0; i < lines.length; i += 1) {
-          const line = lines[i];
-          const match = line.match(/^\/\/ @(alpha|beta|public)/);
-          if (match && match[1] !== expectedTag) {
-            // Because of limitations in the type script rollup logic we need to allow public exports from the other release stages
-            // TODO(Rugvip): Try to work around the need for this exception
-            if (expectedTag !== 'public' && match[1] === 'public') {
-              continue;
-            }
-            throw new Error(
-              `Unexpected release tag ${match[1]} in ${
-                extractorConfig.reportFilePath
-              } at line ${i + 1}`,
+          // Detect messages like the following being output by the generator:
+          // Warning: You have changed the API signature for this project. Please copy the file "/home/runner/work/backstage/backstage/node_modules/.cache/api-extractor/backend-test-utils/report.api.md" to "report.api.md", or perform a local build (which does this automatically). See the Git repo documentation for more info.
+          if (
+            message.text.includes(
+              'You have changed the API signature for this project.',
+            )
+          ) {
+            shouldLogInstructions = true;
+            const match = message.text.match(
+              /Please copy the file "(.*)" to "report\.api\.md"/,
             );
+            if (match) {
+              conflictingFile = match[1];
+            }
+          }
+        },
+        compilerState,
+      });
+
+      // This release tag validation makes sure that the release tag of known entry points match expectations.
+      // The root index entry point is only allowed @public exports, while /alpha and /beta only allow @alpha and @beta.
+      if (
+        validateReleaseTags &&
+        fs.pathExistsSync(extractorConfig.reportFilePath)
+      ) {
+        if (['index', 'alpha', 'beta'].includes(packageEntryPoint.name)) {
+          const report = await fs.readFile(
+            extractorConfig.reportFilePath,
+            'utf8',
+          );
+          const lines = report.split(/\r?\n/);
+          const expectedTag =
+            packageEntryPoint.name === 'index'
+              ? 'public'
+              : packageEntryPoint.name;
+          for (let i = 0; i < lines.length; i += 1) {
+            const line = lines[i];
+            const match = line.match(/^\/\/ @(alpha|beta|public)/);
+            if (match && match[1] !== expectedTag) {
+              // Because of limitations in the type script rollup logic we need to allow public exports from the other release stages
+              // TODO(Rugvip): Try to work around the need for this exception
+              if (expectedTag !== 'public' && match[1] === 'public') {
+                continue;
+              }
+              throw new Error(
+                `Unexpected release tag ${match[1]} in ${
+                  extractorConfig.reportFilePath
+                } at line ${i + 1}`,
+              );
+            }
           }
         }
       }
-    }
 
-    if (!extractorResult.succeeded) {
-      if (shouldLogInstructions) {
-        logApiReportInstructions();
-
-        if (conflictingFile) {
-          console.log('');
-          console.log(
-            `The conflicting file is ${relativePath(
-              tmpDir,
-              conflictingFile,
-            )}, with the following content:`,
-          );
-          console.log('');
-
-          const content = await fs.readFile(conflictingFile, 'utf8');
-          console.log(content);
-
+      if (!extractorResult.succeeded) {
+        if (shouldLogInstructions) {
           logApiReportInstructions();
+
+          if (conflictingFile) {
+            console.log('');
+            console.log(
+              `The conflicting file is ${relativePath(
+                tmpDir,
+                conflictingFile,
+              )}, with the following content:`,
+            );
+            console.log('');
+
+            const content = await fs.readFile(conflictingFile, 'utf8');
+            console.log(content);
+
+            logApiReportInstructions();
+          }
         }
+
+        throw new Error(
+          `API Extractor completed with ${extractorResult.errorCount} errors` +
+            ` and ${extractorResult.warningCount} warnings`,
+        );
       }
 
-      throw new Error(
-        `API Extractor completed with ${extractorResult.errorCount} errors` +
-          ` and ${extractorResult.warningCount} warnings`,
-      );
+      const warningCountAfter = await countApiReportWarnings(reportPath);
+
+      if (noBail) {
+        console.log(`Skipping warnings check for ${packageDir}`);
+      }
+      if (warningCountAfter > 0 && !noBail) {
+        throw new Error(
+          `The API Report for ${packageDir} is not allowed to have warnings`,
+        );
+      }
+      if (warningCountAfter === 0 && allowWarningPkg.includes(packageDir)) {
+        console.log(
+          `No need to allow warnings for ${packageDir}, it does not have any`,
+        );
+      }
+      if (warningCountAfter > warningCountBefore) {
+        warnings.push(
+          `The API Report for ${packageDir} introduces new warnings. ` +
+            'Please fix these warnings in order to keep the API Reports tidy.',
+        );
+      }
     }
 
-    const warningCountAfter = await countApiReportWarnings(reportPath);
-    if (noBail) {
-      console.log(`Skipping warnings check for ${packageDir}`);
-    }
-    if (warningCountAfter > 0 && !noBail) {
-      throw new Error(
-        `The API Report for ${packageDir} is not allowed to have warnings`,
-      );
-    }
-    if (warningCountAfter === 0 && allowWarningPkg.includes(packageDir)) {
-      console.log(
-        `No need to allow warnings for ${packageDir}, it does not have any`,
-      );
-    }
-    if (warningCountAfter > warningCountBefore) {
-      warnings.push(
-        `The API Report for ${packageDir} introduces new warnings. ` +
-          'Please fix these warnings in order to keep the API Reports tidy.',
-      );
+    if (remainingReportFiles.size > 0) {
+      if (isLocalBuild) {
+        for (const f of remainingReportFiles) {
+          fs.rmSync(resolvePath(projectFolder, f));
+          console.log(`Deleted deprecated API report ${f}`);
+        }
+      } else {
+        const staleList = [...remainingReportFiles]
+          .map(f => join(packageDir, f))
+          .join(', ');
+        throw new Error(
+          `The API Report(s) ${staleList} are no longer relevant and should be deleted`,
+        );
+      }
     }
   }
 
@@ -1161,7 +1214,7 @@ export async function buildDocs({
   documenter.generateFiles();
 }
 
-export async function categorizePackageDirs(packageDirs: any[]) {
+export async function categorizePackageDirs(packageDirs: string[]) {
   const dirs = packageDirs.slice();
   const tsPackageDirs = new Array<string>();
   const cliPackageDirs = new Array<string>();
@@ -1188,6 +1241,12 @@ export async function categorizePackageDirs(packageDirs: any[]) {
           if (!role) {
             return; // Ignore packages without roles
           }
+          // TODO(Rugvip): Inlined packages are ignored because we can't handle @internal exports
+          //               gracefully, and we don't want to have to mark all exports @public etc.
+          //               It would be good if we could include these packages though.
+          if (pkgJson?.backstage?.inline) {
+            return;
+          }
           if (role === 'cli') {
             cliPackageDirs.push(dir);
           } else if (role !== 'frontend' && role !== 'backend') {
@@ -1198,31 +1257,6 @@ export async function categorizePackageDirs(packageDirs: any[]) {
   );
 
   return { tsPackageDirs, cliPackageDirs };
-}
-
-function createBinRunner(cwd: string, path: string) {
-  return async (...command: string[]) =>
-    new Promise<string>((resolve, reject) => {
-      execFile(
-        'node',
-        [path, ...command],
-        {
-          cwd,
-          shell: true,
-          timeout: 60000,
-          maxBuffer: 1024 * 1024,
-        },
-        (err, stdout, stderr) => {
-          if (err) {
-            reject(new Error(`${err.message}\n${stderr}`));
-          } else if (stderr) {
-            reject(new Error(`Command printed error output: ${stderr}`));
-          } else {
-            resolve(stdout);
-          }
-        },
-      );
-    });
 }
 
 function parseHelpPage(helpPageContent: string) {
@@ -1412,6 +1446,69 @@ export async function runCliExtraction({
           logApiReportInstructions();
         }
         throw new Error(`CLI report changed for ${packageDir}, `);
+      }
+    }
+  }
+}
+
+interface KnipExtractionOptions {
+  packageDirs: string[];
+  isLocalBuild: boolean;
+}
+
+export async function runKnipReports({
+  packageDirs,
+  isLocalBuild,
+}: KnipExtractionOptions) {
+  const knipDir = cliPaths.resolveTargetRoot('./node_modules/knip/bin/');
+
+  for (const packageDir of packageDirs) {
+    console.log(`## Processing ${packageDir}`);
+    const fullDir = cliPaths.resolveTargetRoot(packageDir);
+    const reportPath = resolvePath(fullDir, 'knip-report.md');
+    const run = createBinRunner(fullDir, '');
+
+    const report = await run(
+      `${knipDir}/knip.js`,
+      `--directory ${fullDir}`, // Run in the package directory
+      '--no-exit-code', // Removing this will end the process in case there are findings by knip
+      '--no-progress', // Remove unnecessary debugging from output
+      // TODO: Add more checks when dependencies start to look ok, see https://knip.dev/reference/cli#--include
+      '--include dependencies,unlisted',
+      '--reporter markdown',
+    );
+
+    const existingReport = await fs
+      .readFile(reportPath, 'utf8')
+      .catch(error => {
+        if (error.code === 'ENOENT') {
+          return undefined;
+        }
+        throw error;
+      });
+
+    if (existingReport !== report) {
+      if (isLocalBuild) {
+        console.warn(`Knip report changed for ${packageDir}`);
+        await fs.writeFile(reportPath, report);
+      } else {
+        logApiReportInstructions();
+
+        if (existingReport) {
+          console.log('');
+          console.log(
+            `The conflicting file is ${relativePath(
+              cliPaths.targetRoot,
+              reportPath,
+            )}, expecting the following content:`,
+          );
+          console.log('');
+
+          console.log(report);
+
+          logApiReportInstructions();
+        }
+        throw new Error(`Knip report changed for ${packageDir}, `);
       }
     }
   }

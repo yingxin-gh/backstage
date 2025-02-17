@@ -33,22 +33,17 @@ const Community = () => {
     },
     {
       content: 'Subscribe to the',
-      label: 'Community newsletter',
+      label: 'Community Newsletter',
       link: 'https://info.backstage.spotify.com/newsletter_subscribe',
-    },
-    {
-      content: 'Join the',
-      label: 'Twitter community',
-      link: 'https://twitter.com/i/communities/1494019781716062215',
     },
   ];
 
   const officialInitiatives: ICollectionItem[] = [
     {
-      title: 'Community sessions',
+      title: 'Community Sessions',
       content:
-        'Maintainers and adopters meet monthly to share updates, demos, and ideas. Yep, all sessions are recorded!',
-      link: '/on-demand',
+        'Maintainers and adopters meet monthly to share updates, demos, and ideas. You can find recorded session on our YouTube channel!',
+      link: 'https://github.com/backstage/community/tree/main/backstage-community-sessions#backstage-community-sessions',
       label: 'Join a session',
     },
     {
@@ -58,48 +53,21 @@ const Community = () => {
       link: 'https://info.backstage.spotify.com/newsletter_subscribe',
       label: 'Subscribe',
     },
-    {
-      title: 'Contributor Spotlight',
-      content:
-        "A recognition for valuable community work. Nominate contributing members for their efforts! We'll put them in the spotlight ❤️",
-      link: '/nominate',
-      label: 'Nominate now',
-    },
-  ];
-
-  const communityInitiatives: ICollectionItem[] = [
-    {
-      title: 'Open Mic Meetup',
-      content: (
-        <>
-          A casual get together of Backstage users sharing their experiences and
-          helping each other. Hosted by{' '}
-          <Link to="https://roadie.io/">Roadie.io</Link> and{' '}
-          <Link to="https://frontside.com/">Frontside Software</Link>.
-        </>
-      ),
-      link: 'https://backstage-openmic.com/',
-      label: 'Learn more',
-    },
-    {
-      title: 'Backstage Weekly Newsletter',
-      content: (
-        <>
-          A weekly newsletter with news, updates and things community from your
-          friends at <Link to="https://roadie.io/">Roadie.io</Link>.
-        </>
-      ),
-      link: 'https://roadie.io/backstage-weekly/',
-      label: 'Learn more',
-    },
   ];
 
   const trainingNCertifications: ICollectionItem[] = [
     {
-      title: 'Open Mic Meetup',
+      title: 'Introduction to Backstage: Developer Portals Made Easy (LFS142x)',
       content:
         'This is a course produced and curated by the Linux Foundation. This course introduces you to Backstage and how to get started with the project.',
       link: 'https://training.linuxfoundation.org/training/introduction-to-backstage-developer-portals-made-easy-lfs142x/',
+      label: 'Learn more',
+    },
+    {
+      title: 'Certified Backstage Associate (CBA)',
+      content:
+        'Designed for IT engineers, developers, platform engineers, and other IT professionals, the CBA proves you have the skills and the mindset to work with Backstage.',
+      link: 'https://www.cncf.io/training/certification/cba/',
       label: 'Learn more',
     },
   ];
@@ -111,19 +79,44 @@ const Community = () => {
       logo: 'img/partner-logo-frontside.png',
     },
     {
+      name: 'RedHat',
+      url: 'https://developers.redhat.com/rhdh',
+      logo: 'img/partner-logo-redhat.png',
+    },
+    {
       name: 'Roadie',
       url: 'https://roadie.io/',
       logo: 'img/partner-logo-roadie.png',
     },
     {
+      name: 'solo.io',
+      url: 'https://www.solo.io/spotlight/',
+      logo: 'img/partner-logo-solo.png',
+    },
+    {
       name: 'ThoughtWorks',
-      url: 'https://www.thoughtworks.com',
+      url: 'https://www.thoughtworks.com/about-us/partnerships/technology/backstage-by-spotify',
       logo: 'img/partner-logo-thoughtworks.png',
     },
     {
       name: 'VMWare',
-      url: 'https://www.vmware.com',
-      logo: 'img/partner-logo-vmware.png',
+      url: 'https://tanzu.vmware.com/developer-portal',
+      logo: 'img/partner-logo-tanzubybroadcom.png',
+    },
+    {
+      name: 'StatusNeo',
+      url: 'https://statusneo.com/backstage',
+      logo: 'img/partner-logo-statusneo.png',
+    },
+    {
+      name: 'Alauda',
+      url: 'https://www.alauda.io/community/169249',
+      logo: 'img/partner-logo-alauda.png',
+    },
+    {
+      name: 'Liatrio',
+      url: 'https://www.liatrio.com/service-offerings/backstage',
+      logo: 'img/partner-logo-liatrio.png',
     },
   ];
   //#endregion
@@ -139,11 +132,10 @@ const Community = () => {
             >
               Join the vibrant community around Backstage through social media
               and different meetups. To ensure that you have a welcoming
-              environment, we follow the
+              environment, we follow the{' '}
               <Link to="https://github.com/cncf/foundation/blob/master/code-of-conduct.md">
-                {' '}
-                CNCF Code of Conduct{' '}
-              </Link>
+                CNCF Code of Conduct
+              </Link>{' '}
               in everything we do.
             </ContentBlock>
 
@@ -173,7 +165,7 @@ const Community = () => {
           <BannerSectionGrid
             header={
               <>
-                <h2 className="text--primary">Offical Backstage initiatives</h2>
+                <h2 className="text--primary">Offical Backstage Initiatives</h2>
 
                 <h1>Stay tuned to the latest developments</h1>
               </>
@@ -193,30 +185,6 @@ const Community = () => {
                   ]}
                 >
                   {content}
-                </ContentBlock>
-              ),
-            )}
-          </BannerSectionGrid>
-        </BannerSection>
-
-        <BannerSection diagonalBorder greyBackground>
-          <BannerSectionGrid
-            header={<h2 className="text--primary">Community initiatives</h2>}
-          >
-            {communityInitiatives.map(
-              ({ title, content, link, label }, index) => (
-                <ContentBlock
-                  key={index}
-                  title={title}
-                  hasBulletLine
-                  actionButtons={[
-                    {
-                      link,
-                      label,
-                    },
-                  ]}
-                >
-                  <p>{content}</p>
                 </ContentBlock>
               ),
             )}

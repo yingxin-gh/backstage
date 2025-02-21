@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { EntityTagFilter } from '../../filters';
 import { EntityAutocompletePicker } from '../EntityAutocompletePicker/EntityAutocompletePicker';
+import { catalogReactTranslationRef } from '../../translation';
+import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 
 /** @public */
 export type CatalogReactEntityTagPickerClassKey = 'input';
@@ -25,6 +27,8 @@ export type CatalogReactEntityTagPickerClassKey = 'input';
 /** @public */
 export type EntityTagPickerProps = {
   showCounts?: boolean;
+  initialFilter?: string[];
+  hidden?: boolean;
 };
 
 const useStyles = makeStyles(
@@ -35,15 +39,18 @@ const useStyles = makeStyles(
 /** @public */
 export const EntityTagPicker = (props: EntityTagPickerProps) => {
   const classes = useStyles();
+  const { t } = useTranslationRef(catalogReactTranslationRef);
 
   return (
     <EntityAutocompletePicker
-      label="Tags"
+      label={t('entityTagPicker.title')}
       name="tags"
       path="metadata.tags"
       Filter={EntityTagFilter}
       showCounts={props.showCounts}
       InputProps={{ className: classes.input }}
+      initialSelectedOptions={props.initialFilter ? props.initialFilter : []}
+      hidden={props.hidden}
     />
   );
 };

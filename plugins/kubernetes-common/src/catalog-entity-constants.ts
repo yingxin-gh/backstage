@@ -15,6 +15,29 @@
  */
 
 /**
+ * The annotation key used to identify Kubernetes resources in Backstage.
+ * This constant represents the standard annotation 'backstage.io/kubernetes-id'
+ * which links catalog entities to their corresponding Kubernetes resources.
+ *
+ * @public
+ */
+export const KUBERNETES_ANNOTATION = 'backstage.io/kubernetes-id';
+
+/**
+ * Annotation used to specify a Kubernetes label selector query for filtering resources.
+ * When this annotation is added to a catalog entity, it defines criteria for selecting
+ * Kubernetes resources based on their labels.
+ *
+ * @public
+ *
+ * @remarks
+ * The value of this annotation should be a valid Kubernetes label selector query string.
+ * For example: 'app=my-app,environment=production'
+ */
+export const KUBERNETES_LABEL_SELECTOR_QUERY_ANNOTATION =
+  'backstage.io/kubernetes-label-selector';
+
+/**
  * Annotation for specifying the API server of a Kubernetes cluster
  *
  * @public
@@ -76,3 +99,35 @@ export const ANNOTATION_KUBERNETES_DASHBOARD_URL =
  */
 export const ANNOTATION_KUBERNETES_DASHBOARD_APP =
   'kubernetes.io/dashboard-app';
+
+/**
+ * Annotation for specifying the dashboard app parameters for a Kubernetes cluster.
+ *
+ * @public
+ */
+export const ANNOTATION_KUBERNETES_DASHBOARD_PARAMETERS =
+  'kubernetes.io/dashboard-parameters';
+
+/**
+ * Annotation for specifying the assume role use to authenticate with AWS.
+ *
+ * @public
+ */
+export const ANNOTATION_KUBERNETES_AWS_ASSUME_ROLE =
+  'kubernetes.io/aws-assume-role';
+
+/**
+ * Annotation for specifying the AWS ID of a cluster when signing STS tokens
+ *
+ * @public
+ */
+export const ANNOTATION_KUBERNETES_AWS_CLUSTER_ID =
+  'kubernetes.io/x-k8s-aws-id';
+
+/**
+ * Annotation for specifying an external id when communicating with AWS
+ *
+ * @public
+ */
+export const ANNOTATION_KUBERNETES_AWS_EXTERNAL_ID =
+  'kubernetes.io/aws-external-id';

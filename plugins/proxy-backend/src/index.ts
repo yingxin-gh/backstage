@@ -20,5 +20,4 @@
  * @packageDocumentation
  */
 
-export * from './service';
-export { proxyPlugin } from './plugin';
+export { proxyPlugin as default } from './plugin';

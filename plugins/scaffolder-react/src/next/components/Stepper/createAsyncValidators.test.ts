@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 import { JsonObject } from '@backstage/types';
-import { NextCustomFieldValidator } from '../../extensions';
+import { CustomFieldValidator } from '../../../extensions';
 import { createAsyncValidators } from './createAsyncValidators';
+
+type UrlItem = {
+  icon?: string;
+  title?: string;
+  url: string;
+};
 
 describe('createAsyncValidators', () => {
   it('should call the correct functions for validation', async () => {
@@ -158,16 +164,13 @@ describe('createAsyncValidators', () => {
       },
     };
 
-    const NameField: NextCustomFieldValidator<string> = (
-      value,
-      { addError },
-    ) => {
+    const NameField: CustomFieldValidator<string> = (value, { addError }) => {
       if (!value) {
         addError('something is broken here!');
       }
     };
 
-    const AddressField: NextCustomFieldValidator<{
+    const AddressField: CustomFieldValidator<{
       street?: string;
       postcode?: string;
     }> = (value, { addError }) => {
@@ -183,8 +186,8 @@ describe('createAsyncValidators', () => {
     const validate = createAsyncValidators(
       schema,
       {
-        NameField: NameField as NextCustomFieldValidator<unknown>,
-        AddressField: AddressField as NextCustomFieldValidator<unknown>,
+        NameField: NameField as CustomFieldValidator<unknown>,
+        AddressField: AddressField as CustomFieldValidator<unknown>,
       },
       {
         apiHolder: { get: jest.fn() },
@@ -298,7 +301,7 @@ describe('createAsyncValidators', () => {
       },
     };
 
-    const AddressField: NextCustomFieldValidator<{
+    const AddressField: CustomFieldValidator<{
       street?: string;
       postcode?: string;
     }> = (value, { addError }) => {
@@ -311,18 +314,15 @@ describe('createAsyncValidators', () => {
       }
     };
 
-    const NameField: NextCustomFieldValidator<string> = (
-      value,
-      { addError },
-    ) => {
+    const NameField: CustomFieldValidator<string> = (value, { addError }) => {
       if (!value) {
         addError('something is broken here!');
       }
     };
 
     const validators = {
-      AddressField: AddressField as NextCustomFieldValidator<unknown>,
-      NameField: NameField as NextCustomFieldValidator<unknown>,
+      AddressField: AddressField as CustomFieldValidator<unknown>,
+      NameField: NameField as CustomFieldValidator<unknown>,
     };
 
     const validate = createAsyncValidators(schema, validators, {
@@ -408,6 +408,9 @@ describe('createAsyncValidators', () => {
   });
 
   it('should call validator for array object property from a custom field extension', async () => {
+    let validatorTriggered = false;
+    const validationErrors = [] as string[];
+
     const schema: JsonObject = {
       type: 'object',
       properties: {
@@ -429,7 +432,23 @@ describe('createAsyncValidators', () => {
         },
       },
     };
-    const validators = { CustomLinkField: jest.fn() };
+
+    const validators = {
+      CustomLinkField: (input: unknown) => {
+        const regex = /https?:\/\/(\S+)/;
+        const items = input instanceof Array ? input : [input];
+
+        items.forEach((item: UrlItem) => {
+          if (!regex.test(item.url)) {
+            validationErrors.push(
+              `Url ${item.url} is invalid. Urls must start with http:// or https://`,
+            );
+          }
+        });
+
+        validatorTriggered = true;
+      },
+    };
 
     const validate = createAsyncValidators(schema, validators, {
       apiHolder: { get: jest.fn() },
@@ -439,6 +458,84 @@ describe('createAsyncValidators', () => {
       links: [{ url: 'http://my-url.spotify.com' }],
     });
 
-    expect(validators.CustomLinkField).toHaveBeenCalled();
+    expect(validatorTriggered).toBe(true);
+    expect(validationErrors).toEqual([]);
+  });
+
+  it('should validate field in the dependencies in an array field', async () => {
+    const schema: JsonObject = {
+      title: 'Make a choice',
+      properties: {
+        myArray: {
+          type: 'array',
+          title: 'Array',
+          items: {
+            type: 'object',
+            required: ['selector'],
+            properties: {
+              selector: {
+                title: 'Selector',
+                type: 'string',
+                enum: ['Choice 1', 'Choice 2'],
+              },
+            },
+            dependencies: {
+              selector: {
+                oneOf: [
+                  { properties: { selector: { enum: ['Choice 1'] } } },
+                  {
+                    properties: {
+                      selector: { enum: ['Choice 2'] },
+                      customValidatedField: {
+                        title: 'Custom validated field',
+                        type: 'string',
+                        'ui:field': 'ValidateKebabCase',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const validatorsForChoice1 = { ValidateKebabCase: jest.fn() };
+
+    const validateChoice1 = createAsyncValidators(
+      schema,
+      validatorsForChoice1,
+      {
+        apiHolder: { get: jest.fn() },
+      },
+    );
+
+    await validateChoice1({
+      myArray: [{ selector: 'Choice 1' }],
+    });
+
+    expect(validatorsForChoice1.ValidateKebabCase).not.toHaveBeenCalled();
+
+    const validatorsForChoice2 = { ValidateKebabCase: jest.fn() };
+
+    const validateChoice2 = createAsyncValidators(
+      schema,
+      validatorsForChoice2,
+      {
+        apiHolder: { get: jest.fn() },
+      },
+    );
+
+    await validateChoice2({
+      myArray: [
+        {
+          selector: 'Choice 2',
+          customValidatedField: 'apple',
+        },
+      ],
+    });
+
+    expect(validatorsForChoice2.ValidateKebabCase).toHaveBeenCalled();
   });
 });

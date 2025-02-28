@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-import { Config } from '@backstage/config';
-import express from 'express';
+import type express from 'express';
 import Router from 'express-promise-router';
 import {
   createProxyMiddleware,
   fixRequestBody,
-  Options,
   RequestHandler,
 } from 'http-proxy-middleware';
-import { Logger } from 'winston';
 import http from 'http';
-import { PluginEndpointDiscovery } from '@backstage/backend-common';
+import { JsonObject } from '@backstage/types';
+import {
+  DiscoveryService,
+  HttpRouterService,
+  LoggerService,
+  RootConfigService,
+} from '@backstage/backend-plugin-api';
+import { ProxyConfig } from '@backstage/plugin-proxy-node/alpha';
 
 // A list of headers that are always forwarded to the proxy targets.
 const safeForwardHeaders = [
@@ -48,36 +52,63 @@ const safeForwardHeaders = [
   'user-agent',
 ];
 
-/** @public */
+/**
+ * @internal
+ */
 export interface RouterOptions {
-  logger: Logger;
-  config: Config;
-  discovery: PluginEndpointDiscovery;
-  skipInvalidProxies?: boolean;
-  reviveConsumedRequestBodies?: boolean;
-}
-
-export interface ProxyConfig extends Options {
-  allowedMethods?: string[];
-  allowedHeaders?: string[];
-  reviveRequestBody?: boolean;
+  logger: LoggerService;
+  config: RootConfigService;
+  discovery: DiscoveryService;
+  httpRouterService: HttpRouterService;
+  additionalEndpoints?: ProxyConfig;
 }
 
 // Creates a proxy middleware, possibly with defaults added on top of the
 // given config.
 export function buildMiddleware(
   pathPrefix: string,
-  logger: Logger,
+  logger: LoggerService,
   route: string,
   config: string | ProxyConfig,
+  httpRouterService: HttpRouterService,
   reviveConsumedRequestBodies?: boolean,
 ): RequestHandler {
-  const fullConfig =
-    typeof config === 'string' ? { target: config } : { ...config };
+  let fullConfig: ProxyConfig;
+  let credentialsPolicy: string;
+  if (typeof config === 'string') {
+    fullConfig = { target: config };
+    credentialsPolicy = 'require';
+  } else {
+    const { credentials, ...rest } = config;
+    fullConfig = rest;
+    credentialsPolicy = credentials ?? 'require';
+  }
+
+  const credentialsPolicyCandidates = [
+    'require',
+    'forward',
+    'dangerously-allow-unauthenticated',
+  ];
+  if (!credentialsPolicyCandidates.includes(credentialsPolicy)) {
+    const valid = credentialsPolicyCandidates.map(c => `'${c}'`).join(', ');
+    throw new Error(
+      `Unknown credentials policy '${credentialsPolicy}' for proxy route '${route}'; expected one of ${valid}`,
+    );
+  }
+
+  if (credentialsPolicy === 'dangerously-allow-unauthenticated') {
+    httpRouterService.addAuthPolicy({
+      path: route,
+      allow: 'unauthenticated',
+    });
+  }
 
   // Validate that target is a valid URL.
-  if (typeof fullConfig.target !== 'string') {
-    throw new Error(`Proxy target must be a string`);
+  const targetType = typeof fullConfig.target;
+  if (targetType !== 'string') {
+    throw new Error(
+      `Proxy target for route "${route}" must be a string, but is of type ${targetType}`,
+    );
   }
   try {
     // eslint-disable-next-line no-new
@@ -120,7 +151,13 @@ export function buildMiddleware(
   }
 
   // Attach the logger to the proxy config
-  fullConfig.logProvider = () => logger;
+  fullConfig.logProvider = () => ({
+    log: logger.info.bind(logger),
+    debug: logger.debug.bind(logger),
+    info: logger.info.bind(logger),
+    warn: logger.warn.bind(logger),
+    error: logger.error.bind(logger),
+  });
   // http-proxy-middleware uses this log level to check if it should log the
   // requests that it proxies. Setting this to the most verbose log level
   // ensures that it always logs these requests. Our logger ends up deciding
@@ -140,6 +177,10 @@ export function buildMiddleware(
       ...(fullConfig.allowedHeaders || []),
     ].map(h => h.toLocaleLowerCase()),
   );
+
+  if (credentialsPolicy === 'forward') {
+    requestHeaderAllowList.add('authorization');
+  }
 
   // Use the custom middleware filter to do two things:
   //  1. Remove any headers not in the allow list to stop them being forwarded
@@ -191,67 +232,108 @@ export function buildMiddleware(
   return createProxyMiddleware(filter, fullConfig);
 }
 
-/**
- * Creates a new {@link https://expressjs.com/en/api.html#router | "express router"} that proxy each target configured under the `proxy` key of the config
- * @example
- * ```ts
- * let router = await createRouter({logger, config, discovery});
- * ```
- * @config
- * ```yaml
- * proxy:
- *  simple-example: http://simple.example.com:8080 # Opt 1 Simple URL String
- *  '/larger-example/v1': # Opt 2 `http-proxy-middleware` compatible object
- *    target: http://larger.example.com:8080/svc.v1
- *    headers:
- *      Authorization: Bearer ${EXAMPLE_AUTH_TOKEN}
- *```
- * @see https://backstage.io/docs/plugins/proxying
- * @public
- */
+function readProxyConfig(
+  config: RootConfigService,
+  logger: LoggerService,
+): JsonObject {
+  const endpoints = config
+    .getOptionalConfig('proxy.endpoints')
+    ?.get<JsonObject>();
+  if (endpoints) {
+    return endpoints;
+  }
+
+  const root = config.getOptionalConfig('proxy')?.get<JsonObject>();
+  if (!root) {
+    return {};
+  }
+
+  const rootEndpoints = Object.fromEntries(
+    Object.entries(root).filter(([key]) => key.startsWith('/')),
+  );
+  if (Object.keys(rootEndpoints).length === 0) {
+    return {};
+  }
+
+  logger.warn(
+    "Configuring proxy endpoints in the root 'proxy' configuration is deprecated. Move this configuration to 'proxy.endpoints' instead.",
+  );
+
+  return rootEndpoints;
+}
+
+/** @internal */
 export async function createRouter(
   options: RouterOptions,
 ): Promise<express.Router> {
   const router = Router();
   let currentRouter = Router();
 
+  const skipInvalidProxies =
+    options.config.getOptionalBoolean('proxy.skipInvalidProxies') ?? false;
+  const reviveConsumedRequestBodies =
+    options.config.getOptionalBoolean('proxy.reviveConsumedRequestBodies') ??
+    false;
+  const proxyOptions = {
+    skipInvalidProxies,
+    reviveConsumedRequestBodies,
+    logger: options.logger,
+  };
+
   const externalUrl = await options.discovery.getExternalBaseUrl('proxy');
   const { pathname: pathPrefix } = new URL(externalUrl);
 
-  const proxyConfig = options.config.getOptional('proxy') ?? {};
-  configureMiddlewares(options, currentRouter, pathPrefix, proxyConfig);
+  const proxyConfig: ProxyConfig = {
+    ...(options.additionalEndpoints ?? {}),
+    ...readProxyConfig(options.config, options.logger),
+  };
+
+  configureMiddlewares(
+    proxyOptions,
+    currentRouter,
+    pathPrefix,
+    proxyConfig,
+    options.httpRouterService,
+  );
   router.use((...args) => currentRouter(...args));
 
   if (options.config.subscribe) {
     let currentKey = JSON.stringify(proxyConfig);
 
     options.config.subscribe(() => {
-      const newProxyConfig = options.config.getOptional('proxy') ?? {};
+      const newProxyConfig = readProxyConfig(options.config, options.logger);
       const newKey = JSON.stringify(newProxyConfig);
 
       if (currentKey !== newKey) {
         currentKey = newKey;
         currentRouter = Router();
         configureMiddlewares(
-          options,
+          proxyOptions,
           currentRouter,
           pathPrefix,
           newProxyConfig,
+          options.httpRouterService,
         );
       }
     });
   }
 
+  options.httpRouterService.use(router);
   return router;
 }
 
 function configureMiddlewares(
-  options: RouterOptions,
+  options: {
+    reviveConsumedRequestBodies: boolean;
+    skipInvalidProxies: boolean;
+    logger: LoggerService;
+  },
   router: express.Router,
   pathPrefix: string,
-  proxyConfig: any,
+  proxyConfig: ProxyConfig,
+  httpRouterService: HttpRouterService,
 ) {
-  Object.entries<any>(proxyConfig).forEach(([route, proxyRouteConfig]) => {
+  Object.entries(proxyConfig).forEach(([route, proxyRouteConfig]) => {
     try {
       router.use(
         route,
@@ -260,6 +342,7 @@ function configureMiddlewares(
           options.logger,
           route,
           proxyRouteConfig,
+          httpRouterService,
           options.reviveConsumedRequestBodies,
         ),
       );

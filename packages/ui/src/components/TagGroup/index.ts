@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Backstage Authors
+ * Copyright 2025 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { RouteRef } from '@backstage/frontend-plugin-api';
-import { BackstageRouteObject } from '../routing/types';
-import { RouteAliasResolver } from '../routing/RouteAliasResolver';
 
-/** @internal */
-export type RouteInfo = {
-  routePaths: Map<RouteRef, string>;
-  routeParents: Map<RouteRef, RouteRef | undefined>;
-  routeObjects: BackstageRouteObject[];
-  routeAliasResolver: RouteAliasResolver;
-};
+export { TagGroup, Tag } from './TagGroup';
+export type { TagGroupProps, TagProps } from './types';

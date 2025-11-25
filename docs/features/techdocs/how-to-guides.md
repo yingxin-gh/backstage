@@ -574,7 +574,7 @@ your file-level configuration and not override it.
 
 #### Manual configuration in mkdocs.yml
 
-Alternatively, you can manually add the following configuration to your `mkdocs.yaml`
+Alternatively, you can manually add the following configuration to your `mkdocs.yml`
 file:
 
 ```yaml
@@ -592,6 +592,18 @@ app-config patcher will respect that setting and not override it. The patcher
 only adds `font: false` when the `font` property is not already configured.
 
 :::
+
+#### Using techdocs-cli in CI/CD
+
+When generating TechDocs sites in CI/CD workflows using `techdocs-cli`, you can
+use the `--disableExternalFonts` flag:
+
+```bash
+techdocs-cli generate --disableExternalFonts
+```
+
+This will automatically patch the `mkdocs.yml` file during the generation
+process, just like the `app-config.yaml` option does for local generation.
 
 ## How to enable iframes in TechDocs
 

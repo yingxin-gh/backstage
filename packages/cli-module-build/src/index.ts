@@ -34,6 +34,15 @@ export default createCliModule({
     });
 
     reg.addCommand({
+      path: ['package', 'bundle'],
+      description:
+        'Bundle a plugin for dynamic loading. Creates a self-contained plugin ' +
+        'package that can be deployed and loaded dynamically by a Backstage application. ' +
+        'Supports both backend and frontend plugins.',
+      execute: { loader: () => import('./commands/package/bundle') },
+    });
+
+    reg.addCommand({
       path: ['package', 'start'],
       description: 'Start a package for local development',
       execute: { loader: () => import('./commands/package/start') },

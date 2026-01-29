@@ -38,6 +38,7 @@ Options:
 
 Commands:
   build
+  bundle
   clean
   help [command]
   postpack
@@ -57,6 +58,22 @@ Options:
   --role <string>
   --skip-build-dependencies
   --stats
+  -h, --help
+```
+
+### `backstage-cli-module-build package bundle`
+
+```
+Usage: @backstage/cli-module-build package bundle
+
+Options:
+  --clean
+  --no-build
+  --no-install
+  --output-destination <string>
+  --output-name <string>
+  --pre-packed-dir <string>
+  --verbose
   -h, --help
 ```
 

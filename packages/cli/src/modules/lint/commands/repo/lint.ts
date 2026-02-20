@@ -25,7 +25,7 @@ import {
   Lockfile,
   runWorkerQueueThreads,
 } from '@backstage/cli-node';
-import { paths } from '../../../../lib/paths';
+import { paths } from '../../paths';
 import { createScriptOptionsParser } from '../../../../lib/optionsParser';
 import { SuccessCache } from '../../../../lib/cache/SuccessCache';
 

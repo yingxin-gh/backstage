@@ -25,7 +25,10 @@ import {
   Lockfile,
   runWorkerQueueThreads,
 } from '@backstage/cli-node';
-import { paths } from '../../paths';
+import { findPaths } from '@backstage/cli-common';
+
+/* eslint-disable-next-line no-restricted-syntax */
+const paths = findPaths(__dirname);
 import { createScriptOptionsParser } from '../../../../lib/optionsParser';
 import { SuccessCache } from '../../../../lib/cache/SuccessCache';
 

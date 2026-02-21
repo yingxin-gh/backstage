@@ -34,7 +34,7 @@ export function formatErrorMessage(error: any) {
         msg += `\n\n`;
         for (const { text, location } of error.errors) {
           const { line, column } = location;
-          const path = relativePath(targetPaths.targetDir, error.id);
+          const path = relativePath(targetPaths.resolve(), error.id);
           const loc = chalk.cyan(`${path}:${line}:${column}`);
 
           if (text === 'Unexpected "<"' && error.id.endsWith('.js')) {
@@ -53,11 +53,11 @@ export function formatErrorMessage(error: any) {
   } else {
     // Generic rollup errors, log what's available
     if (error.loc) {
-      const file = `${targetPaths.resolveTarget((error.loc.file || error.id)!)}`;
+      const file = `${targetPaths.resolve((error.loc.file || error.id)!)}`;
       const pos = `${error.loc.line}:${error.loc.column}`;
       msg += `${file} [${pos}]\n`;
     } else if (error.id) {
-      msg += `${targetPaths.resolveTarget(error.id)}\n`;
+      msg += `${targetPaths.resolve(error.id)}\n`;
     }
 
     msg += `${error}\n`;
@@ -90,7 +90,7 @@ async function rollupBuild(config: RollupOptions) {
 export const buildPackage = async (options: BuildOptions) => {
   try {
     const { resolutions } = await fs.readJson(
-      targetPaths.resolveTargetRoot('package.json'),
+      targetPaths.resolveRoot('package.json'),
     );
     if (resolutions?.esbuild) {
       console.warn(
@@ -107,7 +107,7 @@ export const buildPackage = async (options: BuildOptions) => {
 
   const rollupConfigs = await makeRollupConfigs(options);
 
-  const targetDir = options.targetDir ?? targetPaths.targetDir;
+  const targetDir = options.targetDir ?? targetPaths.resolve();
   await fs.remove(resolvePath(targetDir, 'dist'));
 
   const buildTasks = rollupConfigs.map(rollupBuild);

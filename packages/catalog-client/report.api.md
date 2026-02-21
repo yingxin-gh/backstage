@@ -8,7 +8,7 @@ import type { AnalyzeLocationResponse } from '@backstage/plugin-catalog-common';
 import { CompoundEntityRef } from '@backstage/catalog-model';
 import { Entity } from '@backstage/catalog-model';
 import type { FilterPredicate } from '@backstage/filter-predicates';
-import { SerializedError } from '@backstage/errors';
+import type { SerializedError } from '@backstage/errors';
 
 // @public
 export type AddLocationRequest = {

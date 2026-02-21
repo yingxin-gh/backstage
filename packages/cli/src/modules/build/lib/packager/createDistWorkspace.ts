@@ -25,10 +25,8 @@ import { tmpdir } from 'node:os';
 import * as tar from 'tar';
 import partition from 'lodash/partition';
 
-import { run, findPaths } from '@backstage/cli-common';
+import { run, targetPaths } from '@backstage/cli-common';
 
-/* eslint-disable-next-line no-restricted-syntax */
-const paths = findPaths(__dirname);
 import {
   dependencies as cliDependencies,
   devDependencies as cliDevDependencies,
@@ -213,7 +211,7 @@ export async function createDistWorkspace(
           targetDir: pkg.dir,
           packageJson: pkg.packageJson,
           outputs: outputs,
-          logPrefix: `${chalk.cyan(relativePath(paths.targetRoot, pkg.dir))}: `,
+          logPrefix: `${chalk.cyan(relativePath(targetPaths.targetRoot, pkg.dir))}: `,
           minify: options.minify,
           workspacePackages: packages,
         });
@@ -248,13 +246,13 @@ export async function createDistWorkspace(
   for (const file of files) {
     const src = typeof file === 'string' ? file : file.src;
     const dest = typeof file === 'string' ? file : file.dest;
-    await fs.copy(paths.resolveTargetRoot(src), resolvePath(targetDir, dest));
+    await fs.copy(targetPaths.resolveTargetRoot(src), resolvePath(targetDir, dest));
   }
 
   if (options.skeleton) {
     const skeletonFiles = targets
       .map(target => {
-        const dir = relativePath(paths.targetRoot, target.dir);
+        const dir = relativePath(targetPaths.targetRoot, target.dir);
         return joinPath(dir, 'package.json');
       })
       .sort();
@@ -303,7 +301,7 @@ async function moveToDistWorkspace(
     fastPackPackages.map(async target => {
       console.log(`Moving ${target.name} into dist workspace`);
 
-      const outputDir = relativePath(paths.targetRoot, target.dir);
+      const outputDir = relativePath(targetPaths.targetRoot, target.dir);
       const absoluteOutputPath = resolvePath(workspaceDir, outputDir);
       await productionPack({
         packageDir: target.dir,
@@ -323,7 +321,7 @@ async function moveToDistWorkspace(
       cwd: target.dir,
     }).waitForExit();
 
-    const outputDir = relativePath(paths.targetRoot, target.dir);
+    const outputDir = relativePath(targetPaths.targetRoot, target.dir);
     const absoluteOutputPath = resolvePath(workspaceDir, outputDir);
     await fs.ensureDir(absoluteOutputPath);
 

@@ -546,7 +546,7 @@ export interface CatalogApi {
    *
    * The output list of entities is of the same size and in the same order as
    * the requested list of entity refs. Entries that are not found are returned
-   * as null.
+   * as undefined.
    *
    * @param request - Request parameters
    * @param options - Additional options

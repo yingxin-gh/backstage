@@ -33,7 +33,7 @@ import {
   mapDependencies,
   YarnInfoInspectData,
 } from '../../../../lib/versioning';
-import { runParallelWorkers } from '../../../../lib/parallel';
+import { runParallelWorkers } from '@backstage/cli-node';
 import {
   getManifestByReleaseLine,
   getManifestByVersion,

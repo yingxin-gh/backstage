@@ -19,9 +19,8 @@ import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
 import * as tar from 'tar';
 import { createDistWorkspace } from './packager';
-import { getEnvironmentParallelism } from '../../../lib/parallel';
 import { buildPackage, Output } from './builder';
-import { PackageGraph } from '@backstage/cli-node';
+import { PackageGraph, getEnvironmentParallelism } from '@backstage/cli-node';
 
 const BUNDLE_FILE = 'bundle.tar.gz';
 const SKELETON_FILE = 'skeleton.tar.gz';

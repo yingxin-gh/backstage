@@ -22,8 +22,21 @@ const defaultParallelism = Math.ceil(os.cpus().length / 2);
 
 const PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
 
+/**
+ * Options for configuring parallelism. Can be a boolean, string, number, null, or undefined.
+ * - Boolean: true uses default parallelism (half of CPUs), false uses 1
+ * - Number: explicit worker count
+ * - String: parsed as boolean or integer (e.g. "true", "4")
+ *
+ * @public
+ */
 export type ParallelismOption = boolean | string | number | null | undefined;
 
+/**
+ * Parses a parallelism option value into a concrete worker count.
+ *
+ * @public
+ */
 export function parseParallelismOption(parallel: ParallelismOption): number {
   if (parallel === undefined || parallel === null) {
     return defaultParallelism;
@@ -51,11 +64,21 @@ export function parseParallelismOption(parallel: ParallelismOption): number {
   );
 }
 
+/**
+ * Returns the parallelism value from the BACKSTAGE_CLI_BUILD_PARALLEL environment variable.
+ *
+ * @public
+ */
 export function getEnvironmentParallelism() {
   return parseParallelismOption(process.env[PARALLEL_ENV_VAR]);
 }
 
-type ParallelWorkerOptions<TItem> = {
+/**
+ * Options for runParallelWorkers.
+ *
+ * @public
+ */
+export type ParallelWorkerOptions<TItem> = {
   /**
    * Decides the number of parallel workers by multiplying
    * this with the configured parallelism, which defaults to 4.
@@ -68,6 +91,11 @@ type ParallelWorkerOptions<TItem> = {
   worker: (item: TItem) => Promise<void>;
 };
 
+/**
+ * Runs items through a worker function in parallel across multiple async workers.
+ *
+ * @public
+ */
 export async function runParallelWorkers<TItem>(
   options: ParallelWorkerOptions<TItem>,
 ) {
@@ -119,6 +147,11 @@ type WorkerThreadMessage =
       message: unknown;
     };
 
+/**
+ * Options for runWorkerQueueThreads.
+ *
+ * @public
+ */
 export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
   /** The items to process */
   items: Iterable<TItem>;
@@ -149,6 +182,8 @@ export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
 /**
  * Spawns one or more worker threads using the `worker_threads` module.
  * Each thread processes one item at a time from the provided `options.items`.
+ *
+ * @public
  */
 export async function runWorkerQueueThreads<TItem, TResult, TData>(
   options: WorkerQueueThreadsOptions<TItem, TResult, TData>,
@@ -250,6 +285,11 @@ function workerQueueThread(
     );
 }
 
+/**
+ * Options for runWorkerThreads.
+ *
+ * @public
+ */
 export type WorkerThreadsOptions<TResult, TData, TMessage> = {
   /**
    * A function that is called by each worker thread to produce a result.
@@ -277,6 +317,8 @@ export type WorkerThreadsOptions<TResult, TData, TMessage> = {
 
 /**
  * Spawns one or more worker threads using the `worker_threads` module.
+ *
+ * @public
  */
 export async function runWorkerThreads<TResult, TData, TMessage>(
   options: WorkerThreadsOptions<TResult, TData, TMessage>,

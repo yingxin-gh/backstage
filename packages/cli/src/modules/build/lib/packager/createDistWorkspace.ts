@@ -41,8 +41,8 @@ import {
   PackageRoles,
   PackageGraph,
   PackageGraphNode,
+  runParallelWorkers,
 } from '@backstage/cli-node';
-import { runParallelWorkers } from '../../../../lib/parallel';
 import { createTypeDistProject } from '../../../../lib/typeDistProject';
 
 // These packages aren't safe to pack in parallel since the CLI depends on them

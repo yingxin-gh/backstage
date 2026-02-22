@@ -23,9 +23,9 @@ import {
   PackageGraph,
   BackstagePackageJson,
   Lockfile,
+  runWorkerQueueThreads,
 } from '@backstage/cli-node';
 import { paths } from '../../../../lib/paths';
-import { runWorkerQueueThreads } from '../../../../lib/parallel';
 import { createScriptOptionsParser } from '../../../../lib/optionsParser';
 import { SuccessCache } from '../../../../lib/cache/SuccessCache';
 

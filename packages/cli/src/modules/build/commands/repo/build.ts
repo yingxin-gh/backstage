@@ -23,8 +23,8 @@ import {
   BackstagePackage,
   PackageGraph,
   PackageRoles,
+  runParallelWorkers,
 } from '@backstage/cli-node';
-import { runParallelWorkers } from '../../../../lib/parallel';
 import { buildFrontend } from '../../lib/buildFrontend';
 import { buildBackend } from '../../lib/buildBackend';
 import { createScriptOptionsParser } from '../../../../lib/optionsParser';

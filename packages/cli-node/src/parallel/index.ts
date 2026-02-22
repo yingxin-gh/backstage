@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Backstage Authors
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-/**
- * Node.js library for Backstage CLIs
- *
- * @packageDocumentation
- */
-
-export * from './git';
-export * from './monorepo';
-export * from './parallel';
-export * from './roles';
+export type { ParallelismOption, ParallelWorkerOptions } from './parallel';
+export {
+  parseParallelismOption,
+  getEnvironmentParallelism,
+  runParallelWorkers,
+  runWorkerQueueThreads,
+  runWorkerThreads,
+} from './parallel';
+export type {
+  WorkerQueueThreadsOptions,
+  WorkerThreadsOptions,
+} from './parallel';

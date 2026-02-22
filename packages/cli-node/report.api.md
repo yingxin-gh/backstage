@@ -87,6 +87,9 @@ export interface BackstagePackageJson {
 }
 
 // @public
+export function getEnvironmentParallelism(): number;
+
+// @public
 export class GitUtils {
   static listChangedFiles(ref: string): Promise<string[]>;
   static readFileAtRef(path: string, ref: string): Promise<string>;
@@ -200,4 +203,56 @@ export class PackageRoles {
   static getRoleFromPackage(pkgJson: unknown): PackageRole | undefined;
   static getRoleInfo(role: string): PackageRoleInfo;
 }
+
+// @public
+export type ParallelismOption = boolean | string | number | null | undefined;
+
+// @public
+export type ParallelWorkerOptions<TItem> = {
+  parallelismFactor?: number;
+  parallelismSetting?: ParallelismOption;
+  items: Iterable<TItem>;
+  worker: (item: TItem) => Promise<void>;
+};
+
+// @public
+export function parseParallelismOption(parallel: ParallelismOption): number;
+
+// @public
+export function runParallelWorkers<TItem>(
+  options: ParallelWorkerOptions<TItem>,
+): Promise<void[]>;
+
+// @public
+export function runWorkerQueueThreads<TItem, TResult, TData>(
+  options: WorkerQueueThreadsOptions<TItem, TResult, TData>,
+): Promise<TResult[]>;
+
+// @public
+export function runWorkerThreads<TResult, TData, TMessage>(
+  options: WorkerThreadsOptions<TResult, TData, TMessage>,
+): Promise<TResult[]>;
+
+// @public
+export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
+  items: Iterable<TItem>;
+  workerFactory: (
+    data: TData,
+  ) =>
+    | ((item: TItem) => Promise<TResult>)
+    | Promise<(item: TItem) => Promise<TResult>>;
+  workerData?: TData;
+  threadCount?: number;
+};
+
+// @public
+export type WorkerThreadsOptions<TResult, TData, TMessage> = {
+  worker: (
+    data: TData,
+    sendMessage: (message: TMessage) => void,
+  ) => Promise<TResult>;
+  workerData?: TData;
+  threadCount?: number;
+  onMessage?: (message: TMessage) => void;
+};
 ```

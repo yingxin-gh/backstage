@@ -21,8 +21,7 @@ import { relative as relativePath, resolve as resolvePath } from 'node:path';
 import { paths } from '../../../../lib/paths';
 import { makeRollupConfigs } from './config';
 import { BuildOptions, Output } from './types';
-import { PackageRoles } from '@backstage/cli-node';
-import { runParallelWorkers } from '../../../../lib/parallel';
+import { PackageRoles, runParallelWorkers } from '@backstage/cli-node';
 
 export function formatErrorMessage(error: any) {
   let msg = '';

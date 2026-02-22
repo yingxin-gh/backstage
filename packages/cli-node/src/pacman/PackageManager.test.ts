@@ -43,19 +43,19 @@ describe('PackageManager', () => {
         expect(mockYarnCreate).toHaveBeenCalled();
       });
 
-      it('should detect via root package.json workspaces with legacy workspaces.packages field', async () => {
+      it('should detect via root package.json workspaces', async () => {
         mockDir.setContent({
           'package.json': JSON.stringify({
             name: 'foo',
             workspaces: {
-              packages: ['packages/*'],
+              packages: [],
             },
           }),
         });
         await detectPackageManager();
         expect(mockYarnCreate).toHaveBeenCalled();
       });
-      it('should detect via root package.json workspaces', async () => {
+      it('should detect via root package.json workspaces (array form)', async () => {
         mockDir.setContent({
           'package.json': JSON.stringify({
             name: 'foo',

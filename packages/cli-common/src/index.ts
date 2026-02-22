@@ -21,7 +21,6 @@
  */
 
 export { findPaths, BACKSTAGE_JSON } from './paths';
-export { getWorkspacesPatterns } from './workspaces';
 export { isChildPath } from './isChildPath';
 export type { Paths, ResolveFunc } from './paths';
 export { bootstrapEnvProxyAgents } from './proxyBootstrap';

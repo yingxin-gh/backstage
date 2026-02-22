@@ -17,7 +17,7 @@
 import { Yarn } from './yarn';
 import { Lockfile } from './Lockfile';
 import { paths } from '../paths';
-import { getWorkspacesPatterns, RunOptions } from '@backstage/cli-common';
+import { RunOptions } from '@backstage/cli-common';
 import fs from 'fs-extra';
 
 /**
@@ -101,7 +101,7 @@ export async function detectPackageManager(): Promise<PackageManager> {
     const packageJson = await fs.readJson(
       paths.resolveTargetRoot('package.json'),
     );
-    if (getWorkspacesPatterns(packageJson).length > 0) {
+    if (packageJson.workspaces) {
       // technically this could be NPM as well
       return await Yarn.create();
     }

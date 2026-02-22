@@ -25,7 +25,6 @@ import { YarnVersion } from './types';
 import fs from 'fs-extra';
 import { paths } from '../../paths';
 import { run, runOutput, RunOptions } from '@backstage/cli-common';
-import { getWorkspacesPatterns } from '@backstage/cli-common';
 
 export class Yarn implements PackageManager {
   constructor(private readonly yarnVersion: YarnVersion) {}
@@ -51,7 +50,10 @@ export class Yarn implements PackageManager {
     const rootPackageJsonPath = paths.resolveTargetRoot('package.json');
     try {
       const pkg = await fs.readJson(rootPackageJsonPath);
-      return getWorkspacesPatterns(pkg);
+      const workspaces = pkg?.workspaces;
+      return Array.isArray(workspaces)
+        ? workspaces
+        : workspaces?.packages ?? [];
     } catch (error) {
       return [];
     }

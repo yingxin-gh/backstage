@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { getWorkspacesPatterns } from '@backstage/cli-common';
 import { paths } from '../paths';
 import fs from 'fs-extra';
 
 /**
- * Returns try if the current project is a monorepo.
+ * Returns true if the current project is a monorepo.
+ *
+ * Uses a simple presence check on the `workspaces` field. Empty or invalid
+ * workspace config is treated as a monorepo; we do not validate patterns.
  *
  * @public
  */
@@ -27,7 +29,7 @@ export async function isMonoRepo(): Promise<boolean> {
   const rootPackageJsonPath = paths.resolveTargetRoot('package.json');
   try {
     const pkg = await fs.readJson(rootPackageJsonPath);
-    return getWorkspacesPatterns(pkg).length > 0;
+    return Boolean(pkg?.workspaces);
   } catch (error) {
     return false;
   }

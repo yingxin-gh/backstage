@@ -16,7 +16,6 @@
 
 import fs from 'node:fs';
 import { dirname, resolve as resolvePath } from 'node:path';
-import { getWorkspacesPatterns } from './workspaces';
 
 /**
  * A function that takes a set of path fragments and resolves them into a
@@ -142,7 +141,7 @@ export function findPaths(searchDir: string): Paths {
           try {
             const content = fs.readFileSync(path, 'utf8');
             const data = JSON.parse(content);
-            return getWorkspacesPatterns(data).length > 0;
+            return Boolean(data.workspaces);
           } catch (error) {
             throw new Error(
               `Failed to parse package.json file while searching for root, ${error}`,

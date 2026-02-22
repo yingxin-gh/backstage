@@ -15,7 +15,7 @@
  */
 
 /**
- * This is a copy of FetchApi, to avoid importing core-plugin-api.
+ * This is a polymorphic version of `FetchApi`.
  */
 export type FetchApi = {
   fetch: typeof fetch;

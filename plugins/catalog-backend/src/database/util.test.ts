@@ -17,6 +17,10 @@
 import { Knex } from 'knex';
 import { retryOnDeadlock } from './util';
 
+jest.mock('node:timers/promises', () => ({
+  setTimeout: jest.fn(),
+}));
+
 function mockKnex(client: string): Knex {
   return { client: { config: { client } } } as unknown as Knex;
 }
@@ -28,6 +32,10 @@ function pgDeadlockError(): Error & { code: string } {
 }
 
 describe('retryOnDeadlock', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('returns the result on success', async () => {
     const fn = jest.fn().mockResolvedValue('ok');
     const result = await retryOnDeadlock(fn, mockKnex('pg'), 3, 1);
@@ -77,26 +85,33 @@ describe('retryOnDeadlock', () => {
   });
 
   it('applies exponential backoff between retries', async () => {
-    const timestamps: number[] = [];
-    const fn = jest.fn().mockImplementation(async () => {
-      timestamps.push(Date.now());
-      if (timestamps.length <= 3) {
-        throw pgDeadlockError();
-      }
-      return 'done';
+    const { setTimeout: sleep } = jest.requireMock<{
+      setTimeout: jest.Mock;
+    }>('node:timers/promises');
+
+    const fnCallsAtSleep: number[] = [];
+    const fn = jest
+      .fn()
+      .mockRejectedValueOnce(pgDeadlockError())
+      .mockRejectedValueOnce(pgDeadlockError())
+      .mockRejectedValueOnce(pgDeadlockError())
+      .mockResolvedValue('done');
+
+    sleep.mockImplementation(async () => {
+      fnCallsAtSleep.push(fn.mock.calls.length);
     });
 
     const baseMs = 50;
-    await retryOnDeadlock(fn, mockKnex('pg'), 3, baseMs);
+    const result = await retryOnDeadlock(fn, mockKnex('pg'), 3, baseMs);
 
+    expect(result).toBe('done');
     expect(fn).toHaveBeenCalledTimes(4);
-    // Verify delays increase (with some tolerance for timing)
-    const delay1 = timestamps[1] - timestamps[0];
-    const delay2 = timestamps[2] - timestamps[1];
-    const delay3 = timestamps[3] - timestamps[2];
-    expect(delay1).toBeGreaterThanOrEqual(baseMs * 0.8);
-    expect(delay2).toBeGreaterThanOrEqual(baseMs * 2 * 0.8);
-    expect(delay3).toBeGreaterThanOrEqual(baseMs * 4 * 0.8);
+    // Each sleep happens after fn has been called N times
+    expect(fnCallsAtSleep).toEqual([1, 2, 3]);
+    expect(sleep).toHaveBeenCalledTimes(3);
+    expect(sleep).toHaveBeenNthCalledWith(1, 50);
+    expect(sleep).toHaveBeenNthCalledWith(2, 100);
+    expect(sleep).toHaveBeenNthCalledWith(3, 200);
   });
 
   it('defaults to 3 retries when not specified', async () => {

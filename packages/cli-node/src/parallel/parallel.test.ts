@@ -50,24 +50,51 @@ describe('parseParallelismOption', () => {
 });
 
 describe('getEnvironmentParallelism', () => {
+  afterEach(() => {
+    delete process.env.BACKSTAGE_CLI_PARALLELISM;
+    delete process.env.BACKSTAGE_CLI_BUILD_PARALLEL;
+  });
+
   it('reads the parallelism setting from the environment', () => {
-    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '2';
+    process.env.BACKSTAGE_CLI_PARALLELISM = '2';
     expect(getEnvironmentParallelism()).toBe(2);
 
-    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = 'true';
+    process.env.BACKSTAGE_CLI_PARALLELISM = 'true';
     expect(getEnvironmentParallelism()).toBe(defaultParallelism);
 
-    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = 'false';
+    process.env.BACKSTAGE_CLI_PARALLELISM = 'false';
     expect(getEnvironmentParallelism()).toBe(1);
 
-    delete process.env.BACKSTAGE_CLI_BUILD_PARALLEL;
+    delete process.env.BACKSTAGE_CLI_PARALLELISM;
     expect(getEnvironmentParallelism()).toBe(defaultParallelism);
+  });
+
+  it('supports the deprecated BACKSTAGE_CLI_BUILD_PARALLEL with a warning', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '3';
+    expect(getEnvironmentParallelism()).toBe(3);
+    expect(warnSpy).toHaveBeenCalledWith(
+      'The BACKSTAGE_CLI_BUILD_PARALLEL environment variable is deprecated, use BACKSTAGE_CLI_PARALLELISM instead',
+    );
+
+    warnSpy.mockClear();
+    expect(getEnvironmentParallelism()).toBe(3);
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
+  it('prefers BACKSTAGE_CLI_PARALLELISM over the deprecated variable', () => {
+    process.env.BACKSTAGE_CLI_PARALLELISM = '5';
+    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '3';
+    expect(getEnvironmentParallelism()).toBe(5);
   });
 });
 
 describe('runParallelWorkers', () => {
   afterEach(() => {
-    delete process.env.BACKSTAGE_CLI_BUILD_PARALLEL;
+    delete process.env.BACKSTAGE_CLI_PARALLELISM;
   });
 
   it('executes work in parallel', async () => {
@@ -75,7 +102,7 @@ describe('runParallelWorkers', () => {
     const done = new Array<number>();
     const waiting = new Array<() => void>();
 
-    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '4';
+    process.env.BACKSTAGE_CLI_PARALLELISM = '4';
     const work = runParallelWorkers({
       items: [0, 1, 2, 3, 4],
       parallelismFactor: 0.5, // 2 at a time

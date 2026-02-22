@@ -20,7 +20,8 @@ import { Worker } from 'node:worker_threads';
 
 const defaultParallelism = Math.ceil(os.cpus().length / 2);
 
-const PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
+const PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_PARALLELISM';
+const DEPRECATED_PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
 
 export type ParallelismOption = boolean | string | number | null | undefined;
 
@@ -51,8 +52,22 @@ export function parseParallelismOption(parallel: ParallelismOption): number {
   );
 }
 
+let hasWarnedDeprecation = false;
+
 export function getEnvironmentParallelism() {
-  return parseParallelismOption(process.env[PARALLEL_ENV_VAR]);
+  if (process.env[PARALLEL_ENV_VAR] !== undefined) {
+    return parseParallelismOption(process.env[PARALLEL_ENV_VAR]);
+  }
+  if (process.env[DEPRECATED_PARALLEL_ENV_VAR] !== undefined) {
+    if (!hasWarnedDeprecation) {
+      hasWarnedDeprecation = true;
+      console.warn(
+        `The ${DEPRECATED_PARALLEL_ENV_VAR} environment variable is deprecated, use ${PARALLEL_ENV_VAR} instead`,
+      );
+    }
+    return parseParallelismOption(process.env[DEPRECATED_PARALLEL_ENV_VAR]);
+  }
+  return defaultParallelism;
 }
 
 /**

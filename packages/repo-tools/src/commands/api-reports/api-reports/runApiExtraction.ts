@@ -35,9 +35,7 @@ import { targetPaths } from '@backstage/cli-common';
 import { logApiReportInstructions } from '../common';
 import { patchApiReportGeneration } from './patchApiReportGeneration';
 
-const tmpDir = targetPaths.resolveRoot(
-  './node_modules/.cache/api-extractor',
-);
+const tmpDir = targetPaths.resolveRoot('./node_modules/.cache/api-extractor');
 
 export async function countApiReportWarnings(reportPath: string) {
   try {
@@ -143,11 +141,7 @@ export async function runApiExtraction({
   // inspected.
   const allDistTypesEntryPointPaths = allEntryPoints.map(
     ({ packageDir, distTypesPath }) => {
-      return targetPaths.resolveRoot(
-        './dist-types',
-        packageDir,
-        distTypesPath,
-      );
+      return targetPaths.resolveRoot('./dist-types', packageDir, distTypesPath);
     },
   );
 
@@ -173,10 +167,7 @@ export async function runApiExtraction({
       : allowWarnings;
 
     const projectFolder = targetPaths.resolveRoot(packageDir);
-    const packageFolder = targetPaths.resolveRoot(
-      './dist-types',
-      packageDir,
-    );
+    const packageFolder = targetPaths.resolveRoot('./dist-types', packageDir);
 
     const remainingReportFiles = new Set(
       fs.readdirSync(projectFolder).filter(

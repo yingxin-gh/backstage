@@ -22,7 +22,6 @@ import PQueue from 'p-queue';
 import { dirname, join as joinPath, resolve as resolvePath } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 
-
 const DETECTED_MODULES_MODULE_NAME = '__backstage-autodetected-plugins__';
 
 interface PackageDetectionConfig {

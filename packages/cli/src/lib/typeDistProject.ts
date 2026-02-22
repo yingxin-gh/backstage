@@ -22,7 +22,6 @@ import { resolve as resolvePath } from 'node:path';
 import { Project, SourceFile, SyntaxKind, ts, Type } from 'ts-morph';
 import { targetPaths } from '@backstage/cli-common';
 
-
 export const createTypeDistProject = async () => {
   return new Project({
     tsConfigFilePath: targetPaths.resolveRoot('tsconfig.json'),

@@ -20,7 +20,6 @@ import { PackageGraph } from '@backstage/cli-node';
 
 import { run, targetPaths } from '@backstage/cli-common';
 
-
 export async function command(): Promise<void> {
   const packages = await PackageGraph.listTargetPackages();
 

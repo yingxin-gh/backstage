@@ -63,7 +63,9 @@ export async function resolvePackagePaths(
   if (include) {
     packages = packages.filter(pkg =>
       include.some(pattern =>
-        new Minimatch(pattern).match(relativePath(targetPaths.rootDir, pkg.dir)),
+        new Minimatch(pattern).match(
+          relativePath(targetPaths.rootDir, pkg.dir),
+        ),
       ),
     );
   }

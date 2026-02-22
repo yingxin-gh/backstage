@@ -18,7 +18,10 @@ import { findOwnPaths } from '@backstage/cli-common';
 import fs from 'fs-extra';
 
 export async function createTemporaryTsConfig(dir: string) {
-  const path = findOwnPaths(__dirname).resolveRoot(dir, 'tsconfig.typedoc.tmp.json');
+  const path = findOwnPaths(__dirname).resolveRoot(
+    dir,
+    'tsconfig.typedoc.tmp.json',
+  );
 
   process.once('exit', () => {
     fs.removeSync(path);

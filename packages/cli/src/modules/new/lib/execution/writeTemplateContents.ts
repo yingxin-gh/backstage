@@ -17,13 +17,11 @@
 import fs from 'fs-extra';
 import { dirname, resolve as resolvePath } from 'node:path';
 
-
 import { PortableTemplate, PortableTemplateInput } from '../types';
 import { ForwardedError, InputError } from '@backstage/errors';
 import { isMonoRepo as getIsMonoRepo } from '@backstage/cli-node';
 import { PortableTemplater } from './PortableTemplater';
 import { isChildPath, targetPaths } from '@backstage/cli-common';
-
 
 export async function writeTemplateContents(
   template: PortableTemplate,

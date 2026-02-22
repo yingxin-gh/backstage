@@ -38,9 +38,7 @@ type Options = {
 } & OptionValues;
 
 export async function buildApiReports(paths: string[] = [], opts: Options) {
-  const tmpDir = targetPaths.resolveRoot(
-    './node_modules/.cache/api-extractor',
-  );
+  const tmpDir = targetPaths.resolveRoot('./node_modules/.cache/api-extractor');
 
   const isCiBuild = opts.ci;
   const isDocsBuild = opts.docs;

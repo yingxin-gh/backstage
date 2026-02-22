@@ -49,7 +49,9 @@ export function resolveBundlingPaths(options: BundlingPathsOptions) {
   } else {
     targetHtml = resolvePath(targetDir, `${entry}.html`);
     if (!fs.pathExistsSync(targetHtml)) {
-      targetHtml = findOwnPaths(__dirname).resolve('templates/serve_index.html');
+      targetHtml = findOwnPaths(__dirname).resolve(
+        'templates/serve_index.html',
+      );
     }
   }
 

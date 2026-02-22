@@ -20,7 +20,6 @@ import { getPackages } from '@manypkg/get-packages';
 import { PackageRoles } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
-
 export default async () => {
   const { packages } = await getPackages(targetPaths.dir);
 

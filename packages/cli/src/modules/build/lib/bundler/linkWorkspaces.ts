@@ -19,7 +19,6 @@ import { getPackages } from '@manypkg/get-packages';
 import { rspack } from '@rspack/core';
 import { targetPaths } from '@backstage/cli-common';
 
-
 /**
  * This returns of collection of plugins that links a separate workspace into
  * the target one. Any packages that are present in the linked workspaces will

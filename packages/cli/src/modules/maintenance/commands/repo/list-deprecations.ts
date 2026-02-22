@@ -21,7 +21,6 @@ import { relative as relativePath } from 'node:path';
 import { PackageGraph } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
-
 export async function command(opts: OptionValues) {
   const packages = await PackageGraph.listTargetPackages();
 

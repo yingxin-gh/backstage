@@ -19,7 +19,6 @@ import yaml from 'yaml';
 import z from 'zod';
 import { targetPaths } from '@backstage/cli-common';
 
-
 const yarnRcSchema = z.object({
   plugins: z
     .array(

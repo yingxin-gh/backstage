@@ -19,7 +19,6 @@ import { findTargetPackages } from './start';
 import { posix } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 
-
 const mocks = {
   app: {
     packageJson: {

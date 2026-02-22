@@ -18,7 +18,6 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 
-
 const TEAM_ID_RE = /^@[-\w]+\/[-\w]+$/;
 const USER_ID_RE = /^@[-\w]+$/;
 const EMAIL_RE = /^[^@]+@[-.\w]+\.[-\w]+$/i;

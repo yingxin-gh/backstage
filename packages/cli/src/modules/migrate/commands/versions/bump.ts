@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BACKSTAGE_JSON, bootstrapEnvProxyAgents, targetPaths } from '@backstage/cli-common';
-
+import {
+  BACKSTAGE_JSON,
+  bootstrapEnvProxyAgents,
+  targetPaths,
+} from '@backstage/cli-common';
 
 bootstrapEnvProxyAgents();
 

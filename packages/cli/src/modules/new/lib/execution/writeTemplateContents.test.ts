@@ -19,7 +19,6 @@ import { writeTemplateContents } from './writeTemplateContents';
 import { createMockDirectory } from '@backstage/backend-test-utils';
 import { targetPaths } from '@backstage/cli-common';
 
-
 const baseConfig = {
   version: '0.1.0',
   license: 'Apache-2.0',

@@ -20,7 +20,6 @@ import { resolveLinkedWorkspace } from './resolveLinkedWorkspace';
 import { findRoleFromCommand } from '../../../lib/role';
 import { targetPaths } from '@backstage/cli-common';
 
-
 export async function command(opts: OptionValues): Promise<void> {
   await startPackage({
     role: await findRoleFromCommand(opts),

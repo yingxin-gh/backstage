@@ -45,9 +45,7 @@ export async function categorizePackageDirs(packageDirs: string[]) {
           if (!role) {
             return; // Ignore packages without roles
           }
-          if (
-            await fs.pathExists(targetPaths.resolveRoot(dir, 'migrations'))
-          ) {
+          if (await fs.pathExists(targetPaths.resolveRoot(dir, 'migrations'))) {
             sqlPackageDirs.push(dir);
           }
           // TODO(Rugvip): Inlined packages are ignored because we can't handle @internal exports

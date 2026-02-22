@@ -150,10 +150,7 @@ export default async function packageDocs(paths: string[] = [], opts: any) {
     selectedPackageDirs.map(pkg =>
       limit(async () => {
         const pkgJson = JSON.parse(
-          await readFile(
-            targetPaths.resolveRoot(pkg, 'package.json'),
-            'utf-8',
-          ),
+          await readFile(targetPaths.resolveRoot(pkg, 'package.json'), 'utf-8'),
         );
         if (EXCLUDE.includes(pkg) || pkgJson.name.startsWith('@internal/')) {
           return;
@@ -172,10 +169,7 @@ export default async function packageDocs(paths: string[] = [], opts: any) {
           console.log(`### Processing ${pkg}`);
           const success = await generateDocJson(pkg);
           if (success) {
-            await cache.write(
-              pkg,
-              targetPaths.resolveRoot(`dist-types`, pkg),
-            );
+            await cache.write(pkg, targetPaths.resolveRoot(`dist-types`, pkg));
           }
         } catch (e) {
           console.error('Failed to generate docs for', pkg);

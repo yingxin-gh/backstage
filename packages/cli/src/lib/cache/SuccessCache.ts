@@ -18,7 +18,6 @@ import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 
-
 const DEFAULT_CACHE_BASE_PATH = 'node_modules/.cache/backstage-cli';
 
 const CACHE_MAX_AGE_MS = 7 * 24 * 3600_000;

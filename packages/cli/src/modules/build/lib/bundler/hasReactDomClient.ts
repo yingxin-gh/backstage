@@ -16,7 +16,6 @@
 
 import { targetPaths } from '@backstage/cli-common';
 
-
 export function hasReactDomClient() {
   try {
     require.resolve('react-dom/client', {

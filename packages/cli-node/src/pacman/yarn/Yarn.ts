@@ -22,8 +22,6 @@ import {
 import { PackageInfo, PackageManager } from '../PackageManager';
 import { Lockfile } from '../Lockfile';
 import { YarnVersion } from './types';
-import fs from 'fs-extra';
-import { paths } from '../../paths';
 import { run, runOutput, RunOptions } from '@backstage/cli-common';
 
 export class Yarn implements PackageManager {
@@ -44,19 +42,6 @@ export class Yarn implements PackageManager {
 
   lockfileName(): string {
     return 'yarn.lock';
-  }
-
-  async getMonorepoPackages() {
-    const rootPackageJsonPath = paths.resolveTargetRoot('package.json');
-    try {
-      const pkg = await fs.readJson(rootPackageJsonPath);
-      const workspaces = pkg?.workspaces;
-      return Array.isArray(workspaces)
-        ? workspaces
-        : workspaces?.packages ?? [];
-    } catch (error) {
-      return [];
-    }
   }
 
   async pack(out: string, packageDir: string) {

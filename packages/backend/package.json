@@ -68,8 +68,8 @@
     "@opentelemetry/auto-instrumentations-node": "^0.67.0",
     "@opentelemetry/exporter-prometheus": "^0.211.0",
     "@opentelemetry/sdk-node": "^0.211.0",
-    "example-app": "link:../app",
-    "@backstage-community/plugin-search-backend-module-explore": "workspace:^"
+    "@backstage/plugin-search-backend-module-explore": "workspace:^",
+    "example-app": "link:../app"
   },
   "devDependencies": {
     "@backstage/cli": "workspace:^"

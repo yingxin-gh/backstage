@@ -87,11 +87,6 @@ type Options = {
   buildExcludes?: string[];
 
   /**
-   * Controls amount of parallelism in some build steps.
-   */
-  parallelism?: number;
-
-  /**
    * If set, creates a skeleton tarball that contains all package.json files
    * with the same structure as the workspace dir.
    */

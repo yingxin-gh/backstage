@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-export type { ParallelismOption, ParallelWorkerOptions } from './parallel';
+export type { ParallelWorkerOptions } from './parallel';
 export {
-  parseParallelismOption,
-  getEnvironmentParallelism,
   runParallelWorkers,
   runWorkerQueueThreads,
   runWorkerThreads,

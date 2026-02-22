@@ -22,21 +22,8 @@ const defaultParallelism = Math.ceil(os.cpus().length / 2);
 
 const PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
 
-/**
- * Options for configuring parallelism. Can be a boolean, string, number, null, or undefined.
- * - Boolean: true uses default parallelism (half of CPUs), false uses 1
- * - Number: explicit worker count
- * - String: parsed as boolean or integer (e.g. "true", "4")
- *
- * @public
- */
 export type ParallelismOption = boolean | string | number | null | undefined;
 
-/**
- * Parses a parallelism option value into a concrete worker count.
- *
- * @public
- */
 export function parseParallelismOption(parallel: ParallelismOption): number {
   if (parallel === undefined || parallel === null) {
     return defaultParallelism;
@@ -64,11 +51,6 @@ export function parseParallelismOption(parallel: ParallelismOption): number {
   );
 }
 
-/**
- * Returns the parallelism value from the BACKSTAGE_CLI_BUILD_PARALLEL environment variable.
- *
- * @public
- */
 export function getEnvironmentParallelism() {
   return parseParallelismOption(process.env[PARALLEL_ENV_VAR]);
 }
@@ -86,7 +68,6 @@ export type ParallelWorkerOptions<TItem> = {
    * Defaults to 1.
    */
   parallelismFactor?: number;
-  parallelismSetting?: ParallelismOption;
   items: Iterable<TItem>;
   worker: (item: TItem) => Promise<void>;
 };
@@ -99,10 +80,8 @@ export type ParallelWorkerOptions<TItem> = {
 export async function runParallelWorkers<TItem>(
   options: ParallelWorkerOptions<TItem>,
 ) {
-  const { parallelismFactor = 1, parallelismSetting, items, worker } = options;
-  const parallelism = parallelismSetting
-    ? parseParallelismOption(parallelismSetting)
-    : getEnvironmentParallelism();
+  const { parallelismFactor = 1, items, worker } = options;
+  const parallelism = getEnvironmentParallelism();
 
   const sharedIterator = items[Symbol.iterator]();
   const sharedIterable = {

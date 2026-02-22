@@ -66,14 +66,18 @@ describe('getEnvironmentParallelism', () => {
 });
 
 describe('runParallelWorkers', () => {
+  afterEach(() => {
+    delete process.env.BACKSTAGE_CLI_BUILD_PARALLEL;
+  });
+
   it('executes work in parallel', async () => {
     const started = new Array<number>();
     const done = new Array<number>();
     const waiting = new Array<() => void>();
 
+    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '4';
     const work = runParallelWorkers({
       items: [0, 1, 2, 3, 4],
-      parallelismSetting: 4,
       parallelismFactor: 0.5, // 2 at a time
       worker: async item => {
         started.push(item);

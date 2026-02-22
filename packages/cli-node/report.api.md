@@ -87,9 +87,6 @@ export interface BackstagePackageJson {
 }
 
 // @public
-export function getEnvironmentParallelism(): number;
-
-// @public
 export class GitUtils {
   static listChangedFiles(ref: string): Promise<string[]>;
   static readFileAtRef(path: string, ref: string): Promise<string>;
@@ -205,18 +202,11 @@ export class PackageRoles {
 }
 
 // @public
-export type ParallelismOption = boolean | string | number | null | undefined;
-
-// @public
 export type ParallelWorkerOptions<TItem> = {
   parallelismFactor?: number;
-  parallelismSetting?: ParallelismOption;
   items: Iterable<TItem>;
   worker: (item: TItem) => Promise<void>;
 };
-
-// @public
-export function parseParallelismOption(parallel: ParallelismOption): number;
 
 // @public
 export function runParallelWorkers<TItem>(

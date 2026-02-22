@@ -20,7 +20,7 @@ import { resolve as resolvePath } from 'node:path';
 import * as tar from 'tar';
 import { createDistWorkspace } from './packager';
 import { buildPackage, Output } from './builder';
-import { PackageGraph, getEnvironmentParallelism } from '@backstage/cli-node';
+import { PackageGraph } from '@backstage/cli-node';
 
 const BUNDLE_FILE = 'bundle.tar.gz';
 const SKELETON_FILE = 'skeleton.tar.gz';
@@ -52,7 +52,6 @@ export async function buildBackend(options: BuildBackendOptions) {
       configPaths,
       buildDependencies: !skipBuildDependencies,
       buildExcludes: [pkg.name],
-      parallelism: getEnvironmentParallelism(),
       skeleton: SKELETON_FILE,
       minify,
     });

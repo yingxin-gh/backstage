@@ -18,93 +18,98 @@ import os from 'node:os';
 import { ErrorLike } from '@backstage/errors';
 import { Worker } from 'node:worker_threads';
 
-const defaultParallelism = Math.ceil(os.cpus().length / 2);
+const defaultConcurrency = Math.max(Math.ceil(os.cpus().length / 2), 1);
 
-const PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_PARALLELISM';
-const DEPRECATED_PARALLEL_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
+const CONCURRENCY_ENV_VAR = 'BACKSTAGE_CLI_CONCURRENCY';
+const DEPRECATED_CONCURRENCY_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
 
-export type ParallelismOption = boolean | string | number | null | undefined;
+type ConcurrencyOption = boolean | string | number | null | undefined;
 
-export function parseParallelismOption(parallel: ParallelismOption): number {
-  if (parallel === undefined || parallel === null) {
-    return defaultParallelism;
-  } else if (typeof parallel === 'boolean') {
-    return parallel ? defaultParallelism : 1;
-  } else if (typeof parallel === 'number' && Number.isInteger(parallel)) {
-    if (parallel < 1) {
+function parseConcurrencyOption(value: ConcurrencyOption): number {
+  if (value === undefined || value === null) {
+    return defaultConcurrency;
+  } else if (typeof value === 'boolean') {
+    return value ? defaultConcurrency : 1;
+  } else if (typeof value === 'number' && Number.isInteger(value)) {
+    if (value < 1) {
       return 1;
     }
-    return parallel;
-  } else if (typeof parallel === 'string') {
-    if (parallel === 'true') {
-      return parseParallelismOption(true);
-    } else if (parallel === 'false') {
-      return parseParallelismOption(false);
+    return value;
+  } else if (typeof value === 'string') {
+    if (value === 'true') {
+      return parseConcurrencyOption(true);
+    } else if (value === 'false') {
+      return parseConcurrencyOption(false);
     }
-    const parsed = Number(parallel);
+    const parsed = Number(value);
     if (Number.isInteger(parsed)) {
-      return parseParallelismOption(parsed);
+      return parseConcurrencyOption(parsed);
     }
   }
 
   throw Error(
-    `Parallel option value '${parallel}' is not a boolean or integer`,
+    `Concurrency option value '${value}' is not a boolean or integer`,
   );
 }
 
 let hasWarnedDeprecation = false;
 
-export function getEnvironmentParallelism() {
-  if (process.env[PARALLEL_ENV_VAR] !== undefined) {
-    return parseParallelismOption(process.env[PARALLEL_ENV_VAR]);
+function getEnvironmentConcurrency() {
+  if (process.env[CONCURRENCY_ENV_VAR] !== undefined) {
+    return parseConcurrencyOption(process.env[CONCURRENCY_ENV_VAR]);
   }
-  if (process.env[DEPRECATED_PARALLEL_ENV_VAR] !== undefined) {
+  if (process.env[DEPRECATED_CONCURRENCY_ENV_VAR] !== undefined) {
     if (!hasWarnedDeprecation) {
       hasWarnedDeprecation = true;
       console.warn(
-        `The ${DEPRECATED_PARALLEL_ENV_VAR} environment variable is deprecated, use ${PARALLEL_ENV_VAR} instead`,
+        `The ${DEPRECATED_CONCURRENCY_ENV_VAR} environment variable is deprecated, use ${CONCURRENCY_ENV_VAR} instead`,
       );
     }
-    return parseParallelismOption(process.env[DEPRECATED_PARALLEL_ENV_VAR]);
+    return parseConcurrencyOption(
+      process.env[DEPRECATED_CONCURRENCY_ENV_VAR],
+    );
   }
-  return defaultParallelism;
+  return defaultConcurrency;
 }
 
 /**
- * Options for runParallelWorkers.
+ * Options for {@link runConcurrentTasks}.
  *
  * @public
  */
-export type ParallelWorkerOptions<TItem> = {
+export type ConcurrentTasksOptions<TItem> = {
   /**
-   * Decides the number of parallel workers by multiplying
-   * this with the configured parallelism, which defaults to 4.
+   * Decides the number of concurrent workers by multiplying
+   * this with the configured concurrency.
    *
    * Defaults to 1.
    */
-  parallelismFactor?: number;
+  concurrencyFactor?: number;
   items: Iterable<TItem>;
   worker: (item: TItem) => Promise<void>;
 };
 
 /**
- * Runs items through a worker function in parallel across multiple async workers.
+ * Runs items through a worker function concurrently across multiple async workers.
  *
  * @public
  */
-export async function runParallelWorkers<TItem>(
-  options: ParallelWorkerOptions<TItem>,
-) {
-  const { parallelismFactor = 1, items, worker } = options;
-  const parallelism = getEnvironmentParallelism();
+export async function runConcurrentTasks<TItem>(
+  options: ConcurrentTasksOptions<TItem>,
+): Promise<void> {
+  const { concurrencyFactor = 1, items, worker } = options;
+  const concurrency = getEnvironmentConcurrency();
 
   const sharedIterator = items[Symbol.iterator]();
   const sharedIterable = {
     [Symbol.iterator]: () => sharedIterator,
   };
 
-  const workerCount = Math.max(Math.floor(parallelismFactor * parallelism), 1);
-  return Promise.all(
+  const workerCount = Math.max(
+    Math.floor(concurrencyFactor * concurrency),
+    1,
+  );
+  await Promise.all(
     Array(workerCount)
       .fill(0)
       .map(async () => {
@@ -142,11 +147,11 @@ type WorkerThreadMessage =
     };
 
 /**
- * Options for runWorkerQueueThreads.
+ * Options for {@link runWorkerQueueThreads}.
  *
  * @public
  */
-export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
+export type WorkerQueueThreadsOptions<TItem, TResult, TContext> = {
   /** The items to process */
   items: Iterable<TItem>;
   /**
@@ -158,19 +163,17 @@ export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
    * any variables outside of its scope. This is because the function source
    * is stringified and evaluated in the worker thread.
    *
-   * To pass data to the worker, use the `workerData` option and `items`, but
+   * To pass data to the worker, use the `context` option and `items`, but
    * note that they are both copied by value into the worker thread, except for
    * types that are explicitly shareable across threads, such as `SharedArrayBuffer`.
    */
   workerFactory: (
-    data: TData,
+    context: TContext,
   ) =>
     | ((item: TItem) => Promise<TResult>)
     | Promise<(item: TItem) => Promise<TResult>>;
-  /** Data supplied to each worker factory */
-  workerData?: TData;
-  /** Number of threads, defaults to half of the number of available CPUs */
-  threadCount?: number;
+  /** Context data supplied to each worker factory */
+  context?: TContext;
 };
 
 /**
@@ -179,15 +182,13 @@ export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
  *
  * @public
  */
-export async function runWorkerQueueThreads<TItem, TResult, TData>(
-  options: WorkerQueueThreadsOptions<TItem, TResult, TData>,
+export async function runWorkerQueueThreads<TItem, TResult, TContext>(
+  options: WorkerQueueThreadsOptions<TItem, TResult, TContext>,
 ): Promise<TResult[]> {
   const items = Array.from(options.items);
-  const {
-    workerFactory,
-    workerData,
-    threadCount = Math.min(getEnvironmentParallelism(), items.length),
-  } = options;
+  const workerFactory = options.workerFactory;
+  const workerData = options.context;
+  const threadCount = Math.min(getEnvironmentConcurrency(), items.length);
 
   const iterator = items[Symbol.iterator]();
   const results = new Array<TResult>();
@@ -277,102 +278,4 @@ function workerQueueThread(
       },
       error => parentPort.postMessage({ type: 'error', error }),
     );
-}
-
-/**
- * Options for runWorkerThreads.
- *
- * @public
- */
-export type WorkerThreadsOptions<TResult, TData, TMessage> = {
-  /**
-   * A function that is called by each worker thread to produce a result.
-   *
-   * This function must be defined as an arrow function or using the
-   * function keyword, and must be entirely self contained, not referencing
-   * any variables outside of its scope. This is because the function source
-   * is stringified and evaluated in the worker thread.
-   *
-   * To pass data to the worker, use the `workerData` option, but
-   * note that they are both copied by value into the worker thread, except for
-   * types that are explicitly shareable across threads, such as `SharedArrayBuffer`.
-   */
-  worker: (
-    data: TData,
-    sendMessage: (message: TMessage) => void,
-  ) => Promise<TResult>;
-  /** Data supplied to each worker */
-  workerData?: TData;
-  /** Number of threads, defaults to 1 */
-  threadCount?: number;
-  /** An optional handler for messages posted from the worker thread */
-  onMessage?: (message: TMessage) => void;
-};
-
-/**
- * Spawns one or more worker threads using the `worker_threads` module.
- *
- * @public
- */
-export async function runWorkerThreads<TResult, TData, TMessage>(
-  options: WorkerThreadsOptions<TResult, TData, TMessage>,
-): Promise<TResult[]> {
-  const { worker, workerData, threadCount = 1, onMessage } = options;
-
-  return Promise.all(
-    Array(threadCount)
-      .fill(0)
-      .map(async () => {
-        const thread = new Worker(`(${workerThread})(${worker})`, {
-          eval: true,
-          workerData,
-        });
-
-        return new Promise<TResult>((resolve, reject) => {
-          thread.on('message', (message: WorkerThreadMessage) => {
-            if (message.type === 'result') {
-              resolve(message.result as TResult);
-            } else if (message.type === 'error') {
-              reject(message.error);
-            } else if (message.type === 'message') {
-              onMessage?.(message.message as TMessage);
-            }
-          });
-
-          thread.on('error', reject);
-          thread.on('exit', (code: number) => {
-            reject(
-              new Error(`Unexpected worker thread exit with code ${code}`),
-            );
-          });
-        });
-      }),
-  );
-}
-
-/* istanbul ignore next */
-function workerThread(
-  workerFunc: (
-    data: unknown,
-    sendMessage: (message: unknown) => void,
-  ) => Promise<unknown>,
-) {
-  const { parentPort, workerData } = require('node:worker_threads');
-
-  const sendMessage = (message: unknown) => {
-    parentPort.postMessage({ type: 'message', message });
-  };
-
-  workerFunc(workerData, sendMessage).then(
-    result => {
-      parentPort.postMessage({
-        type: 'result',
-        index: 0,
-        result,
-      });
-    },
-    error => {
-      parentPort.postMessage({ type: 'error', error });
-    },
-  );
 }

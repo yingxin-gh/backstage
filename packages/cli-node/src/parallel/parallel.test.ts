@@ -14,87 +14,11 @@
  * limitations under the License.
  */
 
-import os from 'node:os';
-import {
-  parseParallelismOption,
-  getEnvironmentParallelism,
-  runParallelWorkers,
-  runWorkerQueueThreads,
-  runWorkerThreads,
-} from './parallel';
+import { runConcurrentTasks, runWorkerQueueThreads } from './parallel';
 
-const defaultParallelism = Math.ceil(os.cpus().length / 2);
-
-describe('parseParallelismOption', () => {
-  it('coerces false no parallelism', () => {
-    expect(parseParallelismOption(false)).toBe(1);
-    expect(parseParallelismOption('false')).toBe(1);
-  });
-
-  it('coerces true or undefined to default parallelism', () => {
-    expect(parseParallelismOption(true)).toBe(defaultParallelism);
-    expect(parseParallelismOption('true')).toBe(defaultParallelism);
-    expect(parseParallelismOption(undefined)).toBe(defaultParallelism);
-    expect(parseParallelismOption(null)).toBe(defaultParallelism);
-  });
-
-  it('coerces number string to number', () => {
-    expect(parseParallelismOption('2')).toBe(2);
-  });
-
-  it.each([['on'], [2.5], ['2.5']])('throws error for %p', value => {
-    expect(() => parseParallelismOption(value as any)).toThrow(
-      `Parallel option value '${value}' is not a boolean or integer`,
-    );
-  });
-});
-
-describe('getEnvironmentParallelism', () => {
+describe('runConcurrentTasks', () => {
   afterEach(() => {
-    delete process.env.BACKSTAGE_CLI_PARALLELISM;
-    delete process.env.BACKSTAGE_CLI_BUILD_PARALLEL;
-  });
-
-  it('reads the parallelism setting from the environment', () => {
-    process.env.BACKSTAGE_CLI_PARALLELISM = '2';
-    expect(getEnvironmentParallelism()).toBe(2);
-
-    process.env.BACKSTAGE_CLI_PARALLELISM = 'true';
-    expect(getEnvironmentParallelism()).toBe(defaultParallelism);
-
-    process.env.BACKSTAGE_CLI_PARALLELISM = 'false';
-    expect(getEnvironmentParallelism()).toBe(1);
-
-    delete process.env.BACKSTAGE_CLI_PARALLELISM;
-    expect(getEnvironmentParallelism()).toBe(defaultParallelism);
-  });
-
-  it('supports the deprecated BACKSTAGE_CLI_BUILD_PARALLEL with a warning', () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
-
-    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '3';
-    expect(getEnvironmentParallelism()).toBe(3);
-    expect(warnSpy).toHaveBeenCalledWith(
-      'The BACKSTAGE_CLI_BUILD_PARALLEL environment variable is deprecated, use BACKSTAGE_CLI_PARALLELISM instead',
-    );
-
-    warnSpy.mockClear();
-    expect(getEnvironmentParallelism()).toBe(3);
-    expect(warnSpy).not.toHaveBeenCalled();
-
-    warnSpy.mockRestore();
-  });
-
-  it('prefers BACKSTAGE_CLI_PARALLELISM over the deprecated variable', () => {
-    process.env.BACKSTAGE_CLI_PARALLELISM = '5';
-    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '3';
-    expect(getEnvironmentParallelism()).toBe(5);
-  });
-});
-
-describe('runParallelWorkers', () => {
-  afterEach(() => {
-    delete process.env.BACKSTAGE_CLI_PARALLELISM;
+    delete process.env.BACKSTAGE_CLI_CONCURRENCY;
   });
 
   it('executes work in parallel', async () => {
@@ -102,10 +26,10 @@ describe('runParallelWorkers', () => {
     const done = new Array<number>();
     const waiting = new Array<() => void>();
 
-    process.env.BACKSTAGE_CLI_PARALLELISM = '4';
-    const work = runParallelWorkers({
+    process.env.BACKSTAGE_CLI_CONCURRENCY = '4';
+    const work = runConcurrentTasks({
       items: [0, 1, 2, 3, 4],
-      parallelismFactor: 0.5, // 2 at a time
+      concurrencyFactor: 0.5, // 2 at a time
       worker: async item => {
         started.push(item);
         await new Promise<void>(resolve => {
@@ -141,9 +65,9 @@ describe('runParallelWorkers', () => {
     const done = new Array<number>();
     const waiting = new Array<() => void>();
 
-    const work = runParallelWorkers({
+    const work = runConcurrentTasks({
       items: [0, 1, 2, 3, 4],
-      parallelismFactor: 0, // 1 at a time
+      concurrencyFactor: 0, // 1 at a time
       worker: async item => {
         started.push(item);
         await new Promise<void>(resolve => {
@@ -178,6 +102,45 @@ describe('runParallelWorkers', () => {
     await work;
     expect(done).toEqual([0, 1, 2, 3, 4]);
   });
+
+  it('returns void', async () => {
+    const result = await runConcurrentTasks({
+      items: [1, 2, 3],
+      worker: async () => {},
+    });
+    expect(result).toBeUndefined();
+  });
+
+  it('defaults to environment concurrency', async () => {
+    const started = new Array<number>();
+    process.env.BACKSTAGE_CLI_CONCURRENCY = '2';
+
+    await runConcurrentTasks({
+      items: [0, 1],
+      worker: async item => {
+        started.push(item);
+      },
+    });
+
+    expect(started).toEqual([0, 1]);
+  });
+
+  it('supports the deprecated BACKSTAGE_CLI_BUILD_PARALLEL with a warning', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+    process.env.BACKSTAGE_CLI_BUILD_PARALLEL = '2';
+    await runConcurrentTasks({
+      items: [0, 1],
+      worker: async () => {},
+    });
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      'The BACKSTAGE_CLI_BUILD_PARALLEL environment variable is deprecated, use BACKSTAGE_CLI_CONCURRENCY instead',
+    );
+
+    delete process.env.BACKSTAGE_CLI_BUILD_PARALLEL;
+    warnSpy.mockRestore();
+  });
 });
 
 describe('runWorkerQueueThreads', () => {
@@ -186,10 +149,9 @@ describe('runWorkerQueueThreads', () => {
     const sharedView = new Uint8Array(sharedData);
 
     const results = await runWorkerQueueThreads({
-      threadCount: 4,
-      workerData: sharedData,
+      context: sharedData,
       items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-      workerFactory: data => {
+      workerFactory: (data: SharedArrayBuffer) => {
         const view = new Uint8Array(data);
 
         return async (i: number) => {
@@ -203,44 +165,5 @@ describe('runWorkerQueueThreads', () => {
       10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ]);
     expect(results).toEqual([20, 21, 22, 23, 24, 25, 26, 27, 28, 29]);
-  });
-});
-
-describe('runWorkerThreads', () => {
-  it('should run a single thread without items', async () => {
-    const [result] = await runWorkerThreads({
-      threadCount: 1,
-      workerData: 'foo',
-      worker: async data => `${data}bar`,
-    });
-
-    expect(result).toBe('foobar');
-  });
-
-  it('should run multiple threads without items', async () => {
-    const results = await runWorkerThreads({
-      threadCount: 4,
-      worker: async () => 'foo',
-    });
-
-    expect(results).toEqual(['foo', 'foo', 'foo', 'foo']);
-  });
-
-  it('should send messages', async () => {
-    const messages = new Array<string>();
-
-    await runWorkerThreads({
-      threadCount: 2,
-      worker: async (_data, sendMessage) => {
-        sendMessage('a');
-        await new Promise(resolve => setTimeout(resolve, 10));
-        sendMessage('b');
-        await new Promise(resolve => setTimeout(resolve, 10));
-        sendMessage('c');
-      },
-      onMessage: (message: string) => messages.push(message),
-    });
-
-    expect(messages.sort()).toEqual(['a', 'a', 'b', 'b', 'c', 'c']);
   });
 });

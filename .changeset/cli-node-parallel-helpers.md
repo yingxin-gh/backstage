@@ -1,5 +1,5 @@
 ---
-'@backstage/cli-node': minor
+'@backstage/cli-node': patch
 ---
 
-Added parallel worker utilities: `runParallelWorkers`, `runWorkerQueueThreads`, and `runWorkerThreads`. These were moved from the `@backstage/cli` internal code.
+Added `runConcurrentTasks` and `runWorkerQueueThreads` utilities, moved from the `@backstage/cli` internal code.

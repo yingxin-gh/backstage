@@ -87,6 +87,13 @@ export interface BackstagePackageJson {
 }
 
 // @public
+export type ConcurrentTasksOptions<TItem> = {
+  concurrencyFactor?: number;
+  items: Iterable<TItem>;
+  worker: (item: TItem) => Promise<void>;
+};
+
+// @public
 export class GitUtils {
   static listChangedFiles(ref: string): Promise<string[]>;
   static readFileAtRef(path: string, ref: string): Promise<string>;
@@ -202,47 +209,23 @@ export class PackageRoles {
 }
 
 // @public
-export type ParallelWorkerOptions<TItem> = {
-  parallelismFactor?: number;
-  items: Iterable<TItem>;
-  worker: (item: TItem) => Promise<void>;
-};
+export function runConcurrentTasks<TItem>(
+  options: ConcurrentTasksOptions<TItem>,
+): Promise<void>;
 
 // @public
-export function runParallelWorkers<TItem>(
-  options: ParallelWorkerOptions<TItem>,
-): Promise<void[]>;
-
-// @public
-export function runWorkerQueueThreads<TItem, TResult, TData>(
-  options: WorkerQueueThreadsOptions<TItem, TResult, TData>,
+export function runWorkerQueueThreads<TItem, TResult, TContext>(
+  options: WorkerQueueThreadsOptions<TItem, TResult, TContext>,
 ): Promise<TResult[]>;
 
 // @public
-export function runWorkerThreads<TResult, TData, TMessage>(
-  options: WorkerThreadsOptions<TResult, TData, TMessage>,
-): Promise<TResult[]>;
-
-// @public
-export type WorkerQueueThreadsOptions<TItem, TResult, TData> = {
+export type WorkerQueueThreadsOptions<TItem, TResult, TContext> = {
   items: Iterable<TItem>;
   workerFactory: (
-    data: TData,
+    context: TContext,
   ) =>
     | ((item: TItem) => Promise<TResult>)
     | Promise<(item: TItem) => Promise<TResult>>;
-  workerData?: TData;
-  threadCount?: number;
-};
-
-// @public
-export type WorkerThreadsOptions<TResult, TData, TMessage> = {
-  worker: (
-    data: TData,
-    sendMessage: (message: TMessage) => void,
-  ) => Promise<TResult>;
-  workerData?: TData;
-  threadCount?: number;
-  onMessage?: (message: TMessage) => void;
+  context?: TContext;
 };
 ```

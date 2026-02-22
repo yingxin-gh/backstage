@@ -107,7 +107,7 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
 
   const resultsList = await runWorkerQueueThreads({
     items: items.filter(item => item.lintOptions), // Filter out packages without lint script
-    workerData: {
+    context: {
       fix: Boolean(opts.fix),
       format: opts.format as string | undefined,
       shouldCache: Boolean(cacheContext),

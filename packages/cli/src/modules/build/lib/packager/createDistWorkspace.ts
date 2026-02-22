@@ -41,7 +41,7 @@ import {
   PackageRoles,
   PackageGraph,
   PackageGraphNode,
-  runParallelWorkers,
+  runConcurrentTasks,
 } from '@backstage/cli-node';
 import { createTypeDistProject } from '../../../../lib/typeDistProject';
 
@@ -220,7 +220,7 @@ export async function createDistWorkspace(
     await buildPackages(standardBuilds);
 
     if (customBuild.length > 0) {
-      await runParallelWorkers({
+      await runConcurrentTasks({
         items: customBuild,
         worker: async ({ name, dir, args }) => {
           await run(['yarn', 'run', 'build', ...(args || [])], {
@@ -363,7 +363,7 @@ async function moveToDistWorkspace(
   }
 
   // Repacking in parallel is much faster and safe for all packages outside of the Backstage repo
-  await runParallelWorkers({
+  await runConcurrentTasks({
     items: safePackages.map((target, index) => ({ target, index })),
     worker: async ({ target, index }) => {
       await pack(target, `temp-package-${index}.tgz`);

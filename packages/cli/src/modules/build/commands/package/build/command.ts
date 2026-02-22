@@ -47,14 +47,14 @@ export async function command(opts: OptionValues): Promise<void> {
 
     if (role === 'frontend') {
       return buildFrontend({
-        targetDir: targetPaths.resolve(),
+        targetDir: targetPaths.dir,
         configPaths,
         writeStats: Boolean(opts.stats),
         webpack,
       });
     }
     return buildBackend({
-      targetDir: targetPaths.resolve(),
+      targetDir: targetPaths.dir,
       configPaths,
       skipBuildDependencies: Boolean(opts.skipBuildDependencies),
       minify: Boolean(opts.minify),
@@ -77,7 +77,7 @@ export async function command(opts: OptionValues): Promise<void> {
   if (isModuleFederationRemote) {
     console.log('Building package as a module federation remote');
     return buildFrontend({
-      targetDir: targetPaths.resolve(),
+      targetDir: targetPaths.dir,
       configPaths: [],
       writeStats: Boolean(opts.stats),
       isModuleFederationRemote,

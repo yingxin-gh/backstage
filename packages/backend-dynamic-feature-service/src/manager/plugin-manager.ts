@@ -56,7 +56,7 @@ export class DynamicPluginManager implements DynamicPluginProvider {
     options: DynamicPluginManagerOptions,
   ): Promise<DynamicPluginManager> {
     /* eslint-disable-next-line no-restricted-syntax */
-    const backstageRoot = targetPaths.resolveRoot();
+    const backstageRoot = targetPaths.rootDir;
     const scanner = PluginScanner.create({
       config: options.config,
       logger: options.logger,

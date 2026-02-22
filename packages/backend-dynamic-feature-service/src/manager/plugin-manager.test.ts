@@ -40,36 +40,23 @@ import { Logs, MockedLogger, LogContent } from '../__testUtils__/testUtils';
 import { PluginScanner } from '../scanner/plugin-scanner';
 import { targetPaths } from '@backstage/cli-common';
 import { createMockDirectory } from '@backstage/backend-test-utils';
-
-jest.mock('@backstage/cli-common', () => {
-  const path = require('path');
-  const actual = jest.requireActual<typeof import('@backstage/cli-common')>(
-    '@backstage/cli-common',
-  );
-  const mockRoot = path.resolve(__dirname, '..', '..', '..', '..');
-  return {
-    ...actual,
-    targetPaths: {
-      resolve: (...paths: string[]) => path.join(mockRoot, ...paths),
-      resolveRoot: (...paths: string[]) => path.join(mockRoot, ...paths),
-    },
-    findPaths: (searchDir: string) => ({
-      targetRoot: mockRoot,
-      targetDir: mockRoot,
-      ownDir: path.dirname(searchDir),
-      ownRoot: mockRoot,
-      resolveOwn: (...p: string[]) => path.join(path.dirname(searchDir), ...p),
-      resolveOwnRoot: (...p: string[]) => path.join(mockRoot, ...p),
-      resolveTarget: (...p: string[]) => path.join(mockRoot, ...p),
-      resolveTargetRoot: (...p: string[]) => path.join(mockRoot, ...p),
-    }),
-  };
-});
 import { rootLifecycleServiceFactory } from '@backstage/backend-defaults/rootLifecycle';
 import { BackstagePackageJson, PackageRole } from '@backstage/cli-node';
 
 describe('backend-dynamic-feature-service', () => {
   const mockDir = createMockDirectory();
+
+  beforeAll(() => {
+    jest
+      .spyOn(targetPaths, 'resolveRoot')
+      .mockImplementation((...paths: string[]) =>
+        require('path').resolve(__dirname, '../../../..', ...paths),
+      );
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
   describe('loadPlugins', () => {
     afterEach(() => {
@@ -1069,7 +1056,7 @@ describe('backend-dynamic-feature-service', () => {
         otherMockDir.resolve('a-dynamic-plugin'),
       );
       expect(mockedModuleLoader.bootstrap).toHaveBeenCalledWith(
-        targetPaths.resolveRoot(),
+        targetPaths.rootDir,
         [realPath],
         new Map<string, ScannedPluginManifest>([
           [

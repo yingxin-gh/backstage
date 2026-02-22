@@ -25,7 +25,7 @@ export async function command(opts: OptionValues): Promise<void> {
   await startPackage({
     role: await findRoleFromCommand(opts),
     entrypoint: opts.entrypoint,
-    targetDir: targetPaths.resolve(),
+    targetDir: targetPaths.dir,
     configPaths: opts.config as string[],
     checksEnabled: Boolean(opts.check),
     linkedWorkspace: await resolveLinkedWorkspace(opts.link),

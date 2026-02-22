@@ -76,8 +76,8 @@ export default async (opts: OptionValues): Promise<void> => {
   // Use `--path` argument as application directory when specified, otherwise
   // create a directory using `answers.name`
   const appDir = opts.path
-    ? resolvePath(targetPaths.resolve(), opts.path)
-    : resolvePath(targetPaths.resolve(), answers.name);
+    ? resolvePath(targetPaths.dir, opts.path)
+    : resolvePath(targetPaths.dir, answers.name);
 
   Task.log();
   Task.log('Creating the app...');
@@ -100,7 +100,7 @@ export default async (opts: OptionValues): Promise<void> => {
       // Template to temporary location, and then move files
 
       Task.section('Checking if the directory is available');
-      await checkAppExistsTask(targetPaths.resolve(), answers.name);
+      await checkAppExistsTask(targetPaths.dir, answers.name);
 
       Task.section('Creating a temporary app directory');
       const tempDir = await fs.mkdtemp(resolvePath(os.tmpdir(), answers.name));

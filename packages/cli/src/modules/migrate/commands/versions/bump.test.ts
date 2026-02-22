@@ -65,6 +65,12 @@ jest.mock('@backstage/cli-common', () => {
   return {
     ...actual,
     targetPaths: {
+      get dir() {
+        return mockDir.path;
+      },
+      get rootDir() {
+        return mockDir.path;
+      },
       resolve: (...args: string[]) => mockDir.resolve(...args),
       resolveRoot: (...args: string[]) => mockDir.resolve(...args),
     },

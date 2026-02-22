@@ -16,7 +16,8 @@
 
 import { OptionValues } from 'commander';
 import { categorizePackageDirs } from './categorizePackageDirs';
-import { paths as cliPaths, resolvePackagePaths } from '../../lib/paths';
+import { targetPaths } from '@backstage/cli-common';
+import { resolvePackagePaths } from '../../lib/paths';
 import { runSqlExtraction } from './sql-reports';
 import { runCliExtraction } from './cli-reports';
 import {
@@ -37,7 +38,7 @@ type Options = {
 } & OptionValues;
 
 export async function buildApiReports(paths: string[] = [], opts: Options) {
-  const tmpDir = cliPaths.resolveTargetRoot(
+  const tmpDir = targetPaths.resolveRoot(
     './node_modules/.cache/api-extractor',
   );
 
@@ -73,7 +74,7 @@ export async function buildApiReports(paths: string[] = [], opts: Options) {
     temporaryTsConfigPath = await createTemporaryTsConfig(selectedPackageDirs);
   }
   const tsconfigFilePath =
-    temporaryTsConfigPath ?? cliPaths.resolveTargetRoot('tsconfig.json');
+    temporaryTsConfigPath ?? targetPaths.resolveRoot('tsconfig.json');
 
   if (runTsc) {
     console.log('# Compiling TypeScript');
@@ -116,7 +117,7 @@ export async function buildApiReports(paths: string[] = [], opts: Options) {
     console.log('# Generating package documentation');
     await buildDocs({
       inputDir: tmpDir,
-      outputDir: cliPaths.resolveTargetRoot('docs/reference'),
+      outputDir: targetPaths.resolveRoot('docs/reference'),
     });
   }
 }

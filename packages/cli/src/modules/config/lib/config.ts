@@ -35,7 +35,7 @@ type Options = {
 };
 
 export async function loadCliConfig(options: Options) {
-  const targetDir = options.targetDir ?? targetPaths.resolve();
+  const targetDir = options.targetDir ?? targetPaths.dir;
 
   // Consider all packages in the monorepo when loading in config
   const { packages } = await getPackages(targetDir);
@@ -74,7 +74,7 @@ export async function loadCliConfig(options: Options) {
       ? async name => process.env[name] || 'x'
       : undefined,
     watch: Boolean(options.watch),
-    rootDir: targetPaths.resolveRoot(),
+    rootDir: targetPaths.rootDir,
     argv: options.args.flatMap(t => ['--config', resolvePath(targetDir, t)]),
   });
 

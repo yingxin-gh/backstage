@@ -33,6 +33,12 @@ export type ResolveFunc = (...paths: string[]) => string;
  * @public
  */
 export type TargetPaths = {
+  /** The target package directory. */
+  dir: string;
+
+  /** The target monorepo root directory. */
+  rootDir: string;
+
   /** Resolve a path relative to the target package directory. */
   resolve: ResolveFunc;
 
@@ -46,6 +52,12 @@ export type TargetPaths = {
  * @public
  */
 export type OwnPaths = {
+  /** The package root directory. */
+  dir: string;
+
+  /** The monorepo root directory containing the package. */
+  rootDir: string;
+
   /** Resolve a path relative to the package root. */
   resolve: ResolveFunc;
 
@@ -98,48 +110,12 @@ export function findRootPath(
   );
 }
 
-// Hierarchical cache for ownDir lookups. When we resolve a searchDir to its
-// package root, we also cache every intermediate directory along the way. This
-// means sibling directories only need to walk up until they hit a cached ancestor.
-const ownDirCache = new Map<string, string>();
-
 // Finds the root of a given package
 export function findOwnDir(searchDir: string) {
-  const visited: string[] = [];
-  let dir = searchDir;
-
-  for (let i = 0; i < 1000; i++) {
-    const cached = ownDirCache.get(dir);
-    if (cached !== undefined) {
-      for (const d of visited) {
-        ownDirCache.set(d, cached);
-      }
-      return cached;
-    }
-
-    visited.push(dir);
-
-    const packagePath = resolvePath(dir, 'package.json');
-    if (fs.existsSync(packagePath)) {
-      for (const d of visited) {
-        ownDirCache.set(d, dir);
-      }
-      return dir;
-    }
-
-    const newDir = dirname(dir);
-    if (newDir === dir) {
-      break;
-    }
-    dir = newDir;
-  }
-
-  throw new Error(
-    `No package.json found while searching for package root of ${searchDir}`,
-  );
+  return OwnPathsImpl.findDir(searchDir);
 }
 
-// Finds the root of the monorepo that the package exists in. Only accessible when running inside Backstage repo.
+// Finds the root of the monorepo that the package exists in.
 export function findOwnRootDir(ownDir: string) {
   const isLocal = fs.existsSync(resolvePath(ownDir, 'src'));
   if (!isLocal) {
@@ -151,46 +127,131 @@ export function findOwnRootDir(ownDir: string) {
   return resolvePath(ownDir, '../..');
 }
 
-// Cached target path state. Re-resolves when process.cwd() changes.
-let cachedTargetCwd: string | undefined;
-let cachedTargetDir: string | undefined;
-let cachedTargetRoot: string | undefined;
+// Hierarchical directory cache shared across all OwnPathsImpl instances.
+// When we resolve a searchDir to its package root, we also cache every
+// intermediate directory, so sibling directories share work.
+const dirCache = new Map<string, string>();
 
-function getTargetDir(): string {
-  const cwd = process.cwd();
-  if (cachedTargetDir !== undefined && cachedTargetCwd === cwd) {
-    return cachedTargetDir;
+class OwnPathsImpl implements OwnPaths {
+  static #instanceCache = new Map<string, OwnPathsImpl>();
+
+  static find(searchDir: string): OwnPathsImpl {
+    const dir = OwnPathsImpl.findDir(searchDir);
+    let instance = OwnPathsImpl.#instanceCache.get(dir);
+    if (!instance) {
+      instance = new OwnPathsImpl(dir);
+      OwnPathsImpl.#instanceCache.set(dir, instance);
+    }
+    return instance;
   }
-  cachedTargetCwd = cwd;
-  cachedTargetRoot = undefined;
-  // Drive letter can end up being lowercased here on Windows, bring back to uppercase for consistency
-  cachedTargetDir = fs
-    .realpathSync(cwd)
-    .replace(/^[a-z]:/, str => str.toLocaleUpperCase('en-US'));
-  return cachedTargetDir;
+
+  static findDir(searchDir: string): string {
+    const visited: string[] = [];
+    let dir = searchDir;
+
+    for (let i = 0; i < 1000; i++) {
+      const cached = dirCache.get(dir);
+      if (cached !== undefined) {
+        for (const d of visited) {
+          dirCache.set(d, cached);
+        }
+        return cached;
+      }
+
+      visited.push(dir);
+
+      if (fs.existsSync(resolvePath(dir, 'package.json'))) {
+        for (const d of visited) {
+          dirCache.set(d, dir);
+        }
+        return dir;
+      }
+
+      const newDir = dirname(dir);
+      if (newDir === dir) {
+        break;
+      }
+      dir = newDir;
+    }
+
+    throw new Error(
+      `No package.json found while searching for package root of ${searchDir}`,
+    );
+  }
+
+  #dir: string;
+  #rootDir: string | undefined;
+
+  private constructor(dir: string) {
+    this.#dir = dir;
+  }
+
+  get dir(): string {
+    return this.#dir;
+  }
+
+  get rootDir(): string {
+    this.#rootDir ??= findOwnRootDir(this.#dir);
+    return this.#rootDir;
+  }
+
+  resolve = (...paths: string[]): string => {
+    return resolvePath(this.#dir, ...paths);
+  };
+
+  resolveRoot = (...paths: string[]): string => {
+    return resolvePath(this.rootDir, ...paths);
+  };
 }
 
-function getTargetRoot(): string {
-  // Ensure targetDir is fresh, which also invalidates targetRoot on cwd change
-  const targetDir = getTargetDir();
-  if (cachedTargetRoot !== undefined) {
-    return cachedTargetRoot;
+class TargetPathsImpl implements TargetPaths {
+  #cwd: string | undefined;
+  #dir: string | undefined;
+  #rootDir: string | undefined;
+
+  get dir(): string {
+    const cwd = process.cwd();
+    if (this.#dir !== undefined && this.#cwd === cwd) {
+      return this.#dir;
+    }
+    this.#cwd = cwd;
+    this.#rootDir = undefined;
+    // Drive letter can end up being lowercased here on Windows, bring back to uppercase for consistency
+    this.#dir = fs
+      .realpathSync(cwd)
+      .replace(/^[a-z]:/, str => str.toLocaleUpperCase('en-US'));
+    return this.#dir;
   }
-  // We're not always running in a monorepo, so we lazy init this to only crash
-  // commands that require a monorepo when we're not in one.
-  cachedTargetRoot =
-    findRootPath(targetDir, path => {
-      try {
-        const content = fs.readFileSync(path, 'utf8');
-        const data = JSON.parse(content);
-        return Boolean(data.workspaces);
-      } catch (error) {
-        throw new Error(
-          `Failed to parse package.json file while searching for root, ${error}`,
-        );
-      }
-    }) ?? targetDir;
-  return cachedTargetRoot;
+
+  get rootDir(): string {
+    // Access dir first to ensure cwd is fresh, which also invalidates rootDir on cwd change
+    const dir = this.dir;
+    if (this.#rootDir !== undefined) {
+      return this.#rootDir;
+    }
+    // Lazy init to only crash commands that require a monorepo when we're not in one
+    this.#rootDir =
+      findRootPath(dir, path => {
+        try {
+          const content = fs.readFileSync(path, 'utf8');
+          const data = JSON.parse(content);
+          return Boolean(data.workspaces);
+        } catch (error) {
+          throw new Error(
+            `Failed to parse package.json file while searching for root, ${error}`,
+          );
+        }
+      }) ?? dir;
+    return this.#rootDir;
+  }
+
+  resolve = (...paths: string[]): string => {
+    return resolvePath(this.dir, ...paths);
+  };
+
+  resolveRoot = (...paths: string[]): string => {
+    return resolvePath(this.rootDir, ...paths);
+  };
 }
 
 /**
@@ -198,18 +259,8 @@ function getTargetRoot(): string {
  * for cwd-based path resolution without needing `__dirname`.
  *
  * @public
- * @example
- *
- * import { targetPaths } from '\@backstage/cli-common';
- *
- * const lockfile = targetPaths.resolveRoot('yarn.lock');
  */
-export const targetPaths: TargetPaths = {
-  resolve: (...paths) => resolvePath(getTargetDir(), ...paths),
-  resolveRoot: (...paths) => resolvePath(getTargetRoot(), ...paths),
-};
-
-const ownPathsCache = new Map<string, OwnPaths>();
+export const targetPaths: TargetPaths = new TargetPathsImpl();
 
 /**
  * Find paths relative to the package that the calling code lives in.
@@ -219,35 +270,9 @@ const ownPathsCache = new Map<string, OwnPaths>();
  * subdirectories within the same package share work.
  *
  * @public
- * @example
- *
- * import { findOwnPaths } from '\@backstage/cli-common';
- *
- * const own = findOwnPaths(__dirname);
- * const config = own.resolve('config/jest.js');
  */
 export function findOwnPaths(searchDir: string): OwnPaths {
-  const ownDir = findOwnDir(searchDir);
-  const cached = ownPathsCache.get(ownDir);
-  if (cached) {
-    return cached;
-  }
-
-  let ownRoot = '';
-  const getOwnRoot = () => {
-    if (!ownRoot) {
-      ownRoot = findOwnRootDir(ownDir);
-    }
-    return ownRoot;
-  };
-
-  const paths: OwnPaths = {
-    resolve: (...p) => resolvePath(ownDir, ...p),
-    resolveRoot: (...p) => resolvePath(getOwnRoot(), ...p),
-  };
-
-  ownPathsCache.set(ownDir, paths);
-  return paths;
+  return OwnPathsImpl.find(searchDir);
 }
 
 /**
@@ -265,16 +290,16 @@ export function findPaths(searchDir: string): Paths {
   const own = findOwnPaths(searchDir);
   return {
     get ownDir() {
-      return own.resolve();
+      return own.dir;
     },
     get ownRoot() {
-      return own.resolveRoot();
+      return own.rootDir;
     },
     get targetDir() {
-      return targetPaths.resolve();
+      return targetPaths.dir;
     },
     get targetRoot() {
-      return targetPaths.resolveRoot();
+      return targetPaths.rootDir;
     },
     resolveOwn: own.resolve,
     resolveOwnRoot: own.resolveRoot,

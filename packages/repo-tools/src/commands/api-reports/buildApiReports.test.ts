@@ -16,7 +16,7 @@
 
 import { createMockDirectory } from '@backstage/backend-test-utils';
 import { normalize } from 'node:path';
-import * as pathsLib from '../../lib/paths';
+import { targetPaths } from '@backstage/cli-common';
 
 import { categorizePackageDirs } from './categorizePackageDirs';
 
@@ -51,14 +51,12 @@ jest.mock('./categorizePackageDirs', () => ({
   }),
 }));
 
-const projectPaths = pathsLib.paths;
-
 const mockDir = createMockDirectory();
 
-jest.spyOn(projectPaths, 'targetRoot', 'get').mockReturnValue(mockDir.path);
+jest.spyOn(targetPaths, 'rootDir', 'get').mockReturnValue(mockDir.path);
 jest
-  .spyOn(projectPaths, 'resolveTargetRoot')
-  .mockImplementation((...path) => mockDir.resolve(...path));
+  .spyOn(targetPaths, 'resolveRoot')
+  .mockImplementation((...path: string[]) => mockDir.resolve(...path));
 jest.spyOn(PackageGraph, 'listTargetPackages').mockResolvedValue([
   {
     dir: normalize(mockDir.resolve('packages/package-a')),
@@ -85,7 +83,7 @@ jest.spyOn(PackageGraph, 'listTargetPackages').mockResolvedValue([
 describe('buildApiReports', () => {
   beforeEach(() => {
     mockDir.setContent({
-      [projectPaths.targetRoot]: {
+      [targetPaths.rootDir]: {
         'package.json': JSON.stringify({
           workspaces: { packages: ['packages/*', 'plugins/*'] },
         }),

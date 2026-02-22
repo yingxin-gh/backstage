@@ -63,7 +63,7 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
 
   // This formatter uses the cwd to format file paths, so let's have that happen from the root instead
   if (opts.format === 'eslint-formatter-friendly') {
-    process.chdir(targetPaths.resolveRoot());
+    process.chdir(targetPaths.rootDir);
   }
 
   // Make sure lint output is colored unless the user explicitly disabled it
@@ -78,7 +78,7 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
       const lintOptions = parseLintScript(pkg.packageJson.scripts?.lint);
       const base = {
         fullDir: pkg.dir,
-        relativeDir: relativePath(targetPaths.resolveRoot(), pkg.dir),
+        relativeDir: relativePath(targetPaths.rootDir, pkg.dir),
         lintOptions,
         parentHash: undefined,
       };
@@ -114,7 +114,7 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
       shouldCache: Boolean(cacheContext),
       maxWarnings: opts.maxWarnings ?? -1,
       successCache: cacheContext?.entries,
-      rootDir: targetPaths.resolveRoot(),
+      rootDir: targetPaths.rootDir,
     },
     workerFactory: async ({
       fix,

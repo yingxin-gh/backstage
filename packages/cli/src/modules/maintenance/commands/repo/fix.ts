@@ -230,7 +230,7 @@ export function createRepositoryFieldFixer() {
   return (pkg: FixablePackage) => {
     const expectedPath = posix.join(
       rootDir,
-      relativePath(targetPaths.resolveRoot(), pkg.dir),
+      relativePath(targetPaths.rootDir, pkg.dir),
     );
     const repoField = pkg.packageJson.repository;
 
@@ -319,7 +319,7 @@ export function fixPluginId(pkg: FixablePackage) {
       role === 'backend-plugin-module')
   ) {
     const path = relativePath(
-      targetPaths.resolveRoot(),
+      targetPaths.rootDir,
       resolvePath(pkg.dir, 'package.json'),
     );
     const msg = `Failed to guess plugin ID for "${pkg.packageJson.name}", please set the 'backstage.pluginId' field manually in "${path}"`;
@@ -415,7 +415,7 @@ export function fixPluginPackages(
         return;
       }
       const path = relativePath(
-        targetPaths.resolveRoot(),
+        targetPaths.rootDir,
         resolvePath(pkg.dir, 'package.json'),
       );
       const suggestedRole =
@@ -464,7 +464,7 @@ export function fixPeerModules(pkg: FixablePackage) {
   }
 
   const packagePath = relativePath(
-    targetPaths.resolveRoot(),
+    targetPaths.rootDir,
     resolvePath(pkg.dir, 'package.json'),
   );
 

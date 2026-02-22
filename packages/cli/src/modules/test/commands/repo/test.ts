@@ -68,7 +68,7 @@ interface TestGlobal extends Global {
 async function readPackageTreeHashes(graph: PackageGraph) {
   const pkgs = Array.from(graph.values()).map(pkg => ({
     ...pkg,
-    path: relativePath(targetPaths.resolveRoot(), pkg.dir),
+    path: relativePath(targetPaths.rootDir, pkg.dir),
   }));
   const output = await runOutput([
     'git',

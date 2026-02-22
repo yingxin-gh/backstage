@@ -22,7 +22,7 @@ import { ESLint } from 'eslint';
 
 export default async (directories: string[], opts: OptionValues) => {
   const eslint = new ESLint({
-    cwd: targetPaths.resolve(),
+    cwd: targetPaths.dir,
     fix: opts.fix,
     extensions: ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'],
   });
@@ -48,7 +48,7 @@ export default async (directories: string[], opts: OptionValues) => {
 
   // This formatter uses the cwd to format file paths, so let's have that happen from the root instead
   if (opts.format === 'eslint-formatter-friendly') {
-    process.chdir(targetPaths.resolveRoot());
+    process.chdir(targetPaths.rootDir);
   }
 
   const resultText = await formatter.format(results);

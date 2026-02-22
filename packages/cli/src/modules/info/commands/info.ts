@@ -84,7 +84,7 @@ export default async (options: InfoOptions) => {
 
     const lockfilePath = targetPaths.resolveRoot('yarn.lock');
     const lockfile = await Lockfile.load(lockfilePath);
-    const targetPath = targetPaths.resolveRoot();
+    const targetPath = targetPaths.rootDir;
 
     // Get workspace package names and their versions
     const workspacePackages = new Map<string, string>();

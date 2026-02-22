@@ -86,7 +86,7 @@ describe('Backstage yarn plugin', () => {
     let initialLockFileContent: string | undefined;
 
     beforeAll(async () => {
-      const targetRoot = targetPaths.resolveRoot();
+      const targetRoot = targetPaths.rootDir;
       await executeCommand('yarn', ['build'], {
         cwd: joinPath(targetRoot, 'packages/yarn-plugin'),
       });

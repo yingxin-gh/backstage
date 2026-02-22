@@ -157,7 +157,7 @@ export class ConfigSources {
   static defaultForTargets(
     options: ConfigSourcesDefaultForTargetsOptions,
   ): ConfigSource {
-    const rootDir = options.rootDir ?? targetPaths.resolveRoot();
+    const rootDir = options.rootDir ?? targetPaths.rootDir;
 
     const argSources = options.targets.map(arg => {
       if (arg.type === 'url') {

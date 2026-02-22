@@ -50,6 +50,12 @@ describe('getWorkspaceRoot', () => {
       jest.doMock('@backstage/cli-common', () => ({
         ...jest.requireActual('@backstage/cli-common'),
         targetPaths: {
+          get dir() {
+            return mockResolveRoot();
+          },
+          get rootDir() {
+            return mockResolveRoot();
+          },
           resolveRoot: mockResolveRoot,
         },
       }));

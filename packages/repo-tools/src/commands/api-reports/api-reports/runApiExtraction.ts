@@ -31,11 +31,11 @@ import {
   resolve as resolvePath,
 } from 'node:path';
 import { getPackageExportDetails } from '../../../lib/getPackageExportDetails';
-import { paths as cliPaths } from '../../../lib/paths';
+import { targetPaths } from '@backstage/cli-common';
 import { logApiReportInstructions } from '../common';
 import { patchApiReportGeneration } from './patchApiReportGeneration';
 
-const tmpDir = cliPaths.resolveTargetRoot(
+const tmpDir = targetPaths.resolveRoot(
   './node_modules/.cache/api-extractor',
 );
 
@@ -100,7 +100,7 @@ async function findPackageEntryPoints(packageDirs: string[]): Promise<
   return Promise.all(
     packageDirs.map(async packageDir => {
       const pkg = await fs.readJson(
-        cliPaths.resolveTargetRoot(packageDir, 'package.json'),
+        targetPaths.resolveRoot(packageDir, 'package.json'),
       );
 
       return getPackageExportDetails(pkg).map(details => {
@@ -143,7 +143,7 @@ export async function runApiExtraction({
   // inspected.
   const allDistTypesEntryPointPaths = allEntryPoints.map(
     ({ packageDir, distTypesPath }) => {
-      return cliPaths.resolveTargetRoot(
+      return targetPaths.resolveRoot(
         './dist-types',
         packageDir,
         distTypesPath,
@@ -172,8 +172,8 @@ export async function runApiExtraction({
       ? allowWarnings.some(aw => aw === packageDir || minimatch(packageDir, aw))
       : allowWarnings;
 
-    const projectFolder = cliPaths.resolveTargetRoot(packageDir);
-    const packageFolder = cliPaths.resolveTargetRoot(
+    const projectFolder = targetPaths.resolveRoot(packageDir);
+    const packageFolder = targetPaths.resolveRoot(
       './dist-types',
       packageDir,
     );

@@ -26,16 +26,16 @@ import { createTypeDistProject } from '../../../../lib/typeDistProject';
 
 export const pre = async () => {
   publishPreflightCheck({
-    dir: targetPaths.resolve(),
+    dir: targetPaths.dir,
     packageJson: await fs.readJson(targetPaths.resolve('package.json')),
   });
 
   await productionPack({
-    packageDir: targetPaths.resolve(),
+    packageDir: targetPaths.dir,
     featureDetectionProject: await createTypeDistProject(),
   });
 };
 
 export const post = async () => {
-  await revertProductionPack(targetPaths.resolve());
+  await revertProductionPack(targetPaths.dir);
 };

@@ -21,16 +21,16 @@ const ownPaths = findOwnPaths(__dirname);
 /* eslint-disable-next-line no-restricted-syntax */
 export const paths = {
   get ownDir() {
-    return ownPaths.resolve();
+    return ownPaths.dir;
   },
   get ownRoot() {
-    return ownPaths.resolveRoot();
+    return ownPaths.rootDir;
   },
   get targetDir() {
-    return targetPaths.resolve();
+    return targetPaths.dir;
   },
   get targetRoot() {
-    return targetPaths.resolveRoot();
+    return targetPaths.rootDir;
   },
   resolveOwn: ownPaths.resolve,
   resolveOwnRoot: ownPaths.resolveRoot,

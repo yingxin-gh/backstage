@@ -141,7 +141,7 @@ export default async (opts: OptionValues) => {
   }
 
   // First we discover all Backstage dependencies within our own repo
-  const dependencyMap = await mapDependencies(targetPaths.resolve(), pattern);
+  const dependencyMap = await mapDependencies(targetPaths.dir, pattern);
 
   // Next check with the package registry to see which dependency ranges we need to bump
   const versionBumps = new Map<string, PkgVersionInfo[]>();

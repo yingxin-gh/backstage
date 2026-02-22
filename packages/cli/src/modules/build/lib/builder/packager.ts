@@ -34,7 +34,7 @@ export function formatErrorMessage(error: any) {
         msg += `\n\n`;
         for (const { text, location } of error.errors) {
           const { line, column } = location;
-          const path = relativePath(targetPaths.resolve(), error.id);
+          const path = relativePath(targetPaths.dir, error.id);
           const loc = chalk.cyan(`${path}:${line}:${column}`);
 
           if (text === 'Unexpected "<"' && error.id.endsWith('.js')) {
@@ -107,7 +107,7 @@ export const buildPackage = async (options: BuildOptions) => {
 
   const rollupConfigs = await makeRollupConfigs(options);
 
-  const targetDir = options.targetDir ?? targetPaths.resolve();
+  const targetDir = options.targetDir ?? targetPaths.dir;
   await fs.remove(resolvePath(targetDir, 'dist'));
 
   const buildTasks = rollupConfigs.map(rollupBuild);

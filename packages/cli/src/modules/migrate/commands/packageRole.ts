@@ -22,7 +22,7 @@ import { targetPaths } from '@backstage/cli-common';
 
 
 export default async () => {
-  const { packages } = await getPackages(targetPaths.resolve());
+  const { packages } = await getPackages(targetPaths.dir);
 
   await Promise.all(
     packages.map(async ({ dir, packageJson: pkg }) => {

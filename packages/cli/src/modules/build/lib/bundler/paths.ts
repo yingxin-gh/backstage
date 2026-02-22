@@ -21,14 +21,14 @@ import { targetPaths, findOwnPaths } from '@backstage/cli-common';
 export type BundlingPathsOptions = {
   // bundle entrypoint, e.g. 'src/index'
   entry: string;
-  // Target directory, defaulting to targetPaths.resolve()
+  // Target directory, defaulting to targetPaths.dir
   targetDir?: string;
   // Relative dist directory, defaulting to 'dist'
   dist?: string;
 };
 
 export function resolveBundlingPaths(options: BundlingPathsOptions) {
-  const { entry, targetDir = targetPaths.resolve() } = options;
+  const { entry, targetDir = targetPaths.dir } = options;
 
   const resolveTargetModule = (pathString: string) => {
     for (const ext of ['mjs', 'js', 'ts', 'tsx', 'jsx']) {
@@ -70,7 +70,7 @@ export function resolveBundlingPaths(options: BundlingPathsOptions) {
     targetTsConfig: targetPaths.resolveRoot('tsconfig.json'),
     targetPackageJson: resolvePath(targetDir, 'package.json'),
     rootNodeModules: targetPaths.resolveRoot('node_modules'),
-    root: targetPaths.resolveRoot(),
+    root: targetPaths.rootDir,
   };
 }
 

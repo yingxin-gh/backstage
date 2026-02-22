@@ -83,7 +83,7 @@ export async function addCodeownersEntry(
 
   let filePath = codeownersFilePath;
   if (!filePath) {
-    filePath = await getCodeownersFilePath(targetPaths.resolveRoot());
+    filePath = await getCodeownersFilePath(targetPaths.rootDir);
     if (!filePath) {
       return false;
     }

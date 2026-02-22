@@ -26,7 +26,7 @@ export async function command(opts: OptionValues) {
   const packages = await PackageGraph.listTargetPackages();
 
   const eslint = new ESLint({
-    cwd: targetPaths.resolve(),
+    cwd: targetPaths.dir,
     overrideConfig: {
       plugins: ['deprecation'],
       rules: {
@@ -53,7 +53,7 @@ export async function command(opts: OptionValues) {
           continue;
         }
 
-        const path = relativePath(targetPaths.resolveRoot(), result.filePath);
+        const path = relativePath(targetPaths.rootDir, result.filePath);
         deprecations.push({
           path,
           message: message.message,

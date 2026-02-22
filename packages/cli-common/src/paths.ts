@@ -110,11 +110,6 @@ export function findRootPath(
   );
 }
 
-// Finds the root of a given package
-export function findOwnDir(searchDir: string) {
-  return OwnPathsImpl.findDir(searchDir);
-}
-
 // Finds the root of the monorepo that the package exists in.
 export function findOwnRootDir(ownDir: string) {
   const isLocal = fs.existsSync(resolvePath(ownDir, 'src'));
@@ -202,6 +197,11 @@ class OwnPathsImpl implements OwnPaths {
   resolveRoot = (...paths: string[]): string => {
     return resolvePath(this.rootDir, ...paths);
   };
+}
+
+// Finds the root of a given package
+export function findOwnDir(searchDir: string) {
+  return OwnPathsImpl.findDir(searchDir);
 }
 
 class TargetPathsImpl implements TargetPaths {

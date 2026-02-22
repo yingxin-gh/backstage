@@ -167,6 +167,7 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
 
   // Only include our config if caller isn't passing their own config
   if (!hasFlags('-c', '--config')) {
+    /* eslint-disable-next-line no-restricted-syntax */
     args.push('--config', findOwnPaths(__dirname).resolve('config/jest.js'));
   }
 

@@ -18,6 +18,7 @@ import { findOwnPaths } from '@backstage/cli-common';
 import fs from 'fs-extra';
 
 export async function createTemporaryTsConfig(dir: string) {
+  /* eslint-disable-next-line no-restricted-syntax */
   const path = findOwnPaths(__dirname).resolveRoot(
     dir,
     'tsconfig.typedoc.tmp.json',

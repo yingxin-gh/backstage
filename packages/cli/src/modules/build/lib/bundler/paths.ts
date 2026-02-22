@@ -49,6 +49,7 @@ export function resolveBundlingPaths(options: BundlingPathsOptions) {
   } else {
     targetHtml = resolvePath(targetDir, `${entry}.html`);
     if (!fs.pathExistsSync(targetHtml)) {
+      /* eslint-disable-next-line no-restricted-syntax */
       targetHtml = findOwnPaths(__dirname).resolve(
         'templates/serve_index.html',
       );

@@ -43,6 +43,7 @@ async function test(
   try {
     opticLocation = (
       await exec(`yarn bin optic`, [], {
+        /* eslint-disable-next-line no-restricted-syntax */
         cwd: findOwnPaths(__dirname).rootDir,
       })
     ).stdout as string;

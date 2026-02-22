@@ -38,6 +38,7 @@ export default async (_opts: OptionValues, cmd: Command) => {
 
   // Only include our config if caller isn't passing their own config
   if (!includesAnyOf(args, '-c', '--config')) {
+    /* eslint-disable-next-line no-restricted-syntax */
     args.push('--config', findOwnPaths(__dirname).resolve('config/jest.js'));
   }
 

@@ -19,6 +19,7 @@ import semver from 'semver';
 import { findOwnPaths } from '@backstage/cli-common';
 import { Lockfile } from './versioning';
 
+/* eslint-disable-next-line no-restricted-syntax */
 const ownPaths = findOwnPaths(__dirname);
 
 /* eslint-disable @backstage/no-relative-monorepo-imports */

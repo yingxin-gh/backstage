@@ -55,6 +55,7 @@ function hasBackstageField(packageName: string, targetPath: string): boolean {
 export default async (options: InfoOptions) => {
   await new Promise(async () => {
     const yarnVersion = await runOutput(['yarn', '--version']);
+    /* eslint-disable-next-line no-restricted-syntax */
     const isLocal = fs.existsSync(findOwnPaths(__dirname).resolve('./src'));
 
     const backstageFile = targetPaths.resolveRoot('backstage.json');

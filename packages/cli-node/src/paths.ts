@@ -16,6 +16,7 @@
 
 import { targetPaths, findOwnPaths } from '@backstage/cli-common';
 
+/* eslint-disable-next-line no-restricted-syntax */
 const ownPaths = findOwnPaths(__dirname);
 
 /* eslint-disable-next-line no-restricted-syntax */

@@ -175,18 +175,18 @@ function applyFieldCondition(options: {
       //
       // FROM: `{ "a": { "$contains": "b" } }`
       //
-      // TO:   `{ "a.b": "true" }`
+      // TO:   `{ "a": "b" }`
       //
       // The search table does not actually show us that "a" was an array to
       // begin with, so this can mistakenly also match on an object that had a
-      // "b" key with a true value. We'll consider that an acceptable tradeoff
-      // though.
+      // "b" key with a primitive value. We'll consider that an acceptable
+      // tradeoff though.
       if (isPrimitive(target)) {
         const matchQuery = knex<DbSearchRow>('search')
           .select('search.entity_id')
           .where({
-            key: `${key}.${String(target).toLocaleLowerCase('en-US')}`,
-            value: 'true',
+            key,
+            value: String(target).toLocaleLowerCase('en-US'),
           });
         return targetQuery.andWhere(onEntityIdField, 'in', matchQuery);
       }

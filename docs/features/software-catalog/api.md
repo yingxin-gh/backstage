@@ -383,19 +383,17 @@ meaning.
   ```
 
   The other use case is for arrays where you match with a primitive value, such
-  as labels. Example:
+  as tags. Example:
 
   ```js
   {
-    // Works for any field, as long as the value is a primitive
-    // (either string, number, or boolean)
-    "metadata.labels": {
+    // Works for array fields whose items are primitive values
+    // (typically strings, but numbers and booleans are also supported)
+    "metadata.tags": {
       "$contains": "java"
     }
   }
   ```
-
-  In every case, the matching is case insensitive.
 
 ### `GET /entities`
 

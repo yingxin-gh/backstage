@@ -23,10 +23,7 @@ import { YarnInfoInspectData } from '../../../../lib/versioning/packages';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { NotFoundError } from '@backstage/errors';
-import {
-  createMockDirectory,
-  MockDirectory,
-} from '@backstage/backend-test-utils';
+import { createMockDirectory } from '@backstage/backend-test-utils';
 
 // Avoid mutating the global agents used in other tests
 jest.mock('global-agent', () => ({
@@ -60,17 +57,10 @@ jest.mock('ora', () => ({
   },
 }));
 
-let mockDir: MockDirectory;
 jest.mock('@backstage/cli-common', () => {
   const actual = jest.requireActual('@backstage/cli-common');
   return {
     ...actual,
-    findPaths: () => ({
-      resolveTargetRoot: (...args: string[]) => mockDir.resolve(...args),
-      get targetDir() {
-        return mockDir.path;
-      },
-    }),
     run: jest.fn().mockReturnValue({
       exitCode: null,
       waitForExit: jest.fn().mockResolvedValue(undefined),
@@ -137,10 +127,10 @@ const expectLogsToMatch = (
 };
 
 describe('bump', () => {
-  mockDir = createMockDirectory();
-  beforeAll(() => overrideTargetPaths(mockDir.path));
+  const mockDir = createMockDirectory();
 
   beforeEach(() => {
+    overrideTargetPaths(mockDir.path);
     mockFetchPackageInfo.mockImplementation(async name => ({
       name: name,
       'dist-tags': {
@@ -944,8 +934,11 @@ describe('bump', () => {
 });
 
 describe('bumpBackstageJsonVersion', () => {
-  mockDir = createMockDirectory();
-  beforeAll(() => overrideTargetPaths(mockDir.path));
+  const mockDir = createMockDirectory();
+
+  beforeEach(() => {
+    overrideTargetPaths(mockDir.path);
+  });
 
   afterEach(() => {
     jest.resetAllMocks();
@@ -1079,10 +1072,14 @@ describe('createVersionFinder', () => {
 });
 
 describe('environment variables', () => {
+  const mockDir = createMockDirectory();
+
   const worker = setupServer();
   registerMswTestHooks(worker);
 
-  beforeAll(() => overrideTargetPaths(mockDir.path));
+  beforeEach(() => {
+    overrideTargetPaths(mockDir.path);
+  });
 
   beforeEach(() => {
     delete process.env.BACKSTAGE_MANIFEST_FILE;

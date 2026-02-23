@@ -18,7 +18,7 @@ import { PackageGraph } from '@backstage/cli-node';
 import { findTargetPackages } from './start';
 import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 
-overrideTargetPaths({ dir: '/root', rootDir: '/root' });
+overrideTargetPaths('/root');
 
 const mocks = {
   app: {

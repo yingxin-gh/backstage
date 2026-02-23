@@ -42,7 +42,6 @@ jest.mock('@backstage/cli-common', () => {
   };
   return {
     ...actual,
-    findPaths: jest.fn(),
     findOwnPaths: () => mockOwnPaths,
   };
 });

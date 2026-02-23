@@ -15,21 +15,15 @@
  */
 
 import { createMockDirectory } from '@backstage/backend-test-utils';
-import { targetPaths } from '@backstage/cli-common';
+import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 import { getHasYarnPlugin } from './yarnPlugin';
 
 const mockDir = createMockDirectory();
+overrideTargetPaths(mockDir.path);
 
 describe('getHasYarnPlugin', () => {
   beforeEach(() => {
     mockDir.clear();
-    jest
-      .spyOn(targetPaths, 'resolveRoot')
-      .mockImplementation((...args: string[]) => mockDir.resolve(...args));
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   it('should return false when .yarnrc.yml does not exist', async () => {

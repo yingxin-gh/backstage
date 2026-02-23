@@ -16,7 +16,7 @@
 
 import { createMockDirectory } from '@backstage/backend-test-utils';
 import { normalize } from 'node:path';
-import { targetPaths } from '@backstage/cli-common';
+import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 
 import { categorizePackageDirs } from './categorizePackageDirs';
 
@@ -52,11 +52,8 @@ jest.mock('./categorizePackageDirs', () => ({
 }));
 
 const mockDir = createMockDirectory();
+overrideTargetPaths(mockDir.path);
 
-jest.spyOn(targetPaths, 'rootDir', 'get').mockReturnValue(mockDir.path);
-jest
-  .spyOn(targetPaths, 'resolveRoot')
-  .mockImplementation((...path: string[]) => mockDir.resolve(...path));
 jest.spyOn(PackageGraph, 'listTargetPackages').mockResolvedValue([
   {
     dir: normalize(mockDir.resolve('packages/package-a')),
@@ -83,30 +80,28 @@ jest.spyOn(PackageGraph, 'listTargetPackages').mockResolvedValue([
 describe('buildApiReports', () => {
   beforeEach(() => {
     mockDir.setContent({
-      [targetPaths.rootDir]: {
-        'package.json': JSON.stringify({
-          workspaces: { packages: ['packages/*', 'plugins/*'] },
-        }),
-        packages: {
-          'package-a': {
-            'package.json': '{}',
-          },
-          'package-b': {
-            'package.json': '{}',
-          },
-          'package-c': {},
-          'README.md': 'Hello World',
+      'package.json': JSON.stringify({
+        workspaces: { packages: ['packages/*', 'plugins/*'] },
+      }),
+      packages: {
+        'package-a': {
+          'package.json': '{}',
         },
-        plugins: {
-          'plugin-a': {
-            'package.json': '{}',
-          },
-          'plugin-b': {
-            'package.json': '{}',
-          },
-          'plugin-c': {
-            'package.json': '{}',
-          },
+        'package-b': {
+          'package.json': '{}',
+        },
+        'package-c': {},
+        'README.md': 'Hello World',
+      },
+      plugins: {
+        'plugin-a': {
+          'package.json': '{}',
+        },
+        'plugin-b': {
+          'package.json': '{}',
+        },
+        'plugin-c': {
+          'package.json': '{}',
         },
       },
     });

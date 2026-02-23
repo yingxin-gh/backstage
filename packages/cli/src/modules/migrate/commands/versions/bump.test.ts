@@ -16,6 +16,7 @@
 import fs from 'fs-extra';
 import { Command } from 'commander';
 import * as runObj from '@backstage/cli-common';
+import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 import bump, { bumpBackstageJsonVersion, createVersionFinder } from './bump';
 import { registerMswTestHooks, withLogCollector } from '@backstage/test-utils';
 import { YarnInfoInspectData } from '../../../../lib/versioning/packages';
@@ -64,16 +65,6 @@ jest.mock('@backstage/cli-common', () => {
   const actual = jest.requireActual('@backstage/cli-common');
   return {
     ...actual,
-    targetPaths: {
-      get dir() {
-        return mockDir.path;
-      },
-      get rootDir() {
-        return mockDir.path;
-      },
-      resolve: (...args: string[]) => mockDir.resolve(...args),
-      resolveRoot: (...args: string[]) => mockDir.resolve(...args),
-    },
     findPaths: () => ({
       resolveTargetRoot: (...args: string[]) => mockDir.resolve(...args),
       get targetDir() {
@@ -147,6 +138,7 @@ const expectLogsToMatch = (
 
 describe('bump', () => {
   mockDir = createMockDirectory();
+  beforeAll(() => overrideTargetPaths(mockDir.path));
 
   beforeEach(() => {
     mockFetchPackageInfo.mockImplementation(async name => ({
@@ -953,6 +945,7 @@ describe('bump', () => {
 
 describe('bumpBackstageJsonVersion', () => {
   mockDir = createMockDirectory();
+  beforeAll(() => overrideTargetPaths(mockDir.path));
 
   afterEach(() => {
     jest.resetAllMocks();
@@ -1088,6 +1081,8 @@ describe('createVersionFinder', () => {
 describe('environment variables', () => {
   const worker = setupServer();
   registerMswTestHooks(worker);
+
+  beforeAll(() => overrideTargetPaths(mockDir.path));
 
   beforeEach(() => {
     delete process.env.BACKSTAGE_MANIFEST_FILE;

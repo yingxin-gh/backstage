@@ -204,12 +204,23 @@ export function findOwnDir(searchDir: string) {
   return OwnPathsImpl.findDir(searchDir);
 }
 
+// Used by the test utility in testUtils.ts to override targetPaths
+export let targetPathsOverride: TargetPaths | undefined;
+
+/** @internal */
+export function setTargetPathsOverride(override: TargetPaths | undefined) {
+  targetPathsOverride = override;
+}
+
 class TargetPathsImpl implements TargetPaths {
   #cwd: string | undefined;
   #dir: string | undefined;
   #rootDir: string | undefined;
 
   get dir(): string {
+    if (targetPathsOverride) {
+      return targetPathsOverride.dir;
+    }
     const cwd = process.cwd();
     if (this.#dir !== undefined && this.#cwd === cwd) {
       return this.#dir;
@@ -224,6 +235,9 @@ class TargetPathsImpl implements TargetPaths {
   }
 
   get rootDir(): string {
+    if (targetPathsOverride) {
+      return targetPathsOverride.rootDir;
+    }
     // Access dir first to ensure cwd is fresh, which also invalidates rootDir on cwd change
     const dir = this.dir;
     if (this.#rootDir !== undefined) {
@@ -246,10 +260,16 @@ class TargetPathsImpl implements TargetPaths {
   }
 
   resolve = (...paths: string[]): string => {
+    if (targetPathsOverride) {
+      return targetPathsOverride.resolve(...paths);
+    }
     return resolvePath(this.dir, ...paths);
   };
 
   resolveRoot = (...paths: string[]): string => {
+    if (targetPathsOverride) {
+      return targetPathsOverride.resolveRoot(...paths);
+    }
     return resolvePath(this.rootDir, ...paths);
   };
 }

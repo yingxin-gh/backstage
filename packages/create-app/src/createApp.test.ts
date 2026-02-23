@@ -22,14 +22,18 @@ import createApp from './createApp';
 import { findOwnPaths, targetPaths } from '@backstage/cli-common';
 import { tmpdir } from 'node:os';
 import { createMockDirectory } from '@backstage/backend-test-utils';
+import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 
 jest.mock('./lib/tasks');
+
+const MOCK_TARGET_DIR = '/mock/target-dir';
+const MOCK_TARGET_ROOT = '/mock/target-root';
+overrideTargetPaths({ dir: MOCK_TARGET_DIR, rootDir: MOCK_TARGET_ROOT });
 
 jest.mock('@backstage/cli-common', () => {
   const pathModule = require('node:path');
   const actual = jest.requireActual('@backstage/cli-common');
   const MOCK_CREATE_APP_ROOT = '/mock/create-app-root';
-  const MOCK_TARGET_DIR = '/mock/target-dir';
   const mockOwnPaths = {
     resolve: (...paths: string[]) =>
       pathModule.join(MOCK_CREATE_APP_ROOT, ...paths),
@@ -40,18 +44,6 @@ jest.mock('@backstage/cli-common', () => {
     ...actual,
     findPaths: jest.fn(),
     findOwnPaths: () => mockOwnPaths,
-    targetPaths: {
-      get dir() {
-        return MOCK_TARGET_DIR;
-      },
-      get rootDir() {
-        return '/mock/target-root';
-      },
-      resolve: (...paths: string[]) =>
-        pathModule.resolve(MOCK_TARGET_DIR, ...paths),
-      resolveRoot: (...paths: string[]) =>
-        pathModule.resolve('/mock/target-root', ...paths),
-    },
   };
 });
 

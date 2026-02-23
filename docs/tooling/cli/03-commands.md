@@ -24,7 +24,7 @@ repo [command]                                 Command that run across an entire
 package [command]                              Lifecycle scripts for individual packages
 migrate [command]                              Migration utilities
 versions:bump [options]                        Bump Backstage packages to the latest versions
-translations [command]                          Translation message management
+translations [command]                         Translation message management
 clean                                          Delete cache directories [DEPRECATED]
 build-workspace <workspace-dir> [packages...]  Builds a temporary dist workspace from the provided
                                                 packages
@@ -431,8 +431,8 @@ Usage: backstage-cli create-github-app <github-org>
 
 ## translations export
 
-Export translation messages from all frontend plugin dependencies of the current
-package. This command must be run from within a package directory (e.g.
+Export translation messages from an app and all of its frontend plugins to JSON
+files. This command must be run from within a package directory (e.g.
 `packages/app`), not from the repository root.
 
 The command discovers all `TranslationRef` definitions in the dependency tree,

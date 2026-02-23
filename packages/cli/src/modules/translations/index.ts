@@ -24,7 +24,7 @@ export default createCliPlugin({
     reg.addCommand({
       path: ['translations', 'export'],
       description:
-        'Export translation messages from all frontend plugins to JSON files',
+        'Export translation messages from an app and all of its frontend plugins to JSON files',
       execute: async ({ args }) => {
         const argv = await yargs()
           .options({

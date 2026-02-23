@@ -77,7 +77,9 @@ export const createOpenApiRouter = async (
   );
 
   await exec(`yarn backstage-cli package lint`, ['--fix', tsPath, indexFile]);
-  if (await targetPaths.resolveRoot('node_modules/.bin/prettier')) {
+  if (
+    await fs.pathExists(targetPaths.resolveRoot('node_modules/.bin/prettier'))
+  ) {
     await exec(`yarn prettier`, ['--write', tsPath, indexFile], {
       cwd: targetPaths.rootDir,
     });

@@ -61,10 +61,12 @@ capture:
                 # 🔧 Specify a command that will generate traffic
                 command: yarn backstage-cli package test --no-watch ${ROUTER_TEST_PATHS.map(
                   e => `"${e}"`,
-                ).join(' ')} 
+                ).join(' ')}
   `,
   );
-  if (await targetPaths.resolveRoot('node_modules/.bin/prettier')) {
+  if (
+    await fs.pathExists(targetPaths.resolveRoot('node_modules/.bin/prettier'))
+  ) {
     await exec(`yarn prettier`, ['--write', opticConfigFilePath]);
   }
 }

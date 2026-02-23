@@ -27,11 +27,11 @@ import { waitFor, print } from '../lib/helpers';
 import mysql from 'mysql2/promise';
 import pgtools from 'pgtools';
 
+import { OptionValues } from 'commander';
 import { findOwnPaths, runOutput, run } from '@backstage/cli-common';
 
 /* eslint-disable-next-line no-restricted-syntax */
 const ownPaths = findOwnPaths(__dirname);
-import { OptionValues } from 'commander';
 
 const templatePackagePaths = [
   'packages/cli/templates/frontend-plugin/package.json.hbs',

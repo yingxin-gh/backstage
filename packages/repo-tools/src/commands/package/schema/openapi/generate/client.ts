@@ -87,7 +87,7 @@ async function generate(
 
   await fs.writeFile(
     resolve(parentDirectory, 'index.ts'),
-    `// 
+    `//
     export * from './generated';`,
   );
 
@@ -96,7 +96,7 @@ async function generate(
   });
 
   const prettier = targetPaths.resolveRoot('node_modules/.bin/prettier');
-  if (prettier) {
+  if (await fs.pathExists(prettier)) {
     await exec(`${prettier} --write ${parentDirectory}`, [], {
       signal: abortSignal?.signal,
     });

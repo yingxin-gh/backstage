@@ -82,7 +82,9 @@ async function test(
     throw err;
   }
   if (
-    (await targetPaths.resolveRoot('node_modules/.bin/prettier')) &&
+    (await fs.pathExists(
+      targetPaths.resolveRoot('node_modules/.bin/prettier'),
+    )) &&
     options?.update
   ) {
     await exec(`yarn prettier`, ['--write', openapiPath]);

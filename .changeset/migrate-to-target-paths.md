@@ -1,4 +1,5 @@
 ---
+'@backstage/cli': patch
 '@backstage/cli-node': patch
 '@backstage/backend-dynamic-feature-service': patch
 '@backstage/codemods': patch

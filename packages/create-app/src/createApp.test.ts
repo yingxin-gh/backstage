@@ -30,22 +30,6 @@ const MOCK_TARGET_DIR = '/mock/target-dir';
 const MOCK_TARGET_ROOT = '/mock/target-root';
 overrideTargetPaths({ dir: MOCK_TARGET_DIR, rootDir: MOCK_TARGET_ROOT });
 
-jest.mock('@backstage/cli-common', () => {
-  const pathModule = require('node:path');
-  const actual = jest.requireActual('@backstage/cli-common');
-  const MOCK_CREATE_APP_ROOT = '/mock/create-app-root';
-  const mockOwnPaths = {
-    resolve: (...paths: string[]) =>
-      pathModule.join(MOCK_CREATE_APP_ROOT, ...paths),
-    resolveRoot: (...paths: string[]) =>
-      pathModule.join('/mock/monorepo-root', ...paths),
-  };
-  return {
-    ...actual,
-    findOwnPaths: () => mockOwnPaths,
-  };
-});
-
 // By mocking this the filesystem mocks won't mess with reading all of the package.jsons
 jest.mock('./lib/versions', () => ({
   packageVersions: { root: '1.0.0' },

@@ -20,7 +20,8 @@ import {
   parseEntityRef,
   stringifyLocationRef,
 } from '@backstage/catalog-model';
-import { ResponseError } from '@backstage/errors';
+import { InputError, ResponseError } from '@backstage/errors';
+import { FilterPredicate } from '@backstage/filter-predicates';
 import {
   AddLocationRequest,
   AddLocationResponse,
@@ -47,6 +48,7 @@ import {
   ValidateEntityResponse,
 } from './types/api';
 import {
+  convertFilterToPredicate,
   isQueryEntitiesInitialRequest,
   splitRefsIntoChunks,
   cursorContainsQuery,
@@ -352,11 +354,37 @@ export class CatalogClient implements CatalogApi {
     const body: QueryEntitiesByPredicateRequest = {};
 
     if (isQueryEntitiesInitialRequest(request)) {
-      const { query, limit, offset, orderFields, fullTextFilter, fields } =
-        request;
-      if (query && typeof query === 'object') {
-        body.query = query;
+      const {
+        filter,
+        query,
+        limit,
+        offset,
+        orderFields,
+        fullTextFilter,
+        fields,
+      } = request;
+
+      let filterPredicate: FilterPredicate | undefined;
+      if (query !== undefined) {
+        if (
+          typeof query !== 'object' ||
+          query === null ||
+          Array.isArray(query)
+        ) {
+          throw new InputError('Query must be an object');
+        }
+        filterPredicate = query;
       }
+      if (filter !== undefined) {
+        const converted = convertFilterToPredicate(filter);
+        filterPredicate = filterPredicate
+          ? { $all: [filterPredicate, converted] }
+          : converted;
+      }
+      if (filterPredicate !== undefined) {
+        body.query = filterPredicate as unknown as { [key: string]: any };
+      }
+
       if (limit !== undefined) {
         body.limit = limit;
       }

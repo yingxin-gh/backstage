@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-export type {
-  ConcurrentTasksOptions,
-  WorkerQueueThreadsOptions,
-} from './parallel';
-export { runConcurrentTasks, runWorkerQueueThreads } from './parallel';
+export type { ConcurrentTasksOptions } from './runConcurrentTasks';
+export { runConcurrentTasks } from './runConcurrentTasks';
+export type { WorkerQueueThreadsOptions } from './runWorkerQueueThreads';
+export { runWorkerQueueThreads } from './runWorkerQueueThreads';

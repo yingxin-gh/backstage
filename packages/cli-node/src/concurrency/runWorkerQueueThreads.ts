@@ -14,106 +14,9 @@
  * limitations under the License.
  */
 
-import os from 'node:os';
 import { ErrorLike } from '@backstage/errors';
 import { Worker } from 'node:worker_threads';
-
-const defaultConcurrency = Math.max(Math.ceil(os.cpus().length / 2), 1);
-
-const CONCURRENCY_ENV_VAR = 'BACKSTAGE_CLI_CONCURRENCY';
-const DEPRECATED_CONCURRENCY_ENV_VAR = 'BACKSTAGE_CLI_BUILD_PARALLEL';
-
-type ConcurrencyOption = boolean | string | number | null | undefined;
-
-function parseConcurrencyOption(value: ConcurrencyOption): number {
-  if (value === undefined || value === null) {
-    return defaultConcurrency;
-  } else if (typeof value === 'boolean') {
-    return value ? defaultConcurrency : 1;
-  } else if (typeof value === 'number' && Number.isInteger(value)) {
-    if (value < 1) {
-      return 1;
-    }
-    return value;
-  } else if (typeof value === 'string') {
-    if (value === 'true') {
-      return parseConcurrencyOption(true);
-    } else if (value === 'false') {
-      return parseConcurrencyOption(false);
-    }
-    const parsed = Number(value);
-    if (Number.isInteger(parsed)) {
-      return parseConcurrencyOption(parsed);
-    }
-  }
-
-  throw Error(
-    `Concurrency option value '${value}' is not a boolean or integer`,
-  );
-}
-
-let hasWarnedDeprecation = false;
-
-function getEnvironmentConcurrency() {
-  if (process.env[CONCURRENCY_ENV_VAR] !== undefined) {
-    return parseConcurrencyOption(process.env[CONCURRENCY_ENV_VAR]);
-  }
-  if (process.env[DEPRECATED_CONCURRENCY_ENV_VAR] !== undefined) {
-    if (!hasWarnedDeprecation) {
-      hasWarnedDeprecation = true;
-      console.warn(
-        `The ${DEPRECATED_CONCURRENCY_ENV_VAR} environment variable is deprecated, use ${CONCURRENCY_ENV_VAR} instead`,
-      );
-    }
-    return parseConcurrencyOption(process.env[DEPRECATED_CONCURRENCY_ENV_VAR]);
-  }
-  return defaultConcurrency;
-}
-
-/**
- * Options for {@link runConcurrentTasks}.
- *
- * @public
- */
-export type ConcurrentTasksOptions<TItem> = {
-  /**
-   * Decides the number of concurrent workers by multiplying
-   * this with the configured concurrency.
-   *
-   * Defaults to 1.
-   */
-  concurrencyFactor?: number;
-  items: Iterable<TItem>;
-  worker: (item: TItem) => Promise<void>;
-};
-
-/**
- * Runs items through a worker function concurrently across multiple async workers.
- *
- * @public
- */
-export async function runConcurrentTasks<TItem>(
-  options: ConcurrentTasksOptions<TItem>,
-): Promise<void> {
-  const { concurrencyFactor = 1, items, worker } = options;
-  const concurrency = getEnvironmentConcurrency();
-
-  const sharedIterator = items[Symbol.iterator]();
-  const sharedIterable = {
-    [Symbol.iterator]: () => sharedIterator,
-  };
-
-  const workerCount = Math.max(Math.floor(concurrencyFactor * concurrency), 1);
-  await Promise.all(
-    Array(workerCount)
-      .fill(0)
-      .map(async () => {
-        for (const value of sharedIterable) {
-          await worker(value);
-        }
-      }),
-  );
-}
+import { getEnvironmentConcurrency } from './concurrency';
 
 type WorkerThreadMessage =
   | {
@@ -135,10 +38,6 @@ type WorkerThreadMessage =
   | {
       type: 'error';
       error: ErrorLike;
-    }
-  | {
-      type: 'message';
-      message: unknown;
     };
 
 /**

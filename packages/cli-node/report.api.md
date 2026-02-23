@@ -216,7 +216,9 @@ export function runConcurrentTasks<TItem>(
 // @public
 export function runWorkerQueueThreads<TItem, TResult, TContext>(
   options: WorkerQueueThreadsOptions<TItem, TResult, TContext>,
-): Promise<TResult[]>;
+): Promise<{
+  results: TResult[];
+}>;
 
 // @public
 export type WorkerQueueThreadsOptions<TItem, TResult, TContext> = {

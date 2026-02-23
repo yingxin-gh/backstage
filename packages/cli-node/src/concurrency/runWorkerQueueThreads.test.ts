@@ -21,7 +21,7 @@ describe('runWorkerQueueThreads', () => {
     const sharedData = new SharedArrayBuffer(10);
     const sharedView = new Uint8Array(sharedData);
 
-    const results = await runWorkerQueueThreads({
+    const { results } = await runWorkerQueueThreads({
       context: sharedData,
       items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       workerFactory: (data: SharedArrayBuffer) => {

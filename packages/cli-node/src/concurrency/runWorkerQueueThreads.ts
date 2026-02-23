@@ -78,7 +78,7 @@ export type WorkerQueueThreadsOptions<TItem, TResult, TContext> = {
  */
 export async function runWorkerQueueThreads<TItem, TResult, TContext>(
   options: WorkerQueueThreadsOptions<TItem, TResult, TContext>,
-): Promise<TResult[]> {
+): Promise<{ results: TResult[] }> {
   const items = Array.from(options.items);
   const workerFactory = options.workerFactory;
   const workerData = options.context;
@@ -134,7 +134,7 @@ export async function runWorkerQueueThreads<TItem, TResult, TContext>(
       }),
   );
 
-  return results;
+  return { results };
 }
 
 /* istanbul ignore next */

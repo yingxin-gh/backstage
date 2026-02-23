@@ -65,9 +65,7 @@ function getEnvironmentConcurrency() {
         `The ${DEPRECATED_CONCURRENCY_ENV_VAR} environment variable is deprecated, use ${CONCURRENCY_ENV_VAR} instead`,
       );
     }
-    return parseConcurrencyOption(
-      process.env[DEPRECATED_CONCURRENCY_ENV_VAR],
-    );
+    return parseConcurrencyOption(process.env[DEPRECATED_CONCURRENCY_ENV_VAR]);
   }
   return defaultConcurrency;
 }
@@ -105,10 +103,7 @@ export async function runConcurrentTasks<TItem>(
     [Symbol.iterator]: () => sharedIterator,
   };
 
-  const workerCount = Math.max(
-    Math.floor(concurrencyFactor * concurrency),
-    1,
-  );
+  const workerCount = Math.max(Math.floor(concurrencyFactor * concurrency), 1);
   await Promise.all(
     Array(workerCount)
       .fill(0)

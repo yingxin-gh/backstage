@@ -23,8 +23,8 @@ import {
   BackstagePackage,
   PackageGraph,
   PackageRoles,
+  runConcurrentTasks,
 } from '@backstage/cli-node';
-import { runParallelWorkers } from '../../../../lib/parallel';
 import { buildFrontend } from '../../lib/buildFrontend';
 import { buildBackend } from '../../lib/buildBackend';
 import { createScriptOptionsParser } from '../../../../lib/optionsParser';
@@ -100,9 +100,9 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
 
   if (opts.all) {
     console.log('Building apps');
-    await runParallelWorkers({
+    await runConcurrentTasks({
       items: apps,
-      parallelismFactor: 1 / 2,
+      concurrencyFactor: 1 / 2,
       worker: async pkg => {
         const buildOptions = parseBuildScript(pkg.packageJson.scripts?.build);
         if (!buildOptions) {
@@ -121,9 +121,9 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
     });
 
     console.log('Building backends');
-    await runParallelWorkers({
+    await runConcurrentTasks({
       items: backends,
-      parallelismFactor: 1 / 2,
+      concurrencyFactor: 1 / 2,
       worker: async pkg => {
         const buildOptions = parseBuildScript(pkg.packageJson.scripts?.build);
         if (!buildOptions) {

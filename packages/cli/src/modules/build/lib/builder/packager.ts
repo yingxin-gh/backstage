@@ -21,8 +21,7 @@ import { relative as relativePath, resolve as resolvePath } from 'node:path';
 import { paths } from '../../../../lib/paths';
 import { makeRollupConfigs } from './config';
 import { BuildOptions, Output } from './types';
-import { PackageRoles } from '@backstage/cli-node';
-import { runParallelWorkers } from '../../../../lib/parallel';
+import { PackageRoles, runConcurrentTasks } from '@backstage/cli-node';
 
 export function formatErrorMessage(error: any) {
   let msg = '';
@@ -127,7 +126,7 @@ export const buildPackages = async (options: BuildOptions[]) => {
 
   const buildTasks = rollupConfigs.flat().map(opts => () => rollupBuild(opts));
 
-  await runParallelWorkers({
+  await runConcurrentTasks({
     items: buildTasks,
     worker: async task => task(),
   });

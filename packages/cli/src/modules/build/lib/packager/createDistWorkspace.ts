@@ -41,8 +41,8 @@ import {
   PackageRoles,
   PackageGraph,
   PackageGraphNode,
+  runConcurrentTasks,
 } from '@backstage/cli-node';
-import { runParallelWorkers } from '../../../../lib/parallel';
 import { createTypeDistProject } from '../../../../lib/typeDistProject';
 
 // These packages aren't safe to pack in parallel since the CLI depends on them
@@ -85,11 +85,6 @@ type Options = {
    * When `buildDependencies` is set, this list of packages will not be built even if they are dependencies.
    */
   buildExcludes?: string[];
-
-  /**
-   * Controls amount of parallelism in some build steps.
-   */
-  parallelism?: number;
 
   /**
    * If set, creates a skeleton tarball that contains all package.json files
@@ -225,7 +220,7 @@ export async function createDistWorkspace(
     await buildPackages(standardBuilds);
 
     if (customBuild.length > 0) {
-      await runParallelWorkers({
+      await runConcurrentTasks({
         items: customBuild,
         worker: async ({ name, dir, args }) => {
           await run(['yarn', 'run', 'build', ...(args || [])], {
@@ -368,7 +363,7 @@ async function moveToDistWorkspace(
   }
 
   // Repacking in parallel is much faster and safe for all packages outside of the Backstage repo
-  await runParallelWorkers({
+  await runConcurrentTasks({
     items: safePackages.map((target, index) => ({ target, index })),
     worker: async ({ target, index }) => {
       await pack(target, `temp-package-${index}.tgz`);

@@ -23,9 +23,9 @@ import {
   PackageGraph,
   BackstagePackageJson,
   Lockfile,
+  runWorkerQueueThreads,
 } from '@backstage/cli-node';
 import { paths } from '../../../../lib/paths';
-import { runWorkerQueueThreads } from '../../../../lib/parallel';
 import { createScriptOptionsParser } from '../../../../lib/optionsParser';
 import { SuccessCache } from '../../../../lib/cache/SuccessCache';
 
@@ -105,9 +105,9 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
     }),
   );
 
-  const resultsList = await runWorkerQueueThreads({
+  const { results: resultsList } = await runWorkerQueueThreads({
     items: items.filter(item => item.lintOptions), // Filter out packages without lint script
-    workerData: {
+    context: {
       fix: Boolean(opts.fix),
       format: opts.format as string | undefined,
       shouldCache: Boolean(cacheContext),

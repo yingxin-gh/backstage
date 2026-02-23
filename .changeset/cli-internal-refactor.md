@@ -2,4 +2,4 @@
 '@backstage/cli': patch
 ---
 
-Internal refactor to improve module independence.
+Internal refactor to use new concurrency utilities from `@backstage/cli-node`.

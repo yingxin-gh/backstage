@@ -7968,7 +7968,7 @@ __metadata:
     "@electric-sql/pglite": "npm:^0.3.0"
     "@manypkg/get-packages": "npm:^1.1.3"
     "@microsoft/api-documenter": "npm:^7.28.1"
-    "@microsoft/api-extractor": "npm:^7.57.2"
+    "@microsoft/api-extractor": "npm:^7.57.3"
     "@openapitools/openapi-generator-cli": "npm:^2.7.0"
     "@prettier/sync": "npm:^0.6.1"
     "@stoplight/spectral-core": "npm:^1.18.0"
@@ -11243,9 +11243,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@microsoft/api-extractor@npm:^7.57.2":
-  version: 7.57.2
-  resolution: "@microsoft/api-extractor@npm:7.57.2"
+"@microsoft/api-extractor@npm:^7.57.3":
+  version: 7.57.3
+  resolution: "@microsoft/api-extractor@npm:7.57.3"
   dependencies:
     "@microsoft/api-extractor-model": "npm:7.33.1"
     "@microsoft/tsdoc": "npm:~0.16.0"
@@ -11263,7 +11263,7 @@ __metadata:
     typescript: "npm:5.8.2"
   bin:
     api-extractor: bin/api-extractor
-  checksum: 10/7e6ff99a7ee07e34ae4e3d4e271ea794f20ba3b892932e94f3757f230b8f3d6a3f4c18c723c71d3bffdc7a5dd51c732201fc911089cdebae7a4a194d3e4de2e7
+  checksum: 10/5b2a8c1833b97db4df49aa0d326b4591474a241da2c71489b5de9f24cc42f7579a2ff45d44bc52302c8f4ffb9dd0fbd6e101f19231003dafd31c0efc8100e2ba
   languageName: node
   linkType: hard
 

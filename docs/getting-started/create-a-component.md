@@ -42,9 +42,10 @@ To create the component:
 
 6. Enter your GitHub user name as the `Owner`.
 7. Enter `tutorial` for the `Repository` and select `REVIEW`.
-   
+
    ![select review create component](../assets/uiguide/select-review-create-component.png)
-9. Review the information and select `CREATE`.
+
+8. Review the information and select `CREATE`.
 
    ![select create to make component](../assets/uiguide/select-create-to-make-component.png)
 
@@ -64,28 +65,28 @@ Perform the following steps:
 
    > **NOTE:**
    > The [no-node-snapshot](../features/software-templates/index.md#prerequisites) `NODE_OPTIONS` environment variable is required in order to use the templates.
-   
-5. Enter `yarn start` to restart the Backstage application.
-6. Repeat steps to create the component.
+
+4. Enter `yarn start` to restart the Backstage application.
+5. Repeat steps to create the component.
 
 Otherwise, you can follow along with the progress, and as soon as every step is finished, you can take a look at your new service in either the repository or the Catalog.
 
 ![run of example of create component](../assets/uiguide/successful-create-new-component.png)
 
-Selecting `REPOSITORY` displays the `catalog-info.yaml`file and other project setup files that were created for the new component in the main branch of the `tutorial` repository. 
+Selecting `REPOSITORY` displays the `catalog-info.yaml`file and other project setup files that were created for the new component in the main branch of the `tutorial` repository.
 
 The `catalog-info.yaml` file describes the entity for the Software Catalog. [Descriptor Format of Catalog Entities](../features/software-catalog/descriptor-format.md) provides additional information.
 
-  ```
-   apiVersion: backstage.io/v1alpha1
-   kind: Component
-   metadata:
-     name: "tutorial"
-   spec:
-     type: service
-     owner: user:guest
-     lifecycle: experimental
-  ```
+```
+ apiVersion: backstage.io/v1alpha1
+ kind: Component
+ metadata:
+   name: "tutorial"
+ spec:
+   type: service
+   owner: user:guest
+   lifecycle: experimental
+```
 
 Selecting `OPEN IN CATALOG` displays details of the new component, such as its relationships, links, and subcomponents.
 

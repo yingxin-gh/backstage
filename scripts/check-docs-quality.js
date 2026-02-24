@@ -142,6 +142,7 @@ async function ciCheck(prFilesPath) {
           const severityLevels = {
             error: 'error',
             warning: 'warning',
+            suggestion: 'notice',
           };
           const level = severityLevels[alert.Severity] ?? 'notice';
           const col = alert.Span ? alert.Span[0] : 1;

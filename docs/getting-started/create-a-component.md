@@ -62,8 +62,11 @@ Perform the following steps:
    export NODE_OPTIONS=--no-node-snapshot
    ```
 
-4. Enter `yarn start` to restart the Backstage application.
-5. Repeat steps to create the component.
+   > **NOTE:**
+   > The [no-node-snapshot](../features/software-templates/index.md#prerequisites) `NODE_OPTIONS` environment variable is required in order to use the templates.
+   
+5. Enter `yarn start` to restart the Backstage application.
+6. Repeat steps to create the component.
 
 Otherwise, you can follow along with the progress, and as soon as every step is finished, you can take a look at your new service in either the repository or the Catalog.
 

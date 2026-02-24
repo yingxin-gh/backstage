@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { paths } from '../../../lib/paths';
+import { targetPaths } from '@backstage/cli-common';
 import fs from 'fs-extra';
 import {
   resolve as resolvePath,
@@ -45,11 +45,11 @@ interface Manifest {
 }
 
 export default async (options: ImportOptions) => {
-  await readTargetPackage(paths.targetDir, paths.targetRoot);
+  await readTargetPackage(targetPaths.dir, targetPaths.rootDir);
 
-  const inputDir = resolvePath(paths.targetDir, options.input);
+  const inputDir = resolvePath(targetPaths.dir, options.input);
   const manifestPath = resolvePath(inputDir, 'manifest.json');
-  const outputPath = resolvePath(paths.targetDir, options.output);
+  const outputPath = resolvePath(targetPaths.dir, options.output);
 
   if (!(await fs.pathExists(manifestPath))) {
     throw new Error(

@@ -15,18 +15,12 @@
  */
 
 import { createMockDirectory } from '@backstage/backend-test-utils';
+import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 import { Command } from 'commander';
 import { findRoleFromCommand } from './role';
 
 const mockDir = createMockDirectory();
-
-jest.mock('../../../lib/paths', () => ({
-  paths: {
-    resolveTarget(filename: string) {
-      return mockDir.resolve(filename);
-    },
-  },
-}));
+overrideTargetPaths(mockDir.path);
 
 describe('findRoleFromCommand', () => {
   function mkCommand(args?: string) {

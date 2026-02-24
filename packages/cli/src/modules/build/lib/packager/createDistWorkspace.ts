@@ -24,8 +24,9 @@ import {
 import { tmpdir } from 'node:os';
 import * as tar from 'tar';
 import partition from 'lodash/partition';
-import { paths } from '../../../../lib/paths';
-import { run } from '@backstage/cli-common';
+
+import { run, targetPaths } from '@backstage/cli-common';
+
 import {
   dependencies as cliDependencies,
   devDependencies as cliDevDependencies,
@@ -210,7 +211,9 @@ export async function createDistWorkspace(
           targetDir: pkg.dir,
           packageJson: pkg.packageJson,
           outputs: outputs,
-          logPrefix: `${chalk.cyan(relativePath(paths.targetRoot, pkg.dir))}: `,
+          logPrefix: `${chalk.cyan(
+            relativePath(targetPaths.rootDir, pkg.dir),
+          )}: `,
           minify: options.minify,
           workspacePackages: packages,
         });
@@ -245,13 +248,13 @@ export async function createDistWorkspace(
   for (const file of files) {
     const src = typeof file === 'string' ? file : file.src;
     const dest = typeof file === 'string' ? file : file.dest;
-    await fs.copy(paths.resolveTargetRoot(src), resolvePath(targetDir, dest));
+    await fs.copy(targetPaths.resolveRoot(src), resolvePath(targetDir, dest));
   }
 
   if (options.skeleton) {
     const skeletonFiles = targets
       .map(target => {
-        const dir = relativePath(paths.targetRoot, target.dir);
+        const dir = relativePath(targetPaths.rootDir, target.dir);
         return joinPath(dir, 'package.json');
       })
       .sort();
@@ -300,7 +303,7 @@ async function moveToDistWorkspace(
     fastPackPackages.map(async target => {
       console.log(`Moving ${target.name} into dist workspace`);
 
-      const outputDir = relativePath(paths.targetRoot, target.dir);
+      const outputDir = relativePath(targetPaths.rootDir, target.dir);
       const absoluteOutputPath = resolvePath(workspaceDir, outputDir);
       await productionPack({
         packageDir: target.dir,
@@ -320,7 +323,7 @@ async function moveToDistWorkspace(
       cwd: target.dir,
     }).waitForExit();
 
-    const outputDir = relativePath(paths.targetRoot, target.dir);
+    const outputDir = relativePath(targetPaths.rootDir, target.dir);
     const absoluteOutputPath = resolvePath(workspaceDir, outputDir);
     await fs.ensureDir(absoluteOutputPath);
 

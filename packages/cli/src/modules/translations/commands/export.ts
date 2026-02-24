@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { paths } from '../../../lib/paths';
+import { targetPaths } from '@backstage/cli-common';
 import fs from 'fs-extra';
 import { dirname, resolve as resolvePath } from 'node:path';
 import {
@@ -41,14 +41,14 @@ export default async (options: ExportOptions) => {
   validatePattern(options.pattern);
 
   const targetPackageJson = await readTargetPackage(
-    paths.targetDir,
-    paths.targetRoot,
+    targetPaths.dir,
+    targetPaths.rootDir,
   );
 
-  const outputDir = resolvePath(paths.targetDir, options.output);
+  const outputDir = resolvePath(targetPaths.dir, options.output);
   const manifestPath = resolvePath(outputDir, 'manifest.json');
 
-  const tsconfigPath = paths.resolveTargetRoot('tsconfig.json');
+  const tsconfigPath = targetPaths.resolveRoot('tsconfig.json');
   if (!(await fs.pathExists(tsconfigPath))) {
     throw new Error(
       `No tsconfig.json found at ${tsconfigPath}. ` +
@@ -61,7 +61,7 @@ export default async (options: ExportOptions) => {
   );
   const packages = await discoverFrontendPackages(
     targetPackageJson,
-    paths.targetDir,
+    targetPaths.dir,
   );
   console.log(`Found ${packages.length} frontend packages to scan`);
 

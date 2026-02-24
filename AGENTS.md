@@ -30,15 +30,15 @@ When writing or generating tests, prefer fewer thorough tests with multiple asse
 Before any of these commands can be run, you need to run `yarn install` in the project root.
 
 - Build: There is no need to build the project during development, and it is verified automatically in the CI pipeline.
-- Test: Use `yarn test --no-watch <path>` in the project root to run tests. The path can be either a single file or a directory. Always provide a path, avoid running all tests.
-- Type checking: Use `yarn tsc` in the project root to run the type checker.
-- Code formatting: Use `yarn prettier --write <path>` to format code.
+- Test: Use `CI=1 yarn test <path>` in the project root to run tests. The path can be either a single file or a directory. Always provide a path, avoid running all tests.
+- Type checking: Use `yarn tsc` in the project root to run the type checker. Do not try to run it somewhere else than the project root and do not supply any options.
+- Code formatting: Use `yarn prettier --write <...paths>` to format code. Run it explicitly for file paths that you know are changed, not for entire folders - otherwise it may change formatting of unrelated files.
 - Lint: Use `yarn lint --fix` in the project root to run the linter.
 - API reports: Before submitting a pull request with changes to any package in the workspace, run `yarn build:api-reports` in the project root to generate API reports for all packages.
 - Dev server: Use `yarn start` to run the example app locally (frontend on :3000, backend on :7007).
 - Create: Use `yarn new` to scaffold new plugins, packages, or modules.
 
-You MUST NOT create a release by running `yarn changesets version` or `yarn release` as part of any changes. Releases are created by separate workflows.
+You MUST NOT run builds or create a release by running `yarn build`, `yarn changesets version`, or `yarn release` as part of any changes. Builds and releases are made by separate workflows.
 
 All changes that affect the published version of packages in the `/packages` and `/plugins` directories must be accompanied by a changeset. Only non-private packages require changesets. See the guidelines in `/CONTRIBUTING.md#creating-changesets` for information on how to write good changesets. Changesets are stored in the `/.changeset` directory and should be created by writing changeset files directly — never use the changeset CLI. Breaking changes must be accompanied by a `minor` version bump for packages below version `1.0.0`, or a `major` version bump for packages at version `1.0.0` or higher. For non-breaking changes that introduce new APIs or features, use `minor` for packages at version `1.0.0` or higher, and `patch` for packages below `1.0.0`. Each changeset message should be relevant to the specific package it targets and written for Backstage adopters as the audience — avoid referencing internal implementation details. If a change spans multiple packages you often need to create separate changesets to make sure they are tailored to each package.
 

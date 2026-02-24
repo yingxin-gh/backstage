@@ -23,9 +23,21 @@ jobs:
 
       - name: Install vale
         run: |
-          gh release download --repo errata-ai/vale -p 'vale_*_Linux_64-bit.tar.gz' -D /tmp
+          VALE_VERSION="3.7.1"
+          VALE_REPO="errata-ai/vale"
+          VALE_DIST_DIR="/tmp/vale-dist"
+
+          mkdir -p "$VALE_DIST_DIR"
+
+          # Download pinned Vale binary and corresponding checksums file
+          gh release download "v${VALE_VERSION}" --repo "$VALE_REPO" --pattern "vale_${VALE_VERSION}_Linux_64-bit.tar.gz" --dir "$VALE_DIST_DIR"
+          gh release download "v${VALE_VERSION}" --repo "$VALE_REPO" --pattern "vale_${VALE_VERSION}_checksums.txt" --dir "$VALE_DIST_DIR"
+
+          # Verify the integrity of the downloaded archive
+          (cd "$VALE_DIST_DIR" && sha256sum --check --ignore-missing "vale_${VALE_VERSION}_checksums.txt")
+
           mkdir -p "$HOME/.local/bin"
-          tar -xzf /tmp/vale_*_Linux_64-bit.tar.gz -C "$HOME/.local/bin" vale
+          tar -xzf "$VALE_DIST_DIR/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" -C "$HOME/.local/bin" vale
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           vale --version
         env:

@@ -21,7 +21,9 @@ jobs:
       - name: Install vale
         run: |
           gh release download --repo errata-ai/vale -p 'vale_*_Linux_64-bit.tar.gz' -D /tmp
-          tar -xzf /tmp/vale_*_Linux_64-bit.tar.gz -C /usr/local/bin vale
+          mkdir -p "$HOME/.local/bin"
+          tar -xzf /tmp/vale_*_Linux_64-bit.tar.gz -C "$HOME/.local/bin" vale
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           vale --version
         env:
           GH_TOKEN: ${{ github.token }}

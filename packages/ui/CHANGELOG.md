@@ -1,5 +1,22 @@
 # @backstage/ui
 
+## 0.12.1-next.0
+
+### Patch Changes
+
+- a1f4bee: Made Accordion a `bg` provider so nested components like Button auto-increment their background level. Updated `useDefinition` to resolve `bg` `propDef` defaults for provider components.
+- 8909359: Fixed focus-visible outline styles for Menu and Select components.
+
+  **Affected components:** Menu, Select
+
+- 0f462f8: Improved type safety in `useDefinition` by centralizing prop resolution and strengthening the `BgPropsConstraint` to require that `bg` provider components declare `children` as a required prop in their OwnProps type.
+- 8909359: Added proper cursor styles for RadioGroup items.
+
+  **Affected components:** RadioGroup
+
+- Updated dependencies
+  - @backstage/version-bridge@1.0.12
+
 ## 0.12.0
 
 ### Minor Changes

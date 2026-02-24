@@ -168,7 +168,7 @@ export default definePreview({
           style={{
             minHeight: 'calc(100vh - 32px)',
             width: 'calc(100vw - 32px)',
-            borderRadius: '8px',
+            borderRadius: 'var(--bui-radius-3)',
             ...(layout === 'centered' && {
               display: 'flex',
               alignItems: 'center',

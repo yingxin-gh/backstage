@@ -21,6 +21,10 @@ The following files contain guidelines for the project:
 - `/SECURITY.md`: guidelines for security.
 - `/docs/architecture-decisions/`: contains the architecture decisions for the project.
 
+When writing or generating code, always match the existing coding style of each individual package and file. Different packages in the monorepo may have different conventions — consistency within a package is more important than consistency across the repo.
+
+When writing or generating tests, prefer fewer thorough tests with multiple assertions over many small tests. When using React Testing Library, prefer using `screen` and `.findBy*` queries over `waitFor`, and avoid adding test IDs to the implementation.
+
 ## Development Flow
 
 Before any of these commands can be run, you need to run `yarn install` in the project root.
@@ -36,9 +40,13 @@ Before any of these commands can be run, you need to run `yarn install` in the p
 
 You MUST NOT create a release by running `yarn changesets version` or `yarn release` as part of any changes. Releases are created by separate workflows.
 
-All changes that affect the published version of packages in the `/packages` and `/plugins` directories must be accompanied by a changeset. Only non-private packages require changesets. See the guidelines in `/CONTRIBUTING.md#creating-changesets` for information on how to write good changesets. Changesets are stored in the `/.changeset` directory. Breaking changes must be accompanied by a `minor` version bump for packages below version `1.0.0`, or a `major` version bump for packages at version `1.0.0` or higher.
+All changes that affect the published version of packages in the `/packages` and `/plugins` directories must be accompanied by a changeset. Only non-private packages require changesets. See the guidelines in `/CONTRIBUTING.md#creating-changesets` for information on how to write good changesets. Changesets are stored in the `/.changeset` directory and should be created by writing changeset files directly — never use the changeset CLI. Breaking changes must be accompanied by a `minor` version bump for packages below version `1.0.0`, or a `major` version bump for packages at version `1.0.0` or higher. For non-breaking changes, use `minor` for packages at version `1.0.0` or higher, and `patch` for packages below `1.0.0`. Each changeset message should be relevant to the specific package it targets and written for Backstage adopters as the audience — avoid referencing internal implementation details. If a change spans multiple packages you often need to create separate changesets to make sure they are tailored to each package.
+
+When creating pull requests, use the template at `/.github/PULL_REQUEST_TEMPLATE.md`.
 
 Never update ESLint, Prettier, or TypeScript configuration files unless specifically requested.
+
+Never make changes to the release notes in `/docs/releases` unless explicitly asked. These document past releases and should not be updated based on newer changes.
 
 ## Repository Structure
 

@@ -7,7 +7,7 @@ on:
       - '**.md'
 
 jobs:
-  check-all-files:
+  check-docs:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,18 +18,20 @@ jobs:
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # Vale does not support file excludes, so we use the script to generate a list of files instead
-      # The action also does not allow args or a local config file to be passed in, so the files array
-      # also contains an "--config=.github/vale/config.ini" option
-      - name: generate vale args
-        id: generate
-        run: echo "args=$(node scripts/check-docs-quality.js --ci-args)" >> $GITHUB_OUTPUT
-
-      - name: documentation quality check
-        uses: errata-ai/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
-        with:
-          # This also contains --config=.github/vale/config.ini ... :/
-          files: '${{ steps.generate.outputs.args }}'
-          version: latest
+      - name: Install vale
+        run: |
+          gh release download --repo errata-ai/vale -p 'vale_*_Linux_64-bit.tar.gz' -D /tmp
+          tar -xzf /tmp/vale_*_Linux_64-bit.tar.gz -C /usr/local/bin vale
+          vale --version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Get changed files
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate -q '.[] | select(.status != "removed") | .filename' > /tmp/pr-files.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Documentation quality check
+        run: node scripts/check-docs-quality.js --ci /tmp/pr-files.txt

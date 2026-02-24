@@ -10,6 +10,7 @@ import { apis } from './support/apis';
 import { useGlobals } from 'storybook/preview-api';
 import { UnifiedThemeProvider, themes } from '@backstage/theme';
 import { allModes } from './modes';
+import { Box } from '../packages/ui/src/components/Box';
 
 // Default Backstage theme CSS (from packages/ui)
 import '../packages/ui/src/css/styles.css';
@@ -70,7 +71,13 @@ export default definePreview({
 
     options: {
       storySort: {
-        order: ['Backstage UI', 'Plugins', 'Layout', 'Navigation'],
+        order: [
+          'Backstage UI',
+          'Guidelines',
+          'Plugins',
+          'Layout',
+          'Navigation',
+        ],
       },
     },
 
@@ -114,7 +121,7 @@ export default definePreview({
   },
 
   decorators: [
-    Story => {
+    (Story, context) => {
       const [globals] = useGlobals();
       const selectedTheme =
         globals.themeMode === 'light' ? themes.light : themes.dark;
@@ -138,7 +145,7 @@ export default definePreview({
         (element as HTMLElement).style.backgroundColor = 'var(--bui-bg-app)';
       });
 
-      return (
+      const content = (
         <UnifiedThemeProvider theme={selectedTheme}>
           {/* @ts-ignore */}
           <TestApiProvider apis={apis}>
@@ -146,6 +153,33 @@ export default definePreview({
             <Story />
           </TestApiProvider>
         </UnifiedThemeProvider>
+      );
+
+      if (selectedThemeName !== 'spotify') {
+        return content;
+      }
+
+      const layout = context.parameters?.layout ?? 'padded';
+      const isFullscreen = context.parameters?.layout === 'fullscreen';
+
+      return (
+        <Box
+          bg="neutral-1"
+          style={{
+            minHeight: 'calc(100vh - 32px)',
+            width: 'calc(100vw - 32px)',
+            borderRadius: '8px',
+            ...(layout === 'centered' && {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }),
+          }}
+          p="4"
+          m={isFullscreen ? '4' : '0'}
+        >
+          {content}
+        </Box>
       );
     },
   ],

@@ -1,5 +1,14 @@
 # @backstage/create-app
 
+## 0.7.10-next.0
+
+### Patch Changes
+
+- 70fc178: Migrated from deprecated `findPaths` to `targetPaths` and `findOwnPaths` from `@backstage/cli-common`.
+- de62a9d: Upgraded `commander` dependency from `^12.0.0` to `^14.0.3` across all CLI packages.
+- Updated dependencies
+  - @backstage/cli-common@0.2.0-next.0
+
 ## 0.7.9
 
 ### Patch Changes

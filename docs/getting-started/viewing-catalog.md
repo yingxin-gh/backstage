@@ -13,10 +13,10 @@ Initially, when you log into your standalone Backstage App, `Home` is selected i
 
 There are four main entities that you should become familiar with:
 
-  - `Components` - Individual pieces of software that can be tracked in source control and can implement APIs for other components to consume.
-  - `Resources` - The physical or virtual infrastructure needed to operate a component.
-  - `Systems` - A collection of resources and components that cooperate to perform a function by exposing one or several public APIs. It hides the resources and private APIs between the components from the consumer.
-  - `Domains` - A collection of systems that share terminology, domain models, metrics, KPIs, business purpose, or documentation.
+- `Components` - Individual pieces of software that can be tracked in source control and can implement APIs for other components to consume.
+- `Resources` - The physical or virtual infrastructure needed to operate a component.
+- `Systems` - A collection of resources and components that cooperate to perform a function by exposing one or several public APIs. It hides the resources and private APIs between the components from the consumer.
+- `Domains` - A collection of systems that share terminology, domain models, metrics, KPIs, business purpose, or documentation.
 
 The [Technical Overview](../overview/technical-overview.md#software-catalog-system-model) provides a description of all of the types of entities displayed in the Catalog.
 
@@ -59,7 +59,7 @@ You can modify the columns associated with each kind of entity, following the in
 
 ## Catalog Actions
 
-For each entity, there are a set of actions that are available. 
+For each entity, there are a set of actions that are available.
 
 ![Screenshot explaining entity actions.](../assets/uiguide/entity-actions.png)
 

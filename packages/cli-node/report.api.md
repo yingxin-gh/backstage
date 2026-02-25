@@ -111,6 +111,7 @@ export class Lockfile {
   keys(): IterableIterator<string>;
   static load(path: string): Promise<Lockfile>;
   static parse(content: string): Lockfile;
+  toString(): string;
 }
 
 // @public

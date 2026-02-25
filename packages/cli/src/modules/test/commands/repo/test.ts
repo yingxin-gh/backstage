@@ -22,7 +22,7 @@ import yargs from 'yargs';
 import { run as runJest, yargsOptions as jestYargsOptions } from 'jest-cli';
 import { relative as relativePath } from 'node:path';
 import { Command, OptionValues } from 'commander';
-import { Lockfile, PackageGraph } from '@backstage/cli-node';
+import { Lockfile, PackageGraph, SuccessCache } from '@backstage/cli-node';
 
 import {
   runCheck,
@@ -31,7 +31,6 @@ import {
   findOwnPaths,
   isChildPath,
 } from '@backstage/cli-common';
-import { SuccessCache } from '@backstage/cli-node';
 
 type JestProject = {
   displayName: string;
@@ -333,7 +332,7 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
       );
     }
 
-    const cache = new SuccessCache('test', opts.successCacheDir);
+    const cache = SuccessCache.create('test', opts.successCacheDir);
     const graph = await getPackageGraph();
 
     // Shared state for the bridge

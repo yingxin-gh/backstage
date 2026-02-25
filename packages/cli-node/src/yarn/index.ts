@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { getHasYarnPlugin } from './yarnPlugin';
+export { hasYarnPlugin } from './yarnPlugin';

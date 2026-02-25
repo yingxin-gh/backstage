@@ -16,12 +16,12 @@
 
 import { createMockDirectory } from '@backstage/backend-test-utils';
 import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
-import { getHasYarnPlugin } from './yarnPlugin';
+import { hasYarnPlugin } from './yarnPlugin';
 
 const mockDir = createMockDirectory();
 overrideTargetPaths(mockDir.path);
 
-describe('getHasYarnPlugin', () => {
+describe('hasYarnPlugin', () => {
   beforeEach(() => {
     mockDir.clear();
   });
@@ -29,7 +29,7 @@ describe('getHasYarnPlugin', () => {
   it('should return false when .yarnrc.yml does not exist', async () => {
     mockDir.setContent({});
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin();
     expect(result).toBe(false);
   });
 
@@ -38,7 +38,7 @@ describe('getHasYarnPlugin', () => {
       '.yarnrc.yml': '',
     });
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin();
     expect(result).toBe(false);
   });
 
@@ -47,7 +47,7 @@ describe('getHasYarnPlugin', () => {
       '.yarnrc.yml': 'plugins: []',
     });
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin();
     expect(result).toBe(false);
   });
 
@@ -60,7 +60,7 @@ plugins:
 `,
     });
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin();
     expect(result).toBe(false);
   });
 
@@ -74,7 +74,7 @@ plugins:
 `,
     });
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin();
     expect(result).toBe(true);
   });
 
@@ -86,7 +86,7 @@ plugins:
 `,
     });
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin();
     expect(result).toBe(true);
   });
 
@@ -95,7 +95,7 @@ plugins:
       '.yarnrc.yml': 'invalid: yaml: content: [',
     });
 
-    await expect(getHasYarnPlugin()).rejects.toThrow();
+    await expect(hasYarnPlugin()).rejects.toThrow();
   });
 
   it('should throw error when .yarnrc.yml has unexpected structure', async () => {
@@ -105,21 +105,22 @@ plugins: "not an array"
 `,
     });
 
-    await expect(getHasYarnPlugin()).rejects.toThrow(
+    await expect(hasYarnPlugin()).rejects.toThrow(
       'Unexpected content in .yarnrc.yml',
     );
   });
 
-  it('should handle plugins with different structure', async () => {
+  it('should resolve from a custom workspace directory', async () => {
     mockDir.setContent({
-      '.yarnrc.yml': `
+      'custom-dir': {
+        '.yarnrc.yml': `
 plugins:
   - path: .yarn/plugins/@yarnpkg/plugin-backstage.cjs
-  - path: .yarn/plugins/@yarnpkg/plugin-typescript.cjs
 `,
+      },
     });
 
-    const result = await getHasYarnPlugin();
+    const result = await hasYarnPlugin(mockDir.resolve('custom-dir'));
     expect(result).toBe(true);
   });
 });

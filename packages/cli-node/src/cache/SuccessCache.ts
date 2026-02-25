@@ -40,7 +40,11 @@ export class SuccessCache {
     return input.replaceAll(targetPaths.rootDir, '');
   }
 
-  constructor(name: string, basePath?: string) {
+  static create(name: string, basePath?: string): SuccessCache {
+    return new SuccessCache(name, basePath);
+  }
+
+  private constructor(name: string, basePath?: string) {
     this.#path = resolvePath(basePath ?? DEFAULT_CACHE_BASE_PATH, name);
   }
 

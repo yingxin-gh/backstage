@@ -31,7 +31,7 @@ import { isError, NotFoundError } from '@backstage/errors';
 import { resolve as resolvePath } from 'node:path';
 
 import {
-  getHasYarnPlugin,
+  hasYarnPlugin,
   Lockfile,
   runConcurrentTasks,
 } from '@backstage/cli-node';
@@ -76,7 +76,7 @@ function extendsDefaultPattern(pattern: string): boolean {
 export default async (opts: OptionValues) => {
   const lockfilePath = targetPaths.resolveRoot('yarn.lock');
   const lockfile = await Lockfile.load(lockfilePath);
-  const hasYarnPlugin = await getHasYarnPlugin();
+  const yarnPluginEnabled = await hasYarnPlugin();
 
   let pattern = opts.pattern;
 
@@ -130,7 +130,7 @@ export default async (opts: OptionValues) => {
     });
   }
 
-  if (hasYarnPlugin) {
+  if (yarnPluginEnabled) {
     console.log();
     console.log(
       `Updating yarn plugin to v${releaseManifest.releaseVersion}...`,
@@ -214,7 +214,7 @@ export default async (opts: OptionValues) => {
               const oldLockfileRange = await asLockfileVersion(oldRange);
 
               const useBackstageRange =
-                hasYarnPlugin &&
+                yarnPluginEnabled &&
                 // Only use backstage:^ versions if the package is present in
                 // the manifest for the release we're bumping to.
                 releaseManifest.packages.find(
@@ -254,7 +254,7 @@ export default async (opts: OptionValues) => {
     if (extendsDefaultPattern(pattern)) {
       await bumpBackstageJsonVersion(
         releaseManifest.releaseVersion,
-        hasYarnPlugin,
+        yarnPluginEnabled,
       );
     } else {
       console.log(
@@ -319,7 +319,7 @@ export default async (opts: OptionValues) => {
       console.log();
     }
 
-    if (hasYarnPlugin) {
+    if (yarnPluginEnabled) {
       console.log();
       console.log(
         chalk.blue(

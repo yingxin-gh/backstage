@@ -1,5 +1,22 @@
 # @backstage/repo-tools
 
+## 0.16.6-next.0
+
+### Patch Changes
+
+- 6738cf0: build(deps): bump `minimatch` from 9.0.5 to 10.2.1
+- 2a51546: Fixed prettier existence checks in OpenAPI commands to use `fs.pathExists` instead of checking the resolved path string, which was always truthy.
+- 70fc178: Migrated from deprecated `findPaths` to `targetPaths` and `findOwnPaths` from `@backstage/cli-common`.
+- de62a9d: Upgraded `commander` dependency from `^12.0.0` to `^14.0.3` across all CLI packages.
+- 18a946c: Updated `@microsoft/api-extractor` to `7.57.3` and added tests for `getTsDocConfig`
+- Updated dependencies
+  - @backstage/cli-common@0.2.0-next.0
+  - @backstage/cli-node@0.2.19-next.0
+  - @backstage/config-loader@1.10.9-next.0
+  - @backstage/backend-plugin-api@1.7.1-next.0
+  - @backstage/catalog-model@1.7.6
+  - @backstage/errors@1.2.7
+
 ## 0.16.4
 
 ### Patch Changes

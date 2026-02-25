@@ -1,5 +1,16 @@
 # @backstage/cli-node
 
+## 0.2.19-next.0
+
+### Patch Changes
+
+- 06c2015: Added `runConcurrentTasks` and `runWorkerQueueThreads` utilities, moved from the `@backstage/cli` internal code.
+- 70fc178: Migrated from deprecated `findPaths` to `targetPaths` and `findOwnPaths` from `@backstage/cli-common`.
+- Updated dependencies
+  - @backstage/cli-common@0.2.0-next.0
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+
 ## 0.2.18
 
 ### Patch Changes

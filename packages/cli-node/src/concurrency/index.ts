@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { findPaths } from '@backstage/cli-common';
-
-/* eslint-disable-next-line no-restricted-syntax */
-export const paths = findPaths(__dirname);
+export type { ConcurrentTasksOptions } from './runConcurrentTasks';
+export { runConcurrentTasks } from './runConcurrentTasks';
+export type { WorkerQueueThreadsOptions } from './runWorkerQueueThreads';
+export { runWorkerQueueThreads } from './runWorkerQueueThreads';

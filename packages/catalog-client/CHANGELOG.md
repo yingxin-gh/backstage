@@ -1,5 +1,15 @@
 # @backstage/catalog-client
 
+## 1.13.1-next.0
+
+### Patch Changes
+
+- d2494d6: Minor update to catalog client docs
+- Updated dependencies
+  - @backstage/catalog-model@1.7.6
+  - @backstage/errors@1.2.7
+  - @backstage/filter-predicates@0.1.0
+
 ## 1.13.0
 
 ### Minor Changes

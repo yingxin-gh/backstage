@@ -16,7 +16,7 @@
 
 import { Yarn } from './yarn';
 import { Lockfile } from './Lockfile';
-import { paths } from '../paths';
+import { targetPaths } from '@backstage/cli-common';
 import { RunOptions } from '@backstage/cli-common';
 import fs from 'fs-extra';
 
@@ -85,7 +85,7 @@ export interface PackageManager {
  */
 export async function detectPackageManager(): Promise<PackageManager> {
   const hasYarnLockfile = await fileExists(
-    paths.resolveTargetRoot('yarn.lock'),
+    targetPaths.resolveRoot('yarn.lock'),
   );
   if (hasYarnLockfile) {
     return await Yarn.create();
@@ -93,7 +93,7 @@ export async function detectPackageManager(): Promise<PackageManager> {
 
   try {
     const packageJson = await fs.readJson(
-      paths.resolveTargetRoot('package.json'),
+      targetPaths.resolveRoot('package.json'),
     );
     if (packageJson.workspaces) {
       // technically this could be NPM as well

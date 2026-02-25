@@ -118,7 +118,7 @@ export interface AccordionGroupProps
 // @public
 export type AccordionOwnProps = {
   bg?: ProviderBg;
-  children?: ReactNode;
+  children: ReactNode;
   className?: string;
 };
 
@@ -281,7 +281,7 @@ export interface BgContextValue {
 }
 
 // @public
-export const BgProvider: ({ bg, children }: BgProviderProps) => JSX_2.Element;
+export const BgProvider: (input: BgProviderProps) => JSX_2.Element;
 
 // @public (undocumented)
 export interface BgProviderProps {
@@ -360,7 +360,7 @@ export const BoxDefinition: {
 export type BoxOwnProps = {
   as?: keyof JSX.IntrinsicElements;
   bg?: Responsive<ProviderBg>;
-  children?: ReactNode;
+  children: ReactNode;
   className?: string;
   style?: CSSProperties;
 };
@@ -370,7 +370,7 @@ export interface BoxProps
   extends SpaceProps,
     BoxOwnProps,
     BoxUtilityProps,
-    React.HTMLAttributes<HTMLDivElement> {}
+    Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {}
 
 // @public (undocumented)
 export type BoxUtilityProps = {
@@ -1837,20 +1837,7 @@ export interface SwitchProps extends SwitchProps_2 {
 export const Tab: (props: TabProps) => JSX_2.Element;
 
 // @public (undocumented)
-export function Table<T extends TableItem>({
-  columnConfig,
-  data,
-  loading,
-  isStale,
-  error,
-  pagination,
-  sort,
-  rowConfig,
-  selection,
-  emptyState,
-  className,
-  style,
-}: TableProps<T>): JSX_2.Element;
+export function Table<T extends TableItem>(input: TableProps<T>): JSX_2.Element;
 
 // @public (undocumented)
 export const TableBody: <T extends object>(
@@ -1897,19 +1884,7 @@ export interface TableItem {
 }
 
 // @public
-export function TablePagination({
-  pageSize,
-  pageSizeOptions,
-  offset,
-  totalCount,
-  hasNextPage,
-  hasPreviousPage,
-  onNextPage,
-  onPreviousPage,
-  onPageSizeChange,
-  showPageSizeOptions,
-  getLabel,
-}: TablePaginationProps): JSX_2.Element;
+export function TablePagination(input: TablePaginationProps): JSX_2.Element;
 
 // @public
 export const TablePaginationDefinition: {

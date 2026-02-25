@@ -15,7 +15,7 @@
  */
 import { Command } from 'commander';
 import { createCliPlugin } from '../../wiring/factory';
-import { lazy } from '../../lib/lazy';
+import { lazy } from '../../wiring/lazy';
 
 export default createCliPlugin({
   pluginId: 'maintenance',

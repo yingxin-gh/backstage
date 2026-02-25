@@ -15,7 +15,7 @@
  */
 
 import { assertError } from '@backstage/errors';
-import { exitWithError } from '../lib/errors';
+import { exitWithError } from './errors';
 
 type ActionFunc = (...args: any[]) => Promise<void>;
 type ActionExports<TModule extends object> = {

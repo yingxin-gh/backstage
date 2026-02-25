@@ -16,7 +16,7 @@
 
 import { Command, Option } from 'commander';
 import { createCliPlugin } from '../../wiring/factory';
-import { lazy } from '../../lib/lazy';
+import { lazy } from '../../wiring/lazy';
 import { configOption } from '../config';
 
 export function registerPackageCommands(command: Command) {

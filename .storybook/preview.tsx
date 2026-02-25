@@ -176,7 +176,7 @@ export default definePreview({
                   : parseInt(selectedBackground.split('-')[1], 10),
             }).reduce<React.ReactNode>(
               children => (
-                <Box bg="neutral-auto" p="4">
+                <Box bg="neutral" p="4">
                   {children}
                 </Box>
               ),

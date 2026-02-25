@@ -190,9 +190,10 @@ export interface ComponentDefinition {
  * The 'neutral-4' level is not exposed as a prop value -- it is reserved
  * for leaf component CSS (e.g. Button on a 'neutral-3' surface).
  *
- * This type is internal. Use `ProviderBg` for component prop types.
+ * This is the resolved/internal representation used by the bg context system.
+ * For the prop type accepted by container components, use `ProviderBg` instead.
  *
- * @internal
+ * @public
  */
 export type ContainerBg =
   | 'neutral-1'

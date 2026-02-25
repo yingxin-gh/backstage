@@ -28,6 +28,7 @@ import { useStyles } from '../../hooks/useStyles';
 import { TooltipDefinition } from './definition';
 import styles from './Tooltip.module.css';
 import { Box } from '../Box';
+import { BgReset } from '../../hooks/useBg';
 
 /** @public */
 export const TooltipTrigger = (props: TooltipTriggerComponentProps) => {
@@ -71,12 +72,14 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
             <path d="M11.0046 8.14124C10.2439 8.82575 9.08939 8.82578 8.32869 8.14122L3.47189 3.77011C2.92109 3.27432 2.20619 2.99999 1.46509 2.99999L4.10999 3L8.99769 7.39793C9.37799 7.7402 9.95529 7.7402 10.3356 7.39793L15.2226 3L17.8683 2.99999C17.1271 2.99999 16.4122 3.27432 15.8614 3.77011L11.0046 8.14124Z" />
           </svg>
         </OverlayArrow>
-        <Box
-          bg="neutral-1"
-          className={clsx(classNames.content, styles[classNames.content])}
-        >
-          {children}
-        </Box>
+        <BgReset>
+          <Box
+            bg="neutral"
+            className={clsx(classNames.content, styles[classNames.content])}
+          >
+            {children}
+          </Box>
+        </BgReset>
       </AriaTooltip>
     );
   },

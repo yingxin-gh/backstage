@@ -70,6 +70,24 @@ export const BgProvider = ({ bg, children }: BgProviderProps) => {
 };
 
 /**
+ * Resets the bg context to undefined, cutting any inherited neutral chain.
+ * Use this inside overlay components (Popover, Tooltip, Dialog, Menu) so
+ * their content always starts from neutral-1 regardless of where the trigger
+ * is placed in the tree.
+ *
+ * @internal
+ */
+export const BgReset = ({ children }: { children: ReactNode }) => {
+  return (
+    <BgContext.Provider
+      value={createVersionedValueMap({ 1: { bg: undefined } })}
+    >
+      {children}
+    </BgContext.Provider>
+  );
+};
+
+/**
  * Hook for consumer components (e.g. Button) to read the parent bg context.
  *
  * Returns the parent container's bg unchanged. The consumer component's CSS

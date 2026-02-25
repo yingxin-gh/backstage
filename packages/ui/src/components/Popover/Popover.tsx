@@ -23,6 +23,7 @@ import { useStyles } from '../../hooks/useStyles';
 import { PopoverDefinition } from './definition';
 import styles from './Popover.module.css';
 import { Box } from '../Box';
+import { BgReset } from '../../hooks/useBg';
 
 /**
  * A popover component built on React Aria Components that displays floating
@@ -95,12 +96,14 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(
                   </svg>
                 </OverlayArrow>
               )}
-            <Box
-              bg="neutral-1"
-              className={clsx(classNames.content, styles[classNames.content])}
-            >
-              {children}
-            </Box>
+            <BgReset>
+              <Box
+                bg="neutral"
+                className={clsx(classNames.content, styles[classNames.content])}
+              >
+                {children}
+              </Box>
+            </BgReset>
           </>
         )}
       </AriaPopover>

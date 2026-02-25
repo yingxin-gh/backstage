@@ -17,7 +17,7 @@
 import {
   productionPack,
   revertProductionPack,
-} from '../../../../modules/build/lib/packager/productionPack';
+} from '../../lib/packager/productionPack';
 import { targetPaths } from '@backstage/cli-common';
 
 import fs from 'fs-extra';

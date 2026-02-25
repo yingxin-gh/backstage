@@ -94,12 +94,6 @@ export type ConcurrentTasksOptions<TItem> = {
 };
 
 // @public
-export function detectYarnVersion(dir?: string): Promise<'classic' | 'berry'>;
-
-// @public
-export function fetchPackageInfo(name: string): Promise<YarnInfoInspectData>;
-
-// @public
 export class GitUtils {
   static listChangedFiles(ref: string): Promise<string[]>;
   static readFileAtRef(path: string, ref: string): Promise<string>;
@@ -139,12 +133,6 @@ export type LockfileQueryEntry = {
   version: string;
   dataKey: string;
 };
-
-// @public
-export function mapDependencies(
-  targetDir: string,
-  pattern: string,
-): Promise<Map<string, PkgVersionInfo[]>>;
 
 // @public
 export const packageFeatureType: readonly [
@@ -222,13 +210,6 @@ export class PackageRoles {
 }
 
 // @public
-export type PkgVersionInfo = {
-  range: string;
-  name: string;
-  location: string;
-};
-
-// @public
 export function runConcurrentTasks<TItem>(
   options: ConcurrentTasksOptions<TItem>,
 ): Promise<void>;
@@ -249,15 +230,5 @@ export type WorkerQueueThreadsOptions<TItem, TResult, TContext> = {
     | ((item: TItem) => Promise<TResult>)
     | Promise<(item: TItem) => Promise<TResult>>;
   context?: TContext;
-};
-
-// @public
-export type YarnInfoInspectData = {
-  name: string;
-  'dist-tags': Record<string, string>;
-  versions: string[];
-  time: {
-    [version: string]: string;
-  };
 };
 ```

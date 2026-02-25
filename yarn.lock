@@ -3276,7 +3276,6 @@ __metadata:
     "@yarnpkg/lockfile": "npm:^1.1.0"
     "@yarnpkg/parsers": "npm:^3.0.0"
     fs-extra: "npm:^11.2.0"
-    minimatch: "npm:^10.2.1"
     semver: "npm:^7.5.3"
     zod: "npm:^3.25.76"
   languageName: unknown

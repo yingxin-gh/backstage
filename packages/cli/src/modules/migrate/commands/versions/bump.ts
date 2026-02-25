@@ -31,13 +31,12 @@ import { isError, NotFoundError } from '@backstage/errors';
 import { resolve as resolvePath } from 'node:path';
 
 import { getHasYarnPlugin } from '../../../../lib/yarnPlugin';
+import { Lockfile, runConcurrentTasks } from '@backstage/cli-node';
 import {
   fetchPackageInfo,
-  Lockfile,
   mapDependencies,
-  runConcurrentTasks,
   YarnInfoInspectData,
-} from '@backstage/cli-node';
+} from '../../lib/versioning/packages';
 import {
   getManifestByReleaseLine,
   getManifestByVersion,

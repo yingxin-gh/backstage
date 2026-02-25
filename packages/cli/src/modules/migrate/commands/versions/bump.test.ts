@@ -19,7 +19,7 @@ import * as runObj from '@backstage/cli-common';
 import { overrideTargetPaths } from '@backstage/cli-common/testUtils';
 import bump, { bumpBackstageJsonVersion, createVersionFinder } from './bump';
 import { registerMswTestHooks, withLogCollector } from '@backstage/test-utils';
-import { YarnInfoInspectData } from '@backstage/cli-node';
+import { YarnInfoInspectData } from '../../lib/versioning/packages';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { NotFoundError } from '@backstage/errors';
@@ -69,8 +69,8 @@ jest.mock('@backstage/cli-common', () => {
 });
 
 const mockFetchPackageInfo = jest.fn();
-jest.mock('@backstage/cli-node', () => {
-  const actual = jest.requireActual('@backstage/cli-node');
+jest.mock('../../lib/versioning/packages', () => {
+  const actual = jest.requireActual('../../lib/versioning/packages');
   return {
     ...actual,
     fetchPackageInfo: (name: string) => mockFetchPackageInfo(name),

@@ -48,8 +48,8 @@ app:
     - page:catalog/entity:
         config:
           showNavItemIcons: true
-          # default content order for all groups, can be 'alpha' or 'natural'
-          # contentOrder: alpha
+          # default content order for all groups, can be 'title' or 'natural'
+          # contentOrder: title
           groups:
             # placing a tab at the beginning
             - overview:

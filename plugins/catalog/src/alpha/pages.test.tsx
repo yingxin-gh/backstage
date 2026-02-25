@@ -482,7 +482,7 @@ describe('Entity page', () => {
       );
     });
 
-    it('Should sort content alphabetically by default', async () => {
+    it('Should sort content by title by default', async () => {
       const tester = createExtensionTester(
         Object.assign({ namespace: 'catalog' }, catalogEntityPage),
       )
@@ -564,7 +564,7 @@ describe('Entity page', () => {
         Object.assign({ namespace: 'catalog' }, catalogEntityPage),
         {
           config: {
-            contentOrder: 'alpha',
+            contentOrder: 'title',
             groups: [
               {
                 documentation: {

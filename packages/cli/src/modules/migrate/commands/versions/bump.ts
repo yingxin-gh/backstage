@@ -35,9 +35,9 @@ import {
   fetchPackageInfo,
   Lockfile,
   mapDependencies,
+  runConcurrentTasks,
   YarnInfoInspectData,
-} from '../../../../lib/versioning';
-import { runConcurrentTasks } from '@backstage/cli-node';
+} from '@backstage/cli-node';
 import {
   getManifestByReleaseLine,
   getManifestByVersion,

@@ -19,6 +19,11 @@ import { runOutput } from '@backstage/cli-common';
 
 const versions = new Map<string, Promise<'classic' | 'berry'>>();
 
+/**
+ * Detects the version of Yarn in use.
+ *
+ * @public
+ */
 export function detectYarnVersion(dir?: string): Promise<'classic' | 'berry'> {
   const cwd = dir ?? process.cwd();
   if (versions.has(cwd)) {

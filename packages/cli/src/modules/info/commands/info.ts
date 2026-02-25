@@ -17,8 +17,11 @@
 import { version as cliVersion } from '../../../../package.json';
 import os from 'node:os';
 import { runOutput, targetPaths, findOwnPaths } from '@backstage/cli-common';
-import { Lockfile } from '../../../lib/versioning';
-import { BackstagePackageJson, PackageGraph } from '@backstage/cli-node';
+import {
+  BackstagePackageJson,
+  Lockfile,
+  PackageGraph,
+} from '@backstage/cli-node';
 import { minimatch } from 'minimatch';
 import fs from 'fs-extra';
 

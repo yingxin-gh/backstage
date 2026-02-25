@@ -27,7 +27,11 @@ const DEP_TYPES = [
   'optionalDependencies',
 ] as const;
 
-// Package data as returned by `yarn info`
+/**
+ * Package data as returned by `yarn info`.
+ *
+ * @public
+ */
 export type YarnInfoInspectData = {
   name: string;
   'dist-tags': Record<string, string>;
@@ -41,12 +45,22 @@ type YarnInfo = {
   data: YarnInfoInspectData | { type: string; data: unknown };
 };
 
-type PkgVersionInfo = {
+/**
+ * Version information for a package dependency.
+ *
+ * @public
+ */
+export type PkgVersionInfo = {
   range: string;
   name: string;
   location: string;
 };
 
+/**
+ * Fetches package information from the registry using `yarn info` or `yarn npm info`.
+ *
+ * @public
+ */
 export async function fetchPackageInfo(
   name: string,
 ): Promise<YarnInfoInspectData> {
@@ -92,7 +106,11 @@ export async function fetchPackageInfo(
   }
 }
 
-/** Map all dependencies in the repo as dependency => dependents */
+/**
+ * Map all dependencies in the repo as dependency to dependents.
+ *
+ * @public
+ */
 export async function mapDependencies(
   targetDir: string,
   pattern: string,

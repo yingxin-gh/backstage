@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-export { Lockfile } from './Lockfile';
+export { detectYarnVersion } from './yarn';
 export { fetchPackageInfo, mapDependencies } from './packages';
-export type { YarnInfoInspectData } from './packages';
+export type { PkgVersionInfo, YarnInfoInspectData } from './packages';

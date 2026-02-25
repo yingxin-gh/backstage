@@ -24,3 +24,4 @@ export * from './git';
 export * from './monorepo';
 export * from './concurrency';
 export * from './roles';
+export * from './versioning';

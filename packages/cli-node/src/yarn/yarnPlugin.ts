@@ -15,6 +15,7 @@
  */
 
 import fs from 'fs-extra';
+import { resolve as resolvePath } from 'node:path';
 import yaml from 'yaml';
 import z from 'zod';
 import { targetPaths } from '@backstage/cli-common';
@@ -30,15 +31,21 @@ const yarnRcSchema = z.object({
 });
 
 /**
- * Detects whether the Backstage Yarn plugin is installed in the target repository.
+ * Detects whether the Backstage Yarn plugin is installed in the given workspace directory.
  *
- * @returns Promise<boolean> - true if the plugin is installed, false otherwise
+ * @param workspaceDir - The workspace root directory to check. Defaults to the target root.
+ * @returns Promise resolving to true if the plugin is installed, false otherwise
+ * @public
  */
-export async function getHasYarnPlugin(): Promise<boolean> {
-  const yarnRcPath = targetPaths.resolveRoot('.yarnrc.yml');
+export async function hasBackstageYarnPlugin(
+  workspaceDir?: string,
+): Promise<boolean> {
+  const yarnRcPath = resolvePath(
+    workspaceDir ?? targetPaths.rootDir,
+    '.yarnrc.yml',
+  );
   const yarnRcContent = await fs.readFile(yarnRcPath, 'utf-8').catch(e => {
     if (e.code === 'ENOENT') {
-      // gracefully continue in case the file doesn't exist
       return '';
     }
     throw e;

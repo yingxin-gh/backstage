@@ -18,7 +18,7 @@ import { CommandGraph } from './CommandGraph';
 import { CliFeature, OpaqueCliPlugin } from './types';
 import { CommandRegistry } from './CommandRegistry';
 import { Command } from 'commander';
-import { version } from '../lib/version';
+import { version } from './version';
 import chalk from 'chalk';
 import { exitWithError } from './errors';
 import { ForwardedError } from '@backstage/errors';

@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  fixPackageExports,
-  readFixablePackages,
-  writeFixedPackages,
-} from '../../maintenance/commands/repo/fix';
-
 export async function command() {
-  console.log(
-    'The `migrate package-exports` command is deprecated, use `repo fix` instead.',
+  throw new Error(
+    'The `migrate package-exports` command has been removed, use `repo fix` instead.',
   );
-  const packages = await readFixablePackages();
-
-  for (const pkg of packages) {
-    fixPackageExports(pkg);
-  }
-
-  await writeFixedPackages(packages);
 }

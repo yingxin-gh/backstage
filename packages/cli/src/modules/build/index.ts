@@ -17,7 +17,13 @@
 import { Command, Option } from 'commander';
 import { createCliPlugin } from '../../wiring/factory';
 import { lazy } from '../../wiring/lazy';
-import { configOption } from '../config';
+
+const configOption = [
+  '--config <path>',
+  'Config files to load instead of app-config.yaml',
+  (opt: string, opts: string[]) => (opts ? [...opts, opt] : [opt]),
+  Array<string>(),
+] as const;
 
 export function registerPackageCommands(command: Command) {
   command

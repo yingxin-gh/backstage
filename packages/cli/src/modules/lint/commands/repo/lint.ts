@@ -27,7 +27,7 @@ import {
 } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
-import { createScriptOptionsParser } from '../../../../lib/optionsParser';
+import { createScriptOptionsParser } from '../../lib/optionsParser';
 import { SuccessCache } from '../../../../lib/cache/SuccessCache';
 
 function depCount(pkg: BackstagePackageJson) {

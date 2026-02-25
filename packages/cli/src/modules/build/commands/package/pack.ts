@@ -22,7 +22,7 @@ import { targetPaths } from '@backstage/cli-common';
 
 import fs from 'fs-extra';
 import { publishPreflightCheck } from '../../lib/publishing';
-import { createTypeDistProject } from '../../../../lib/typeDistProject';
+import { createTypeDistProject } from '../../../build/lib/typeDistProject';
 
 export const pre = async () => {
   publishPreflightCheck({

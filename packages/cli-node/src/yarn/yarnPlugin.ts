@@ -33,12 +33,12 @@ const yarnRcSchema = z.object({
  * Detects whether the Backstage Yarn plugin is installed in the target repository.
  *
  * @returns Promise<boolean> - true if the plugin is installed, false otherwise
+ * @public
  */
 export async function getHasYarnPlugin(): Promise<boolean> {
   const yarnRcPath = targetPaths.resolveRoot('.yarnrc.yml');
   const yarnRcContent = await fs.readFile(yarnRcPath, 'utf-8').catch(e => {
     if (e.code === 'ENOENT') {
-      // gracefully continue in case the file doesn't exist
       return '';
     }
     throw e;

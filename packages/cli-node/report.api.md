@@ -94,6 +94,9 @@ export type ConcurrentTasksOptions<TItem> = {
 };
 
 // @public
+export function getHasYarnPlugin(): Promise<boolean>;
+
+// @public
 export class GitUtils {
   static listChangedFiles(ref: string): Promise<string[]>;
   static readFileAtRef(path: string, ref: string): Promise<string>;
@@ -220,6 +223,16 @@ export function runWorkerQueueThreads<TItem, TResult, TContext>(
 ): Promise<{
   results: TResult[];
 }>;
+
+// @public
+export class SuccessCache {
+  constructor(name: string, basePath?: string);
+  // (undocumented)
+  read(): Promise<Set<string>>;
+  static trimPaths(input: string): string;
+  // (undocumented)
+  write(newEntries: Iterable<string>): Promise<void>;
+}
 
 // @public
 export type WorkerQueueThreadsOptions<TItem, TResult, TContext> = {

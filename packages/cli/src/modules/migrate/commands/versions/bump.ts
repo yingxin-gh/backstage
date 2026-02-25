@@ -30,8 +30,11 @@ import { OptionValues } from 'commander';
 import { isError, NotFoundError } from '@backstage/errors';
 import { resolve as resolvePath } from 'node:path';
 
-import { getHasYarnPlugin } from '../../../../lib/yarnPlugin';
-import { Lockfile, runConcurrentTasks } from '@backstage/cli-node';
+import {
+  getHasYarnPlugin,
+  Lockfile,
+  runConcurrentTasks,
+} from '@backstage/cli-node';
 import {
   fetchPackageInfo,
   mapDependencies,

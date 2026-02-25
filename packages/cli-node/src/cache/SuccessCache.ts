@@ -22,6 +22,12 @@ const DEFAULT_CACHE_BASE_PATH = 'node_modules/.cache/backstage-cli';
 
 const CACHE_MAX_AGE_MS = 7 * 24 * 3600_000;
 
+/**
+ * A file-system-based cache that tracks successful operations by storing
+ * timestamped marker files.
+ *
+ * @public
+ */
 export class SuccessCache {
   readonly #path: string;
 
@@ -89,7 +95,6 @@ export class SuccessCache {
 
     const empty = Buffer.alloc(0);
     for (const key of newEntries) {
-      // Remove any existing items with the key we're about to add
       const trimmedItems = existingItems.filter(item =>
         item.endsWith(`_${key}`),
       );

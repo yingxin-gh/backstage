@@ -28,7 +28,7 @@ import { Lockfile } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
 import { createPackageVersionProvider } from '../../../../lib/version';
-import { getHasYarnPlugin } from '../../../../lib/yarnPlugin';
+import { getHasYarnPlugin } from '@backstage/cli-node';
 
 const builtInHelpers = {
   camelCase,

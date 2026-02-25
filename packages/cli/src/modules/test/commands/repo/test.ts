@@ -31,7 +31,7 @@ import {
   findOwnPaths,
   isChildPath,
 } from '@backstage/cli-common';
-import { SuccessCache } from '../../../../lib/cache/SuccessCache';
+import { SuccessCache } from '@backstage/cli-node';
 
 type JestProject = {
   displayName: string;

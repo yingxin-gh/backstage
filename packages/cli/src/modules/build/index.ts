@@ -198,6 +198,58 @@ export const buildPlugin = createCliPlugin({
     });
 
     reg.addCommand({
+      path: ['package', 'clean'],
+      description: 'Delete cache directories',
+      execute: async ({ args }) => {
+        const command = new Command();
+        const defaultCommand = command.action(
+          lazy(() => import('./commands/package/clean'), 'default'),
+        );
+
+        await defaultCommand.parseAsync(args, { from: 'user' });
+      },
+    });
+
+    reg.addCommand({
+      path: ['package', 'prepack'],
+      description: 'Prepares a package for packaging before publishing',
+      execute: async ({ args }) => {
+        const command = new Command();
+        const defaultCommand = command.action(
+          lazy(() => import('./commands/package/pack'), 'pre'),
+        );
+
+        await defaultCommand.parseAsync(args, { from: 'user' });
+      },
+    });
+
+    reg.addCommand({
+      path: ['package', 'postpack'],
+      description: 'Restores the changes made by the prepack command',
+      execute: async ({ args }) => {
+        const command = new Command();
+        const defaultCommand = command.action(
+          lazy(() => import('./commands/package/pack'), 'post'),
+        );
+
+        await defaultCommand.parseAsync(args, { from: 'user' });
+      },
+    });
+
+    reg.addCommand({
+      path: ['repo', 'clean'],
+      description: 'Delete cache and output directories',
+      execute: async ({ args }) => {
+        const command = new Command();
+        const defaultCommand = command.action(
+          lazy(() => import('./commands/repo/clean'), 'command'),
+        );
+
+        await defaultCommand.parseAsync(args, { from: 'user' });
+      },
+    });
+
+    reg.addCommand({
       path: ['build-workspace'],
       description:
         'Builds a temporary dist workspace from the provided packages',

@@ -31,7 +31,7 @@ import {
 } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 
-import { publishPreflightCheck } from '../../lib/publishing';
+import { publishPreflightCheck } from '../../../build/lib/publishing';
 
 const SCRIPT_EXTS = ['.js', '.jsx', '.ts', '.tsx', '.json'];
 

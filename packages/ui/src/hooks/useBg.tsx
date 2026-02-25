@@ -90,10 +90,10 @@ export function useBgConsumer(): BgContextValue {
  *
  * - `bg` is `undefined` -- transparent, no context change, returns `{ bg: undefined }`.
  *   This is the default for Box, Flex, and Grid (they do **not** auto-increment).
- * - `bg` is a `ContainerBg` value -- uses that value directly (e.g. `'neutral-1'`).
- * - `bg` is `'neutral-auto'` -- increments the neutral level from the parent context,
- *   capping at `neutral-3`. Only components that explicitly pass `'neutral-auto'`
- *   (e.g. Card) will auto-increment; it is never implicit.
+ * - `bg` is `'neutral'` -- increments the neutral level from the parent context,
+ *   capping at `neutral-3`. The increment is always relative to the parent; it is
+ *   not possible to pin a container to an explicit neutral level.
+ * - `bg` is `'danger'` | `'warning'` | `'success'` -- used as-is.
  *
  * **Capping:**
  *
@@ -116,7 +116,7 @@ export function useBgProvider(bg?: Responsive<ProviderBg>): BgContextValue {
 
   const resolved = resolveResponsiveValue(bg, breakpoint);
 
-  if (resolved === 'neutral-auto') {
+  if (resolved === 'neutral') {
     return { bg: incrementNeutralBg(context.bg) };
   }
 

@@ -182,7 +182,7 @@ export interface ComponentDefinition {
 }
 
 /**
- * Background type for the neutral bg system.
+ * Resolved background level stored in context and applied as `data-bg` on DOM elements.
  *
  * Supports neutral levels ('neutral-1' through 'neutral-3') and
  * intent backgrounds ('danger', 'warning', 'success').
@@ -190,7 +190,9 @@ export interface ComponentDefinition {
  * The 'neutral-4' level is not exposed as a prop value -- it is reserved
  * for leaf component CSS (e.g. Button on a 'neutral-3' surface).
  *
- * @public
+ * This type is internal. Use `ProviderBg` for component prop types.
+ *
+ * @internal
  */
 export type ContainerBg =
   | 'neutral-1'
@@ -201,11 +203,13 @@ export type ContainerBg =
   | 'success';
 
 /**
- * Background values accepted by provider components.
+ * Background values accepted by provider components (Box, Flex, Grid, Card, etc.).
  *
- * Includes all `ContainerBg` values plus `'neutral-auto'` which
- * automatically increments the neutral level from the parent context.
+ * - `'neutral'` — automatically increments the neutral level from the parent context,
+ *   capping at the maximum level. This is always incremental; explicit levels cannot
+ *   be set directly.
+ * - `'danger'` | `'warning'` | `'success'` — intent backgrounds used as-is.
  *
  * @public
  */
-export type ProviderBg = ContainerBg | 'neutral-auto';
+export type ProviderBg = 'neutral' | 'danger' | 'warning' | 'success';

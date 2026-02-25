@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { hasYarnPlugin } from './yarnPlugin';
+export { hasBackstageYarnPlugin } from './yarnPlugin';

@@ -100,7 +100,7 @@ export class GitUtils {
 }
 
 // @public
-export function hasYarnPlugin(workspaceDir?: string): Promise<boolean>;
+export function hasBackstageYarnPlugin(workspaceDir?: string): Promise<boolean>;
 
 // @public
 export function isMonoRepo(): Promise<boolean>;
@@ -227,7 +227,7 @@ export function runWorkerQueueThreads<TItem, TResult, TContext>(
 // @public
 export class SuccessCache {
   // (undocumented)
-  static create(name: string, basePath?: string): SuccessCache;
+  static create(options: { name: string; basePath?: string }): SuccessCache;
   // (undocumented)
   read(): Promise<Set<string>>;
   static trimPaths(input: string): string;

@@ -41,7 +41,10 @@ function depCount(pkg: BackstagePackageJson) {
 export async function command(opts: OptionValues, cmd: Command): Promise<void> {
   let packages = await PackageGraph.listTargetPackages();
 
-  const cache = SuccessCache.create('lint', opts.successCacheDir);
+  const cache = SuccessCache.create({
+    name: 'lint',
+    basePath: opts.successCacheDir,
+  });
   const cacheContext = opts.successCache
     ? {
         entries: await cache.read(),

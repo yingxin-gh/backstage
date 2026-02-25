@@ -31,7 +31,7 @@ import { isError, NotFoundError } from '@backstage/errors';
 import { resolve as resolvePath } from 'node:path';
 
 import {
-  hasYarnPlugin,
+  hasBackstageYarnPlugin,
   Lockfile,
   runConcurrentTasks,
 } from '@backstage/cli-node';
@@ -76,7 +76,7 @@ function extendsDefaultPattern(pattern: string): boolean {
 export default async (opts: OptionValues) => {
   const lockfilePath = targetPaths.resolveRoot('yarn.lock');
   const lockfile = await Lockfile.load(lockfilePath);
-  const yarnPluginEnabled = await hasYarnPlugin();
+  const yarnPluginEnabled = await hasBackstageYarnPlugin();
 
   let pattern = opts.pattern;
 

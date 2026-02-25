@@ -40,12 +40,15 @@ export class SuccessCache {
     return input.replaceAll(targetPaths.rootDir, '');
   }
 
-  static create(name: string, basePath?: string): SuccessCache {
-    return new SuccessCache(name, basePath);
+  static create(options: { name: string; basePath?: string }): SuccessCache {
+    return new SuccessCache(options);
   }
 
-  private constructor(name: string, basePath?: string) {
-    this.#path = resolvePath(basePath ?? DEFAULT_CACHE_BASE_PATH, name);
+  private constructor(options: { name: string; basePath?: string }) {
+    this.#path = resolvePath(
+      options.basePath ?? DEFAULT_CACHE_BASE_PATH,
+      options.name,
+    );
   }
 
   async read(): Promise<Set<string>> {

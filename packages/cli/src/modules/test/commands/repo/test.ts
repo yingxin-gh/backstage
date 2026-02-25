@@ -332,7 +332,10 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
       );
     }
 
-    const cache = SuccessCache.create('test', opts.successCacheDir);
+    const cache = SuccessCache.create({
+      name: 'test',
+      basePath: opts.successCacheDir,
+    });
     const graph = await getPackageGraph();
 
     // Shared state for the bridge

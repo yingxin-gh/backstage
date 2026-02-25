@@ -28,7 +28,7 @@ import { Lockfile } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
 import { createPackageVersionProvider } from '../../../../lib/version';
-import { hasYarnPlugin } from '@backstage/cli-node';
+import { hasBackstageYarnPlugin } from '@backstage/cli-node';
 
 const builtInHelpers = {
   camelCase,
@@ -55,7 +55,7 @@ export class PortableTemplater {
       /* ignored */
     }
 
-    const yarnPluginEnabled = await hasYarnPlugin();
+    const yarnPluginEnabled = await hasBackstageYarnPlugin();
     const versionProvider = createPackageVersionProvider(lockfile, {
       preferBackstageProtocol: yarnPluginEnabled,
     });

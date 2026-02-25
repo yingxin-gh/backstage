@@ -37,7 +37,9 @@ const yarnRcSchema = z.object({
  * @returns Promise resolving to true if the plugin is installed, false otherwise
  * @public
  */
-export async function hasYarnPlugin(workspaceDir?: string): Promise<boolean> {
+export async function hasBackstageYarnPlugin(
+  workspaceDir?: string,
+): Promise<boolean> {
   const yarnRcPath = resolvePath(
     workspaceDir ?? targetPaths.rootDir,
     '.yarnrc.yml',

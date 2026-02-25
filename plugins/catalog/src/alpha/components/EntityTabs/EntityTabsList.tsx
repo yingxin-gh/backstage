@@ -78,6 +78,7 @@ type TabGroup = {
 type EntityTabsListProps = {
   tabs: Tab[];
   groupDefinitions: EntityContentGroupDefinitions;
+  defaultContentOrder?: 'alpha' | 'natural';
   showIcons?: boolean;
   selectedIndex?: number;
 };
@@ -86,12 +87,36 @@ export function EntityTabsList(props: EntityTabsListProps) {
   const styles = useStyles();
   const { t } = useTranslationRef(catalogTranslationRef);
 
-  const { tabs: items, selectedIndex = 0, showIcons, groupDefinitions } = props;
+  const {
+    tabs: items,
+    selectedIndex = 0,
+    showIcons,
+    groupDefinitions,
+    defaultContentOrder = 'alpha',
+  } = props;
+
+  const aliasToGroup = useMemo(
+    () =>
+      Object.entries(groupDefinitions).reduce((map, [groupId, def]) => {
+        for (const alias of def.aliases ?? []) {
+          map[alias] = groupId;
+        }
+        return map;
+      }, {} as Record<string, string>),
+    [groupDefinitions],
+  );
 
   const groups = useMemo(() => {
     const byKey = items.reduce((result, tab) => {
-      const group = tab.group ? groupDefinitions[tab.group] : undefined;
-      const groupOrId = group && tab.group ? tab.group : tab.id;
+      const resolvedGroupId = tab.group
+        ? groupDefinitions[tab.group]
+          ? tab.group
+          : aliasToGroup[tab.group]
+        : undefined;
+      const group = resolvedGroupId
+        ? groupDefinitions[resolvedGroupId]
+        : undefined;
+      const groupOrId = group && resolvedGroupId ? resolvedGroupId : tab.id;
       result[groupOrId] = result[groupOrId] ?? {
         group,
         items: [],
@@ -101,7 +126,7 @@ export function EntityTabsList(props: EntityTabsListProps) {
     }, {} as Record<string, TabGroup>);
 
     const groupOrder = Object.keys(groupDefinitions);
-    return Object.entries(byKey).sort(([a], [b]) => {
+    const sorted = Object.entries(byKey).sort(([a], [b]) => {
       const ai = groupOrder.indexOf(a);
       const bi = groupOrder.indexOf(b);
       if (ai !== -1 && bi !== -1) {
@@ -115,7 +140,19 @@ export function EntityTabsList(props: EntityTabsListProps) {
       }
       return 0;
     });
-  }, [items, groupDefinitions]);
+
+    for (const [id, tabGroup] of sorted) {
+      const groupDef = groupDefinitions[id];
+      const order = groupDef?.contentOrder ?? defaultContentOrder;
+      if (order === 'alpha') {
+        tabGroup.items.sort((a, b) =>
+          a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }),
+        );
+      }
+    }
+
+    return sorted;
+  }, [items, groupDefinitions, aliasToGroup, defaultContentOrder]);
 
   const selectedItem = items[selectedIndex];
   return (

@@ -42,12 +42,19 @@ export const entityFilterExpressionDataRef =
   });
 
 /** @alpha */
+export type EntityContentGroupDefinition = {
+  title: string;
+  icon?: string | ReactElement;
+  /** Other group IDs that should be treated as aliases for this group. */
+  aliases?: string[];
+  /** How to sort the content items within this group. Overrides the page-level default. */
+  contentOrder?: 'alpha' | 'natural';
+};
+
+/** @alpha */
 export type EntityContentGroupDefinitions = Record<
   string,
-  {
-    title: string;
-    icon?: string | ReactElement;
-  }
+  EntityContentGroupDefinition
 >;
 
 /**

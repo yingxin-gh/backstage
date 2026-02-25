@@ -340,12 +340,17 @@ export const EntityContentBlueprint: ExtensionBlueprint<{
 }>;
 
 // @alpha (undocumented)
+export type EntityContentGroupDefinition = {
+  title: string;
+  icon?: string | ReactElement;
+  aliases?: string[];
+  contentOrder?: 'alpha' | 'natural';
+};
+
+// @alpha (undocumented)
 export type EntityContentGroupDefinitions = Record<
   string,
-  {
-    title: string;
-    icon?: string | ReactElement;
-  }
+  EntityContentGroupDefinition
 >;
 
 // @alpha (undocumented)

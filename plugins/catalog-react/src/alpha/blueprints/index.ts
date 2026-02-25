@@ -24,6 +24,7 @@ export { EntityHeaderBlueprint } from './EntityHeaderBlueprint';
 export {
   defaultEntityContentGroups,
   defaultEntityContentGroupDefinitions,
+  type EntityContentGroupDefinition,
   type EntityContentGroupDefinitions,
 } from './extensionData';
 export type { EntityCardType } from './extensionData';

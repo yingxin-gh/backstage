@@ -1097,9 +1097,12 @@ const _default: OverridableFrontendPlugin<
               {
                 title: string;
                 icon?: string | undefined;
+                contentOrder?: 'alpha' | 'natural' | undefined;
+                aliases?: string[] | undefined;
               }
             >[]
           | undefined;
+        contentOrder: 'alpha' | 'natural';
         showNavItemIcons: boolean;
         path: string | undefined;
         title: string | undefined;
@@ -1111,10 +1114,13 @@ const _default: OverridableFrontendPlugin<
               {
                 title: string;
                 icon?: string | undefined;
+                contentOrder?: 'alpha' | 'natural' | undefined;
+                aliases?: string[] | undefined;
               }
             >[]
           | undefined;
         showNavItemIcons?: boolean | undefined;
+        contentOrder?: 'alpha' | 'natural' | undefined;
         title?: string | undefined;
         path?: string | undefined;
       };

@@ -17,7 +17,7 @@
 import fs from 'fs-extra';
 import semver from 'semver';
 import { findOwnPaths } from '@backstage/cli-common';
-import { Lockfile } from './versioning';
+import { Lockfile } from '@backstage/cli-node';
 
 /* eslint-disable-next-line no-restricted-syntax */
 const ownPaths = findOwnPaths(__dirname);

@@ -24,7 +24,7 @@ import startCase from 'lodash/startCase';
 import upperCase from 'lodash/upperCase';
 import upperFirst from 'lodash/upperFirst';
 import lowerFirst from 'lodash/lowerFirst';
-import { Lockfile } from '../../../../lib/versioning';
+import { Lockfile } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
 import { createPackageVersionProvider } from '../../../../lib/version';

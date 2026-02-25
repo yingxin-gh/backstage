@@ -2,9 +2,11 @@ name: CI
 on:
   # NOTE: If you change these you must update ci-noop.yml as well
   pull_request:
-    paths-ignore:
-      - 'microsite/**'
-      - 'beps/**'
+    paths:
+      - '**'
+      - '!microsite/**'
+      - 'microsite/data/**'
+      - '!beps/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

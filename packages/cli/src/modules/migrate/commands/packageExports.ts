@@ -15,7 +15,7 @@
  */
 
 export async function command() {
-  console.log(
+  throw new Error(
     'The `migrate package-exports` command has been removed, use `repo fix` instead.',
   );
 }

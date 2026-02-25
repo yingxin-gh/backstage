@@ -108,10 +108,14 @@ export function useBgConsumer(): BgContextValue {
  *
  * - `bg` is `undefined` -- transparent, no context change, returns `{ bg: undefined }`.
  *   This is the default for Box, Flex, and Grid (they do **not** auto-increment).
- * - `bg` is `'neutral'` -- increments the neutral level from the parent context,
- *   capping at `neutral-3`. The increment is always relative to the parent; it is
- *   not possible to pin a container to an explicit neutral level.
- * - `bg` is `'danger'` | `'warning'` | `'success'` -- used as-is.
+ * - `bg` is `'neutral'` -- when the parent bg is neutral, increments the neutral
+ *   level from the parent context, capping at `neutral-3`. When the parent bg is
+ *   an intent (`'danger'` | `'warning'` | `'success'`), the intent passes through
+ *   unchanged (i.e. `bg: 'neutral'` does not override the parent intent). The
+ *   increment is always relative to the parent; it is not possible to pin a
+ *   container to an explicit neutral level.
+ * - `bg` is `'danger'` | `'warning'` | `'success'` -- sets the bg to that intent
+ *   explicitly, regardless of the parent value.
  *
  * **Capping:**
  *

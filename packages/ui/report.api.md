@@ -1012,14 +1012,7 @@ export const FlexDefinition: {
     'direction',
   ];
   readonly dataAttributes: {
-    readonly bg: readonly [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ];
+    readonly bg: readonly ['neutral', 'danger', 'warning', 'success'];
   };
 };
 
@@ -1096,14 +1089,7 @@ export const GridDefinition: {
     'py',
   ];
   readonly dataAttributes: {
-    readonly bg: readonly [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ];
+    readonly bg: readonly ['neutral', 'danger', 'warning', 'success'];
   };
 };
 
@@ -1114,14 +1100,7 @@ export const GridItemDefinition: {
   };
   readonly utilityProps: ['colSpan', 'colEnd', 'colStart', 'rowSpan'];
   readonly dataAttributes: {
-    readonly bg: readonly [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ];
+    readonly bg: readonly ['neutral', 'danger', 'warning', 'success'];
   };
 };
 

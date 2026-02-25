@@ -62,8 +62,8 @@ export function createScriptOptionsParser(
     // Triggers the writing of options to the result object
     cmd.parseOptions(argsStr.split(' '));
 
-    (cmd as any)._storeOptionsAsProperties = currentOpts;
-    (cmd as any)._optionValues = currentStore;
+    (cmd as any)._optionValues = currentOpts;
+    (cmd as any)._storeOptionsAsProperties = currentStore;
 
     return result;
   };

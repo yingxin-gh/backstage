@@ -178,7 +178,7 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
                 header={header}
                 contextMenuItems={filteredMenuItems}
                 groupDefinitions={groupDefinitions}
-                contentOrder={config.contentOrder}
+                defaultContentOrder={config.contentOrder}
                 showNavItemIcons={config.showNavItemIcons}
               >
                 {inputs.contents.map(output => (

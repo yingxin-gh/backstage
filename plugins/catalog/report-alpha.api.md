@@ -1119,8 +1119,8 @@ const _default: OverridableFrontendPlugin<
               }
             >[]
           | undefined;
-        contentOrder?: 'title' | 'natural' | undefined;
         showNavItemIcons?: boolean | undefined;
+        contentOrder?: 'title' | 'natural' | undefined;
         title?: string | undefined;
         path?: string | undefined;
       };

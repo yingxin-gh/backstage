@@ -78,7 +78,7 @@ type TabGroup = {
 type EntityTabsListProps = {
   tabs: Tab[];
   groupDefinitions: EntityContentGroupDefinitions;
-  contentOrder?: 'title' | 'natural';
+  defaultContentOrder?: 'title' | 'natural';
   showIcons?: boolean;
   selectedIndex?: number;
 };
@@ -106,7 +106,7 @@ export function EntityTabsList(props: EntityTabsListProps) {
     selectedIndex = 0,
     showIcons,
     groupDefinitions,
-    contentOrder = 'title',
+    defaultContentOrder = 'title',
   } = props;
 
   const aliasToGroup = useMemo(
@@ -157,16 +157,18 @@ export function EntityTabsList(props: EntityTabsListProps) {
 
     for (const [id, tabGroup] of sorted) {
       const groupDef = groupDefinitions[id];
-      const order = groupDef?.contentOrder ?? contentOrder;
-      if (order === 'title') {
-        tabGroup.items.sort((a, b) =>
-          a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }),
-        );
+      if (groupDef) {
+        const order = groupDef.contentOrder ?? defaultContentOrder;
+        if (order === 'title') {
+          tabGroup.items.sort((a, b) =>
+            a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }),
+          );
+        }
       }
     }
 
     return sorted;
-  }, [items, groupDefinitions, aliasToGroup, contentOrder]);
+  }, [items, groupDefinitions, aliasToGroup, defaultContentOrder]);
 
   const selectedItem = items[selectedIndex];
   return (

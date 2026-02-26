@@ -298,6 +298,16 @@ export interface GetEntityFacetsRequest {
    */
   filter?: EntityFilterQuery;
   /**
+   * If given, return only entities that match the given predicate query.
+   *
+   * @remarks
+   *
+   * Supports operators like `$all`, `$any`, `$not`, `$exists`, `$in`,
+   * `$contains`, and `$hasPrefix`. When both `filter` and `query` are
+   * provided, they are combined with `$all`.
+   */
+  query?: FilterPredicate;
+  /**
    * Dot separated paths for the facets to extract from each entity.
    *
    * @remarks

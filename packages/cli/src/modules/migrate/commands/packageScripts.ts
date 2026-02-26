@@ -59,14 +59,14 @@ export default async ({ args, info }: CommandContext) => {
       // For test scripts we keep all existing flags except for --passWithNoTests, since that's now default
       const testCmd = ['test'];
       if (scripts.test?.startsWith('backstage-cli test')) {
-        const args = scripts.test
+        const testArgs = scripts.test
           .slice('backstage-cli test'.length)
           .split(' ')
           .filter(Boolean);
-        if (args.includes('--passWithNoTests')) {
-          args.splice(args.indexOf('--passWithNoTests'), 1);
+        if (testArgs.includes('--passWithNoTests')) {
+          testArgs.splice(testArgs.indexOf('--passWithNoTests'), 1);
         }
-        testCmd.push(...args);
+        testCmd.push(...testArgs);
       }
 
       const expectedScripts = {

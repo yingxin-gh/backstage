@@ -479,17 +479,17 @@ export class CatalogClient implements CatalogApi {
     request: GetEntityFacetsRequest,
     options?: CatalogRequestOptions,
   ): Promise<GetEntityFacetsResponse> {
-    const { filter, query, facets } = request;
+    const { filter = [], query, facets } = request;
 
     // Route to POST endpoint if query predicate is provided
-    if (query || filter) {
+    if (query) {
       return this.getEntityFacetsByPredicate(request, options);
     }
 
     return await this.requestOptional(
       await this.apiClient.getEntityFacets(
         {
-          query: { facet: facets },
+          query: { facet: facets, filter: this.getFilterValue(filter) },
         },
         options,
       ),

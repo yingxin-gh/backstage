@@ -686,9 +686,10 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
       })
       .groupBy(['search.key', 'search.original_value']);
 
-    if (request.filter) {
+    if (request.filter || request.query) {
       applyEntityFilterToQuery({
         filter: request.filter,
+        query: request.query,
         targetQuery: query,
         onEntityIdField: 'search.entity_id',
         knex: this.database,

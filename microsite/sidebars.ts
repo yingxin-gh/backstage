@@ -521,6 +521,7 @@ export default {
                 'backend-system/core-services/identity',
                 'backend-system/core-services/lifecycle',
                 'backend-system/core-services/logger',
+                'backend-system/core-services/metrics',
                 'backend-system/core-services/permissions',
                 'backend-system/core-services/permissions-registry',
                 'backend-system/core-services/plugin-metadata',

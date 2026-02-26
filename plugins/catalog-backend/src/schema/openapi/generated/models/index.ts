@@ -48,6 +48,7 @@ export * from '../models/NullableEntity.model';
 export * from '../models/QueryEntitiesByPredicateRequest.model';
 export * from '../models/QueryEntitiesByPredicateRequestFullTextFilter.model';
 export * from '../models/QueryEntitiesByPredicateRequestOrderByInner.model';
+export * from '../models/QueryEntityFacetsByPredicateRequest.model';
 export * from '../models/RecursivePartialEntity.model';
 export * from '../models/RecursivePartialEntityMeta.model';
 export * from '../models/RecursivePartialEntityMetaAllOf.model';

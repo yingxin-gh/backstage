@@ -280,6 +280,7 @@ export interface GetEntityAncestorsResponse {
 export interface GetEntityFacetsRequest {
   facets: string[];
   filter?: EntityFilterQuery;
+  query?: FilterPredicate;
 }
 
 // @public

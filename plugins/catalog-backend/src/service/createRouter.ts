@@ -47,6 +47,7 @@ import {
   parseQueryEntitiesParams,
 } from './request';
 import { parseEntityFacetParams } from './request/parseEntityFacetParams';
+import { parseEntityFacetsQuery } from './request/parseEntityFacetsQuery';
 import { parseEntityOrderParams } from './request/parseEntityOrderParams';
 import { parseEntityPaginationParams } from './request/parseEntityPaginationParams';
 import {
@@ -559,6 +560,31 @@ export async function createRouter(
           const response = await entitiesCatalog.facets({
             filter: parseEntityFilterParams(req.query),
             facets: parseEntityFacetParams(req.query),
+            credentials: await httpAuth.credentials(req),
+          });
+
+          await auditorEvent?.success();
+
+          res.status(200).json(response);
+        } catch (err) {
+          await auditorEvent?.fail({
+            error: err,
+          });
+          throw err;
+        }
+      })
+      .post('/entity-facets', async (req, res) => {
+        const auditorEvent = await auditor.createEvent({
+          eventId: 'entity-facets',
+          request: req,
+        });
+
+        try {
+          const { facets, query } = parseEntityFacetsQuery(req.body ?? {});
+
+          const response = await entitiesCatalog.facets({
+            query,
+            facets,
             credentials: await httpAuth.credentials(req),
           });
 

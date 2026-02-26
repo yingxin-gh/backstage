@@ -1190,6 +1190,89 @@ describe('createRouter readonly disabled', () => {
       );
     });
   });
+
+  describe('GET /entity-facets', () => {
+    it('returns facets', async () => {
+      entitiesCatalog.facets.mockResolvedValue({
+        facets: { kind: [{ value: 'Component', count: 5 }] },
+      });
+
+      const response = await request(app).get('/entity-facets?facet=kind');
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        facets: { kind: [{ value: 'Component', count: 5 }] },
+      });
+    });
+
+    it('returns facets with filter parameter', async () => {
+      entitiesCatalog.facets.mockResolvedValue({
+        facets: { 'spec.type': [{ value: 'service', count: 3 }] },
+      });
+
+      const response = await request(app).get(
+        '/entity-facets?facet=spec.type&filter=kind=Component',
+      );
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        facets: { 'spec.type': [{ value: 'service', count: 3 }] },
+      });
+      expect(entitiesCatalog.facets).toHaveBeenCalledWith(
+        expect.objectContaining({
+          facets: ['spec.type'],
+          filter: { key: 'kind', values: ['Component'] },
+        }),
+      );
+    });
+  });
+
+  describe('POST /entity-facets', () => {
+    it('returns facets with predicate query', async () => {
+      entitiesCatalog.facets.mockResolvedValue({
+        facets: { 'spec.type': [{ value: 'service', count: 3 }] },
+      });
+
+      const response = await request(app)
+        .post('/entity-facets')
+        .send({
+          facets: ['spec.type'],
+          query: { kind: 'Component' },
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        facets: { 'spec.type': [{ value: 'service', count: 3 }] },
+      });
+      expect(entitiesCatalog.facets).toHaveBeenCalledWith(
+        expect.objectContaining({
+          facets: ['spec.type'],
+          query: { kind: 'Component' },
+        }),
+      );
+    });
+
+    it('returns facets without query predicate', async () => {
+      entitiesCatalog.facets.mockResolvedValue({
+        facets: { kind: [{ value: 'Component', count: 5 }] },
+      });
+
+      const response = await request(app)
+        .post('/entity-facets')
+        .send({ facets: ['kind'] });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        facets: { kind: [{ value: 'Component', count: 5 }] },
+      });
+    });
+
+    it('returns 400 for missing facets', async () => {
+      const response = await request(app)
+        .post('/entity-facets')
+        .send({ query: { kind: 'Component' } });
+
+      expect(response.status).toBe(400);
+    });
+  });
 });
 
 describe('createRouter readonly and raw json enabled', () => {

@@ -121,6 +121,10 @@ export interface EntityFacetsRequest {
    */
   filter?: EntityFilter;
   /**
+   * Predicate-based query for filtering entities.
+   */
+  query?: FilterPredicate;
+  /**
    * The facets to compute.
    *
    * @remarks

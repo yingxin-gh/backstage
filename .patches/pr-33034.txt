@@ -1,1 +1,1 @@
-Moves `formFieldsApiRef` and `ScaffolderFormFieldsApi` alpha exports to `@backstage/plugin-scaffolder-react`. The API signature of `@backstage/plugin-scaffolder` changed as these are now re-exported from `@backstage/plugin-scaffolder-react`.
+Added back `formFieldsApiRef` and `ScaffolderFormFieldsApi` alpha exports to `@backstage/plugin-scaffolder-react`. This change was incorrectly applied to `@backstage/plugin-scaffolder` in the 1.48.2 release, which is now gone. Note that the API signature of this API has still changed since the 1.47 release.

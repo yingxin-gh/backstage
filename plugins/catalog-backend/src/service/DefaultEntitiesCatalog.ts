@@ -224,9 +224,10 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
         })
         .whereIn('final_entities.entity_ref', chunk);
 
-      if (request?.filter) {
+      if (request?.filter || request?.query) {
         query = applyEntityFilterToQuery({
           filter: request.filter,
+          query: request.query,
           targetQuery: query,
           onEntityIdField: 'final_entities.entity_id',
           knex: this.database,

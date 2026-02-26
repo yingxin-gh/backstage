@@ -87,6 +87,10 @@ export interface EntitiesBatchRequest {
    */
   filter?: EntityFilter;
   /**
+   * Predicate-based query for filtering entities.
+   */
+  query?: FilterPredicate;
+  /**
    * Strips out only the parts of the entity bodies to include in the response.
    */
   fields?: (entity: Entity) => Entity;

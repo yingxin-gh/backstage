@@ -14,58 +14,34 @@
  * limitations under the License.
  */
 
-import { spawn } from 'node:child_process';
-import os from 'node:os';
-import pLimit from 'p-limit';
-
-// Some commands launch full node processes doing heavy work, which at high
-// concurrency levels risk exhausting system resources. Placing the limiter here
-// at the root level ensures that the concurrency boundary applies globally, not
-// just per-runner.
-const limiter = pLimit(os.cpus().length);
+import { spawnSync } from 'node:child_process';
 
 export function createBinRunner(cwd: string, path: string) {
-  return async (...command: string[]) =>
-    limiter(
-      () =>
-        new Promise<string>((resolve, reject) => {
-          // Handle the case where path is empty and the script path is the first command argument
-          const args = path ? [path, ...command] : command;
-          const child = spawn('node', args, {
-            cwd,
-            stdio: ['ignore', 'pipe', 'pipe'],
-          });
+  return async (...command: string[]) => {
+    const args = path ? [path, ...command] : command;
+    const result = spawnSync('node', args, {
+      cwd,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 10 * 1024 * 1024,
+    });
 
-          let stdout = '';
-          let stderr = '';
+    if (result.error) {
+      throw new Error(`Process error: ${result.error.message}`);
+    }
 
-          child.stdout?.on('data', data => {
-            stdout += data.toString();
-          });
+    const stderr = result.stderr?.toString() ?? '';
+    const stdout = result.stdout?.toString() ?? '';
 
-          child.stderr?.on('data', data => {
-            stderr += data.toString();
-          });
+    if (result.signal) {
+      throw new Error(
+        `Process was killed with signal ${result.signal}\n${stderr}`,
+      );
+    } else if (result.status !== 0) {
+      throw new Error(`Process exited with code ${result.status}\n${stderr}`);
+    } else if (stderr.trim()) {
+      throw new Error(`Command printed error output: ${stderr}`);
+    }
 
-          child.on('error', err => {
-            reject(new Error(`Process error: ${err.message}`));
-          });
-
-          child.on('close', (code, signal) => {
-            if (signal) {
-              reject(
-                new Error(
-                  `Process was killed with signal ${signal}\n${stderr}`,
-                ),
-              );
-            } else if (code !== 0) {
-              reject(new Error(`Process exited with code ${code}\n${stderr}`));
-            } else if (stderr.trim()) {
-              reject(new Error(`Command printed error output: ${stderr}`));
-            } else {
-              resolve(stdout);
-            }
-          });
-        }),
-    );
+    return stdout;
+  };
 }

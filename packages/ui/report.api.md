@@ -76,7 +76,7 @@ export const AccordionDefinition: {
   readonly propDefs: {
     readonly bg: {
       readonly dataAttribute: true;
-      readonly default: 'neutral-auto';
+      readonly default: 'neutral';
     };
     readonly children: {};
     readonly className: {};
@@ -1012,14 +1012,7 @@ export const FlexDefinition: {
     'direction',
   ];
   readonly dataAttributes: {
-    readonly bg: readonly [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ];
+    readonly bg: readonly ['neutral', 'danger', 'warning', 'success'];
   };
 };
 
@@ -1096,14 +1089,7 @@ export const GridDefinition: {
     'py',
   ];
   readonly dataAttributes: {
-    readonly bg: readonly [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ];
+    readonly bg: readonly ['neutral', 'danger', 'warning', 'success'];
   };
 };
 
@@ -1114,14 +1100,7 @@ export const GridItemDefinition: {
   };
   readonly utilityProps: ['colSpan', 'colEnd', 'colStart', 'rowSpan'];
   readonly dataAttributes: {
-    readonly bg: readonly [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ];
+    readonly bg: readonly ['neutral', 'danger', 'warning', 'success'];
   };
 };
 
@@ -1604,7 +1583,7 @@ export interface PopoverProps extends Omit<PopoverProps_2, 'children'> {
 }
 
 // @public
-export type ProviderBg = ContainerBg | 'neutral-auto';
+export type ProviderBg = 'neutral' | 'danger' | 'warning' | 'success';
 
 // @public (undocumented)
 export interface QueryOptions<TFilter> {

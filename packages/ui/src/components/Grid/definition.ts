@@ -43,14 +43,7 @@ export const GridDefinition = {
     'py',
   ],
   dataAttributes: {
-    bg: [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ] as const,
+    bg: ['neutral', 'danger', 'warning', 'success'] as const,
   },
 } as const satisfies ComponentDefinition;
 
@@ -64,13 +57,6 @@ export const GridItemDefinition = {
   },
   utilityProps: ['colSpan', 'colEnd', 'colStart', 'rowSpan'],
   dataAttributes: {
-    bg: [
-      'neutral-1',
-      'neutral-2',
-      'neutral-3',
-      'danger',
-      'warning',
-      'success',
-    ] as const,
+    bg: ['neutral', 'danger', 'warning', 'success'] as const,
   },
 } as const satisfies ComponentDefinition;

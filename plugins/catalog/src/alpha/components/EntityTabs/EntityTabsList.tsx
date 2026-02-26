@@ -171,6 +171,11 @@ export function EntityTabsList(props: EntityTabsListProps) {
   }, [items, groupDefinitions, aliasToGroup, defaultContentOrder]);
 
   const selectedItem = items[selectedIndex];
+  const selectedGroup = resolveGroupId(
+    selectedItem?.group,
+    groupDefinitions,
+    aliasToGroup,
+  );
   return (
     <Box className={styles.tabsWrapper}>
       <Tabs
@@ -180,7 +185,7 @@ export function EntityTabsList(props: EntityTabsListProps) {
         variant="scrollable"
         scrollButtons="auto"
         aria-label={t('entityTabs.tabsAriaLabel')}
-        value={selectedItem?.group ?? selectedItem?.id}
+        value={selectedGroup ?? selectedItem?.id}
       >
         {groups.map(([id, tabGroup]) => (
           <EntityTabsGroup

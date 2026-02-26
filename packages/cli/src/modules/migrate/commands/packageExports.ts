@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export async function command() {
+export default async function command() {
   throw new Error(
     'The `migrate package-exports` command has been removed, use `repo fix` instead.',
   );

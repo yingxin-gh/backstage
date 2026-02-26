@@ -118,13 +118,25 @@ export class CliInitializer {
                 }
                 positionalArgs.push(nonProcessArgs[argIndex]);
               }
-              await node.command.execute({
+              const context = {
                 args: [...positionalArgs, ...args.unknown],
                 info: {
                   usage: [programName, ...node.command.path].join(' '),
                   description: node.command.description,
                 },
-              });
+              };
+
+              if (typeof node.command.execute === 'function') {
+                await node.command.execute(context);
+              } else {
+                const mod = await node.command.execute.loader();
+                // Handle CJS double-wrapping of default exports
+                const fn =
+                  typeof mod.default === 'function'
+                    ? mod.default
+                    : (mod.default as any).default;
+                await fn(context);
+              }
               process.exit(0);
             } catch (error: unknown) {
               exitWithError(error);
@@ -144,7 +156,7 @@ export class CliInitializer {
       exitWithError(new ForwardedError('Unhandled rejection', rejection));
     });
 
-    program.parse(process.argv);
+    await program.parseAsync(process.argv);
   }
 }
 

@@ -21,7 +21,7 @@ import { runOutput } from '@backstage/cli-common';
 
 const PREFIX = `module.exports = require('@backstage/cli/config/eslint-factory')`;
 
-export async function command() {
+export default async function command() {
   const packages = await PackageGraph.listTargetPackages();
 
   const oldConfigs = [

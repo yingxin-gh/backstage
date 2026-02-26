@@ -22,7 +22,7 @@ const configArgPattern = /--config[=\s][^\s$]+/;
 
 const noStartRoles: PackageRole[] = ['cli', 'common-library'];
 
-export async function command() {
+export default async function command() {
   const packages = await PackageGraph.listTargetPackages();
 
   await Promise.all(

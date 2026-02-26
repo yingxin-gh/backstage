@@ -21,7 +21,7 @@ import { PackageGraph, PackageRoles } from '@backstage/cli-node';
 const REACT_ROUTER_DEPS = ['react-router', 'react-router-dom'];
 const REACT_ROUTER_RANGE = '6.0.0-beta.0 || ^6.3.0';
 
-export async function command() {
+export default async function command() {
   const packages = await PackageGraph.listTargetPackages();
 
   await Promise.all(

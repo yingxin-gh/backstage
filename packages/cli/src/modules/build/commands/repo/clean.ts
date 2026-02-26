@@ -20,7 +20,7 @@ import { PackageGraph } from '@backstage/cli-node';
 
 import { run, targetPaths } from '@backstage/cli-common';
 
-export async function command(): Promise<void> {
+export default async function command(): Promise<void> {
   const packages = await PackageGraph.listTargetPackages();
 
   await fs.remove(targetPaths.resolveRoot('dist'));

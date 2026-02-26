@@ -479,11 +479,56 @@ export class CatalogClient implements CatalogApi {
     request: GetEntityFacetsRequest,
     options?: CatalogRequestOptions,
   ): Promise<GetEntityFacetsResponse> {
-    const { filter = [], facets } = request;
+    const { filter, query, facets } = request;
+
+    // Route to POST endpoint if query predicate is provided
+    if (query || filter) {
+      return this.getEntityFacetsByPredicate(request, options);
+    }
+
     return await this.requestOptional(
       await this.apiClient.getEntityFacets(
         {
-          query: { facet: facets, filter: this.getFilterValue(filter) },
+          query: { facet: facets },
+        },
+        options,
+      ),
+    );
+  }
+
+  /**
+   * Get entity facets using predicate-based filters (POST endpoint).
+   * @internal
+   */
+  private async getEntityFacetsByPredicate(
+    request: GetEntityFacetsRequest,
+    options?: CatalogRequestOptions,
+  ): Promise<GetEntityFacetsResponse> {
+    const { filter, query, facets } = request;
+
+    let filterPredicate: FilterPredicate | undefined;
+    if (query !== undefined) {
+      if (typeof query !== 'object' || query === null || Array.isArray(query)) {
+        throw new InputError('Query must be an object');
+      }
+      filterPredicate = query;
+    }
+    if (filter !== undefined) {
+      const converted = convertFilterToPredicate(filter);
+      filterPredicate = filterPredicate
+        ? { $all: [filterPredicate, converted] }
+        : converted;
+    }
+
+    return await this.requestOptional(
+      await this.apiClient.queryEntityFacetsByPredicate(
+        {
+          body: {
+            facets,
+            ...(filterPredicate && {
+              query: filterPredicate as unknown as { [key: string]: any },
+            }),
+          },
         },
         options,
       ),

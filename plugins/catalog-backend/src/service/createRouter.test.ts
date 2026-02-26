@@ -1203,6 +1203,26 @@ describe('createRouter readonly disabled', () => {
         facets: { kind: [{ value: 'Component', count: 5 }] },
       });
     });
+
+    it('returns facets with filter parameter', async () => {
+      entitiesCatalog.facets.mockResolvedValue({
+        facets: { 'spec.type': [{ value: 'service', count: 3 }] },
+      });
+
+      const response = await request(app).get(
+        '/entity-facets?facet=spec.type&filter=kind=Component',
+      );
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        facets: { 'spec.type': [{ value: 'service', count: 3 }] },
+      });
+      expect(entitiesCatalog.facets).toHaveBeenCalledWith(
+        expect.objectContaining({
+          facets: ['spec.type'],
+          filter: { key: 'kind', values: ['Component'] },
+        }),
+      );
+    });
   });
 
   describe('POST /entity-facets', () => {

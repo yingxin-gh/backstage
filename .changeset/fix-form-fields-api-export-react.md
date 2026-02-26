@@ -1,5 +1,6 @@
 ---
-'@backstage/plugin-scaffolder-react': minor
+'@backstage/plugin-scaffolder-react': patch
+'@backstage/plugin-scaffolder': patch
 ---
 
-Added `formFieldsApiRef` and `ScaffolderFormFieldsApi` as alpha exports.
+Added back `formFieldsApiRef` and `ScaffolderFormFieldsApi` as alpha exports.

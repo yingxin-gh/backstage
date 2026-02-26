@@ -36,6 +36,7 @@ const IGNORED_WHEN_LISTING = [
 const IGNORED_WHEN_EXPLICIT = [
   /^ADOPTERS\.md$/,
   /^OWNERS\.md$/,
+  /^.*[/\\]CHANGELOG\.md$/, // generated from changesets anyway - THOSE should have been checked earlier
   /^.*[/\\]knip-report\.md$/,
 ];
 

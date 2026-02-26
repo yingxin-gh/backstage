@@ -5,9 +5,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "backstage": {
-    "role": "cli"
-  },
   "homepage": "https://backstage.io",
   "repository": {
     "type": "git",

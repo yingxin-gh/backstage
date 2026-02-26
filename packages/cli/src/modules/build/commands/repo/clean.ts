@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+import { cli } from 'cleye';
 import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
 import { PackageGraph } from '@backstage/cli-node';
-
 import { run, targetPaths } from '@backstage/cli-common';
+import type { CommandContext } from '../../../../wiring/types';
 
-export default async function command(): Promise<void> {
+export default async ({ args, info }: CommandContext) => {
+  cli({ help: info }, undefined, args);
   const packages = await PackageGraph.listTargetPackages();
 
   await fs.remove(targetPaths.resolveRoot('dist'));
@@ -48,4 +50,4 @@ export default async function command(): Promise<void> {
       }
     }),
   );
-}
+};

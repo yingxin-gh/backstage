@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
+import { cli } from 'cleye';
 import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
 import { PackageGraph, PackageRoles, PackageRole } from '@backstage/cli-node';
+import type { CommandContext } from '../../../wiring/types';
 
 const configArgPattern = /--config[=\s][^\s$]+/;
 
 const noStartRoles: PackageRole[] = ['cli', 'common-library'];
 
-export default async function command() {
+export default async ({ args, info }: CommandContext) => {
+  cli({ help: info }, undefined, args);
   const packages = await PackageGraph.listTargetPackages();
 
   await Promise.all(
@@ -104,4 +107,4 @@ export default async function command() {
       }
     }),
   );
-}
+};

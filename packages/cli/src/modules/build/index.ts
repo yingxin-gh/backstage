@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { cli } from 'cleye';
 import { Command, Option } from 'commander';
 import { createCliPlugin } from '../../wiring/factory';
 import { lazy } from '../../wiring/lazy';
@@ -214,7 +215,8 @@ export const buildPlugin = createCliPlugin({
     reg.addCommand({
       path: ['package', 'prepack'],
       description: 'Prepares a package for packaging before publishing',
-      execute: async () => {
+      execute: async ({ args, info }) => {
+        cli({ help: info }, undefined, args);
         const { pre } = await import('./commands/package/pack');
         await pre();
       },
@@ -223,7 +225,8 @@ export const buildPlugin = createCliPlugin({
     reg.addCommand({
       path: ['package', 'postpack'],
       description: 'Restores the changes made by the prepack command',
-      execute: async () => {
+      execute: async ({ args, info }) => {
+        cli({ help: info }, undefined, args);
         const { post } = await import('./commands/package/pack');
         await post();
       },

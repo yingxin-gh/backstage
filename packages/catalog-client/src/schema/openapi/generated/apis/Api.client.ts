@@ -30,6 +30,7 @@ import { EntityAncestryResponse } from '../models/EntityAncestryResponse.model';
 import { EntityFacetsResponse } from '../models/EntityFacetsResponse.model';
 import { GetEntitiesByRefsRequest } from '../models/GetEntitiesByRefsRequest.model';
 import { QueryEntitiesByPredicateRequest } from '../models/QueryEntitiesByPredicateRequest.model';
+import { QueryEntityFacetsByPredicateRequest } from '../models/QueryEntityFacetsByPredicateRequest.model';
 import { RefreshEntityRequest } from '../models/RefreshEntityRequest.model';
 import { ValidateEntityRequest } from '../models/ValidateEntityRequest.model';
 import { AnalyzeLocationRequest } from '../models/AnalyzeLocationRequest.model';
@@ -145,6 +146,12 @@ export type GetEntityFacets = {
  */
 export type QueryEntitiesByPredicate = {
   body: QueryEntitiesByPredicateRequest;
+};
+/**
+ * @public
+ */
+export type QueryEntityFacetsByPredicate = {
+  body: QueryEntityFacetsByPredicateRequest;
 };
 /**
  * @public
@@ -468,6 +475,31 @@ export class DefaultApiClient {
     const baseUrl = await this.discoveryApi.getBaseUrl(pluginId);
 
     const uriTemplate = `/entities/by-query`;
+
+    const uri = parser.parse(uriTemplate).expand({});
+
+    return await this.fetchApi.fetch(`${baseUrl}${uri}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options?.token && { Authorization: `Bearer ${options?.token}` }),
+      },
+      method: 'POST',
+      body: JSON.stringify(request.body),
+    });
+  }
+
+  /**
+   * Get entity facets using predicate-based filters.
+   * @param queryEntityFacetsByPredicateRequest -
+   */
+  public async queryEntityFacetsByPredicate(
+    // @ts-ignore
+    request: QueryEntityFacetsByPredicate,
+    options?: RequestOptions,
+  ): Promise<TypedResponse<EntityFacetsResponse>> {
+    const baseUrl = await this.discoveryApi.getBaseUrl(pluginId);
+
+    const uriTemplate = `/entity-facets`;
 
     const uri = parser.parse(uriTemplate).expand({});
 

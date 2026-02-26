@@ -1194,6 +1194,40 @@ paths:
               value:
                 - spec.type
         - $ref: '#/components/parameters/filter'
+    post:
+      operationId: QueryEntityFacetsByPredicate
+      tags:
+        - Entity
+      description: Get entity facets using predicate-based filters.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityFacetsResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - {}
+        - JWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - facets
+              properties:
+                facets:
+                  type: array
+                  items:
+                    type: string
+                query:
+                  $ref: '#/components/schemas/JsonObject'
   /locations:
     post:
       operationId: CreateLocation

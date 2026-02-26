@@ -27,6 +27,7 @@ import { EntityAncestryResponse } from '../models/EntityAncestryResponse.model';
 import { EntityFacetsResponse } from '../models/EntityFacetsResponse.model';
 import { GetEntitiesByRefsRequest } from '../models/GetEntitiesByRefsRequest.model';
 import { QueryEntitiesByPredicateRequest } from '../models/QueryEntitiesByPredicateRequest.model';
+import { QueryEntityFacetsByPredicateRequest } from '../models/QueryEntityFacetsByPredicateRequest.model';
 import { RefreshEntityRequest } from '../models/RefreshEntityRequest.model';
 import { ValidateEntity400Response } from '../models/ValidateEntity400Response.model';
 import { ValidateEntityRequest } from '../models/ValidateEntityRequest.model';
@@ -131,6 +132,13 @@ export type QueryEntitiesByPredicate = {
 /**
  * @public
  */
+export type QueryEntityFacetsByPredicate = {
+  body: QueryEntityFacetsByPredicateRequest;
+  response: EntityFacetsResponse | Error | Error;
+};
+/**
+ * @public
+ */
 export type RefreshEntity = {
   body: RefreshEntityRequest;
   response: void | Error | Error;
@@ -229,6 +237,8 @@ export type EndpointMap = {
   '#get|/entity-facets': GetEntityFacets;
 
   '#post|/entities/by-query': QueryEntitiesByPredicate;
+
+  '#post|/entity-facets': QueryEntityFacetsByPredicate;
 
   '#post|/refresh': RefreshEntity;
 

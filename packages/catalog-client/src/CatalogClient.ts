@@ -249,11 +249,8 @@ export class CatalogClient implements CatalogApi {
       }
       filterPredicate = query;
       if (filter !== undefined) {
-        const filterValue = this.getFilterValue(filter);
-        if (filterValue && Object.keys(filterValue).length > 0) {
-          const converted = convertFilterToPredicate(filter);
-          filterPredicate = { $all: [filterPredicate, converted] };
-        }
+        const converted = convertFilterToPredicate(filter);
+        filterPredicate = { $all: [filterPredicate, converted] };
       }
     }
 

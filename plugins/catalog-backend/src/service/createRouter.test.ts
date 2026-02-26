@@ -759,6 +759,37 @@ describe('createRouter readonly disabled', () => {
       expect(response.body).toEqual({ items: [entity] });
     });
 
+    it('forwards both filter query param and body query predicate independently', async () => {
+      const entity: Entity = {
+        apiVersion: 'a',
+        kind: 'component',
+        metadata: {
+          name: 'a',
+        },
+      };
+      const entityRef = stringifyEntityRef(entity);
+      entitiesCatalog.entitiesBatch.mockResolvedValue({
+        items: { type: 'object', entities: [entity] },
+      });
+      const response = await request(app)
+        .post('/entities/by-refs?filter=kind=Component')
+        .set('Content-Type', 'application/json')
+        .send(
+          JSON.stringify({
+            entityRefs: [entityRef],
+            query: { 'metadata.namespace': 'default' },
+          }),
+        );
+      expect(entitiesCatalog.entitiesBatch).toHaveBeenCalledWith({
+        entityRefs: [entityRef],
+        fields: undefined,
+        credentials: mockCredentials.user(),
+        filter: { key: 'kind', values: ['Component'] },
+        query: { 'metadata.namespace': 'default' },
+      });
+      expect(response.status).toEqual(200);
+    });
+
     it('rejects invalid query predicate', async () => {
       const response = await request(app)
         .post('/entities/by-refs')

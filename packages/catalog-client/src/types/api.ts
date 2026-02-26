@@ -212,6 +212,16 @@ export interface GetEntitiesByRefsRequest {
    * If given, return only entities that match the given filter.
    */
   filter?: EntityFilterQuery;
+  /**
+   * If given, return only entities that match the given predicate query.
+   *
+   * @remarks
+   *
+   * Supports operators like `$all`, `$any`, `$not`, `$exists`, `$in`,
+   * `$contains`, and `$hasPrefix`. When both `filter` and `query` are
+   * provided, they are combined with `$all`.
+   */
+  query?: FilterPredicate;
 }
 
 /**

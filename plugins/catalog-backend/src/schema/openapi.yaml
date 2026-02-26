@@ -1036,6 +1036,8 @@ paths:
                   type: array
                   items:
                     type: string
+                query:
+                  $ref: '#/components/schemas/JsonObject'
             examples:
               Fetch Backstage entities:
                 value:

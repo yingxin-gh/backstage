@@ -1124,6 +1124,9 @@ export const spec = {
                       type: 'string',
                     },
                   },
+                  query: {
+                    $ref: '#/components/schemas/JsonObject',
+                  },
                 },
               },
               examples: {

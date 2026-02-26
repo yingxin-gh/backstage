@@ -237,11 +237,36 @@ export class CatalogClient implements CatalogApi {
     request: GetEntitiesByRefsRequest,
     options?: CatalogRequestOptions,
   ): Promise<GetEntitiesByRefsResponse> {
+    const { filter, query } = request;
+
+    // Only convert and merge if both filter and query are provided, or if
+    // query alone is provided. When only filter is given, preserve the old
+    // query-parameter behavior for backward compatibility.
+    let filterPredicate: FilterPredicate | undefined;
+    if (query !== undefined) {
+      if (typeof query !== 'object' || query === null || Array.isArray(query)) {
+        throw new InputError('Query must be an object');
+      }
+      filterPredicate = query;
+      if (filter !== undefined) {
+        const converted = convertFilterToPredicate(filter);
+        filterPredicate = { $all: [filterPredicate, converted] };
+      }
+    }
+
     const getOneChunk = async (refs: string[]) => {
       const response = await this.apiClient.getEntitiesByRefs(
         {
-          body: { entityRefs: refs, fields: request.fields },
-          query: { filter: this.getFilterValue(request.filter) },
+          body: {
+            entityRefs: refs,
+            fields: request.fields,
+            ...(filterPredicate && {
+              query: filterPredicate as unknown as { [key: string]: any },
+            }),
+          },
+          query: filterPredicate
+            ? {}
+            : { filter: this.getFilterValue(request.filter) },
         },
         options,
       );

@@ -236,6 +236,7 @@ export interface GetEntitiesByRefsRequest {
   entityRefs: string[];
   fields?: EntityFieldsQuery | undefined;
   filter?: EntityFilterQuery;
+  query?: FilterPredicate;
 }
 
 // @public

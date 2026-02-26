@@ -725,6 +725,54 @@ describe('createRouter readonly disabled', () => {
     });
   });
 
+  describe('POST /entities/by-refs with query predicate', () => {
+    it('can fetch entities by refs with a predicate query', async () => {
+      const entity: Entity = {
+        apiVersion: 'a',
+        kind: 'component',
+        metadata: {
+          name: 'a',
+        },
+      };
+      const entityRef = stringifyEntityRef(entity);
+      entitiesCatalog.entitiesBatch.mockResolvedValue({
+        items: { type: 'object', entities: [entity] },
+      });
+      const response = await request(app)
+        .post('/entities/by-refs')
+        .set('Content-Type', 'application/json')
+        .send(
+          JSON.stringify({
+            entityRefs: [entityRef],
+            query: { kind: 'Component' },
+          }),
+        );
+      expect(entitiesCatalog.entitiesBatch).toHaveBeenCalledTimes(1);
+      expect(entitiesCatalog.entitiesBatch).toHaveBeenCalledWith({
+        entityRefs: [entityRef],
+        fields: undefined,
+        credentials: mockCredentials.user(),
+        filter: undefined,
+        query: { kind: 'Component' },
+      });
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual({ items: [entity] });
+    });
+
+    it('rejects invalid query predicate', async () => {
+      const response = await request(app)
+        .post('/entities/by-refs')
+        .set('Content-Type', 'application/json')
+        .send(
+          JSON.stringify({
+            entityRefs: ['component:default/a'],
+            query: { $invalid: 'bad' },
+          }),
+        );
+      expect(response.status).toEqual(400);
+    });
+  });
+
   describe('GET /locations', () => {
     it('happy path: lists locations', async () => {
       const locations: Location[] = [

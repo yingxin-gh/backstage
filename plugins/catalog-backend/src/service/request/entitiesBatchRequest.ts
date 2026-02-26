@@ -20,17 +20,16 @@ import {
   FilterPredicate,
 } from '@backstage/filter-predicates';
 import { Request } from 'express';
-import { z } from 'zod';
-import { z as zodV3 } from 'zod/v3';
+import { z } from 'zod/v3';
 import { fromZodError } from 'zod-validation-error/v3';
+
+const filterPredicateSchema = createZodV3FilterPredicateSchema(z);
 
 const schema = z.object({
   entityRefs: z.array(z.string()),
   fields: z.array(z.string()).optional(),
-  query: z.record(z.unknown()).optional(),
+  query: filterPredicateSchema.optional(),
 });
-
-const filterPredicateSchema = createZodV3FilterPredicateSchema(zodV3);
 
 export interface ParsedEntitiesBatchRequest {
   entityRefs: string[];
@@ -39,27 +38,13 @@ export interface ParsedEntitiesBatchRequest {
 }
 
 export function entitiesBatchRequest(req: Request): ParsedEntitiesBatchRequest {
-  let parsed: z.infer<typeof schema>;
-  try {
-    parsed = schema.parse(req.body);
-  } catch (error) {
+  const result = schema.safeParse(req.body);
+  if (!result.success) {
     throw new InputError(
-      `Malformed request body (did you remember to specify an application/json content type?), ${error.message}`,
+      `Malformed request body (did you remember to specify an application/json content type?), ${fromZodError(
+        result.error,
+      )}`,
     );
   }
-
-  let query: FilterPredicate | undefined;
-  if (parsed.query !== undefined) {
-    const result = filterPredicateSchema.safeParse(parsed.query);
-    if (!result.success) {
-      throw new InputError(`Invalid query: ${fromZodError(result.error)}`);
-    }
-    query = result.data;
-  }
-
-  return {
-    entityRefs: parsed.entityRefs,
-    fields: parsed.fields,
-    query,
-  };
+  return result.data;
 }

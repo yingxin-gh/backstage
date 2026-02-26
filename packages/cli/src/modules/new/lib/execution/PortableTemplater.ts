@@ -27,7 +27,7 @@ import lowerFirst from 'lodash/lowerFirst';
 import { Lockfile } from '@backstage/cli-node';
 import { targetPaths } from '@backstage/cli-common';
 
-import { createPackageVersionProvider } from '../../../../lib/version';
+import { createPackageVersionProvider } from '../version';
 import { hasBackstageYarnPlugin } from '@backstage/cli-node';
 
 const builtInHelpers = {

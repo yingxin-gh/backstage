@@ -53,17 +53,14 @@ export function createBinRunner(cwd: string, path: string) {
       const fileSize = statSync(outPath).size;
       const stdout = readFileSync(outPath, 'utf8');
 
-      // Temporary debug: log stdout when no help markers found
-      if (!stdout.includes('Usage:') && !stdout.includes('USAGE:')) {
-        console.error(
-          `[createBinRunner debug] no help markers for: node ${args.join(
-            ' ',
-          )} ` +
-            `(exit=${result.status}, size=${fileSize}, content=${JSON.stringify(
-              stdout.slice(0, 300),
-            )})`,
-        );
-      }
+      // Temporary debug: log first 200 chars of every command
+      console.error(
+        `[debug] ${args
+          .slice(-2)
+          .join(' ')} size=${fileSize} out=${JSON.stringify(
+          stdout.slice(0, 200),
+        )}`,
+      );
 
       if (result.error) {
         throw new Error(`Process error: ${result.error.message}`);

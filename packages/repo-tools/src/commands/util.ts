@@ -15,33 +15,58 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { openSync, closeSync, readFileSync, unlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
+/**
+ * Redirect stdout to a temp file so that Node.js creates a SyncWriteStream
+ * (synchronous writes) in the child instead of an async pipe stream. This
+ * prevents data loss when child processes call process.exit() before the
+ * async stream buffer has been flushed.
+ */
 export function createBinRunner(cwd: string, path: string) {
   return async (...command: string[]) => {
     const args = path ? [path, ...command] : command;
-    const result = spawnSync('node', args, {
-      cwd,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      maxBuffer: 10 * 1024 * 1024,
-    });
+    const outPath = join(
+      tmpdir(),
+      `backstage-cli-out-${process.pid}-${Date.now()}.txt`,
+    );
+    const outFd = openSync(outPath, 'w');
 
-    if (result.error) {
-      throw new Error(`Process error: ${result.error.message}`);
+    try {
+      const result = spawnSync('node', args, {
+        cwd,
+        stdio: ['ignore', outFd, 'pipe'],
+        maxBuffer: 10 * 1024 * 1024,
+      });
+
+      closeSync(outFd);
+      const stdout = readFileSync(outPath, 'utf8');
+
+      if (result.error) {
+        throw new Error(`Process error: ${result.error.message}`);
+      }
+
+      const stderr = result.stderr?.toString() ?? '';
+
+      if (result.signal) {
+        throw new Error(
+          `Process was killed with signal ${result.signal}\n${stderr}`,
+        );
+      } else if (result.status !== 0) {
+        throw new Error(`Process exited with code ${result.status}\n${stderr}`);
+      } else if (stderr.trim()) {
+        throw new Error(`Command printed error output: ${stderr}`);
+      }
+
+      return stdout;
+    } finally {
+      try {
+        unlinkSync(outPath);
+      } catch {
+        /* ignore cleanup errors */
+      }
     }
-
-    const stderr = result.stderr?.toString() ?? '';
-    const stdout = result.stdout?.toString() ?? '';
-
-    if (result.signal) {
-      throw new Error(
-        `Process was killed with signal ${result.signal}\n${stderr}`,
-      );
-    } else if (result.status !== 0) {
-      throw new Error(`Process exited with code ${result.status}\n${stderr}`);
-    } else if (stderr.trim()) {
-      throw new Error(`Command printed error output: ${stderr}`);
-    }
-
-    return stdout;
   };
 }

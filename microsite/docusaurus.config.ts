@@ -209,7 +209,7 @@ const config: Config = {
         redirects: [
           {
             from: '/docs',
-            to: '/docs/landing-page/doc-landing-page',
+            to: '/docs/overview/what-is-backstage',
           },
           {
             from: '/docs/features/software-catalog/software-catalog-overview',

@@ -340,7 +340,7 @@ export function setupRequestMockHandlers(worker: {
 export type SyncLogCollector = () => void;
 
 // @public
-export const TestApiProvider: <const T extends any[]>(
+export const TestApiProvider: <T extends any[]>(
   props: TestApiProviderProps<T>,
 ) => JSX_2.Element;
 
@@ -352,7 +352,7 @@ export type TestApiProviderProps<TApiPairs extends any[]> = {
 
 // @public
 export class TestApiRegistry implements ApiHolder {
-  static from<const TApiPairs extends any[]>(
+  static from<TApiPairs extends any[]>(
     ...apis: readonly [...TestApiProviderPropsApiPairs<TApiPairs>]
   ): TestApiRegistry;
   get<T>(api: ApiRef<T>): T | undefined;

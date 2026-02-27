@@ -15,17 +15,12 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import {
-  openSync,
-  closeSync,
-  readFileSync,
-  unlinkSync,
-  statSync,
-} from 'node:fs';
+import { openSync, closeSync, readFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-console.error('[util.ts] createBinRunner module loaded');
+// Matches ANSI SGR escape sequences (e.g. bold, color, reset)
+const ansiPattern = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
 /**
  * Redirect stdout to a temp file so that Node.js creates a SyncWriteStream
@@ -45,22 +40,12 @@ export function createBinRunner(cwd: string, path: string) {
     try {
       const result = spawnSync('node', args, {
         cwd,
+        env: { ...process.env, NO_COLOR: '1' },
         stdio: ['ignore', outFd, 'pipe'],
-        maxBuffer: 10 * 1024 * 1024,
       });
 
       closeSync(outFd);
-      const fileSize = statSync(outPath).size;
-      const stdout = readFileSync(outPath, 'utf8');
-
-      // Temporary debug: log first 200 chars of every command
-      console.error(
-        `[debug] ${args
-          .slice(-2)
-          .join(' ')} size=${fileSize} out=${JSON.stringify(
-          stdout.slice(0, 200),
-        )}`,
-      );
+      const stdout = readFileSync(outPath, 'utf8').replace(ansiPattern, '');
 
       if (result.error) {
         throw new Error(`Process error: ${result.error.message}`);

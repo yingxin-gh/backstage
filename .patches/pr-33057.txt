@@ -1,0 +1,1 @@
+Added `const` type parameter modifier to `TestApiProvider` and `TestApiRegistry.from` in `@backstage/test-utils` for improved type inference of API pairs.

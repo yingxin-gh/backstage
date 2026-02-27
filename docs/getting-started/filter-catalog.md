@@ -27,6 +27,7 @@ You can filter the Catalog using a combination of the following:
 - **Filter by kind**
 
   Use the `Kind` dropdown list to select which kind of entity to show in the list:
+
   - API
   - Component
   - Group

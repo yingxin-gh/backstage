@@ -43,6 +43,7 @@ To display the Catalog Graph:
 The `Catalog Graph` automatically reflects any changes you make to the filter settings. You can set the following filters:
 
 - `MAX DEPTH`
+
   - `MAX DEPTH` = 1
 
     ![Max Depth at 1](../assets/uiguide/max-depth-1.png)
@@ -59,6 +60,7 @@ The `Catalog Graph` automatically reflects any changes you make to the filter se
   - Left to right
   - Right to left
 - `Curve`
+
   - `Curve` = Monotone
 
     ![Curve at Monotone.](../assets/uiguide/curve-monotone.png)
@@ -73,10 +75,12 @@ You can also toggle:
   - On = simple view
   - Off = detailed view
 - `Merge relations`
+
   - On = You see the relationship from the selected entity to the nodes and from the nodes to the selected entity.
   - Off = You only see relations from the selected entity to its nodes.
 
   The following graphics illustrate the view of the nodes and relationships, based on the combination of the settings of `Simplified` and `Merge relations`.
+
   - `Simplified` = On and `Merge Relations` = On
 
     ![Simplified is On and Merge Relations is On.](../assets/uiguide/simplify-on-merge-relations-on.png)

@@ -39,6 +39,7 @@ You can also delete an entity from the Catalog. However, this requires that you 
 To delete an entity:
 
 1. Delete the following entity definition files for the entity in the repository:
+
    - catalog-info.yaml
    - index.js
    - package.json

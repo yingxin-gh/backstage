@@ -15,9 +15,41 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { openSync, closeSync, readFileSync, unlinkSync } from 'node:fs';
+import {
+  openSync,
+  closeSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+// Preload script that stubs process.stdout._handle when stdout is backed by a
+// file (SyncWriteStream). Some CLI code accesses _handle.setBlocking directly
+// and would crash without this.
+const preloadContent = `
+if (process.stdout && !process.stdout._handle) {
+  process.stdout._handle = { setBlocking() {} };
+}
+`;
+
+let preloadPath: string | undefined;
+
+function getPreloadPath() {
+  if (!preloadPath) {
+    preloadPath = join(tmpdir(), `backstage-stdout-preload-${process.pid}.cjs`);
+    writeFileSync(preloadPath, preloadContent);
+    process.on('exit', () => {
+      try {
+        unlinkSync(preloadPath!);
+      } catch {
+        /* ignore */
+      }
+    });
+  }
+  return preloadPath;
+}
 
 /**
  * Redirect stdout to a temp file so that Node.js creates a SyncWriteStream
@@ -35,11 +67,15 @@ export function createBinRunner(cwd: string, path: string) {
     const outFd = openSync(outPath, 'w');
 
     try {
-      const result = spawnSync('node', args, {
-        cwd,
-        stdio: ['ignore', outFd, 'pipe'],
-        maxBuffer: 10 * 1024 * 1024,
-      });
+      const result = spawnSync(
+        'node',
+        ['--require', getPreloadPath(), ...args],
+        {
+          cwd,
+          stdio: ['ignore', outFd, 'pipe'],
+          maxBuffer: 10 * 1024 * 1024,
+        },
+      );
 
       closeSync(outFd);
       const stdout = readFileSync(outPath, 'utf8');

@@ -53,13 +53,15 @@ export function createBinRunner(cwd: string, path: string) {
       const fileSize = statSync(outPath).size;
       const stdout = readFileSync(outPath, 'utf8');
 
-      // Temporary debug: log when file redirect produces no output
-      if (stdout.length === 0) {
+      // Temporary debug: log stdout when no help markers found
+      if (!stdout.includes('Usage:') && !stdout.includes('USAGE:')) {
         console.error(
-          `[createBinRunner debug] empty stdout for: node ${args.join(' ')} ` +
-            `(exit=${result.status}, fileSize=${fileSize}, stderr=${(
-              result.stderr?.toString() ?? ''
-            ).slice(0, 200)})`,
+          `[createBinRunner debug] no help markers for: node ${args.join(
+            ' ',
+          )} ` +
+            `(exit=${result.status}, size=${fileSize}, content=${JSON.stringify(
+              stdout.slice(0, 300),
+            )})`,
         );
       }
 

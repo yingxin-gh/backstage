@@ -1121,7 +1121,7 @@ Describes the following entity kind:
 | `apiVersion` | `backstage.io/v1alpha1` |
 | `kind`       | `Resource`              |
 
-A resource describes the infrastructure a system needs to operate, like BigTable
+A Resource describes the infrastructure a system needs to operate, like BigTable
 databases, Pub/Sub topics, S3 buckets or CDNs. Modelling them together with
 components and systems allows to visualize resource footprint, and create
 tooling around them.

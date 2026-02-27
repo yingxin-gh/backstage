@@ -33,6 +33,8 @@ import { Button } from '../Button';
 import { useStyles } from '../../hooks/useStyles';
 import { DialogDefinition } from './definition';
 import { Flex } from '../Flex';
+import { Box } from '../Box';
+import { BgReset } from '../../hooks/useBg';
 import styles from './Dialog.module.css';
 
 /** @public */
@@ -71,7 +73,14 @@ export const Dialog = forwardRef<React.ElementRef<typeof Modal>, DialogProps>(
             ...style,
           }}
         >
-          {children}
+          <BgReset>
+            <Box
+              bg="neutral"
+              className={clsx(classNames.content, styles[classNames.content])}
+            >
+              {children}
+            </Box>
+          </BgReset>
         </RADialog>
       </Modal>
     );

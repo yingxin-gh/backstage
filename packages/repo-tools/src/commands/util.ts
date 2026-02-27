@@ -15,7 +15,13 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { openSync, closeSync, readFileSync, unlinkSync } from 'node:fs';
+import {
+  openSync,
+  closeSync,
+  readFileSync,
+  unlinkSync,
+  statSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -42,7 +48,18 @@ export function createBinRunner(cwd: string, path: string) {
       });
 
       closeSync(outFd);
+      const fileSize = statSync(outPath).size;
       const stdout = readFileSync(outPath, 'utf8');
+
+      // Temporary debug: log when file redirect produces no output
+      if (stdout.length === 0) {
+        console.error(
+          `[createBinRunner debug] empty stdout for: node ${args.join(' ')} ` +
+            `(exit=${result.status}, fileSize=${fileSize}, stderr=${(
+              result.stderr?.toString() ?? ''
+            ).slice(0, 200)})`,
+        );
+      }
 
       if (result.error) {
         throw new Error(`Process error: ${result.error.message}`);

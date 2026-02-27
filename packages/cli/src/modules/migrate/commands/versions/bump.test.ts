@@ -150,9 +150,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -245,9 +243,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -343,9 +339,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -449,9 +443,7 @@ describe('bump', () => {
       '.yarnrc.yml': yarnRcMock,
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -562,9 +554,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -634,9 +624,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -740,9 +728,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': customLockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -855,9 +841,7 @@ describe('bump', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -1099,9 +1083,7 @@ describe('environment variables', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -1192,9 +1174,7 @@ describe('environment variables', () => {
       'custom-manifest.json': JSON.stringify(customManifest),
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -1262,9 +1242,7 @@ describe('environment variables', () => {
       '.yarnrc.yml': yarnRcMock,
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -1337,9 +1315,7 @@ describe('environment variables', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {
@@ -1362,9 +1338,7 @@ describe('environment variables', () => {
     mockDir.setContent({
       'yarn.lock': lockfileMock,
       'package.json': JSON.stringify({
-        workspaces: {
-          packages: ['packages/*'],
-        },
+        workspaces: ['packages/*'],
       }),
       packages: {
         a: {

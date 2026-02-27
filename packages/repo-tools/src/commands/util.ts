@@ -25,6 +25,8 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+console.error('[util.ts] createBinRunner module loaded');
+
 /**
  * Redirect stdout to a temp file so that Node.js creates a SyncWriteStream
  * (synchronous writes) in the child instead of an async pipe stream. This

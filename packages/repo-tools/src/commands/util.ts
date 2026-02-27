@@ -15,6 +15,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { openSync, closeSync, readFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -27,14 +28,14 @@ const ansiPattern = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
  * (synchronous writes) in the child instead of an async pipe stream. This
  * prevents data loss when child processes call process.exit() before the
  * async stream buffer has been flushed.
+ *
+ * Uses spawnSync which blocks the event loop, so no concurrency limiter is
+ * needed — each call naturally runs sequentially.
  */
 export function createBinRunner(cwd: string, path: string) {
   return async (...command: string[]) => {
     const args = path ? [path, ...command] : command;
-    const outPath = join(
-      tmpdir(),
-      `backstage-cli-out-${process.pid}-${Date.now()}.txt`,
-    );
+    const outPath = join(tmpdir(), `backstage-cli-out-${randomUUID()}.txt`);
     const outFd = openSync(outPath, 'w');
 
     try {

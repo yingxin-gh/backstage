@@ -304,11 +304,9 @@ export async function command(opts: OptionValues, cmd: Command): Promise<void> {
     }--no-node-snapshot`;
   }
 
-  // This ensures that the process doesn't exit too early before stdout is flushed
   if (args.includes('--jest-help')) {
     removeOptionArg(args, '--jest-help');
     args.push('--help');
-    (process.stdout as any)._handle.setBlocking(true);
   }
 
   // This code path is enabled by the --successCache flag, which is specific to

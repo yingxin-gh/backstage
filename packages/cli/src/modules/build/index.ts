@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { cli } from 'cleye';
 import { Command, Option } from 'commander';
 import { createCliPlugin } from '../../wiring/factory';
 import { lazy } from '../../wiring/lazy';
@@ -206,52 +207,36 @@ export const buildPlugin = createCliPlugin({
     reg.addCommand({
       path: ['package', 'clean'],
       description: 'Delete cache directories',
-      execute: async ({ args }) => {
-        const command = new Command();
-        const defaultCommand = command.action(
-          lazy(() => import('./commands/package/clean'), 'default'),
-        );
-
-        await defaultCommand.parseAsync(args, { from: 'user' });
+      execute: {
+        loader: () => import('./commands/package/clean'),
       },
     });
 
     reg.addCommand({
       path: ['package', 'prepack'],
       description: 'Prepares a package for packaging before publishing',
-      execute: async ({ args }) => {
-        const command = new Command();
-        const defaultCommand = command.action(
-          lazy(() => import('./commands/package/pack'), 'pre'),
-        );
-
-        await defaultCommand.parseAsync(args, { from: 'user' });
+      execute: async ({ args, info }) => {
+        cli({ help: info }, undefined, args);
+        const { pre } = await import('./commands/package/pack');
+        await pre();
       },
     });
 
     reg.addCommand({
       path: ['package', 'postpack'],
       description: 'Restores the changes made by the prepack command',
-      execute: async ({ args }) => {
-        const command = new Command();
-        const defaultCommand = command.action(
-          lazy(() => import('./commands/package/pack'), 'post'),
-        );
-
-        await defaultCommand.parseAsync(args, { from: 'user' });
+      execute: async ({ args, info }) => {
+        cli({ help: info }, undefined, args);
+        const { post } = await import('./commands/package/pack');
+        await post();
       },
     });
 
     reg.addCommand({
       path: ['repo', 'clean'],
       description: 'Delete cache and output directories',
-      execute: async ({ args }) => {
-        const command = new Command();
-        const defaultCommand = command.action(
-          lazy(() => import('./commands/repo/clean'), 'command'),
-        );
-
-        await defaultCommand.parseAsync(args, { from: 'user' });
+      execute: {
+        loader: () => import('./commands/repo/clean'),
       },
     });
 

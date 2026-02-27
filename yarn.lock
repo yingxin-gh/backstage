@@ -3352,6 +3352,7 @@ __metadata:
     buffer: "npm:^6.0.3"
     chalk: "npm:^4.0.0"
     chokidar: "npm:^3.3.1"
+    cleye: "npm:^2.2.1"
     commander: "npm:^14.0.3"
     cross-fetch: "npm:^4.0.0"
     cross-spawn: "npm:^7.0.3"
@@ -27246,6 +27247,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cleye@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "cleye@npm:2.2.1"
+  dependencies:
+    terminal-columns: "npm:^2.0.0"
+    type-flag: "npm:^4.0.3"
+  checksum: 10/4d24a7e4863d38b9a40c01ca332baa7526b320c14fc488e7fb2d3f54b0ad5baa8c5defa6fc6adc079f50f629409056d9da74be6611f6394b709c9062d39b2216
+  languageName: node
+  linkType: hard
+
 "cli-boxes@npm:^2.2.0, cli-boxes@npm:^2.2.1":
   version: 2.2.1
   resolution: "cli-boxes@npm:2.2.1"
@@ -48464,6 +48475,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"terminal-columns@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "terminal-columns@npm:2.0.0"
+  checksum: 10/f958993886e09d7c0780f47833316532a0c7dd7db2fb43da9d34a88c821633408a6e7084af59f99c20b045776814748f14a8e33573886186be7a30174092964f
+  languageName: node
+  linkType: hard
+
 "terser-webpack-plugin@npm:*, terser-webpack-plugin@npm:^5.1.3, terser-webpack-plugin@npm:^5.3.16":
   version: 5.3.16
   resolution: "terser-webpack-plugin@npm:5.3.16"
@@ -49320,6 +49338,13 @@ __metadata:
   version: 4.41.0
   resolution: "type-fest@npm:4.41.0"
   checksum: 10/617ace794ac0893c2986912d28b3065ad1afb484cad59297835a0807dc63286c39e8675d65f7de08fafa339afcb8fe06a36e9a188b9857756ae1e92ee8bda212
+  languageName: node
+  linkType: hard
+
+"type-flag@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "type-flag@npm:4.0.3"
+  checksum: 10/ffa9e56e50ed73ed802aa45b8d47eeba7677d2d66785e9153bfbc758c2613b6ba78b621d7766b713a287dbbe6758a61000f57d2ce8afc94e1876a37de914c73c
   languageName: node
   linkType: hard
 

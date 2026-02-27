@@ -63,7 +63,7 @@ export class TestApiRegistry implements ApiHolder {
    * @public
    * @param apis - A list of pairs mapping an ApiRef to its respective implementation.
    */
-  static from<TApiPairs extends any[]>(
+  static from<const TApiPairs extends any[]>(
     ...apis: readonly [...TestApiProviderPropsApiPairs<TApiPairs>]
   ) {
     return new TestApiRegistry(
@@ -124,7 +124,7 @@ export class TestApiRegistry implements ApiHolder {
  *
  * @public
  */
-export const TestApiProvider = <T extends any[]>(
+export const TestApiProvider = <const T extends any[]>(
   props: TestApiProviderProps<T>,
 ) => {
   return (

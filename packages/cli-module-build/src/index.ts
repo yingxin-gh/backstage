@@ -38,7 +38,8 @@ export default createCliModule({
       description:
         'Bundle a plugin for dynamic loading. Creates a self-contained plugin ' +
         'package that can be deployed and loaded dynamically by a Backstage application. ' +
-        'Supports both backend and frontend plugins.',
+        'Supports both backend and frontend plugins. Experimental.',
+      experimental: true,
       execute: { loader: () => import('./commands/package/bundle') },
     });
 

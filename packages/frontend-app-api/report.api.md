@@ -10,6 +10,7 @@ import { ConfigApi } from '@backstage/frontend-plugin-api';
 import { ExtensionDataContainer } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { ExtensionDataValue } from '@backstage/frontend-plugin-api';
+import { ExtensionFactoryMiddleware as ExtensionFactoryMiddleware_2 } from '@backstage/frontend-plugin-api';
 import { ExternalRouteRef } from '@backstage/frontend-plugin-api';
 import { FrontendFeature } from '@backstage/frontend-plugin-api';
 import { FrontendPlugin } from '@backstage/frontend-plugin-api';
@@ -127,6 +128,26 @@ export type AppErrorTypes = {
       existingPluginId: string;
     };
   };
+  EXTENSION_BOOTSTRAP_PREDICATE_IGNORED: {
+    context: {
+      node: AppNode;
+    };
+  };
+  EXTENSION_BOOTSTRAP_API_UNAVAILABLE: {
+    context: {
+      node: AppNode;
+      apiRefId: string;
+    };
+  };
+  EXTENSION_BOOTSTRAP_API_OVERRIDE_IGNORED: {
+    context: {
+      node: AppNode;
+      apiRefId: string;
+      bootstrapNode: AppNode;
+      pluginId: string;
+      bootstrapPluginId: string;
+    };
+  };
   ROUTE_DUPLICATE: {
     context: {
       routeId: string;
@@ -145,6 +166,12 @@ export type AppErrorTypes = {
 };
 
 // @public
+export type BootstrapSpecializedApp = {
+  element: JSX.Element;
+  tree: AppTree;
+};
+
+// @public
 export type CreateAppRouteBinder = <
   TExternalRoutes extends {
     [name: string]: ExternalRouteRef;
@@ -157,14 +184,12 @@ export type CreateAppRouteBinder = <
   >,
 ) => void;
 
-// @public
-export function createSpecializedApp(options?: CreateSpecializedAppOptions): {
-  apis: ApiHolder;
-  tree: AppTree;
-  errors?: AppError[];
-};
+// @public @deprecated
+export function createSpecializedApp(
+  options?: CreateSpecializedAppOptions,
+): FinalizedSpecializedApp;
 
-// @public
+// @public @deprecated
 export type CreateSpecializedAppOptions = {
   features?: FrontendFeature[];
   config?: ConfigApi;
@@ -172,8 +197,8 @@ export type CreateSpecializedAppOptions = {
   advanced?: {
     apis?: ApiHolder;
     extensionFactoryMiddleware?:
-      | ExtensionFactoryMiddleware
-      | ExtensionFactoryMiddleware[];
+      | ExtensionFactoryMiddleware_2
+      | ExtensionFactoryMiddleware_2[];
     pluginInfoResolver?: FrontendPluginInfoResolver;
   };
 };
@@ -191,6 +216,14 @@ export type ExtensionFactoryMiddleware = (
 ) => Iterable<ExtensionDataValue<any, any>>;
 
 // @public
+export type FinalizedSpecializedApp = {
+  element: JSX.Element;
+  sessionState: SpecializedAppSessionState;
+  tree: AppTree;
+  errors?: AppError[];
+};
+
+// @public
 export type FrontendPluginInfoResolver = (ctx: {
   packageJson(): Promise<JsonObject | undefined>;
   manifest(): Promise<JsonObject | undefined>;
@@ -203,4 +236,35 @@ export type FrontendPluginInfoResolver = (ctx: {
 }) => Promise<{
   info: FrontendPluginInfo;
 }>;
+
+// @public
+export type PreparedSpecializedApp = {
+  getBootstrapApp(): BootstrapSpecializedApp;
+  onFinalized(callback: (app: FinalizedSpecializedApp) => void): () => void;
+  finalize(): FinalizedSpecializedApp;
+};
+
+// @public
+export function prepareSpecializedApp(
+  options?: PrepareSpecializedAppOptions,
+): PreparedSpecializedApp;
+
+// @public
+export type PrepareSpecializedAppOptions = {
+  features?: FrontendFeature[];
+  config?: ConfigApi;
+  bindRoutes?(context: { bind: CreateAppRouteBinder }): void;
+  advanced?: {
+    sessionState?: SpecializedAppSessionState;
+    extensionFactoryMiddleware?:
+      | ExtensionFactoryMiddleware_2
+      | ExtensionFactoryMiddleware_2[];
+    pluginInfoResolver?: FrontendPluginInfoResolver;
+  };
+};
+
+// @public
+export type SpecializedAppSessionState = {
+  $$type: '@backstage/SpecializedAppSessionState';
+};
 ```

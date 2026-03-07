@@ -727,6 +727,7 @@ export type TemplateListPageProps = {
     title?: string;
     subtitle?: string;
   };
+  headerVariant?: 'legacy' | 'bui';
 };
 
 // @alpha (undocumented)
@@ -742,6 +743,7 @@ export type TemplateWizardPageProps = {
     title?: string;
     subtitle?: string;
   };
+  headerVariant?: 'legacy' | 'bui';
 };
 
 // (No @packageDocumentation comment for this package)

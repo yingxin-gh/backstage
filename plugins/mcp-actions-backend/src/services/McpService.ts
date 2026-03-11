@@ -16,7 +16,9 @@
 import {
   BackstageCredentials,
   LoggerService,
+  AuditorService,
 } from '@backstage/backend-plugin-api';
+import type { Request } from 'express';
 import { Server as McpServer } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   ListToolsRequestSchema,
@@ -82,6 +84,7 @@ function baggageAttributes(
 export class McpService {
   private readonly actions: ActionsService;
   private readonly logger: LoggerService | undefined;
+  private readonly auditor: AuditorService;
   private readonly namespacedToolNames: boolean;
   private readonly tracingService: TracingService;
   private readonly captureToolPayloads: boolean;
@@ -93,11 +96,13 @@ export class McpService {
     metrics: MetricsService,
     tracingService: TracingService,
     logger: LoggerService | undefined,
+    auditor: AuditorService,
     namespacedToolNames?: boolean,
     captureToolPayloads?: boolean,
   ) {
     this.actions = actions;
     this.logger = logger;
+    this.auditor = auditor;
     this.namespacedToolNames = namespacedToolNames ?? true;
     this.tracingService = tracingService;
     this.captureToolPayloads = captureToolPayloads ?? false;
@@ -117,6 +122,7 @@ export class McpService {
     metrics,
     tracingService,
     logger,
+    auditor,
     namespacedToolNames,
     captureToolPayloads,
   }: {
@@ -124,6 +130,7 @@ export class McpService {
     metrics: MetricsService;
     tracingService: TracingService;
     logger?: LoggerService;
+    auditor: AuditorService;
     namespacedToolNames?: boolean;
     captureToolPayloads?: boolean;
   }) {
@@ -132,6 +139,7 @@ export class McpService {
       metrics,
       tracingService,
       logger,
+      auditor,
       namespacedToolNames,
       captureToolPayloads,
     );
@@ -140,9 +148,11 @@ export class McpService {
   getServer({
     credentials,
     serverConfig,
+    req,
   }: {
     credentials: BackstageCredentials;
     serverConfig?: McpServerConfig;
+    req?: Request;
   }) {
     const server = new McpServer(
       {
@@ -158,6 +168,11 @@ export class McpService {
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       const startTime = performance.now();
       let errorType: string | undefined;
+
+      const auditorEvent = await this.auditor.createEvent({
+        eventId: 'tool-discovery',
+        ...(req && { request: req }),
+      });
 
       try {
         const { actions: allActions } = await this.actions.list({
@@ -199,9 +214,11 @@ export class McpService {
           tools.push(parsed.data);
         }
 
+        await auditorEvent.success({ meta: { toolCount: actions.length } });
         return { tools };
       } catch (err) {
         errorType = err instanceof Error ? err.name : 'Error';
+        await auditorEvent.fail({ error: err as Error });
         throw err;
       } finally {
         const durationSeconds = (performance.now() - startTime) / 1000;
@@ -217,6 +234,13 @@ export class McpService {
       const startTime = performance.now();
       let errorType: string | undefined;
       let isError = false;
+
+      const auditorEvent = await this.auditor.createEvent({
+        eventId: 'tool-execution',
+        severityLevel: 'medium',
+        ...(req && { request: req }),
+        meta: { toolName: params.name },
+      });
 
       try {
         return await this.tracingService.startActiveSpan(
@@ -284,15 +308,20 @@ export class McpService {
             });
 
             isError = !!(result as { isError?: boolean })?.isError;
+
             if (isError) {
               span.setAttribute('error.type', 'tool_error');
               span.setStatus({ code: 'error', message: 'tool_error' });
             }
+
+            await auditorEvent.success();
+
             return result;
           },
         );
       } catch (err) {
         errorType = err instanceof Error ? err.name : 'Error';
+        await auditorEvent.fail({ error: err as Error });
         throw err;
       } finally {
         const durationSeconds = (performance.now() - startTime) / 1000;

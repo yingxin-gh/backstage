@@ -51,6 +51,7 @@ describe('McpService', () => {
       actions: mockActionsRegistry,
       metrics: mockMetrics,
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -124,6 +125,7 @@ describe('McpService', () => {
       actions: mockActionsRegistry,
       metrics: mockMetrics,
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -268,6 +270,7 @@ describe('McpService', () => {
       actions: mockActionsRegistry,
       metrics: mockMetrics,
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -330,6 +333,7 @@ describe('McpService', () => {
       actions: actionsRegistryServiceMock(),
       metrics: mockMetrics,
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -399,6 +403,7 @@ describe('McpService', () => {
       actions: mockActionsRegistry,
       metrics: mockMetrics,
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -460,6 +465,7 @@ describe('McpService', () => {
       actions: mockActionsRegistry,
       metrics: metricsServiceMock.mock(),
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -517,6 +523,7 @@ describe('McpService', () => {
       actions: mockActionsRegistry,
       metrics: metricsServiceMock.mock(),
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
     });
 
     const server = mcpService.getServer({
@@ -605,6 +612,7 @@ describe('McpService', () => {
         actions: fakeActionsService,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const serverConfig: McpServerConfig = {
@@ -639,6 +647,7 @@ describe('McpService', () => {
         actions: fakeActionsService,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const serverConfig: McpServerConfig = {
@@ -681,6 +690,7 @@ describe('McpService', () => {
         actions: fakeActionsService,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const serverConfig: McpServerConfig = {
@@ -720,6 +730,7 @@ describe('McpService', () => {
         actions: fakeActionsService,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const serverConfig: McpServerConfig = {
@@ -759,6 +770,7 @@ describe('McpService', () => {
         actions: fakeActionsService,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const serverConfig: McpServerConfig = {
@@ -909,6 +921,7 @@ describe('McpService', () => {
         actions: mockActionsRegistry,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const server = mcpService.getServer({
@@ -948,6 +961,7 @@ describe('McpService', () => {
         actions: mockActionsRegistry,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
         namespacedToolNames: false,
       });
 
@@ -988,6 +1002,7 @@ describe('McpService', () => {
         actions: mockActionsRegistry,
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const server = mcpService.getServer({

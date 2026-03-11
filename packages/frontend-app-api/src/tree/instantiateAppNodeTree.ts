@@ -538,8 +538,8 @@ export function instantiateAppNodeTree(
     }
     if (
       options?.predicateContext !== undefined &&
-      node.spec.enabled !== undefined &&
-      !evaluateFilterPredicate(node.spec.enabled, options.predicateContext)
+      node.spec.if !== undefined &&
+      !evaluateFilterPredicate(node.spec.if, options.predicateContext)
     ) {
       return undefined;
     }

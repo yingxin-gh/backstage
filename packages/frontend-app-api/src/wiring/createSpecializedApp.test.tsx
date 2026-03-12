@@ -1800,6 +1800,7 @@ describe('createSpecializedApp', () => {
 
       await signIn!.complete;
       expect(featureFlagsApi.isActive).toHaveBeenCalledWith('test-flag');
+      expect(featureFlagsApi.isActive).toHaveBeenCalledTimes(1);
 
       const finalizedApp = preparedApp.finalize();
       render(
@@ -1809,6 +1810,26 @@ describe('createSpecializedApp', () => {
       );
 
       expect(screen.getByText('Flagged Layout')).toBeInTheDocument();
+    });
+
+    it('should reject bootstrap-visible extensions that use if predicates', () => {
+      expect(() =>
+        prepareSpecializedApp({
+          features: [
+            appPluginOriginal,
+            createFrontendModule({
+              pluginId: 'app',
+              extensions: [
+                appPluginOriginal.getExtension('sign-in-page:app').override({
+                  if: { featureFlags: { $contains: 'test-flag' } },
+                }),
+              ],
+            }),
+          ],
+        }),
+      ).toThrow(
+        "Extension 'sign-in-page:app' uses 'if' before the session boundary at 'app/root.children'. Move it behind the session boundary or remove the predicate.",
+      );
     });
 
     it('should gate finalize behind internal async sign-in finalization', async () => {

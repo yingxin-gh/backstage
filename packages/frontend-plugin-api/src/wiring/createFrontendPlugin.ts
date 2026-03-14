@@ -117,6 +117,11 @@ export interface OverridableFrontendPlugin<
     extensions?: Array<ExtensionDefinition>;
 
     /**
+     * Overrides the shared condition that applies to all extensions in the plugin.
+     */
+    if?: FilterPredicate;
+
+    /**
      * Overrides the display title of the plugin.
      */
     title?: string;
@@ -329,6 +334,10 @@ export function createFrontendPlugin<
       return `Plugin{id=${pluginId}}`;
     },
     withOverrides(overrides) {
+      let ifPredicate = options.if;
+      if ('if' in overrides) {
+        ifPredicate = overrides.if;
+      }
       const overrideExtensions = overrides.extensions ?? [];
       const overriddenExtensionIds = new Set(
         overrideExtensions.map(
@@ -344,6 +353,7 @@ export function createFrontendPlugin<
       return createFrontendPlugin({
         ...options,
         pluginId,
+        if: ifPredicate,
         title: overrides.title ?? options.title,
         icon: overrides.icon ?? options.icon,
         extensions: [...nonOverriddenExtensions, ...overrideExtensions],

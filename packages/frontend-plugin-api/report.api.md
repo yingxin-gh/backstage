@@ -255,11 +255,11 @@ export interface AppNodeSpec {
   // (undocumented)
   readonly disabled: boolean;
   // (undocumented)
-  readonly enabled?: FilterPredicate;
-  // (undocumented)
   readonly extension: Extension<unknown, unknown>;
   // (undocumented)
   readonly id: string;
+  // (undocumented)
+  readonly if?: FilterPredicate;
   // (undocumented)
   readonly plugin: FrontendPlugin;
 }
@@ -580,7 +580,7 @@ export type CreateExtensionBlueprintOptions<
   attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
     VerifyExtensionAttachTo<UOutput, UParentInputs>;
   disabled?: boolean;
-  enabled?: FilterPredicate;
+  if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
   config?: {
@@ -667,7 +667,7 @@ export type CreateExtensionOptions<
   attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
     VerifyExtensionAttachTo<UOutput, UParentInputs>;
   disabled?: boolean;
-  enabled?: FilterPredicate;
+  if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
   config?: {
@@ -756,6 +756,8 @@ export interface CreateFrontendModuleOptions<
   // (undocumented)
   featureFlags?: FeatureFlagConfig[];
   // (undocumented)
+  if?: FilterPredicate;
+  // (undocumented)
   pluginId: TPluginId;
 }
 
@@ -770,44 +772,12 @@ export function createFrontendPlugin<
     [name in string]: ExternalRouteRef;
   } = {},
 >(
-  options: CreateFrontendPluginOptions<
-    TId,
-    TRoutes,
-    TExternalRoutes,
-    TExtensions
-  >,
+  options: PluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>,
 ): OverridableFrontendPlugin<
   TRoutes,
   TExternalRoutes,
   MakeSortedExtensionsMap<TExtensions[number], TId>
 >;
-
-// @public
-export interface CreateFrontendPluginOptions<
-  TId extends string,
-  TRoutes extends {
-    [name in string]: RouteRef | SubRouteRef;
-  },
-  TExternalRoutes extends {
-    [name in string]: ExternalRouteRef;
-  },
-  TExtensions extends readonly ExtensionDefinition[],
-> {
-  // (undocumented)
-  extensions?: TExtensions;
-  // (undocumented)
-  externalRoutes?: TExternalRoutes;
-  // (undocumented)
-  featureFlags?: FeatureFlagConfig[];
-  icon?: IconElement;
-  // (undocumented)
-  info?: FrontendPluginInfoOptions;
-  // (undocumented)
-  pluginId: TId;
-  // (undocumented)
-  routes?: TRoutes;
-  title?: string;
-}
 
 // @public
 export function createRouteRef<
@@ -1031,7 +1001,7 @@ export interface ExtensionBlueprint<
     attachTo?: ExtensionDefinitionAttachTo<UParentInputs> &
       VerifyExtensionAttachTo<NonNullable<T['output']>, UParentInputs>;
     disabled?: boolean;
-    enabled?: FilterPredicate;
+    if?: FilterPredicate;
     params: TParamsInput extends ExtensionBlueprintDefineParams
       ? TParamsInput
       : T['params'] extends ExtensionBlueprintDefineParams
@@ -1067,7 +1037,7 @@ export interface ExtensionBlueprint<
         UParentInputs
       >;
     disabled?: boolean;
-    enabled?: FilterPredicate;
+    if?: FilterPredicate;
     inputs?: TExtraInputs & {
       [KName in keyof T['inputs']]?: `Error: Input '${KName &
         string}' is already defined in parent definition`;
@@ -1709,7 +1679,7 @@ export interface OverridableExtensionDefinition<
             UParentInputs
           >;
         disabled?: boolean;
-        enabled?: FilterPredicate;
+        if?: FilterPredicate;
         inputs?: TExtraInputs & {
           [KName in keyof T['inputs']]?: `Error: Input '${KName &
             string}' is already defined in parent definition`;
@@ -1815,6 +1785,7 @@ export interface OverridableFrontendPlugin<
   // (undocumented)
   withOverrides(options: {
     extensions?: Array<ExtensionDefinition>;
+    if?: FilterPredicate;
     title?: string;
     icon?: IconElement;
     info?: FrontendPluginInfoOptions;
@@ -1971,8 +1942,8 @@ export const pluginHeaderActionsApiRef: ApiRef_2<
   readonly $$type: '@backstage/ApiRef';
 };
 
-// @public @deprecated (undocumented)
-export type PluginOptions<
+// @public (undocumented)
+export interface PluginOptions<
   TId extends string,
   TRoutes extends {
     [name in string]: RouteRef | SubRouteRef;
@@ -1981,7 +1952,24 @@ export type PluginOptions<
     [name in string]: ExternalRouteRef;
   },
   TExtensions extends readonly ExtensionDefinition[],
-> = CreateFrontendPluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>;
+> {
+  // (undocumented)
+  extensions?: TExtensions;
+  // (undocumented)
+  externalRoutes?: TExternalRoutes;
+  // (undocumented)
+  featureFlags?: FeatureFlagConfig[];
+  icon?: IconElement;
+  // (undocumented)
+  if?: FilterPredicate;
+  // (undocumented)
+  info?: FrontendPluginInfoOptions;
+  // (undocumented)
+  pluginId: TId;
+  // (undocumented)
+  routes?: TRoutes;
+  title?: string;
+}
 
 // @public
 export type PluginWrapperApi = {
@@ -2063,6 +2051,19 @@ export const Progress: {
 
 // @public (undocumented)
 export type ProgressProps = {};
+
+// @public
+export type ResolvedExtensionInputs<
+  TInputs extends {
+    [name in string]: ExtensionInput;
+  },
+> = {
+  [InputName in keyof TInputs]: false extends TInputs[InputName]['config']['singleton']
+    ? Array<Expand<ResolvedExtensionInput<TInputs[InputName]>>>
+    : false extends TInputs[InputName]['config']['optional']
+    ? Expand<ResolvedExtensionInput<TInputs[InputName]>>
+    : Expand<ResolvedExtensionInput<TInputs[InputName]> | undefined>;
+};
 
 // @public
 export type RouteFunc<TParams extends AnyRouteRefParams> = (

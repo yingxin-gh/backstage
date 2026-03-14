@@ -32,6 +32,7 @@ import { JsonObject } from '@backstage/types';
 import { IconElement } from '../icons/types';
 import { RouteRef, SubRouteRef, ExternalRouteRef } from '../routing';
 import { ID_PATTERN } from './constants';
+import { FilterPredicate } from '@backstage/filter-predicates';
 
 /**
  * Information about the plugin.
@@ -195,6 +196,7 @@ export interface CreateFrontendPluginOptions<
   externalRoutes?: TExternalRoutes;
   extensions?: TExtensions;
   featureFlags?: FeatureFlagConfig[];
+  if?: FilterPredicate;
   info?: FrontendPluginInfoOptions;
 }
 
@@ -304,6 +306,7 @@ export function createFrontendPlugin<
     routes: options.routes ?? ({} as TRoutes),
     externalRoutes: options.externalRoutes ?? ({} as TExternalRoutes),
     featureFlags: options.featureFlags ?? [],
+    if: options.if,
     extensions: extensions,
     infoOptions: options.info,
 

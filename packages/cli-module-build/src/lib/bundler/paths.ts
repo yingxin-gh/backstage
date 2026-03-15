@@ -16,7 +16,7 @@
 
 import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
-import { targetPaths } from '@backstage/cli-common';
+import { targetPaths, findOwnPaths } from '@backstage/cli-common';
 
 export type BundlingPathsOptions = {
   // bundle entrypoint, e.g. 'src/index'
@@ -50,7 +50,9 @@ export function resolveBundlingPaths(options: BundlingPathsOptions) {
     targetHtml = resolvePath(targetDir, `${entry}.html`);
     if (!fs.pathExistsSync(targetHtml)) {
       /* eslint-disable-next-line no-restricted-syntax */
-      targetHtml = require.resolve('@backstage/cli/templates/serve_index.html');
+      targetHtml = findOwnPaths(__dirname).resolve(
+        'templates/serve_index.html',
+      );
     }
   }
 

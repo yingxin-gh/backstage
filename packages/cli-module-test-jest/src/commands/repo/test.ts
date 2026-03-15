@@ -25,6 +25,7 @@ import { relative as relativePath } from 'node:path';
 import { Lockfile, PackageGraph, SuccessCache } from '@backstage/cli-node';
 
 import {
+  findOwnPaths,
   runCheck,
   runOutput,
   targetPaths,
@@ -181,7 +182,7 @@ export default async ({ args, info }: CliCommandContext) => {
   // Only include our config if caller isn't passing their own config
   if (!hasFlags('-c', '--config')) {
     /* eslint-disable-next-line no-restricted-syntax */
-    args.push('--config', require.resolve('@backstage/cli/config/jest'));
+    args.push('--config', findOwnPaths(__dirname).resolve('config/jest.js'));
   }
 
   if (!hasFlags('--passWithNoTests')) {

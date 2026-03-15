@@ -49,6 +49,8 @@
   "dependencies": {
     "@backstage/cli-common": "workspace:^",
     "@backstage/cli-defaults": "workspace:^",
+    "@backstage/cli-module-build": "workspace:^",
+    "@backstage/cli-module-test-jest": "workspace:^",
     "@backstage/cli-node": "workspace:^",
     "@backstage/errors": "workspace:^",
     "@backstage/eslint-plugin": "workspace:^",

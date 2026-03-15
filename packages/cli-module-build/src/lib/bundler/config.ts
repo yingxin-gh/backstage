@@ -29,7 +29,7 @@ import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
 import fs from 'fs-extra';
 import { optimization as optimizationConfig } from './optimization';
 import pickBy from 'lodash/pickBy';
-import { runOutput, targetPaths } from '@backstage/cli-common';
+import { findOwnPaths, runOutput, targetPaths } from '@backstage/cli-common';
 
 import { transforms } from './transforms';
 import { version } from '../../../package.json';
@@ -330,7 +330,8 @@ export async function createConfig(
     devtool: isDev ? 'eval-cheap-module-source-map' : 'source-map',
     context: paths.targetPath,
     entry: [
-      require.resolve('@backstage/cli/config/webpack-public-path'),
+      /* eslint-disable-next-line no-restricted-syntax */
+      findOwnPaths(__dirname).resolve('config/webpack-public-path'),
       ...(options.additionalEntryPoints ?? []),
       paths.targetEntry,
     ],

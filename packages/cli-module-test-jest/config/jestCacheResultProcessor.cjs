@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Backstage Authors
+ * Copyright 2024 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-try {
-  module.exports = require('@backstage/cli-module-test-jest/config/jestFileTransform');
-} catch (e) {
-  if (e.code === 'MODULE_NOT_FOUND') {
-    throw new Error(
-      '@backstage/cli-module-test-jest is required to use the jest file transform. ' +
-        'Please install it as a dependency.',
-    );
+module.exports = async results => {
+  const cache = global.__backstageCli_jestSuccessCache;
+  if (cache) {
+    await cache.reportResults(results);
   }
-  throw e;
-}
+  return results;
+};

@@ -16,6 +16,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { resolve as resolvePath } from 'node:path';
+import { findOwnPaths } from '@backstage/cli-common';
 import { Output, buildPackage } from '../../lib/builder';
 
 const exportValues = {
@@ -55,7 +56,8 @@ function loadFixture(fixture: string) {
     'node',
     [
       '--import',
-      '@backstage/cli/config/nodeTransform.cjs',
+      /* eslint-disable-next-line no-restricted-syntax */
+      findOwnPaths(__dirname).resolve('config/nodeTransform.cjs'),
       resolvePath(__dirname, `__fixtures__/${fixture}`),
     ],
     { encoding: 'utf8' },

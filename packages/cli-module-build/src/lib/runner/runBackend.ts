@@ -21,14 +21,15 @@ import { IpcServer, ServerDataStore } from '../ipc';
 import debounce from 'lodash/debounce';
 import { fileURLToPath } from 'node:url';
 import { isAbsolute as isAbsolutePath } from 'node:path';
-import { targetPaths } from '@backstage/cli-common';
+import { findOwnPaths, targetPaths } from '@backstage/cli-common';
 
 import spawn from 'cross-spawn';
 
 const loaderArgs = [
   '--enable-source-maps',
   '--require',
-  require.resolve('@backstage/cli/config/nodeTransform.cjs'),
+  /* eslint-disable-next-line no-restricted-syntax */
+  findOwnPaths(__dirname).resolve('config/nodeTransform.cjs'),
   // TODO: Support modules, although there's currently no way to load them since import() is transpiled tp require()
 ];
 

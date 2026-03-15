@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { runCheck } from '@backstage/cli-common';
+import { findOwnPaths, runCheck } from '@backstage/cli-common';
 import type { CliCommandContext } from '@backstage/cli-node';
 
 function includesAnyOf(hayStack: string[], ...needles: string[]) {
@@ -30,7 +30,7 @@ export default async ({ args }: CliCommandContext) => {
   // Only include our config if caller isn't passing their own config
   if (!includesAnyOf(args, '-c', '--config')) {
     /* eslint-disable-next-line no-restricted-syntax */
-    args.push('--config', require.resolve('@backstage/cli/config/jest'));
+    args.push('--config', findOwnPaths(__dirname).resolve('config/jest.js'));
   }
 
   if (!includesAnyOf(args, '--no-passWithNoTests', '--passWithNoTests=false')) {

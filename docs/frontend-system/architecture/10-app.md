@@ -40,6 +40,14 @@ Each node in this tree is an extension with a parent node and children. The colo
 
 A common type of data that is shared between extensions is React elements and components. These can in turn be rendered by each other in their own React components, which ends up forming a parallel tree of React components that is similar in shape to that of the app extension tree. At the top of the app extension tree is a built-in root extension that among other things outputs a React element. This element also ends up being the root of the parallel React tree, and is rendered by the React element returned by `app.createRoot()`.
 
+## Feature Discovery
+
+App feature discovery lets you automatically discover and install features provided by dependencies in your app. In practice, it means that you don't need to manually `import` features in code, but they are instead installed as soon as you add them as a dependency in your `package.json`.
+
+Because feature discovery needs to interact with the compilation process, it is only available when using the `@backstage/cli` to build your app. It is hooked into the WebPack compilation process by scanning your app package for compatible dependencies, which are then made part of the app compilation bundle.
+
+For information on how to configure feature discovery and other installation options, see [Installing Plugins](../building-apps/05-installing-plugins.md).
+
 ## Preparing an App in Phases
 
 Most apps should use `createApp` from `@backstage/frontend-defaults`, which takes care of all app preparation internally. For more advanced use cases there is also a lower-level `prepareSpecializedApp` API in `@backstage/frontend-app-api`.
@@ -70,13 +78,7 @@ The `getBootstrapApp()` method exposes the partial app tree that is available du
 
 When using phased app preparation, `app/root.children` acts as the main session boundary. Conditional extensions behind that boundary are evaluated during finalization. Conditional `app/root.elements` and API branches are also deferred until finalization, while other bootstrap-visible predicates are ignored and reported as warnings.
 
-## Feature Discovery
-
-App feature discovery lets you automatically discover and install features provided by dependencies in your app. In practice, it means that you don't need to manually `import` features in code, but they are instead installed as soon as you add them as a dependency in your `package.json`.
-
-Because feature discovery needs to interact with the compilation process, it is only available when using the `@backstage/cli` to build your app. It is hooked into the WebPack compilation process by scanning your app package for compatible dependencies, which are then made part of the app compilation bundle.
-
-For information on how to configure feature discovery and other installation options, see [Installing Plugins](../building-apps/05-installing-plugins.md).
+Utility APIs that are first materialized during bootstrap are frozen for the lifetime of that app instance. Finalization may still add new APIs and may override existing API refs that were not materialized during bootstrap, but any deferred override of an already materialized bootstrap API is ignored and reported as an app error.
 
 ## Plugin Info Resolution
 

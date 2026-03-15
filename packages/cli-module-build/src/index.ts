@@ -17,7 +17,7 @@
 import { createCliModule } from '@backstage/cli-node';
 import packageJson from '../package.json';
 
-export const buildPlugin = createCliModule({
+export default createCliModule({
   packageJson,
   init: async reg => {
     reg.addCommand({
@@ -85,5 +85,3 @@ export const buildPlugin = createCliModule({
     });
   },
 });
-
-export default buildPlugin;

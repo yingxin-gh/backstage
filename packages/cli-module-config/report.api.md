@@ -5,16 +5,6 @@
 ```ts
 import { CliModule } from '@backstage/cli-node';
 
-// Warning: (ae-missing-release-tag) "configOption" is part of the package's API, but it is missing a release tag (@alpha, @beta, @public, or @internal)
-//
-// @public (undocumented)
-export const configOption: readonly [
-  '--config <path>',
-  'Config files to load instead of app-config.yaml',
-  (opt: string, opts: string[]) => string[],
-  string[],
-];
-
 // @public (undocumented)
 const _default: CliModule;
 export default _default;

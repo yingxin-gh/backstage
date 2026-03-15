@@ -5,12 +5,9 @@
 ```ts
 import { CliModule } from '@backstage/cli-node';
 
-// Warning: (ae-missing-release-tag) "buildPlugin" is part of the package's API, but it is missing a release tag (@alpha, @beta, @public, or @internal)
-//
 // @public (undocumented)
-const buildPlugin: CliModule;
-export { buildPlugin };
-export default buildPlugin;
+const _default: CliModule;
+export default _default;
 
 // (No @packageDocumentation comment for this package)
 ```

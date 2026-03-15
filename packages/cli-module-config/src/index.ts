@@ -16,13 +16,6 @@
 import { createCliModule } from '@backstage/cli-node';
 import packageJson from '../package.json';
 
-export const configOption = [
-  '--config <path>',
-  'Config files to load instead of app-config.yaml',
-  (opt: string, opts: string[]) => (opts ? [...opts, opt] : [opt]),
-  Array<string>(),
-] as const;
-
 export default createCliModule({
   packageJson,
   init: async reg => {

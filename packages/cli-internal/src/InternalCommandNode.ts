@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CliCommand } from '@backstage/cli-node';
+import { CliCommand, CliModule } from '@backstage/cli-node';
 import { OpaqueType } from '@internal/opaque';
 
 /** @internal */
@@ -47,6 +47,7 @@ export const OpaqueCommandLeafNode = OpaqueType.create<{
     readonly version: 'v1';
     readonly name: string;
     readonly command: CliCommand;
+    readonly module?: CliModule;
   };
 }>({
   type: '@backstage/CommandLeafNode',

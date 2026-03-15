@@ -55,6 +55,12 @@ export function createCliModule(options: {
     addCommand: (command: CliCommand) => void;
   }) => Promise<void>;
 }): CliModule {
+  if (!options.packageJson.name) {
+    throw new Error(
+      'The packageJson provided to createCliModule must have a name',
+    );
+  }
+
   const commands: CliCommand[] = [];
   const commandsPromise = options
     .init({ addCommand: command => commands.push(command) })

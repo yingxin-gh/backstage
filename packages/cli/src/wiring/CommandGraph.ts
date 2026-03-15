@@ -17,8 +17,9 @@ import {
   CommandNode,
   OpaqueCommandTreeNode,
   OpaqueCommandLeafNode,
+  OpaqueCliModule,
 } from '@internal/cli';
-import { CliCommand } from './types';
+import { CliCommand, CliModule } from './types';
 
 /**
  * A sparse graph of commands.
@@ -30,7 +31,7 @@ export class CommandGraph {
    * Adds a command to the graph. The graph is sparse, so we use the path to determine the nodes
    *    to traverse. Only leaf nodes should have a command/action.
    */
-  add(command: CliCommand) {
+  add(command: CliCommand, module?: CliModule) {
     const path = command.path;
     let current = this.graph;
     for (let i = 0; i < path.length - 1; i++) {
@@ -50,7 +51,11 @@ export class CommandGraph {
         current.push(next);
       } else if (OpaqueCommandLeafNode.isType(next)) {
         throw new Error(
-          `Command already exists at path: "${path.slice(0, i).join(' ')}"`,
+          formatConflictError(
+            path,
+            module,
+            OpaqueCommandLeafNode.toInternal(next).module,
+          ),
         );
       }
       current = OpaqueCommandTreeNode.toInternal(next).children;
@@ -64,13 +69,18 @@ export class CommandGraph {
     });
     if (last && OpaqueCommandLeafNode.isType(last)) {
       throw new Error(
-        `Command already exists at path: "${path.slice(0, -1).join(' ')}"`,
+        formatConflictError(
+          path,
+          module,
+          OpaqueCommandLeafNode.toInternal(last).module,
+        ),
       );
     } else {
       current.push(
         OpaqueCommandLeafNode.createInstance('v1', {
           name: lastName,
           command,
+          module,
         }),
       );
     }
@@ -118,4 +128,31 @@ export class CommandGraph {
     }
     return current;
   }
+}
+
+function getModuleName(module?: CliModule): string | undefined {
+  if (module && OpaqueCliModule.isType(module)) {
+    return OpaqueCliModule.toInternal(module).packageName;
+  }
+  return undefined;
+}
+
+function formatConflictError(
+  path: string[],
+  newModule?: CliModule,
+  existingModule?: CliModule,
+): string {
+  const cmd = path.join(' ');
+  const newPkg = getModuleName(newModule);
+  const existingPkg = getModuleName(existingModule);
+  if (newPkg && existingPkg) {
+    return `Command "${cmd}" from "${newPkg}" conflicts with an existing command from "${existingPkg}"`;
+  }
+  if (newPkg) {
+    return `Command "${cmd}" from "${newPkg}" conflicts with an existing command`;
+  }
+  if (existingPkg) {
+    return `Command "${cmd}" conflicts with an existing command from "${existingPkg}"`;
+  }
+  return `Command "${cmd}" conflicts with an existing command`;
 }

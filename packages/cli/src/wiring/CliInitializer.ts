@@ -22,7 +22,6 @@ import {
 } from '@internal/cli';
 import type { CommandNode } from '@internal/cli';
 import type { CliModule } from '@backstage/cli-node';
-import { CommandRegistry } from './CommandRegistry';
 import { Command } from 'commander';
 import { version } from './version';
 import chalk from 'chalk';
@@ -44,28 +43,42 @@ type UninitializedFeature =
   | CliModule[]
   | Promise<{ default: CliModule | CliModule[] }>;
 
+interface TaggedFeature {
+  feature: CliModule;
+  fromArray: boolean;
+}
+
 export class CliInitializer {
   private graph = new CommandGraph();
-  private commandRegistry = new CommandRegistry(this.graph);
-  #uninitiazedFeatures: Promise<CliModule | CliModule[]>[] = [];
+  #uninitiazedFeatures: Promise<TaggedFeature[]>[] = [];
 
   add(feature: UninitializedFeature) {
     if (isPromise(feature)) {
       this.#uninitiazedFeatures.push(
-        feature.then(f => unwrapFeature(f.default)),
+        feature.then(f => {
+          const unwrapped = unwrapFeature(f.default);
+          if (Array.isArray(unwrapped)) {
+            return unwrapped.map(m => ({ feature: m, fromArray: true }));
+          }
+          return [{ feature: unwrapped, fromArray: false }];
+        }),
       );
     } else if (Array.isArray(feature)) {
-      this.#uninitiazedFeatures.push(Promise.resolve(feature));
+      this.#uninitiazedFeatures.push(
+        Promise.resolve(feature.map(m => ({ feature: m, fromArray: true }))),
+      );
     } else {
-      this.#uninitiazedFeatures.push(Promise.resolve(feature));
+      this.#uninitiazedFeatures.push(
+        Promise.resolve([{ feature, fromArray: false }]),
+      );
     }
   }
 
   async #register(feature: CliModule) {
     if (OpaqueCliModule.isType(feature)) {
-      const internal = OpaqueCliModule.toInternal(feature);
-      for (const command of await internal.commands) {
-        this.commandRegistry.addCommand(command);
+      for (const command of await OpaqueCliModule.toInternal(feature)
+        .commands) {
+        this.graph.add(command, feature);
       }
     } else {
       throw new Error(`Unsupported feature type: ${(feature as any).$$type}`);
@@ -73,14 +86,28 @@ export class CliInitializer {
   }
 
   async #doInit() {
-    const resolved = await Promise.all(this.#uninitiazedFeatures);
-    for (const featureOrArray of resolved) {
-      const features = Array.isArray(featureOrArray)
-        ? featureOrArray
-        : [featureOrArray];
-      for (const feature of features) {
-        await this.#register(feature);
+    const resolvedGroups = await Promise.all(this.#uninitiazedFeatures);
+    const allFeatures = resolvedGroups.flat();
+
+    // Collect command paths from individually-added modules
+    const individualPaths = new Set<string>();
+    for (const { feature, fromArray } of allFeatures) {
+      if (!fromArray && OpaqueCliModule.isType(feature)) {
+        const cmds = await OpaqueCliModule.toInternal(feature).commands;
+        for (const cmd of cmds) {
+          individualPaths.add(cmd.path.join(' '));
+        }
       }
+    }
+
+    for (const { feature, fromArray } of allFeatures) {
+      if (fromArray && OpaqueCliModule.isType(feature)) {
+        const cmds = await OpaqueCliModule.toInternal(feature).commands;
+        if (cmds.some(cmd => individualPaths.has(cmd.path.join(' ')))) {
+          continue;
+        }
+      }
+      await this.#register(feature);
     }
   }
 

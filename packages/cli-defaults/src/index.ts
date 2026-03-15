@@ -25,6 +25,11 @@ import newModule from '@backstage/cli-module-new';
 import testJest from '@backstage/cli-module-test-jest';
 import translations from '@backstage/cli-module-translations';
 
+/**
+ * The default set of CLI modules for the Backstage CLI.
+ *
+ * @public
+ */
 export default [
   auth,
   build,

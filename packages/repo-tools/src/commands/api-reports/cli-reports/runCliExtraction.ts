@@ -132,7 +132,7 @@ export async function runCliExtraction({
     const pkgJson = await fs.readJson(resolvePath(fullDir, 'package.json'));
 
     if (!pkgJson.bin) {
-      throw new Error(`CLI Package in ${packageDir} has no bin field`);
+      continue;
     }
 
     const models = new Array<CliModel>();

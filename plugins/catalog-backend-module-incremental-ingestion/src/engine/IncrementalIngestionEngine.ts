@@ -48,17 +48,15 @@ export class IncrementalIngestionEngine implements IterationEngine {
     this.lastStarted = options.metrics.createGauge(
       'catalog_incremental.ingestions.started',
       {
-        description:
-          'Epoch timestamp seconds when the ingestion was last started',
-        unit: 'seconds',
+        description: 'Epoch timestamp when the ingestion was last started',
+        unit: 's',
       },
     );
     this.lastCompleted = options.metrics.createGauge(
       'catalog_incremental.ingestions.completed',
       {
-        description:
-          'Epoch timestamp seconds when the ingestion was last completed',
-        unit: 'seconds',
+        description: 'Epoch timestamp when the ingestion was last completed',
+        unit: 's',
       },
     );
   }

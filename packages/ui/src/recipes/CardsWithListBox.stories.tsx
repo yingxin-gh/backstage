@@ -142,18 +142,20 @@ interface ServiceListCardProps {
   title: string;
   items: ServiceItem[];
   description?: boolean;
+  icons?: boolean;
 }
 
 const ServiceListCard = ({
   title,
   items,
   description = false,
+  icons = true,
 }: ServiceListCardProps) => (
   <Card>
     <CardHeader>
       <Flex direction="row" align="center" justify="between" gap="2">
         <Flex direction="column" gap="1">
-          <Text variant="body-medium" weight="bold">
+          <Text variant="body-large" weight="bold">
             {title}
           </Text>
         </Flex>
@@ -165,7 +167,7 @@ const ServiceListCard = ({
           <ListBoxItem
             key={item.id}
             id={item.id}
-            icon={item.icon}
+            icon={icons ? item.icon : undefined}
             description={description ? item.description : undefined}
             menuItems={
               <>
@@ -212,6 +214,32 @@ export const Default = meta.story({
       <Grid.Root columns="2" gap="4">
         <ServiceListCard title="Frontend services" items={frontendServices} />
         <ServiceListCard title="Backend services" items={backendServices} />
+      </Grid.Root>
+    </Container>
+  ),
+});
+
+export const WithNoIcons = meta.story({
+  decorators: [withRouter],
+  args: {
+    icons: false,
+    description: true,
+  },
+  render: args => (
+    <Container pt="6">
+      <Grid.Root columns="2" gap="4">
+        <ServiceListCard
+          title="Frontend services"
+          items={frontendServices}
+          description={args.description}
+          icons={args.icons}
+        />
+        <ServiceListCard
+          title="Backend services"
+          items={backendServices}
+          description={args.description}
+          icons={args.icons}
+        />
       </Grid.Root>
     </Container>
   ),

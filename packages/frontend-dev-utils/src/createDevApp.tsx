@@ -45,12 +45,16 @@ const BuiCss = lazy(() => import('./BuiCss'));
  *
  * @public
  */
-export interface CreateDevAppOptions
-  extends Pick<CreateAppOptions, 'bindRoutes'> {
+export interface CreateDevAppOptions {
   /**
    * The list of features to load in the dev app.
    */
   features: (FrontendFeature | FrontendFeatureLoader)[];
+
+  /**
+   * Allows for the binding of plugins' external route refs within the dev app.
+   */
+  bindRoutes?: CreateAppOptions['bindRoutes'];
 }
 
 /**

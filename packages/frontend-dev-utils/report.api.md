@@ -11,8 +11,8 @@ import { FrontendFeatureLoader } from '@backstage/frontend-plugin-api';
 export function createDevApp(options: CreateDevAppOptions): void;
 
 // @public
-export interface CreateDevAppOptions
-  extends Pick<CreateAppOptions, 'bindRoutes'> {
+export interface CreateDevAppOptions {
+  bindRoutes?: CreateAppOptions['bindRoutes'];
   features: (FrontendFeature | FrontendFeatureLoader)[];
 }
 ```

@@ -134,6 +134,11 @@ describe('createDevApp', () => {
       });
       expect(createRoot).toHaveBeenCalledWith(root);
     });
+
+    const renderedNode = render.mock.calls[0][0] as any;
+    expect(renderedNode.props.children).toHaveLength(2);
+    expect(renderedNode.props.children[0].props.fallback).toBeNull();
+    expect(renderedNode.props.children[1].props.children).toBe('Test App Root');
   });
 
   it('should throw a clear error when the root element is missing', () => {

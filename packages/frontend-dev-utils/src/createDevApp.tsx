@@ -108,10 +108,12 @@ export function createDevApp(options: CreateDevAppOptions): void {
 
   ReactDOMPromise.then(ReactDOM => {
     const rootNode = (
-      <Suspense fallback={null}>
-        <BuiCss />
+      <>
+        <Suspense fallback={null}>
+          <BuiCss />
+        </Suspense>
         {AppRoot}
-      </Suspense>
+      </>
     );
 
     if ('createRoot' in ReactDOM) {

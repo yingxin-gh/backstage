@@ -15,6 +15,7 @@
  */
 
 import { Widget } from './types';
+import Box from '@material-ui/core/Box';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -25,7 +26,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import { useTranslationRef } from '@backstage/frontend-plugin-api';
 import { homeTranslationRef } from '../../translation';
-import Box from '@material-ui/core/Box';
 
 interface AddWidgetDialogProps {
   widgets: Widget[];

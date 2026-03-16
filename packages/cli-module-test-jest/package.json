@@ -65,5 +65,5 @@
       "optional": true
     }
   },
-  "bin": "bin/cli-module-test-jest"
+  "bin": "bin/backstage-cli-module-test-jest"
 }

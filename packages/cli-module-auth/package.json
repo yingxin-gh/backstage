@@ -52,5 +52,5 @@
   "optionalDependencies": {
     "keytar": "^7.9.0"
   },
-  "bin": "bin/cli-module-auth"
+  "bin": "bin/backstage-cli-module-auth"
 }

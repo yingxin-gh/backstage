@@ -2843,7 +2843,7 @@ __metadata:
     keytar:
       optional: true
   bin:
-    cli-module-auth: bin/cli-module-auth
+    cli-module-auth: bin/backstage-cli-module-auth
   languageName: unknown
   linkType: soft
 
@@ -2918,7 +2918,7 @@ __metadata:
     yml-loader: "npm:^2.1.0"
     yn: "npm:^4.0.0"
   bin:
-    cli-module-build: bin/cli-module-build
+    cli-module-build: bin/backstage-cli-module-build
   languageName: unknown
   linkType: soft
 
@@ -2940,7 +2940,7 @@ __metadata:
     react-dev-utils: "npm:^12.0.0-next.60"
     yaml: "npm:^2.0.0"
   bin:
-    cli-module-config: bin/cli-module-config
+    cli-module-config: bin/backstage-cli-module-config
   languageName: unknown
   linkType: soft
 
@@ -2962,7 +2962,7 @@ __metadata:
     react-dev-utils: "npm:^12.0.0-next.60"
     yaml: "npm:^2.0.0"
   bin:
-    cli-module-create-github-app: bin/cli-module-create-github-app
+    cli-module-create-github-app: bin/backstage-cli-module-create-github-app
   languageName: unknown
   linkType: soft
 
@@ -2978,7 +2978,7 @@ __metadata:
     fs-extra: "npm:^11.2.0"
     minimatch: "npm:^10.2.1"
   bin:
-    cli-module-info: bin/cli-module-info
+    cli-module-info: bin/backstage-cli-module-info
   languageName: unknown
   linkType: soft
 
@@ -2999,7 +2999,7 @@ __metadata:
     globby: "npm:^11.1.0"
     shell-quote: "npm:^1.8.1"
   bin:
-    cli-module-lint: bin/cli-module-lint
+    cli-module-lint: bin/backstage-cli-module-lint
   languageName: unknown
   linkType: soft
 
@@ -3016,7 +3016,7 @@ __metadata:
     eslint: "npm:^8.6.0"
     fs-extra: "npm:^11.2.0"
   bin:
-    cli-module-maintenance: bin/cli-module-maintenance
+    cli-module-maintenance: bin/backstage-cli-module-maintenance
   languageName: unknown
   linkType: soft
 
@@ -3043,7 +3043,7 @@ __metadata:
     replace-in-file: "npm:^7.1.0"
     semver: "npm:^7.5.3"
   bin:
-    cli-module-migrate: bin/cli-module-migrate
+    cli-module-migrate: bin/backstage-cli-module-migrate
   languageName: unknown
   linkType: soft
 
@@ -3075,7 +3075,7 @@ __metadata:
     zod: "npm:^3.25.76"
     zod-validation-error: "npm:^4.0.2"
   bin:
-    cli-module-new: bin/cli-module-new
+    cli-module-new: bin/backstage-cli-module-new
   languageName: unknown
   linkType: soft
 
@@ -3108,7 +3108,7 @@ __metadata:
     jsdom:
       optional: true
   bin:
-    cli-module-test-jest: bin/cli-module-test-jest
+    cli-module-test-jest: bin/backstage-cli-module-test-jest
   languageName: unknown
   linkType: soft
 
@@ -3124,7 +3124,7 @@ __metadata:
     fs-extra: "npm:^11.2.0"
     ts-morph: "npm:^24.0.0"
   bin:
-    cli-module-translations: bin/cli-module-translations
+    cli-module-translations: bin/backstage-cli-module-translations
   languageName: unknown
   linkType: soft
 

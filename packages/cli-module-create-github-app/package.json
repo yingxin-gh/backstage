@@ -48,5 +48,5 @@
     "@types/express": "^4.17.6",
     "@types/fs-extra": "^11.0.0"
   },
-  "bin": "bin/cli-module-create-github-app"
+  "bin": "bin/backstage-cli-module-create-github-app"
 }

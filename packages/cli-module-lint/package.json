@@ -47,5 +47,5 @@
     "@types/fs-extra": "^11.0.0",
     "@types/shell-quote": "^1.7.5"
   },
-  "bin": "bin/cli-module-lint"
+  "bin": "bin/backstage-cli-module-lint"
 }

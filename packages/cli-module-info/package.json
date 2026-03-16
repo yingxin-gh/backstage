@@ -42,5 +42,5 @@
     "@backstage/cli": "workspace:^",
     "@types/fs-extra": "^11.0.0"
   },
-  "bin": "bin/cli-module-info"
+  "bin": "bin/backstage-cli-module-info"
 }

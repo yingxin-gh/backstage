@@ -48,5 +48,5 @@
     "@backstage/cli": "workspace:^",
     "@types/json-schema": "^7.0.6"
   },
-  "bin": "bin/cli-module-config"
+  "bin": "bin/backstage-cli-module-config"
 }

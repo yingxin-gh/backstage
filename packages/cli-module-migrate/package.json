@@ -53,5 +53,5 @@
     "@types/semver": "^7",
     "msw": "^1.0.0"
   },
-  "bin": "bin/cli-module-migrate"
+  "bin": "bin/backstage-cli-module-migrate"
 }

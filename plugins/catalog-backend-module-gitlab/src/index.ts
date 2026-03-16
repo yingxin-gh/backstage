@@ -26,6 +26,7 @@ export {
   GitlabDiscoveryEntityProvider,
   GitlabOrgDiscoveryEntityProvider,
 } from './providers';
+export { analyzeGitLabWebhookEvent } from './events/analyzeGitLabWebhookEvent';
 export type {
   GitLabUser,
   GitLabGroup,

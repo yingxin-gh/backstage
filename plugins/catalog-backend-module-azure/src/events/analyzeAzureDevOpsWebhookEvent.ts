@@ -156,16 +156,10 @@ function toLocationUrl(options: {
 
   const url = new URL(options.remoteUrl);
   const branch = branchNameFromRef(options.branchRef);
-  // Encode each path segment individually to protect against special chars while
-  // preserving '/' separators, which is what Azure DevOps expects in the path param.
-  const encodedPath = options.path
-    .split('/')
-    .map(encodeURIComponent)
-    .join('/');
   url.search = branch
-    ? `path=${encodedPath}&version=GB${encodeURIComponent(branch)}`
-    : `path=${encodedPath}`;
-  return url.toString();
+    ? `path=${options.path}&version=GB${branch}`
+    : `path=${options.path}`;
+  return encodeURI(url.toString());
 }
 
 function toCommitUrl(

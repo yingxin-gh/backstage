@@ -127,6 +127,40 @@ describe('analyzeAzureDevOpsWebhookEvent', () => {
       });
     });
 
+    it('does not double-encode branch names containing slashes', async () => {
+      const repoWithSlashBranch = {
+        ...baseRepository,
+        defaultBranch: 'refs/heads/feature/my-branch',
+      };
+      await expect(
+        analyzeAzureDevOpsWebhookEvent(
+          'git.push',
+          withPushEvent({
+            repository: repoWithSlashBranch,
+            refUpdates: [{ name: 'refs/heads/feature/my-branch' }],
+            commits: [
+              {
+                commitId: 'abc',
+                changes: [
+                  { changeType: 'add', item: { path: '/catalog-info.yaml' } },
+                ],
+              },
+            ],
+          }),
+          { isRelevantPath },
+        ),
+      ).resolves.toEqual({
+        result: 'ok',
+        events: [
+          {
+            type: 'location.created',
+            url: `${baseRepository.remoteUrl}?path=/catalog-info.yaml&version=GBfeature/my-branch`,
+            context: { commitUrl: `${baseRepository.remoteUrl}/commit/abc` },
+          },
+        ],
+      });
+    });
+
     it('ignores non-default-branch pushes', async () => {
       await expect(
         analyzeAzureDevOpsWebhookEvent(

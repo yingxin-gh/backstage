@@ -124,21 +124,19 @@ export const AppRoot = createExtension({
 
     return [
       coreExtensionData.reactElement(
-        <BUIProvider useAnalytics={useAnalytics}>
-          <AppRouter
-            SignInPageComponent={inputs.signInPage?.get(
-              SignInPageBlueprint.dataRefs.component,
-            )}
-            RouterComponent={inputs.router?.get(
-              RouterBlueprint.dataRefs.component,
-            )}
-            extraElements={inputs.elements?.map(el =>
-              el.get(coreExtensionData.reactElement),
-            )}
-          >
-            {content}
-          </AppRouter>
-        </BUIProvider>,
+        <AppRouter
+          SignInPageComponent={inputs.signInPage?.get(
+            SignInPageBlueprint.dataRefs.component,
+          )}
+          RouterComponent={inputs.router?.get(
+            RouterBlueprint.dataRefs.component,
+          )}
+          extraElements={inputs.elements?.map(el =>
+            el.get(coreExtensionData.reactElement),
+          )}
+        >
+          {content}
+        </AppRouter>,
       ),
     ];
   },
@@ -280,23 +278,27 @@ export function AppRouter(props: AppRouterProps) {
 
     return (
       <RouterComponent>
-        {...extraElements}
-        <RouteTracker routeObjects={routeObjects} />
-        {children}
+        <BUIProvider useAnalytics={useAnalytics}>
+          {...extraElements}
+          <RouteTracker routeObjects={routeObjects} />
+          {children}
+        </BUIProvider>
       </RouterComponent>
     );
   }
 
   return (
     <RouterComponent>
-      {...extraElements}
-      <RouteTracker routeObjects={routeObjects} />
-      <SignInPageWrapper
-        component={SignInPageComponent}
-        appIdentityProxy={appIdentityProxy}
-      >
-        {children}
-      </SignInPageWrapper>
+      <BUIProvider useAnalytics={useAnalytics}>
+        {...extraElements}
+        <RouteTracker routeObjects={routeObjects} />
+        <SignInPageWrapper
+          component={SignInPageComponent}
+          appIdentityProxy={appIdentityProxy}
+        >
+          {children}
+        </SignInPageWrapper>
+      </BUIProvider>
     </RouterComponent>
   );
 }

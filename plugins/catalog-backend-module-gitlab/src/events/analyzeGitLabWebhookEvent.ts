@@ -22,7 +22,7 @@ import { WebhookPushEventSchema } from '@gitbeaker/rest';
 type StringRecord = Record<string, unknown>;
 
 export interface AnalyzeWebhookEventOptions {
-  logger: LoggerService;
+  logger?: LoggerService;
   isRelevantPath: (path: string) => boolean;
 }
 
@@ -521,7 +521,7 @@ export async function analyzeGitLabWebhookEvent(
   }
 
   if (eventType === 'push') {
-    return onPushEvent(eventPayload as WebhookPushEventSchema, options);
+    return onPushEvent(eventPayload as unknown as WebhookPushEventSchema, options);
   }
 
   if (eventType === 'repository_update') {

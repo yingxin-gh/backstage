@@ -1,7 +1,7 @@
 {
-  "name": "@backstage/cli-defaults",
+  "name": "@backstage/cli-module-actions",
   "version": "0.0.0",
-  "description": "Default set of CLI modules for the Backstage CLI",
+  "description": "CLI module for executing distributed actions",
   "backstage": {
     "role": "cli-module"
   },
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/backstage/backstage",
-    "directory": "packages/cli-defaults"
+    "directory": "packages/cli-module-actions"
   },
   "license": "Apache-2.0",
   "main": "src/index.ts",
@@ -27,23 +27,16 @@
     "clean": "backstage-cli package clean",
     "lint": "backstage-cli package lint",
     "prepack": "backstage-cli package prepack",
-    "postpack": "backstage-cli package postpack"
+    "postpack": "backstage-cli package postpack",
+    "test": "backstage-cli package test"
   },
   "dependencies": {
-    "@backstage/cli-module-actions": "workspace:^",
     "@backstage/cli-module-auth": "workspace:^",
-    "@backstage/cli-module-build": "workspace:^",
-    "@backstage/cli-module-config": "workspace:^",
-    "@backstage/cli-module-github": "workspace:^",
-    "@backstage/cli-module-info": "workspace:^",
-    "@backstage/cli-module-lint": "workspace:^",
-    "@backstage/cli-module-maintenance": "workspace:^",
-    "@backstage/cli-module-migrate": "workspace:^",
-    "@backstage/cli-module-new": "workspace:^",
-    "@backstage/cli-module-test-jest": "workspace:^",
-    "@backstage/cli-module-translations": "workspace:^"
+    "@backstage/cli-node": "workspace:^",
+    "cleye": "^2.3.0"
   },
   "devDependencies": {
+    "@backstage/backend-test-utils": "workspace:^",
     "@backstage/cli": "workspace:^"
   }
 }

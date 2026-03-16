@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line @backstage/no-ui-css-imports-in-non-frontend
-import '@backstage/ui/css/styles.css';
-
 import {
   FrontendFeature,
   FrontendFeatureLoader,
@@ -24,6 +21,7 @@ import {
 import { createApp, CreateAppOptions } from '@backstage/frontend-defaults';
 import appPlugin from '@backstage/plugin-app';
 import ReactDOM from 'react-dom/client';
+import { Suspense, lazy } from 'react';
 
 type AppPluginWithSimpleOverrides = {
   withOverrides(options: { extensions: unknown[] }): FrontendFeature;
@@ -39,6 +37,8 @@ const appPluginOverride = (
     }),
   ],
 });
+
+const BuiCss = lazy(() => import('./BuiCss'));
 
 /**
  * Options for {@link createDevApp}.
@@ -78,8 +78,12 @@ export function createDevApp(options: CreateDevAppOptions): void {
     features: devFeatures,
   };
   const app = createApp(appOptions);
+  const AppRoot = app.createRoot();
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
-    app.createRoot(),
+    <Suspense fallback={null}>
+      <BuiCss />
+      {AppRoot}
+    </Suspense>,
   );
 }

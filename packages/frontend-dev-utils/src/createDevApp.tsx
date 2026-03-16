@@ -20,8 +20,8 @@ import {
 } from '@backstage/frontend-plugin-api';
 import { createApp, CreateAppOptions } from '@backstage/frontend-defaults';
 import appPlugin from '@backstage/plugin-app';
-import ReactDOM from 'react-dom/client';
 import { Suspense, lazy } from 'react';
+import 'react-dom';
 
 type AppPluginWithSimpleOverrides = {
   withOverrides(options: { extensions: unknown[] }): FrontendFeature;
@@ -40,6 +40,15 @@ const appPluginOverride = (
 
 const BuiCss = lazy(() => import('./BuiCss'));
 
+let ReactDOMPromise: Promise<
+  typeof import('react-dom') | typeof import('react-dom/client')
+>;
+if (process.env.HAS_REACT_DOM_CLIENT) {
+  ReactDOMPromise = import('react-dom/client');
+} else {
+  ReactDOMPromise = import('react-dom');
+}
+
 /**
  * Options for {@link createDevApp}.
  *
@@ -57,6 +66,18 @@ export interface CreateDevAppOptions {
   bindRoutes?: CreateAppOptions['bindRoutes'];
 }
 
+function getRootElement(): HTMLElement {
+  const rootElement = document.getElementById('root');
+
+  if (!rootElement) {
+    throw new Error(
+      "Could not find the dev app root element '#root'; make sure your dev entry HTML contains a root element with that id.",
+    );
+  }
+
+  return rootElement;
+}
+
 /**
  * Creates and renders a minimal development app for the new frontend system.
  *
@@ -72,6 +93,7 @@ export interface CreateDevAppOptions {
  * @public
  */
 export function createDevApp(options: CreateDevAppOptions): void {
+  const rootElement = getRootElement();
   const { features, bindRoutes } = options;
   const devFeatures: CreateAppOptions['features'] = [
     appPluginOverride,
@@ -84,10 +106,18 @@ export function createDevApp(options: CreateDevAppOptions): void {
   const app = createApp(appOptions);
   const AppRoot = app.createRoot();
 
-  ReactDOM.createRoot(document.getElementById('root')!).render(
-    <Suspense fallback={null}>
-      <BuiCss />
-      {AppRoot}
-    </Suspense>,
-  );
+  ReactDOMPromise.then(ReactDOM => {
+    const rootNode = (
+      <Suspense fallback={null}>
+        <BuiCss />
+        {AppRoot}
+      </Suspense>
+    );
+
+    if ('createRoot' in ReactDOM) {
+      ReactDOM.createRoot(rootElement).render(rootNode);
+    } else {
+      ReactDOM.render(rootNode, rootElement);
+    }
+  });
 }

@@ -18,15 +18,25 @@ import {
   PageBlueprint,
   createFrontendPlugin,
 } from '@backstage/frontend-plugin-api';
-import { within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
 import { createDevApp } from './createDevApp';
 
-const anyEnv = (process.env = { ...process.env }) as any;
+jest.setTimeout(15000);
+
+const originalEnv = process.env;
 
 describe('createDevApp', () => {
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
   afterEach(() => {
-    delete anyEnv.APP_CONFIG;
-    document.getElementById('root')?.remove();
+    document.body.innerHTML = '';
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
   });
 
   it('should render a dev app with a plugin', async () => {
@@ -46,7 +56,7 @@ describe('createDevApp', () => {
       ],
     });
 
-    anyEnv.APP_CONFIG = [
+    (process.env as any).APP_CONFIG = [
       {
         context: 'test',
         data: {
@@ -62,5 +72,109 @@ describe('createDevApp', () => {
 
     const body = within(document.body);
     await body.findByText('Test Plugin Page', {}, { timeout: 10000 });
-  }, 15000);
+  });
+
+  it('should forward bindRoutes to createApp', async () => {
+    jest.resetModules();
+
+    const bindRoutes = jest.fn();
+    const createApp = jest.fn(() => ({
+      createRoot: () => <div>Test App Root</div>,
+    }));
+    const render = jest.fn();
+    const createRoot = jest.fn(() => ({ render }));
+
+    jest.doMock('@backstage/frontend-defaults', () => ({
+      createApp,
+    }));
+    jest.doMock('@backstage/plugin-app', () => ({
+      __esModule: true,
+      default: {
+        withOverrides: jest.fn(() => 'app-plugin-override'),
+        getExtension: jest.fn(() => ({
+          override: jest.fn(() => 'disabled-sign-in-page'),
+        })),
+      },
+    }));
+    jest.doMock('react-dom/client', () => ({
+      __esModule: true,
+      createRoot,
+    }));
+
+    const root = document.createElement('div');
+    root.id = 'root';
+    document.body.appendChild(root);
+
+    let isolatedCreateDevApp: typeof import('./createDevApp').createDevApp;
+    jest.isolateModules(() => {
+      ({ createDevApp: isolatedCreateDevApp } = require('./createDevApp'));
+    });
+
+    isolatedCreateDevApp({
+      bindRoutes,
+      features: ['plugin-feature'] as any,
+    });
+
+    await waitFor(() => {
+      expect(createApp).toHaveBeenCalledWith({
+        bindRoutes,
+        features: ['app-plugin-override', 'plugin-feature'],
+      });
+      expect(createRoot).toHaveBeenCalledWith(root);
+    });
+  });
+
+  it('should throw a clear error when the root element is missing', () => {
+    expect(() => createDevApp({ features: [] })).toThrow(
+      "Could not find the dev app root element '#root'; make sure your dev entry HTML contains a root element with that id.",
+    );
+  });
+
+  it('should fall back to legacy react-dom rendering when createRoot is unavailable', async () => {
+    jest.resetModules();
+    delete process.env.HAS_REACT_DOM_CLIENT;
+
+    const createApp = jest.fn(() => ({
+      createRoot: () => <div>Test App Root</div>,
+    }));
+    const render = jest.fn();
+
+    jest.doMock('@backstage/frontend-defaults', () => ({
+      createApp,
+    }));
+    jest.doMock('@backstage/plugin-app', () => ({
+      __esModule: true,
+      default: {
+        withOverrides: jest.fn(() => 'app-plugin-override'),
+        getExtension: jest.fn(() => ({
+          override: jest.fn(() => 'disabled-sign-in-page'),
+        })),
+      },
+    }));
+    jest.doMock('react-dom', () => ({
+      __esModule: true,
+      render,
+    }));
+
+    const root = document.createElement('div');
+    root.id = 'root';
+    document.body.appendChild(root);
+
+    let isolatedCreateDevApp: typeof import('./createDevApp').createDevApp;
+    jest.isolateModules(() => {
+      ({ createDevApp: isolatedCreateDevApp } = require('./createDevApp'));
+    });
+
+    isolatedCreateDevApp({
+      features: ['plugin-feature'] as any,
+    });
+
+    await waitFor(() => {
+      expect(render).toHaveBeenCalled();
+      expect(createApp).toHaveBeenCalledWith({
+        bindRoutes: undefined,
+        features: ['app-plugin-override', 'plugin-feature'],
+      });
+    });
+  });
 });

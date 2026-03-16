@@ -93,15 +93,15 @@
     cursor: default;
 
     &:hover {
-      background-color: var(--bui-bg-tint-hover);
+      background-color: var(--bui-bg-neutral-1-hover);
     }
 
     &[data-selected] {
-      background-color: var(--bui-bg-tint-pressed);
+      background-color: var(--bui-bg-neutral-1-pressed);
     }
 
     &[data-pressed] {
-      background-color: var(--bui-bg-tint-pressed);
+      background-color: var(--bui-bg-neutral-1-pressed);
     }
 
     &[data-href],
@@ -111,7 +111,7 @@
     }
 
     &[data-disabled] {
-      background-color: var(--bui-bg-tint-disabled);
+      background-color: var(--bui-bg-neutral-1-disabled);
       cursor: not-allowed;
     }
   }

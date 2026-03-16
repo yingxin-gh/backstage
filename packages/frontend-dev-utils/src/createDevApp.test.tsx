@@ -25,6 +25,22 @@ jest.setTimeout(15000);
 
 const originalEnv = process.env;
 
+function loadCreateDevAppIsolated(): typeof import('./createDevApp').createDevApp {
+  let isolatedCreateDevApp:
+    | typeof import('./createDevApp').createDevApp
+    | undefined;
+
+  jest.isolateModules(() => {
+    ({ createDevApp: isolatedCreateDevApp } = require('./createDevApp'));
+  });
+
+  if (!isolatedCreateDevApp) {
+    throw new Error('Expected createDevApp to be loaded in isolation');
+  }
+
+  return isolatedCreateDevApp;
+}
+
 describe('createDevApp', () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
@@ -105,11 +121,7 @@ describe('createDevApp', () => {
     root.id = 'root';
     document.body.appendChild(root);
 
-    let isolatedCreateDevApp: typeof import('./createDevApp').createDevApp;
-    jest.isolateModules(() => {
-      ({ createDevApp: isolatedCreateDevApp } = require('./createDevApp'));
-    });
-
+    const isolatedCreateDevApp = loadCreateDevAppIsolated();
     isolatedCreateDevApp({
       bindRoutes,
       features: ['plugin-feature'] as any,
@@ -160,11 +172,7 @@ describe('createDevApp', () => {
     root.id = 'root';
     document.body.appendChild(root);
 
-    let isolatedCreateDevApp: typeof import('./createDevApp').createDevApp;
-    jest.isolateModules(() => {
-      ({ createDevApp: isolatedCreateDevApp } = require('./createDevApp'));
-    });
-
+    const isolatedCreateDevApp = loadCreateDevAppIsolated();
     isolatedCreateDevApp({
       features: ['plugin-feature'] as any,
     });

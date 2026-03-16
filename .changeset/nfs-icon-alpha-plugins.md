@@ -1,6 +1,5 @@
 ---
 '@backstage/plugin-api-docs': patch
-'@backstage/plugin-app-visualizer': patch
 '@backstage/plugin-catalog': patch
 '@backstage/plugin-catalog-unprocessed-entities': patch
 '@backstage/plugin-devtools': patch

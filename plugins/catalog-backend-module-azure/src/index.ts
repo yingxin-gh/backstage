@@ -23,3 +23,4 @@
 export { default } from './module';
 export { AzureDevOpsDiscoveryProcessor } from './processors';
 export { AzureDevOpsEntityProvider } from './providers';
+export { analyzeAzureDevOpsWebhookEvent } from './events/analyzeAzureDevOpsWebhookEvent';

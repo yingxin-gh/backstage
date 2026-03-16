@@ -22,12 +22,11 @@ const isLocal = require('node:fs').existsSync(
   path.resolve(__dirname, '../src'),
 );
 
-if (!isLocal) {
-  const { runCliModule } = require('@backstage/cli-node');
-  const cliModule = require('..').default;
-  const pkg = require('../package.json');
-  runCliModule({ module: cliModule, name: pkg.name, version: pkg.version });
-} else {
+if (isLocal) {
   require('@backstage/cli-node/config/nodeTransform.cjs');
-  require('../src/cli');
 }
+
+const { runCliModule } = require('@backstage/cli-node');
+const cliModule = require(isLocal ? '../src/index' : '..').default;
+const pkg = require('../package.json');
+runCliModule({ module: cliModule, name: pkg.name, version: pkg.version });

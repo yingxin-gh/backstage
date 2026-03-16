@@ -19,11 +19,13 @@ import {
   createFrontendPlugin,
 } from '@backstage/frontend-plugin-api';
 import { within } from '@testing-library/react';
-import { mockApis } from '@backstage/test-utils';
 import { createDevApp } from './createDevApp';
+
+const anyEnv = (process.env = { ...process.env }) as any;
 
 describe('createDevApp', () => {
   afterEach(() => {
+    delete anyEnv.APP_CONFIG;
     document.getElementById('root')?.remove();
   });
 
@@ -44,11 +46,18 @@ describe('createDevApp', () => {
       ],
     });
 
+    anyEnv.APP_CONFIG = [
+      {
+        context: 'test',
+        data: {
+          app: { title: 'Test App' },
+          backend: { baseUrl: 'http://localhost' },
+        },
+      },
+    ];
+
     createDevApp({
       features: [testPlugin],
-      advanced: {
-        configLoader: async () => ({ config: mockApis.config() }),
-      },
     });
 
     const body = within(document.body);

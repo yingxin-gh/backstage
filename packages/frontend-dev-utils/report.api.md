@@ -12,7 +12,7 @@ export function createDevApp(options: CreateDevAppOptions): void;
 
 // @public
 export interface CreateDevAppOptions
-  extends Omit<CreateAppOptions, 'features'> {
+  extends Pick<CreateAppOptions, 'bindRoutes'> {
   features: (FrontendFeature | FrontendFeatureLoader)[];
 }
 ```

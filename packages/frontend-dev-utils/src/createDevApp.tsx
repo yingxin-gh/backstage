@@ -46,7 +46,7 @@ const BuiCss = lazy(() => import('./BuiCss'));
  * @public
  */
 export interface CreateDevAppOptions
-  extends Omit<CreateAppOptions, 'features'> {
+  extends Pick<CreateAppOptions, 'bindRoutes'> {
   /**
    * The list of features to load in the dev app.
    */
@@ -68,13 +68,13 @@ export interface CreateDevAppOptions
  * @public
  */
 export function createDevApp(options: CreateDevAppOptions): void {
-  const { features, ...createAppOptions } = options;
+  const { features, bindRoutes } = options;
   const devFeatures: CreateAppOptions['features'] = [
     appPluginOverride,
     ...features,
   ];
   const appOptions: CreateAppOptions = {
-    ...createAppOptions,
+    bindRoutes,
     features: devFeatures,
   };
   const app = createApp(appOptions);

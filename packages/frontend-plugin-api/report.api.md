@@ -316,7 +316,7 @@ export const atlassianAuthApiRef: ApiRef<
 export type AuthProviderInfo = {
   id: string;
   title: string;
-  icon: IconComponent;
+  icon: IconComponent | IconElement;
   message?: string;
 };
 

@@ -54,10 +54,6 @@ type PathState =
       commitUrl?: string;
     }
   | {
-      type: 'modified';
-      commitUrl?: string;
-    }
-  | {
       type: 'renamed';
       fromPath: string;
       commitUrl?: string;
@@ -170,12 +166,6 @@ function pathStateToCatalogScmEvent(
     case 'removed':
       return {
         type: 'location.deleted',
-        url: toBlobUrl(path),
-        context,
-      };
-    case 'modified':
-      return {
-        type: 'location.updated',
         url: toBlobUrl(path),
         context,
       };
@@ -520,16 +510,23 @@ export async function analyzeGitLabWebhookEvent(
     throw new InputError('GitLab webhook event payload is not an object');
   }
 
+  let result: AnalyzeWebhookEventResult;
+
   if (eventType === 'push') {
-    return onPushEvent(eventPayload as unknown as WebhookPushEventSchema, options);
+    result = await onPushEvent(eventPayload as unknown as WebhookPushEventSchema, options);
+  } else if (eventType === 'repository_update') {
+    result = await onRepositoryUpdateEvent(eventPayload as GitLabRepositoryUpdateEvent);
+  } else {
+    result = { result: 'unsupported-event', event: eventType };
   }
 
-  if (eventType === 'repository_update') {
-    return onRepositoryUpdateEvent(eventPayload as GitLabRepositoryUpdateEvent);
+  if (result.result === 'ignored') {
+    options.logger?.debug(`GitLab webhook event ignored: ${result.reason}`);
+  } else if (result.result === 'aborted') {
+    options.logger?.debug(`GitLab webhook event aborted: ${result.reason}`);
+  } else if (result.result === 'unsupported-event') {
+    options.logger?.debug(`GitLab webhook event unsupported: ${result.event}`);
   }
 
-  return {
-    result: 'unsupported-event',
-    event: eventType,
-  };
+  return result;
 }

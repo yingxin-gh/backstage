@@ -99,10 +99,6 @@ export class GitLabScmEventsBridge {
       return;
     }
 
-    while (this.#pendingPublish) {
-      await this.#pendingPublish;
-    }
-
     if (this.#shuttingDown) {
       this.#logger.warn(
         `Skipping GitLab webhook event of type "${eventType}" on topic "${params.topic}" because the bridge is shutting down`,
@@ -110,7 +106,8 @@ export class GitLabScmEventsBridge {
       return;
     }
 
-    this.#pendingPublish = Promise.resolve().then(async () => {
+    const previous = this.#pendingPublish ?? Promise.resolve();
+    const current = previous.then(async () => {
       try {
         const output = await analyzeGitLabWebhookEvent(
           eventType,
@@ -143,10 +140,10 @@ export class GitLabScmEventsBridge {
           error,
         );
       } finally {
-        this.#pendingPublish = undefined;
+        // no-op; chain handles ordering
       }
     });
-
-    await this.#pendingPublish;
+    this.#pendingPublish = current;
+    await current;
   }
 }

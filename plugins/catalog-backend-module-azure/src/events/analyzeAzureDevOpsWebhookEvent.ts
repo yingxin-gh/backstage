@@ -154,9 +154,18 @@ function toLocationUrl(options: {
     return undefined;
   }
 
+  const url = new URL(options.remoteUrl);
   const branch = branchNameFromRef(options.branchRef);
-  const branchSuffix = branch ? `&version=GB${branch}` : '';
-  return encodeURI(`${options.remoteUrl}?path=${options.path}${branchSuffix}`);
+  // Encode each path segment individually to protect against special chars while
+  // preserving '/' separators, which is what Azure DevOps expects in the path param.
+  const encodedPath = options.path
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/');
+  url.search = branch
+    ? `path=${encodedPath}&version=GB${encodeURIComponent(branch)}`
+    : `path=${encodedPath}`;
+  return url.toString();
 }
 
 function toCommitUrl(
@@ -359,11 +368,16 @@ function replaceRepoNameInRemoteUrl(
   if (!remoteUrl || !repoName) {
     return undefined;
   }
-  const match = remoteUrl.match(/^(.*\/_git\/)([^/?#]+)(.*)$/);
-  if (!match) {
+  const gitMarker = '/_git/';
+  const gitIdx = remoteUrl.indexOf(gitMarker);
+  if (gitIdx === -1) {
     return undefined;
   }
-  return `${match[1]}${repoName}${match[3]}`;
+  const prefix = remoteUrl.slice(0, gitIdx + gitMarker.length);
+  const rest = remoteUrl.slice(gitIdx + gitMarker.length);
+  const endIdx = rest.search(/[/?#]/);
+  const suffix = endIdx === -1 ? '' : rest.slice(endIdx);
+  return `${prefix}${repoName}${suffix}`;
 }
 
 async function onPushEvent(
@@ -465,11 +479,18 @@ async function onRepositoryEvent(
 
   if (eventType === 'git.repo.renamed' && toUrl) {
     const oldName = asString(resource?.oldName);
+    if (!oldName) {
+      return {
+        result: 'ignored',
+        reason: 'Azure DevOps repository renamed event is missing oldName',
+      };
+    }
     const fromUrl = replaceRepoNameInRemoteUrl(toUrl, oldName);
     if (!fromUrl) {
       return {
         result: 'ignored',
-        reason: 'Azure DevOps repository renamed event is missing oldName',
+        reason:
+          'Azure DevOps repository renamed event has an unexpected repository.remoteUrl format',
       };
     }
 

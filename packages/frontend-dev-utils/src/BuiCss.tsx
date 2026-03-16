@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { createDevApp } from '@backstage/frontend-dev-utils';
-import { default as plugin } from '../src';
+// This ensures that dev apps always have the BUI CSS loaded.
+// eslint-disable-next-line @backstage/no-ui-css-imports-in-non-frontend
+import '@backstage/ui/css/styles.css';
 
-createDevApp({ features: [plugin] });
+/**
+ * Placeholder component to allow lazy loading of the BUI CSS import. This
+ * ensures that we don't load the CSS as soon as anyone imports this package.
+ */
+export default () => null;

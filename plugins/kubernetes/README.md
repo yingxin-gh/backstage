@@ -14,7 +14,7 @@ See our announcement blog post [New Backstage feature: Kubernetes for Service Ow
 
 ## Setup & Configuration
 
-This plugin must be explicitly added to a Backstage app, along with its peer backend plugin.
+This plugin must be installed in a Backstage app, along with its peer backend plugin.
 
 ```bash
 # From your Backstage root directory

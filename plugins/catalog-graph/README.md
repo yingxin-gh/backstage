@@ -143,7 +143,7 @@ import {
 
 ## Old Frontend System
 
-If your Backstage app uses the old frontend system, you need to manually wire the plugin into your app.
+If your Backstage app uses the old frontend system, you need to manually wire the plugin into your app as outlined in this section. If you are on the new frontend system, you can skip this.
 
 1. Add the `CatalogGraphPage` to your `packages/app/src/App.tsx`:
 

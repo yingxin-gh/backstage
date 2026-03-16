@@ -202,7 +202,7 @@ Here's how to add the Catalog Unprocessed Entities tab:
 
 ## Old Frontend System
 
-If your Backstage app uses the old frontend system, you need to manually wire the plugin into your app.
+If your Backstage app uses the old frontend system, you need to manually wire the plugin into your app as outlined in this section. If you are on the new frontend system, you can skip this.
 
 1. Open the `packages/app/src/App.tsx` file
 2. Then after all the import statements add the following line:
@@ -211,7 +211,7 @@ If your Backstage app uses the old frontend system, you need to manually wire th
    import { DevToolsPage } from '@backstage/plugin-devtools';
    ```
 
-3. In this same file just before the closing `</ FlatRoutes>`, this will be near the bottom of the file, add this line:
+3. In this same file just before the closing `</FlatRoutes>`, this will be near the bottom of the file, add this line:
 
    ```ts
    <Route path="/devtools" element={<DevToolsPage />} />

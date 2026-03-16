@@ -24,18 +24,20 @@ Once installed, the plugin is automatically available in your app through the de
 
 ### Troubleshooting
 
-If you encounter the [issue of closing EventStream](https://github.com/backstage/backstage/issues/5535)
+If you encounter [issues with early closure of the `EventStream`](https://github.com/backstage/backstage/issues/5535)
 which auto-updates logs during task execution, you can enable long polling. To do so,
 update your `packages/app/src/apis.ts` file to register a `ScaffolderClient` with the
 `useLongPollingLogs` set to `true`. By default, it is `false`.
 
 ```typescript
 import {
+  AnyApiFactory,
   createApiFactory,
   discoveryApiRef,
   fetchApiRef,
   identityApiRef,
 } from '@backstage/core-plugin-api';
+import { scmIntegrationsApiRef } from '@backstage/integration-react';
 import {
   scaffolderApiRef,
   ScaffolderClient,
@@ -60,6 +62,7 @@ export const apis: AnyApiFactory[] = [
       }),
   }),
   // ... other factories
+];
 ```
 
 This replaces the default implementation of the `scaffolderApiRef`.
@@ -71,11 +74,11 @@ to launch the plugin locally using the `createDevApp` of the `./dev/index.tsx` f
 
 To play with it, open a terminal and run the command: `yarn start` within the `./plugins/scaffolder` folder
 
-**NOTE:** Don't forget to open a second terminal and to launch the backend or [backend-next](../../docs/backend-system/index.md) there, using `yarn start` and to specify the locations of the templates to play with !
+**NOTE:** Don't forget to open a second terminal and to launch the backend there, using `yarn start backend` and to specify the locations of the templates to play with!
 
 ## Old Frontend System
 
-If your Backstage app uses the old frontend system, you need to manually wire the plugin into your app.
+If your Backstage app uses the old frontend system, you need to manually wire the plugin into your app as outlined in this section. If you are on the new frontend system, you can skip this.
 
 ### Add the plugin to your `packages/app`
 

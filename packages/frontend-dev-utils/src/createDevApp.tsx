@@ -19,6 +19,7 @@ import {
   FrontendFeatureLoader,
 } from '@backstage/frontend-plugin-api';
 import { createApp, CreateAppOptions } from '@backstage/frontend-defaults';
+import appPlugin from '@backstage/plugin-app';
 import ReactDOM from 'react-dom/client';
 
 /**
@@ -55,7 +56,16 @@ export interface CreateDevAppOptions {
 export function createDevApp(options: CreateDevAppOptions): void {
   const app = createApp({
     ...options.createAppOptions,
-    features: options.features,
+    features: [
+      appPlugin.withOverrides({
+        extensions: [
+          appPlugin
+            .getExtension('sign-in-page:app')
+            .override({ disabled: true }),
+        ],
+      }),
+      ...options.features,
+    ],
   });
 
   ReactDOM.createRoot(document.getElementById('root')!).render(

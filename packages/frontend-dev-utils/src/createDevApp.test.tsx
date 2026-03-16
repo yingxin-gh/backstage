@@ -21,7 +21,6 @@ import {
 import { within, waitFor } from '@testing-library/react';
 import { mockApis } from '@backstage/test-utils';
 import { createDevApp } from './createDevApp';
-import { default as appPlugin } from '@backstage/plugin-app';
 
 describe('createDevApp', () => {
   afterEach(() => {
@@ -46,16 +45,7 @@ describe('createDevApp', () => {
     });
 
     createDevApp({
-      features: [
-        appPlugin.withOverrides({
-          extensions: [
-            appPlugin
-              .getExtension('sign-in-page:app')
-              .override({ disabled: true }),
-          ],
-        }),
-        testPlugin,
-      ],
+      features: [testPlugin],
       createAppOptions: {
         advanced: {
           configLoader: async () => ({ config: mockApis.config() }),

@@ -17,6 +17,34 @@ yarn add @backstage/ui
 - [Backstage Readme](https://github.com/backstage/backstage/blob/master/README.md)
 - [Backstage Documentation](https://backstage.io/docs)
 
+## Table Cell Requirement
+
+When using the `Table` component, every cell rendered via `ColumnConfig.cell` (or
+inside a custom `RowRenderFn`) **must** return a cell component as the top-level
+element. The available cell components are:
+
+- **`CellText`** — displays a title with optional description and icon.
+- **`CellProfile`** — displays an avatar with a name and optional description.
+- **`Cell`** — a generic wrapper for fully custom cell content.
+
+Returning bare text, React fragments, or other elements without wrapping them in
+one of these cell components will break the table layout.
+
+```tsx
+// ✅ Correct — CellText is the top-level element
+cell: item => <CellText title={item.name} />;
+
+// ✅ Correct — Cell wraps custom content
+cell: item => (
+  <Cell>
+    <MyCustomContent value={item.name} />
+  </Cell>
+);
+
+// ❌ Wrong — bare text without a cell wrapper
+cell: item => <span>{item.name}</span>;
+```
+
 ## Writing Changesets for Components
 
 When creating changesets for component-specific changes, add component metadata to help maintain documentation:

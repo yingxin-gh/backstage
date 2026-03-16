@@ -766,7 +766,7 @@ export const Cell: {
   displayName: string;
 };
 
-// @public (undocumented)
+// @public
 export type CellOwnProps = {
   className?: string;
 };
@@ -774,7 +774,7 @@ export type CellOwnProps = {
 // @public (undocumented)
 export const CellProfile: (props: CellProfileProps) => JSX_2.Element;
 
-// @public (undocumented)
+// @public
 export type CellProfileOwnProps = {
   src?: string;
   name?: string;
@@ -784,12 +784,12 @@ export type CellProfileOwnProps = {
   className?: string;
 };
 
-// @public (undocumented)
+// @public
 export interface CellProfileProps
   extends CellProfileOwnProps,
     Omit<CellProps_2, keyof CellProfileOwnProps> {}
 
-// @public (undocumented)
+// @public
 export interface CellProps
   extends CellOwnProps,
     Omit<CellProps_2, keyof CellOwnProps> {}
@@ -800,7 +800,7 @@ export const CellText: {
   displayName: string;
 };
 
-// @public (undocumented)
+// @public
 export type CellTextOwnProps = {
   title: string;
   description?: string;
@@ -810,7 +810,7 @@ export type CellTextOwnProps = {
   className?: string;
 };
 
-// @public (undocumented)
+// @public
 export interface CellTextProps
   extends CellTextOwnProps,
     Omit<CellProps_2, keyof CellTextOwnProps> {}
@@ -849,9 +849,8 @@ export interface CheckboxProps
 // @public (undocumented)
 export const Column: (props: ColumnProps) => JSX_2.Element;
 
-// @public (undocumented)
+// @public
 export interface ColumnConfig<T extends TableItem> {
-  // (undocumented)
   cell: (item: T) => ReactElement;
   // (undocumented)
   defaultWidth?: ColumnSize | null;
@@ -2068,7 +2067,7 @@ export interface RowProps<T>
   extends RowOwnProps<T>,
     Omit<RowProps_2<T>, keyof RowOwnProps> {}
 
-// @public (undocumented)
+// @public
 export type RowRenderFn<T extends TableItem> = (params: {
   item: T;
   index: number;

@@ -25,9 +25,9 @@ Once installed, the plugin is automatically available in your app through the de
 ### Troubleshooting
 
 If you encounter [issues with early closure of the `EventStream`](https://github.com/backstage/backstage/issues/5535)
-which auto-updates logs during task execution, you can enable long polling. To do so,
-update your `packages/app/src/apis.ts` file to register a `ScaffolderClient` with the
-`useLongPollingLogs` set to `true`. By default, it is `false`.
+used to auto-update logs during task execution, you can work around them by enabling
+long polling. To do so, update your `packages/app/src/apis.ts` file to register a
+`ScaffolderClient` with `useLongPollingLogs` set to `true`. By default, it is `false`.
 
 ```typescript
 import {
@@ -74,7 +74,8 @@ to launch the plugin locally using the `createDevApp` of the `./dev/index.tsx` f
 
 To play with it, open a terminal and run the command: `yarn start` within the `./plugins/scaffolder` folder
 
-**NOTE:** Don't forget to open a second terminal and to launch the backend there, using `yarn start backend` and to specify the locations of the templates to play with!
+**NOTE:** Don't forget to open a second terminal, start your Backstage backend there,
+and configure the template locations that you want to test.
 
 ## Old Frontend System
 

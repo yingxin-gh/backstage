@@ -21,7 +21,11 @@ Once installed, the plugin is automatically available in your app through the de
 
 ## Old Frontend System
 
-If your Backstage app uses the old frontend system, add a route for the page in your app:
+If your Backstage app uses the old frontend system, you need to manually wire the
+plugin into your app as outlined in this section. If you are on the new frontend
+system, you can skip this.
+
+Add a route for the page in your app:
 
 ```tsx
 // packages/app/src/App.tsx

@@ -47,7 +47,11 @@ app:
 
 ## Old Frontend System
 
-If your Backstage app uses the old frontend system, import into your `App.tsx` and include into the `<FlatRoutes>` component:
+If your Backstage app uses the old frontend system, you need to manually wire the
+plugin into your app as outlined in this section. If you are on the new frontend
+system, you can skip this.
+
+Import it into your `App.tsx` and include it in the `<FlatRoutes>` component:
 
 ```tsx title="packages/app/src/App.tsx"
 import { CatalogUnprocessedEntitiesPage } from '@backstage/plugin-catalog-unprocessed-entities';

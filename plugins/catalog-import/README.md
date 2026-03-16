@@ -98,7 +98,11 @@ Following React components accept optional props for providing custom example en
 
 ## Old Frontend System
 
-If your Backstage app uses the old frontend system, add the `CatalogImportPage` extension to the app:
+If your Backstage app uses the old frontend system, you need to manually wire the
+plugin into your app as outlined in this section. If you are on the new frontend
+system, you can skip this.
+
+Add the `CatalogImportPage` extension to the app:
 
 ```tsx
 // packages/app/src/App.tsx

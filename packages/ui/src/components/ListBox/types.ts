@@ -57,7 +57,7 @@ export type ListBoxItemOwnProps = {
   /**
    * Optional icon displayed before the label, rendered in a 32×32px box.
    */
-  icon?: React.ReactNode;
+  icon?: React.ReactElement;
   /**
    * Optional menu items rendered inside an automatically managed dropdown menu.
    * Pass `MenuItem` nodes here and the component will render the trigger button

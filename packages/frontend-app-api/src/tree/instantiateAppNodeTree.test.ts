@@ -17,11 +17,10 @@
 import {
   AppNode,
   Extension,
+  ExtensionDataContainer,
   ExtensionDataRef,
   ExtensionDefinition,
-  ExtensionInput,
   PortableSchema,
-  ResolvedExtensionInput,
   createExtension,
   createExtensionBlueprint,
   createExtensionDataRef,
@@ -146,8 +145,8 @@ function mirrorInputs(ctx: {
   inputs: {
     [name in string]:
       | undefined
-      | ResolvedExtensionInput<ExtensionInput>
-      | Array<ResolvedExtensionInput<ExtensionInput>>;
+      | ({ node: AppNode } & ExtensionDataContainer<ExtensionDataRef>)
+      | Array<{ node: AppNode } & ExtensionDataContainer<ExtensionDataRef>>;
   };
 }) {
   return [

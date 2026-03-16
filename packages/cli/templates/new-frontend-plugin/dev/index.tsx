@@ -1,10 +1,5 @@
-import { createApp } from '@backstage/frontend-defaults';
-import ReactDOM from 'react-dom';
+import { createDevApp } from '@backstage/frontend-dev-utils';
 
 import plugin from '../src';
 
-const app = createApp({
-  features: [plugin],
-});
-
-ReactDOM.render(app.createRoot(), document.getElementById('root'));
+createDevApp({ features: [plugin] });

@@ -19,7 +19,6 @@
 @layer components {
   .bui-List {
     box-sizing: border-box;
-    overflow-y: auto;
     outline: none;
     display: flex;
     flex-direction: column;
@@ -30,7 +29,7 @@
       gap: 0;
     }
 
-    &:focus-visible {
+    &[data-focus-visible] {
       outline: none;
     }
   }
@@ -49,6 +48,10 @@
     &[data-disabled] {
       cursor: not-allowed;
       color: var(--bui-fg-disabled);
+    }
+
+    &[data-focus-visible] {
+      outline: 2px solid var(--bui-ring);
     }
 
     &[data-selection-mode] {

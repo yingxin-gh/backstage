@@ -53,3 +53,17 @@ export const OpaqueCommandLeafNode = OpaqueType.create<{
   type: '@backstage/CommandLeafNode',
   versions: ['v1'],
 });
+
+/**
+ * Checks whether a command node should be hidden from help output.
+ * Leaf nodes are hidden if they are deprecated or experimental.
+ * Tree nodes are hidden if all of their children are hidden.
+ */
+export function isCommandNodeHidden(node: CommandNode): boolean {
+  if (OpaqueCommandLeafNode.isType(node)) {
+    const { command } = OpaqueCommandLeafNode.toInternal(node);
+    return !!command.deprecated || !!command.experimental;
+  }
+  const { children } = OpaqueCommandTreeNode.toInternal(node);
+  return children.every(child => isCommandNodeHidden(child));
+}

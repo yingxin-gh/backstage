@@ -18,21 +18,13 @@ import {
   OpaqueCliModule,
   OpaqueCommandTreeNode,
   OpaqueCommandLeafNode,
+  isCommandNodeHidden,
 } from '@internal/cli';
 import type { CommandNode } from '@internal/cli';
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { isError, stringifyError } from '@backstage/errors';
 import type { CliModule, CliCommand } from './types';
-
-function isCommandHidden(node: CommandNode): boolean {
-  if (OpaqueCommandLeafNode.isType(node)) {
-    const { command } = OpaqueCommandLeafNode.toInternal(node);
-    return !!command.deprecated || !!command.experimental;
-  }
-  const { children } = OpaqueCommandTreeNode.toInternal(node);
-  return children.every(child => isCommandHidden(child));
-}
 
 function buildCommandGraph(commands: ReadonlyArray<CliCommand>): CommandNode[] {
   const graph: CommandNode[] = [];
@@ -70,13 +62,11 @@ function buildCommandGraph(commands: ReadonlyArray<CliCommand>): CommandNode[] {
 }
 
 function exitWithError(error: unknown): never {
-  if (!isError(error)) {
-    process.stderr.write(`\n${chalk.red(stringifyError(error))}\n\n`);
-    process.exit(1);
-  }
   process.stderr.write(`\n${chalk.red(stringifyError(error))}\n\n`);
   process.exit(
-    'code' in error && typeof error.code === 'number' ? error.code : 1,
+    isError(error) && 'code' in error && typeof error.code === 'number'
+      ? error.code
+      : 1,
   );
 }
 
@@ -94,7 +84,7 @@ function registerCommands(
       const internal = OpaqueCommandTreeNode.toInternal(node);
       const treeParser = argParser
         .command(`${internal.name} [command]`, {
-          hidden: isCommandHidden(node),
+          hidden: isCommandNodeHidden(node),
         })
         .description(internal.name);
 

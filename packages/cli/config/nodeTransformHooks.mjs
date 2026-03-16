@@ -17,4 +17,4 @@
 export {
   resolve,
   load,
-} from '@backstage/cli-module-build/config/nodeTransformHooks.mjs';
+} from '@backstage/cli-node/config/nodeTransformHooks.mjs';

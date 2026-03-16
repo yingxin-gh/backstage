@@ -28,7 +28,7 @@ For fine-grained control you can instead install individual CLI modules:
     "@backstage/cli-module-auth": "backstage:^",
     "@backstage/cli-module-build": "backstage:^",
     "@backstage/cli-module-config": "backstage:^",
-    "@backstage/cli-module-create-github-app": "backstage:^",
+    "@backstage/cli-module-github": "backstage:^",
     "@backstage/cli-module-info": "backstage:^",
     "@backstage/cli-module-lint": "backstage:^",
     "@backstage/cli-module-maintenance": "backstage:^",

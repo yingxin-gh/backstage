@@ -1,8 +1,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: backstage-cli-module-create-github-app
-  title: '@backstage/cli-module-create-github-app'
+  name: backstage-cli-module-github
+  title: '@backstage/cli-module-github'
   description: CLI module for Backstage CLI
 spec:
   lifecycle: experimental

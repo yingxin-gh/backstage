@@ -2,7 +2,7 @@
 '@backstage/cli-module-auth': minor
 '@backstage/cli-module-build': minor
 '@backstage/cli-module-config': minor
-'@backstage/cli-module-create-github-app': minor
+'@backstage/cli-module-github': minor
 '@backstage/cli-module-info': minor
 '@backstage/cli-module-lint': minor
 '@backstage/cli-module-maintenance': minor

@@ -15,11 +15,11 @@
  */
 
 try {
-  require('@backstage/cli-module-build/config/nodeTransform.cjs');
+  require('@backstage/cli-node/config/nodeTransform.cjs');
 } catch (e) {
   if (e.code === 'MODULE_NOT_FOUND') {
     throw new Error(
-      '@backstage/cli-module-build is required to use the node transform. ' +
+      '@backstage/cli-node is required to use the node transform. ' +
         'Please install it as a dependency.',
     );
   }

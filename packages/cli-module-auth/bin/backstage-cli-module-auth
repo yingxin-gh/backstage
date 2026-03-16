@@ -28,6 +28,6 @@ if (!isLocal) {
   const pkg = require('../package.json');
   runCliModule({ module: cliModule, name: pkg.name, version: pkg.version });
 } else {
-  require('@backstage/cli/config/nodeTransform.cjs');
+  require('@backstage/cli-node/config/nodeTransform.cjs');
   require('../src/cli');
 }

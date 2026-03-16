@@ -23,4 +23,5 @@ export type {
 export {
   OpaqueCommandTreeNode,
   OpaqueCommandLeafNode,
+  isCommandNodeHidden,
 } from './InternalCommandNode';

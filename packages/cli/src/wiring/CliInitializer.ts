@@ -19,8 +19,8 @@ import {
   OpaqueCliModule,
   OpaqueCommandTreeNode,
   OpaqueCommandLeafNode,
+  isCommandNodeHidden,
 } from '@internal/cli';
-import type { CommandNode } from '@internal/cli';
 import type { CliModule } from '@backstage/cli-node';
 import { Command } from 'commander';
 import { version } from './version';
@@ -29,15 +29,6 @@ import { exitWithError } from './errors';
 import { ForwardedError } from '@backstage/errors';
 import { isPromise } from 'node:util/types';
 
-function isNodeHidden(node: CommandNode): boolean {
-  if (OpaqueCommandLeafNode.isType(node)) {
-    const { command } = OpaqueCommandLeafNode.toInternal(node);
-    return !!command.deprecated || !!command.experimental;
-  }
-  const { children } = OpaqueCommandTreeNode.toInternal(node);
-  return children.every(child => isNodeHidden(child));
-}
-
 type UninitializedFeature =
   | CliModule
   | CliModule[]
@@ -45,6 +36,12 @@ type UninitializedFeature =
 
 interface TaggedFeature {
   feature: CliModule;
+  /**
+   * Whether this module was sourced from an array (e.g. cli-defaults).
+   * Array-sourced modules are silently skipped when any of their commands
+   * overlap with an individually-added module, allowing explicit module
+   * additions to take precedence without causing conflicts.
+   */
   fromArray: boolean;
 }
 
@@ -136,7 +133,7 @@ export class CliInitializer {
         const internal = OpaqueCommandTreeNode.toInternal(node);
         const treeParser = argParser
           .command(`${internal.name} [command]`, {
-            hidden: isNodeHidden(node),
+            hidden: isCommandNodeHidden(node),
           })
           .description(internal.name);
 

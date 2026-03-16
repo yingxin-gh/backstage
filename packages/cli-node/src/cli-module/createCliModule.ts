@@ -62,8 +62,8 @@ export function createCliModule(options: {
   }
 
   const commands: CliCommand[] = [];
-  const commandsPromise = options
-    .init({ addCommand: command => commands.push(command) })
+  const commandsPromise = Promise.resolve()
+    .then(() => options.init({ addCommand: command => commands.push(command) }))
     .then(() => commands);
 
   return OpaqueCliModule.createInstance('v1', {

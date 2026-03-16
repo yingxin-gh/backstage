@@ -1,4 +1,4 @@
-# @backstage/cli-module-create-github-app
+# @backstage/cli-module-github
 
 CLI module that provides the `create-github-app` command for the Backstage CLI, used to create a new GitHub App in your organization for use with Backstage.
 

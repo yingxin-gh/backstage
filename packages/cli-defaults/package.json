@@ -33,7 +33,7 @@
     "@backstage/cli-module-auth": "workspace:^",
     "@backstage/cli-module-build": "workspace:^",
     "@backstage/cli-module-config": "workspace:^",
-    "@backstage/cli-module-create-github-app": "workspace:^",
+    "@backstage/cli-module-github": "workspace:^",
     "@backstage/cli-module-info": "workspace:^",
     "@backstage/cli-module-lint": "workspace:^",
     "@backstage/cli-module-maintenance": "workspace:^",

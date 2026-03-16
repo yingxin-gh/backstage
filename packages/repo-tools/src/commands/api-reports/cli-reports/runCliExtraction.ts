@@ -132,6 +132,11 @@ export async function runCliExtraction({
     const pkgJson = await fs.readJson(resolvePath(fullDir, 'package.json'));
 
     if (!pkgJson.bin) {
+      if (pkgJson.backstage?.role === 'cli') {
+        throw new Error(
+          `CLI package ${pkgJson.name} is missing a "bin" field in its package.json`,
+        );
+      }
       continue;
     }
 

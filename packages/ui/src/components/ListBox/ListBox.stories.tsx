@@ -84,7 +84,7 @@ const itemsWithDescription = [
   },
 ];
 
-const itemIcons: Record<string, React.ReactNode> = {
+const itemIcons: Record<string, React.ReactElement> = {
   react: <RiReactjsLine />,
   typescript: <RiCodeLine />,
   javascript: <RiJavascriptLine />,

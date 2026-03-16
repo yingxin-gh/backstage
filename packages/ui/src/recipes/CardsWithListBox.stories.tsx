@@ -54,7 +54,7 @@ interface ServiceItem {
   id: string;
   label: string;
   description: string;
-  icon: React.ReactNode;
+  icon: React.ReactElement;
   tags: string[];
 }
 

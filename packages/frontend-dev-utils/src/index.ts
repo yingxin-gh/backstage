@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { createDevApp } from '@backstage/frontend-dev-utils';
-import { default as plugin } from '../src';
+/**
+ * Utilities for developing Backstage frontend plugins using the new frontend system.
+ *
+ * @packageDocumentation
+ */
 
-createDevApp({ features: [plugin] });
+export { createDevApp, type CreateDevAppOptions } from './createDevApp';

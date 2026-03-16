@@ -29,6 +29,7 @@ import {
   createExtension,
   createExtensionInput,
   routeResolutionApiRef,
+  pluginWrapperApiRef,
   useAnalytics,
 } from '@backstage/frontend-plugin-api';
 import {
@@ -113,6 +114,12 @@ export const AppRoot = createExtension({
       if (Component) {
         content = <Component>{content}</Component>;
       }
+    }
+
+    const pluginWrapperApi = apis.get(pluginWrapperApiRef);
+    const RootWrapper = pluginWrapperApi?.getRootWrapper();
+    if (RootWrapper) {
+      content = <RootWrapper>{content}</RootWrapper>;
     }
 
     return [

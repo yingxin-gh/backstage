@@ -18,7 +18,7 @@ import {
   PageBlueprint,
   createFrontendPlugin,
 } from '@backstage/frontend-plugin-api';
-import { within, waitFor } from '@testing-library/react';
+import { within } from '@testing-library/react';
 import { mockApis } from '@backstage/test-utils';
 import { createDevApp } from './createDevApp';
 
@@ -46,19 +46,12 @@ describe('createDevApp', () => {
 
     createDevApp({
       features: [testPlugin],
-      createAppOptions: {
-        advanced: {
-          configLoader: async () => ({ config: mockApis.config() }),
-        },
+      advanced: {
+        configLoader: async () => ({ config: mockApis.config() }),
       },
     });
 
     const body = within(document.body);
-    await waitFor(
-      () => {
-        expect(body.getByText('Test Plugin Page')).toBeDefined();
-      },
-      { timeout: 10000 },
-    );
+    await body.findByText('Test Plugin Page', {}, { timeout: 10000 });
   }, 15000);
 });

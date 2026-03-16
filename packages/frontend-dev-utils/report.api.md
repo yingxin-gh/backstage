@@ -11,8 +11,8 @@ import { FrontendFeatureLoader } from '@backstage/frontend-plugin-api';
 export function createDevApp(options: CreateDevAppOptions): void;
 
 // @public
-export interface CreateDevAppOptions {
-  createAppOptions?: Omit<CreateAppOptions, 'features'>;
+export interface CreateDevAppOptions
+  extends Omit<CreateAppOptions, 'features'> {
   features: (FrontendFeature | FrontendFeatureLoader)[];
 }
 ```

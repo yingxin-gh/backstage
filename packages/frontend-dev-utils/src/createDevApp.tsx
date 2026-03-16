@@ -25,21 +25,32 @@ import { createApp, CreateAppOptions } from '@backstage/frontend-defaults';
 import appPlugin from '@backstage/plugin-app';
 import ReactDOM from 'react-dom/client';
 
+type AppPluginWithSimpleOverrides = {
+  withOverrides(options: { extensions: unknown[] }): FrontendFeature;
+};
+
+// Collapse the deeply nested override types to avoid excessive instantiation.
+const appPluginOverride = (
+  appPlugin as unknown as AppPluginWithSimpleOverrides
+).withOverrides({
+  extensions: [
+    appPlugin.getExtension('sign-in-page:app').override({
+      disabled: true,
+    }),
+  ],
+});
+
 /**
  * Options for {@link createDevApp}.
  *
  * @public
  */
-export interface CreateDevAppOptions {
+export interface CreateDevAppOptions
+  extends Omit<CreateAppOptions, 'features'> {
   /**
    * The list of features to load in the dev app.
    */
   features: (FrontendFeature | FrontendFeatureLoader)[];
-
-  /**
-   * Additional options to pass through to `createApp`.
-   */
-  createAppOptions?: Omit<CreateAppOptions, 'features'>;
 }
 
 /**
@@ -57,19 +68,16 @@ export interface CreateDevAppOptions {
  * @public
  */
 export function createDevApp(options: CreateDevAppOptions): void {
-  const app = createApp({
-    ...options.createAppOptions,
-    features: [
-      appPlugin.withOverrides({
-        extensions: [
-          appPlugin
-            .getExtension('sign-in-page:app')
-            .override({ disabled: true }),
-        ],
-      }),
-      ...options.features,
-    ],
-  });
+  const { features, ...createAppOptions } = options;
+  const devFeatures: CreateAppOptions['features'] = [
+    appPluginOverride,
+    ...features,
+  ];
+  const appOptions: CreateAppOptions = {
+    ...createAppOptions,
+    features: devFeatures,
+  };
+  const app = createApp(appOptions);
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
     app.createRoot(),

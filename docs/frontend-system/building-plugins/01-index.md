@@ -121,7 +121,7 @@ import myPlugin from '../src';
 createDevApp({ features: [myPlugin] });
 ```
 
-This will create and render a Backstage app with only your plugin installed. If you need to include additional features that your plugin depends on, pass them along in the `features` array. You can also forward additional options to `createApp` from `@backstage/frontend-defaults` using the `createAppOptions` option.
+This will create and render a Backstage app with only your plugin installed. If you need to include additional features that your plugin depends on, pass them along in the `features` array. The options also accept all other `createApp` options from `@backstage/frontend-defaults`, such as `bindRoutes` and `advanced`.
 
 The dev setup is started by running `yarn start` in the plugin directory, which uses the `backstage-cli package start` command. It sets up a local development server with hot reloading, just like a full app.
 

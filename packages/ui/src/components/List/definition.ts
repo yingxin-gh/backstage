@@ -15,17 +15,17 @@
  */
 
 import { defineComponent } from '../../hooks/useDefinition';
-import type { ListBoxOwnProps, ListBoxItemOwnProps } from './types';
-import styles from './ListBox.module.css';
+import type { ListOwnProps, ListRowOwnProps } from './types';
+import styles from './List.module.css';
 
 /**
- * Component definition for ListBox
+ * Component definition for List
  * @public
  */
-export const ListBoxDefinition = defineComponent<ListBoxOwnProps>()({
+export const ListDefinition = defineComponent<ListOwnProps>()({
   styles,
   classNames: {
-    root: 'bui-ListBox',
+    root: 'bui-List',
   },
   propDefs: {
     items: {},
@@ -36,19 +36,19 @@ export const ListBoxDefinition = defineComponent<ListBoxOwnProps>()({
 });
 
 /**
- * Component definition for ListBoxItem
+ * Component definition for ListRow
  * @public
  */
-export const ListBoxItemDefinition = defineComponent<ListBoxItemOwnProps>()({
+export const ListRowDefinition = defineComponent<ListRowOwnProps>()({
   styles,
   bg: 'consumer',
   classNames: {
-    root: 'bui-ListBoxItem',
-    check: 'bui-ListBoxItemCheck',
-    icon: 'bui-ListBoxItemIcon',
-    label: 'bui-ListBoxItemLabel',
-    description: 'bui-ListBoxItemDescription',
-    actions: 'bui-ListBoxItemActions',
+    root: 'bui-ListRow',
+    check: 'bui-ListRowCheck',
+    icon: 'bui-ListRowIcon',
+    label: 'bui-ListRowLabel',
+    description: 'bui-ListRowDescription',
+    actions: 'bui-ListRowActions',
   },
   propDefs: {
     children: {},

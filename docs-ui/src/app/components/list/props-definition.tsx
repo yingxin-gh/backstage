@@ -4,7 +4,7 @@ import {
   type PropDef,
 } from '@/utils/propDefs';
 
-export const listBoxPropDefs: Record<string, PropDef> = {
+export const listPropDefs: Record<string, PropDef> = {
   items: {
     type: 'enum',
     values: ['Iterable<T>'],
@@ -12,7 +12,7 @@ export const listBoxPropDefs: Record<string, PropDef> = {
   },
   renderEmptyState: {
     type: 'enum',
-    values: ['() => ReactNode'],
+    values: ['(props: GridListRenderProps) => ReactNode'],
     description: 'Content to display when the collection is empty.',
   },
   selectionMode: {
@@ -44,10 +44,10 @@ export const listBoxPropDefs: Record<string, PropDef> = {
   ...classNamePropDefs,
 };
 
-export const listBoxItemPropDefs: Record<string, PropDef> = {
+export const listRowPropDefs: Record<string, PropDef> = {
   id: {
     type: 'string',
-    description: 'Unique identifier for the item.',
+    description: 'Unique identifier for the row.',
   },
   textValue: {
     type: 'string',
@@ -57,7 +57,7 @@ export const listBoxItemPropDefs: Record<string, PropDef> = {
   icon: {
     type: 'enum',
     values: ['ReactNode'],
-    description: 'Icon displayed before the item label.',
+    description: 'Icon displayed before the row label.',
   },
   description: {
     type: 'string',
@@ -65,17 +65,19 @@ export const listBoxItemPropDefs: Record<string, PropDef> = {
   },
   isDisabled: {
     type: 'boolean',
-    description: 'Whether the item is disabled.',
+    description: 'Whether the row is disabled.',
   },
   menuItems: {
     type: 'enum',
-    values: ['Iterable<MenuItemConfig>'],
-    description: 'Menu items displayed for this list box item.',
+    values: ['ReactNode'],
+    description:
+      'Menu items rendered inside an automatically managed dropdown. Pass MenuItem nodes.',
   },
   customActions: {
     type: 'enum',
     values: ['ReactNode'],
-    description: 'Custom action elements displayed alongside the item.',
+    description:
+      'Custom action elements displayed on the right side of the row, e.g. tags.',
   },
   ...childrenPropDefs,
   ...classNamePropDefs,

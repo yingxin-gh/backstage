@@ -17,7 +17,7 @@
 @layer tokens, base, components, utilities;
 
 @layer components {
-  .bui-ListBox {
+  .bui-List {
     box-sizing: border-box;
     overflow-y: auto;
     outline: none;
@@ -35,7 +35,7 @@
     }
   }
 
-  .bui-ListBoxItem {
+  .bui-ListRow {
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -129,7 +129,7 @@
     }
   }
 
-  .bui-ListBoxItemCheck {
+  .bui-ListRowCheck {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,7 +143,7 @@
     }
   }
 
-  .bui-ListBoxItemIcon {
+  .bui-ListRowIcon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -159,7 +159,7 @@
     }
   }
 
-  .bui-ListBoxItemLabel {
+  .bui-ListRowLabel {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -174,7 +174,7 @@
     }
   }
 
-  .bui-ListBoxItemDescription {
+  .bui-ListRowDescription {
     font-size: var(--bui-font-size-2);
     color: var(--bui-fg-secondary);
     overflow: hidden;
@@ -182,7 +182,7 @@
     text-overflow: ellipsis;
   }
 
-  .bui-ListBoxItemActions {
+  .bui-ListRowActions {
     display: flex;
     align-items: center;
     gap: var(--bui-space-1);

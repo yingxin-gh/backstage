@@ -15,39 +15,39 @@
  */
 
 import type {
-  ListBoxProps as ReactAriaListBoxProps,
-  ListBoxItemProps as ReactAriaListBoxItemProps,
+  GridListProps as ReactAriaGridListProps,
+  GridListItemProps as ReactAriaGridListItemProps,
 } from 'react-aria-components';
 
 /**
- * Own props for the ListBox component.
+ * Own props for the List component.
  *
  * @public
  */
-export type ListBoxOwnProps<T = object> = {
-  items?: ReactAriaListBoxProps<T>['items'];
-  children?: ReactAriaListBoxProps<T>['children'];
-  renderEmptyState?: ReactAriaListBoxProps<T>['renderEmptyState'];
+export type ListOwnProps<T = object> = {
+  items?: ReactAriaGridListProps<T>['items'];
+  children?: ReactAriaGridListProps<T>['children'];
+  renderEmptyState?: ReactAriaGridListProps<T>['renderEmptyState'];
   className?: string;
 };
 
 /**
- * Props for the ListBox component.
+ * Props for the List component.
  *
  * @public
  */
-export interface ListBoxProps<T>
-  extends ListBoxOwnProps<T>,
-    Omit<ReactAriaListBoxProps<T>, keyof ListBoxOwnProps<T>> {}
+export interface ListProps<T>
+  extends ListOwnProps<T>,
+    Omit<ReactAriaGridListProps<T>, keyof ListOwnProps<T>> {}
 
 /**
- * Own props for the ListBoxItem component.
+ * Own props for the ListRow component.
  *
  * @public
  */
-export type ListBoxItemOwnProps = {
+export type ListRowOwnProps = {
   /**
-   * The main label content of the item.
+   * The main label content of the row.
    */
   children?: React.ReactNode;
   /**
@@ -65,7 +65,7 @@ export type ListBoxItemOwnProps = {
    */
   menuItems?: React.ReactNode;
   /**
-   * Optional actions rendered in a flex row on the right side of the item,
+   * Optional actions rendered in a flex row on the right side of the row,
    * e.g. a set of tags. For a dropdown menu, prefer `menuItems`.
    */
   customActions?: React.ReactNode;
@@ -73,10 +73,10 @@ export type ListBoxItemOwnProps = {
 };
 
 /**
- * Props for the ListBoxItem component.
+ * Props for the ListRow component.
  *
  * @public
  */
-export interface ListBoxItemProps
-  extends ListBoxItemOwnProps,
-    Omit<ReactAriaListBoxItemProps, keyof ListBoxItemOwnProps> {}
+export interface ListRowProps
+  extends ListRowOwnProps,
+    Omit<ReactAriaGridListItemProps, keyof ListRowOwnProps> {}

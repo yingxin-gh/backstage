@@ -28,8 +28,8 @@ import {
   MenuItem,
   TagGroup,
   Tag,
-  ListBox,
-  ListBoxItem,
+  List,
+  ListRow,
 } from '..';
 import {
   RiAccountCircleLine,
@@ -162,9 +162,9 @@ const ServiceListCard = ({
       </Flex>
     </CardHeader>
     <CardBody>
-      <ListBox aria-label={title}>
+      <List aria-label={title}>
         {items.map(item => (
-          <ListBoxItem
+          <ListRow
             key={item.id}
             id={item.id}
             icon={icons ? item.icon : undefined}
@@ -187,9 +187,9 @@ const ServiceListCard = ({
             }
           >
             {item.label}
-          </ListBoxItem>
+          </ListRow>
         ))}
-      </ListBox>
+      </List>
     </CardBody>
   </Card>
 );
@@ -201,7 +201,7 @@ const withRouter = (Story: StoryFn) => (
 );
 
 const meta = preview.meta({
-  title: 'Recipes/Cards with ListBox',
+  title: 'Recipes/Cards with List',
   parameters: {
     layout: 'fullscreen',
   },

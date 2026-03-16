@@ -19,12 +19,14 @@ import type { DisclosurePanelProps } from 'react-aria-components';
 import type { DisclosureProps } from 'react-aria-components';
 import type { ElementType } from 'react';
 import { ForwardRefExoticComponent } from 'react';
+import type { GridListItemProps } from 'react-aria-components';
+import type { GridListProps } from 'react-aria-components';
 import type { HeadingProps } from 'react-aria-components';
 import type { HTMLAttributes } from 'react';
 import { JSX as JSX_2 } from 'react/jsx-runtime';
 import type { LinkProps as LinkProps_2 } from 'react-aria-components';
-import type { ListBoxItemProps as ListBoxItemProps_2 } from 'react-aria-components';
-import type { ListBoxProps as ListBoxProps_2 } from 'react-aria-components';
+import type { ListBoxItemProps } from 'react-aria-components';
+import type { ListBoxProps } from 'react-aria-components';
 import type { MenuItemProps as MenuItemProps_2 } from 'react-aria-components';
 import type { MenuProps as MenuProps_2 } from 'react-aria-components';
 import type { MenuSectionProps as MenuSectionProps_2 } from 'react-aria-components';
@@ -1556,17 +1558,15 @@ export interface LinkProps
     LinkOwnProps {}
 
 // @public
-export const ListBox: <T extends object>(
-  props: ListBoxProps<T>,
-) => JSX_2.Element;
+export const List: <T extends object>(props: ListProps<T>) => JSX_2.Element;
 
 // @public
-export const ListBoxDefinition: {
+export const ListDefinition: {
   readonly styles: {
     readonly [key: string]: string;
   };
   readonly classNames: {
-    readonly root: 'bui-ListBox';
+    readonly root: 'bui-List';
   };
   readonly propDefs: {
     readonly items: {};
@@ -1577,21 +1577,34 @@ export const ListBoxDefinition: {
 };
 
 // @public
-export const ListBoxItem: (props: ListBoxItemProps) => JSX_2.Element;
+export type ListOwnProps<T = object> = {
+  items?: GridListProps<T>['items'];
+  children?: GridListProps<T>['children'];
+  renderEmptyState?: GridListProps<T>['renderEmptyState'];
+  className?: string;
+};
 
 // @public
-export const ListBoxItemDefinition: {
+export interface ListProps<T>
+  extends ListOwnProps<T>,
+    Omit<GridListProps<T>, keyof ListOwnProps<T>> {}
+
+// @public
+export const ListRow: (props: ListRowProps) => JSX_2.Element;
+
+// @public
+export const ListRowDefinition: {
   readonly styles: {
     readonly [key: string]: string;
   };
   readonly bg: 'consumer';
   readonly classNames: {
-    readonly root: 'bui-ListBoxItem';
-    readonly check: 'bui-ListBoxItemCheck';
-    readonly icon: 'bui-ListBoxItemIcon';
-    readonly label: 'bui-ListBoxItemLabel';
-    readonly description: 'bui-ListBoxItemDescription';
-    readonly actions: 'bui-ListBoxItemActions';
+    readonly root: 'bui-ListRow';
+    readonly check: 'bui-ListRowCheck';
+    readonly icon: 'bui-ListRowIcon';
+    readonly label: 'bui-ListRowLabel';
+    readonly description: 'bui-ListRowDescription';
+    readonly actions: 'bui-ListRowActions';
   };
   readonly propDefs: {
     readonly children: {};
@@ -1604,32 +1617,19 @@ export const ListBoxItemDefinition: {
 };
 
 // @public
-export type ListBoxItemOwnProps = {
+export type ListRowOwnProps = {
   children?: React.ReactNode;
   description?: string;
-  icon?: React.ReactNode;
+  icon?: React.ReactElement;
   menuItems?: React.ReactNode;
   customActions?: React.ReactNode;
   className?: string;
 };
 
 // @public
-export interface ListBoxItemProps
-  extends ListBoxItemOwnProps,
-    Omit<ListBoxItemProps_2, keyof ListBoxItemOwnProps> {}
-
-// @public
-export type ListBoxOwnProps<T = object> = {
-  items?: ListBoxProps_2<T>['items'];
-  children?: ListBoxProps_2<T>['children'];
-  renderEmptyState?: ListBoxProps_2<T>['renderEmptyState'];
-  className?: string;
-};
-
-// @public
-export interface ListBoxProps<T>
-  extends ListBoxOwnProps<T>,
-    Omit<ListBoxProps_2<T>, keyof ListBoxOwnProps<T>> {}
+export interface ListRowProps
+  extends ListRowOwnProps,
+    Omit<GridListItemProps, keyof ListRowOwnProps> {}
 
 // @public (undocumented)
 export interface MarginProps {
@@ -1665,13 +1665,13 @@ export const MenuAutocompleteListbox: (
 // @public (undocumented)
 export type MenuAutocompleteListBoxOwnProps = MenuPopoverOwnProps & {
   placeholder?: string;
-  selectionMode?: ListBoxProps_2<object>['selectionMode'];
+  selectionMode?: ListBoxProps<object>['selectionMode'];
 };
 
 // @public (undocumented)
 export interface MenuAutocompleteListBoxProps<T>
   extends MenuAutocompleteListBoxOwnProps,
-    Omit<ListBoxProps_2<T>, keyof MenuAutocompleteListBoxOwnProps> {}
+    Omit<ListBoxProps<T>, keyof MenuAutocompleteListBoxOwnProps> {}
 
 // @public (undocumented)
 export type MenuAutocompleteOwnProps = MenuPopoverOwnProps & {
@@ -1740,17 +1740,17 @@ export type MenuListBoxItemOwnProps = {
 // @public (undocumented)
 export interface MenuListBoxItemProps
   extends MenuListBoxItemOwnProps,
-    Omit<ListBoxItemProps_2, keyof MenuListBoxItemOwnProps> {}
+    Omit<ListBoxItemProps, keyof MenuListBoxItemOwnProps> {}
 
 // @public (undocumented)
 export type MenuListBoxOwnProps = MenuPopoverOwnProps & {
-  selectionMode?: ListBoxProps_2<object>['selectionMode'];
+  selectionMode?: ListBoxProps<object>['selectionMode'];
 };
 
 // @public (undocumented)
 export interface MenuListBoxProps<T>
   extends MenuListBoxOwnProps,
-    Omit<ListBoxProps_2<T>, keyof MenuListBoxOwnProps> {}
+    Omit<ListBoxProps<T>, keyof MenuListBoxOwnProps> {}
 
 // @public (undocumented)
 export type MenuOwnProps = MenuPopoverOwnProps;

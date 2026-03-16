@@ -15,32 +15,33 @@
  */
 
 import {
-  ListBox as RAListBox,
-  ListBoxItem as RAListBoxItem,
+  GridList as RAGridList,
+  GridListItem as RAGridListItem,
   Text,
 } from 'react-aria-components';
 import { RiCheckLine, RiMoreLine } from '@remixicon/react';
 import { useDefinition } from '../../hooks/useDefinition';
-import { ListBoxDefinition, ListBoxItemDefinition } from './definition';
-import type { ListBoxProps, ListBoxItemProps } from './types';
+import { ListDefinition, ListRowDefinition } from './definition';
+import type { ListProps, ListRowProps } from './types';
 import { Box } from '../Box/Box';
 import { ButtonIcon } from '../ButtonIcon';
 import { MenuTrigger, Menu } from '../Menu';
 
 /**
- * A listbox displays a list of options and allows a user to select one or more of them.
+ * A list displays a list of interactive rows with support for keyboard
+ * navigation, single or multiple selection, and row actions.
  *
  * @public
  */
-export const ListBox = <T extends object>(props: ListBoxProps<T>) => {
+export const List = <T extends object>(props: ListProps<T>) => {
   const { ownProps, restProps, dataAttributes } = useDefinition(
-    ListBoxDefinition,
+    ListDefinition,
     props,
   );
   const { classes, items, children, renderEmptyState } = ownProps;
 
   return (
-    <RAListBox
+    <RAGridList
       className={classes.root}
       items={items}
       renderEmptyState={renderEmptyState}
@@ -48,18 +49,18 @@ export const ListBox = <T extends object>(props: ListBoxProps<T>) => {
       {...restProps}
     >
       {children}
-    </RAListBox>
+    </RAGridList>
   );
 };
 
 /**
- * An item within a ListBox.
+ * A row within a List.
  *
  * @public
  */
-export const ListBoxItem = (props: ListBoxItemProps) => {
+export const ListRow = (props: ListRowProps) => {
   const { ownProps, restProps, dataAttributes } = useDefinition(
-    ListBoxItemDefinition,
+    ListRowDefinition,
     props,
   );
   const { classes, children, description, icon, menuItems, customActions } =
@@ -68,7 +69,7 @@ export const ListBoxItem = (props: ListBoxItemProps) => {
   const textValue = typeof children === 'string' ? children : undefined;
 
   return (
-    <RAListBoxItem
+    <RAGridListItem
       textValue={textValue}
       className={classes.root}
       {...dataAttributes}
@@ -87,7 +88,7 @@ export const ListBoxItem = (props: ListBoxItemProps) => {
             </Box>
           )}
           <div className={classes.label}>
-            <Text slot="label">{children}</Text>
+            <span>{children}</span>
             {description && (
               <Text slot="description" className={classes.description}>
                 {description}
@@ -95,20 +96,10 @@ export const ListBoxItem = (props: ListBoxItemProps) => {
             )}
           </div>
           {customActions && (
-            <div
-              className={classes.actions}
-              onClick={e => e.stopPropagation()}
-              onKeyDown={e => e.stopPropagation()}
-            >
-              {customActions}
-            </div>
+            <div className={classes.actions}>{customActions}</div>
           )}
           {menuItems && (
-            <div
-              className={classes.actions}
-              onClick={e => e.stopPropagation()}
-              onKeyDown={e => e.stopPropagation()}
-            >
+            <div className={classes.actions}>
               <MenuTrigger>
                 <ButtonIcon
                   icon={<RiMoreLine />}
@@ -122,6 +113,6 @@ export const ListBoxItem = (props: ListBoxItemProps) => {
           )}
         </>
       )}
-    </RAListBoxItem>
+    </RAGridListItem>
   );
 };

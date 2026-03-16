@@ -2,6 +2,6 @@
 '@backstage/ui': patch
 ---
 
-Added `ListBox` and `ListBoxItem` components. These provide a standalone, accessible list of selectable options built on top of React Aria's `ListBox` and `ListBoxItem` primitives. Items support icons, descriptions, and single or multiple selection modes.
+Added `List` and `ListRow` components. These provide a standalone, accessible list of interactive rows built on top of React Aria's `GridList` and `GridListItem` primitives. Rows support icons, descriptions, actions, menus, and single or multiple selection modes.
 
-**Affected components:** ListBox, ListBoxItem
+**Affected components:** List, ListRow

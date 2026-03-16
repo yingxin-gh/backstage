@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-export { ListBox, ListBoxItem } from './ListBox';
+export { List, ListRow } from './List';
 export type {
-  ListBoxProps,
-  ListBoxOwnProps,
-  ListBoxItemProps,
-  ListBoxItemOwnProps,
+  ListProps,
+  ListOwnProps,
+  ListRowProps,
+  ListRowOwnProps,
 } from './types';
-export { ListBoxDefinition, ListBoxItemDefinition } from './definition';
+export { ListDefinition, ListRowDefinition } from './definition';

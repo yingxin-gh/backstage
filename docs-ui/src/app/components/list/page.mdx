@@ -10,7 +10,7 @@ import {
   SelectionModeMultiple,
   Disabled,
 } from './components';
-import { listBoxPropDefs, listBoxItemPropDefs } from './props-definition';
+import { listPropDefs, listRowPropDefs } from './props-definition';
 import {
   usage,
   preview,
@@ -23,18 +23,18 @@ import {
 import { PageTitle } from '@/components/PageTitle';
 import { Theming } from '@/components/Theming';
 import {
-  ListBoxDefinition,
-  ListBoxItemDefinition,
+  ListDefinition,
+  ListRowDefinition,
 } from '../../../utils/definitions';
 import { ChangelogComponent } from '@/components/ChangelogComponent';
 
 export const reactAriaUrls = {
-  listBox: 'https://react-aria.adobe.com/ListBox',
+  gridList: 'https://react-aria.adobe.com/GridList',
 };
 
 <PageTitle
-  title="ListBox"
-  description="A list of options that allows users to select one or more items."
+  title="List"
+  description="A list of interactive rows with support for keyboard navigation, single or multiple selection, and row actions."
 />
 
 <Snippet align="center" py={4} preview={<Default />} code={preview} />
@@ -45,21 +45,21 @@ export const reactAriaUrls = {
 
 ## API reference
 
-### ListBox
+### List
 
-Container for a list of selectable options.
+Container for a list of interactive rows.
 
-<PropsTable data={listBoxPropDefs} />
+<PropsTable data={listPropDefs} />
 
-<ReactAriaLink component="ListBox" href={reactAriaUrls.listBox} />
+<ReactAriaLink component="GridList" href={reactAriaUrls.gridList} />
 
-### ListBoxItem
+### ListRow
 
-Individual item within a ListBox.
+Individual row within a List.
 
-<PropsTable data={listBoxItemPropDefs} />
+<PropsTable data={listRowPropDefs} />
 
-<ReactAriaLink component="ListBoxItem" href={reactAriaUrls.listBox} />
+<ReactAriaLink component="GridListItem" href={reactAriaUrls.gridList} />
 
 ## Examples
 
@@ -101,6 +101,6 @@ Individual item within a ListBox.
 
 <Snippet align="center" py={4} open preview={<Disabled />} code={disabled} />
 
-<Theming definition={ListBoxDefinition} />
+<Theming definition={ListDefinition} />
 
-<ChangelogComponent component="list-box" />
+<ChangelogComponent component="list" />

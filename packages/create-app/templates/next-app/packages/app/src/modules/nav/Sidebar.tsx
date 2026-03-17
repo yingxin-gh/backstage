@@ -24,6 +24,8 @@ export const SidebarContent = NavContentBlueprint.make({
       const nav = navItems.withComponent(item => (
         <SidebarItem icon={() => item.icon} to={item.href} text={item.title} />
       ));
+      // Skipped items
+      nav.take('page:search');
       return compatWrapper(
         <Sidebar>
           <SidebarLogo />

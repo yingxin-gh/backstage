@@ -18,6 +18,7 @@ import { forwardRef, Ref, useRef, useLayoutEffect, useState } from 'react';
 import { useToast } from '@react-aria/toast';
 import { useButton } from '@react-aria/button';
 import { motion } from 'motion/react';
+import { Box } from '@backstage/ui';
 import {
   RiInformationLine,
   RiCheckLine,
@@ -27,6 +28,8 @@ import {
 } from '@remixicon/react';
 import type { ToastApiMessageProps } from './types';
 import styles from './Toast.module.css';
+// eslint-disable-next-line @backstage/no-relative-monorepo-imports
+import { BgReset } from '../../../../../packages/ui/src/hooks/useBg';
 
 // Track which toasts are being manually closed (vs auto-timeout)
 // This allows different exit animations for each case
@@ -225,34 +228,40 @@ export const Toast = forwardRef(
         transition={{ type: 'spring', stiffness: 400, damping: 35 }}
         data-status={finalStatus}
       >
-        <div className={styles.wrapper}>
-          {statusIcon && <div className={styles.icon}>{statusIcon}</div>}
-          <div className={styles.content}>
-            <div {...titleProps} className={styles.title}>
-              {content.title}
-            </div>
-            {content.description && (
-              <div className={styles.description}>{content.description}</div>
-            )}
-            {content.links && content.links.length > 0 && (
-              <div className={styles.links}>
-                {content.links.map(link => (
-                  <a key={link.href} href={link.href}>
-                    {link.label}
-                  </a>
-                ))}
+        <BgReset>
+          <Box className={styles.surface}>
+            <div className={styles.wrapper}>
+              {statusIcon && <div className={styles.icon}>{statusIcon}</div>}
+              <div className={styles.content}>
+                <div {...titleProps} className={styles.title}>
+                  {content.title}
+                </div>
+                {content.description && (
+                  <div className={styles.description}>
+                    {content.description}
+                  </div>
+                )}
+                {content.links && content.links.length > 0 && (
+                  <div className={styles.links}>
+                    {content.links.map(link => (
+                      <a key={link.href} href={link.href}>
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-        {/* eslint-disable-next-line react/forbid-elements */}
-        <button
-          {...buttonProps}
-          ref={closeButtonRef}
-          className={styles.closeButton}
-        >
-          <RiCloseLine aria-hidden="true" />
-        </button>
+            </div>
+            {/* eslint-disable-next-line react/forbid-elements */}
+            <button
+              {...buttonProps}
+              ref={closeButtonRef}
+              className={styles.closeButton}
+            >
+              <RiCloseLine aria-hidden="true" />
+            </button>
+          </Box>
+        </BgReset>
       </motion.div>
     );
   },

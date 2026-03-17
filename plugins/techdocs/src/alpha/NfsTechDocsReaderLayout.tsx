@@ -22,7 +22,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import CodeIcon from '@material-ui/icons/Code';
 import capitalize from 'lodash/capitalize';
 import { useParams } from 'react-router-dom';
-import { HeaderLabel } from '@backstage/core-components';
+import { HeaderLabel, Page } from '@backstage/core-components';
 import { HeaderPage } from '@backstage/ui';
 import {
   useTechDocsAddons,
@@ -39,9 +39,10 @@ import {
   RELATION_OWNED_BY,
   stringifyEntityRef,
 } from '@backstage/catalog-model';
-import { configApiRef, useApi } from '@backstage/core-plugin-api';
+import { configApiRef, useApi, useRouteRef } from '@backstage/core-plugin-api';
 import { TechDocsReaderPageContent } from '../reader/components/TechDocsReaderPageContent';
 import { TechDocsReaderPageSubheader } from '../reader/components/TechDocsReaderPageSubheader';
+import { rootDocsRouteRef } from '../routes';
 
 const skeleton = <Skeleton animation="wave" variant="text" height={40} />;
 
@@ -50,6 +51,7 @@ const NfsTechDocsReaderPageHeader = (props: PropsWithChildren<{}>) => {
   const addons = useTechDocsAddons();
   const configApi = useApi(configApiRef);
   const entityPresentationApi = useApi(entityPresentationApiRef);
+  const docsRootLink = useRouteRef(rootDocsRouteRef)();
   const { '*': path = '' } = useParams();
 
   const {
@@ -161,7 +163,8 @@ const NfsTechDocsReaderPageHeader = (props: PropsWithChildren<{}>) => {
         <title>{tabTitle}</title>
       </Helmet>
       <HeaderPage
-        title={title || ''}
+        title={title || 'Documentation'}
+        breadcrumbs={[{ label: 'Documentation', href: docsRootLink }]}
         customActions={
           <>
             {children}
@@ -193,10 +196,10 @@ export const NfsTechDocsReaderLayout = (
   const { withSearch, withHeader = true } = props;
 
   return (
-    <>
+    <Page themeId="documentation">
       {withHeader && <NfsTechDocsReaderPageHeader />}
       <TechDocsReaderPageSubheader />
       <TechDocsReaderPageContent withSearch={withSearch} />
-    </>
+    </Page>
   );
 };

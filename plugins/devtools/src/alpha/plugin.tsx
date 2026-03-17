@@ -16,6 +16,7 @@
 
 import {
   createFrontendPlugin,
+  coreExtensionData,
   discoveryApiRef,
   fetchApiRef,
   ApiBlueprint,
@@ -50,11 +51,34 @@ export const devToolsApi = ApiBlueprint.make({
 });
 
 /** @alpha */
-export const devToolsPage = PageBlueprint.make({
-  params: {
-    path: '/devtools',
-    routeRef: rootRouteRef,
-    title: 'DevTools',
+export const devToolsPage = PageBlueprint.makeWithOverrides({
+  factory(originalFactory, { inputs }) {
+    const pages = [...inputs.pages].sort((left, right) => {
+      const leftPath = left.get(coreExtensionData.routePath);
+      const rightPath = right.get(coreExtensionData.routePath);
+
+      if (leftPath === 'info' && rightPath !== 'info') {
+        return -1;
+      }
+      if (leftPath !== 'info' && rightPath === 'info') {
+        return 1;
+      }
+
+      return 0;
+    });
+
+    return originalFactory(
+      {
+        path: '/devtools',
+        routeRef: rootRouteRef,
+        title: 'DevTools',
+      },
+      {
+        inputs: {
+          pages,
+        },
+      },
+    );
   },
 });
 

@@ -15,7 +15,9 @@
  */
 
 import { FC, ReactNode } from 'react';
+import Box from '@material-ui/core/Box';
 import { useOutlet } from 'react-router-dom';
+import { Page } from '@backstage/core-components';
 import { HeaderPage } from '@backstage/ui';
 import {
   TechDocsIndexPageProps,
@@ -30,10 +32,11 @@ const NfsTechDocsPageWrapper: FC<{ children?: ReactNode }> = ({ children }) => {
   }`;
 
   return (
-    <>
-      <HeaderPage title={generatedSubtitle} />
+    <Page themeId="documentation">
+      <HeaderPage title="Documentation" />
+      <Box mt={2}>{generatedSubtitle}</Box>
       {children}
-    </>
+    </Page>
   );
 };
 

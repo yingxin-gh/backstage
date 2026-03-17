@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import Box from '@material-ui/core/Box';
 import { Content, Header, Page } from '@backstage/core-components';
 import { HeaderPage } from '@backstage/ui';
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 
 type HeaderVariant = 'legacy' | 'bui';
 
@@ -55,19 +57,44 @@ export const ScaffolderPageLayout = (props: ScaffolderPageLayoutProps) => {
     children
   );
 
+  useEffect(() => {
+    if (!pageTitleOverride) {
+      return;
+    }
+
+    document.title = pageTitleOverride;
+  }, [pageTitleOverride]);
+
   if (headerVariant === 'bui') {
     let buiTitle: string | undefined;
     if (typeof title === 'string') {
       buiTitle = title;
+    } else if (pageTitleOverride) {
+      buiTitle = pageTitleOverride;
     } else if (typeof subtitle === 'string') {
       buiTitle = subtitle;
     }
 
+    const breadcrumbs =
+      type && typeLink ? [{ label: type, href: typeLink }] : undefined;
+    const customTitle = typeof title === 'string' ? undefined : title;
+    const hasHeaderDetails = Boolean(customTitle) || Boolean(subtitle);
+
     return (
-      <>
-        <HeaderPage title={buiTitle} customActions={headerActions} />
+      <Page themeId={themeId}>
+        <HeaderPage
+          title={buiTitle}
+          breadcrumbs={breadcrumbs}
+          customActions={headerActions}
+        />
+        {hasHeaderDetails && (
+          <Box mt={2}>
+            {customTitle}
+            {subtitle && <Box mt={customTitle ? 1 : 0}>{subtitle}</Box>}
+          </Box>
+        )}
         {pageContent}
-      </>
+      </Page>
     );
   }
 

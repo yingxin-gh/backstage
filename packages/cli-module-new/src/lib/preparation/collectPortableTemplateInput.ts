@@ -105,6 +105,7 @@ export async function collectPortableTemplateInput(
   );
 
   const answers = {
+    ...parameters,
     ...prefilledAnswers,
     ...promptAnswers,
   };

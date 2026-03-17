@@ -45,6 +45,8 @@ const _default: OverridableFrontendPlugin<
       };
     }>;
     'page:user-settings': OverridableExtensionDefinition<{
+      kind: 'page';
+      name: undefined;
       config: {
         path: string | undefined;
         title: string | undefined;
@@ -108,6 +110,44 @@ const _default: OverridableFrontendPlugin<
             internal: false;
           }
         >;
+      };
+      params: {
+        path: string;
+        title?: string;
+        icon?: IconElement;
+        loader?: () => Promise<JSX_2.Element>;
+        routeRef?: RouteRef;
+        noHeader?: boolean;
+      };
+    }>;
+    'sub-page:user-settings/auth-providers': OverridableExtensionDefinition<{
+      config: {
+        path: string | undefined;
+        title: string | undefined;
+      };
+      configInput: {
+        title?: string | undefined;
+        path?: string | undefined;
+      };
+      output:
+        | ExtensionDataRef<string, 'core.routing.path', {}>
+        | ExtensionDataRef<
+            RouteRef<AnyRouteRefParams>,
+            'core.routing.ref',
+            {
+              optional: true;
+            }
+          >
+        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
+        | ExtensionDataRef<string, 'core.title', {}>
+        | ExtensionDataRef<
+            IconElement,
+            'core.icon',
+            {
+              optional: true;
+            }
+          >;
+      inputs: {
         providerSettings: ExtensionInput<
           ConfigurableExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>,
           {
@@ -117,15 +157,90 @@ const _default: OverridableFrontendPlugin<
           }
         >;
       };
-      kind: 'page';
-      name: undefined;
+      kind: 'sub-page';
+      name: 'auth-providers';
       params: {
         path: string;
-        title?: string;
+        title: string;
         icon?: IconElement;
-        loader?: () => Promise<JSX_2.Element>;
+        loader: () => Promise<JSX.Element>;
         routeRef?: RouteRef;
-        noHeader?: boolean;
+      };
+    }>;
+    'sub-page:user-settings/feature-flags': OverridableExtensionDefinition<{
+      kind: 'sub-page';
+      name: 'feature-flags';
+      config: {
+        path: string | undefined;
+        title: string | undefined;
+      };
+      configInput: {
+        title?: string | undefined;
+        path?: string | undefined;
+      };
+      output:
+        | ExtensionDataRef<string, 'core.routing.path', {}>
+        | ExtensionDataRef<
+            RouteRef<AnyRouteRefParams>,
+            'core.routing.ref',
+            {
+              optional: true;
+            }
+          >
+        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
+        | ExtensionDataRef<string, 'core.title', {}>
+        | ExtensionDataRef<
+            IconElement,
+            'core.icon',
+            {
+              optional: true;
+            }
+          >;
+      inputs: {};
+      params: {
+        path: string;
+        title: string;
+        icon?: IconElement;
+        loader: () => Promise<JSX.Element>;
+        routeRef?: RouteRef;
+      };
+    }>;
+    'sub-page:user-settings/general': OverridableExtensionDefinition<{
+      kind: 'sub-page';
+      name: 'general';
+      config: {
+        path: string | undefined;
+        title: string | undefined;
+      };
+      configInput: {
+        title?: string | undefined;
+        path?: string | undefined;
+      };
+      output:
+        | ExtensionDataRef<string, 'core.routing.path', {}>
+        | ExtensionDataRef<
+            RouteRef<AnyRouteRefParams>,
+            'core.routing.ref',
+            {
+              optional: true;
+            }
+          >
+        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
+        | ExtensionDataRef<string, 'core.title', {}>
+        | ExtensionDataRef<
+            IconElement,
+            'core.icon',
+            {
+              optional: true;
+            }
+          >;
+      inputs: {};
+      params: {
+        path: string;
+        title: string;
+        icon?: IconElement;
+        loader: () => Promise<JSX.Element>;
+        routeRef?: RouteRef;
       };
     }>;
   }
@@ -177,10 +292,10 @@ export const userSettingsTranslationRef: TranslationRef<
     readonly 'themeToggle.select': 'Select {{theme}}';
     readonly 'themeToggle.title': 'Theme';
     readonly 'themeToggle.description': 'Change the theme mode';
+    readonly 'themeToggle.selectAuto': 'Select Auto Theme';
     readonly 'themeToggle.names.auto': 'Auto';
     readonly 'themeToggle.names.dark': 'Dark';
     readonly 'themeToggle.names.light': 'Light';
-    readonly 'themeToggle.selectAuto': 'Select Auto Theme';
     readonly 'signOutMenu.title': 'Sign Out';
     readonly 'signOutMenu.moreIconTitle': 'more';
     readonly 'pinToggle.title': 'Pin Sidebar';
@@ -197,10 +312,10 @@ export const userSettingsTranslationRef: TranslationRef<
     readonly 'emptyProviders.action.title': 'Open app-config.yaml and make the changes as highlighted below:';
     readonly 'emptyProviders.action.readMoreButtonTitle': 'Read More';
     readonly 'emptyProviders.description': 'You can add Authentication Providers to Backstage which allows you to use these providers to authenticate yourself.';
-    readonly 'providerSettingsItem.title.signOut': 'Sign out from {{title}}';
     readonly 'providerSettingsItem.title.signIn': 'Sign in to {{title}}';
-    readonly 'providerSettingsItem.buttonTitle.signOut': 'Sign out';
+    readonly 'providerSettingsItem.title.signOut': 'Sign out from {{title}}';
     readonly 'providerSettingsItem.buttonTitle.signIn': 'Sign in';
+    readonly 'providerSettingsItem.buttonTitle.signOut': 'Sign out';
     readonly 'authProviders.title': 'Available Providers';
     readonly 'defaultSettingsPage.tabsTitle.featureFlags': 'Feature Flags';
     readonly 'defaultSettingsPage.tabsTitle.authProviders': 'Authentication Providers';

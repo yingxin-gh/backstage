@@ -2594,7 +2594,7 @@ __metadata:
     winston-transport: "npm:^4.5.0"
     yauzl: "npm:^3.0.0"
     yn: "npm:^4.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   peerDependencies:
     "@google-cloud/cloud-sql-connector": ^1.4.0
@@ -2703,7 +2703,7 @@ __metadata:
     json-schema: "npm:^0.4.0"
     knex: "npm:^3.0.0"
     luxon: "npm:^3.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -2746,7 +2746,7 @@ __metadata:
     text-extensions: "npm:^2.4.0"
     uuid: "npm:^11.0.0"
     yn: "npm:^4.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   peerDependencies:
     "@types/jest": "*"
@@ -3162,7 +3162,7 @@ __metadata:
     pirates: "npm:^4.0.6"
     semver: "npm:^7.5.3"
     yaml: "npm:^2.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@swc/core": ^1.15.6
   peerDependenciesMeta:
@@ -3339,7 +3339,7 @@ __metadata:
     react-router-stable: "npm:react-router@^6.3.0"
     react-use: "npm:^17.2.4"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -3376,7 +3376,7 @@ __metadata:
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"
     react-router-dom: "npm:^6.30.2"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -3459,7 +3459,7 @@ __metadata:
     rehype-sanitize: "npm:^5.0.0"
     remark-gfm: "npm:^3.0.1"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -3492,7 +3492,7 @@ __metadata:
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"
     react-router-dom: "npm:^6.30.2"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -3615,7 +3615,7 @@ __metadata:
     "@backstage/config": "workspace:^"
     "@backstage/errors": "workspace:^"
     "@backstage/types": "workspace:^"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-validation-error: "npm:^4.0.2"
   languageName: unknown
   linkType: soft
@@ -3645,7 +3645,7 @@ __metadata:
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"
     react-router-dom: "npm:^6.30.2"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -3770,7 +3770,7 @@ __metadata:
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"
     react-router-dom: "npm:^6.30.2"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
@@ -3811,7 +3811,7 @@ __metadata:
     react-dom: "npm:^18.0.2"
     react-router-dom: "npm:^6.30.2"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@testing-library/react": ^16.0.0
     "@types/jest": "*"
@@ -4136,7 +4136,7 @@ __metadata:
     react-router-dom: "npm:^6.30.2"
     react-use: "npm:^17.2.4"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -4163,7 +4163,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-atlassian-oauth2: "npm:^2.1.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4206,7 +4206,7 @@ __metadata:
     jose: "npm:^5.0.0"
     msw: "npm:^2.0.8"
     node-cache: "npm:^5.1.2"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4225,7 +4225,7 @@ __metadata:
     express: "npm:^4.22.0"
     jose: "npm:^5.0.0"
     passport: "npm:^0.7.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4244,7 +4244,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-bitbucket-oauth2: "npm:^0.1.2"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4263,7 +4263,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-oauth2: "npm:^1.6.1"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4285,7 +4285,7 @@ __metadata:
     msw: "npm:^2.0.0"
     node-mocks-http: "npm:^1.0.0"
     uuid: "npm:^11.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4301,7 +4301,7 @@ __metadata:
     "@backstage/types": "workspace:^"
     express: "npm:^4.22.0"
     google-auth-library: "npm:^9.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4319,7 +4319,7 @@ __metadata:
     "@types/passport-github2": "npm:^1.2.4"
     passport-github2: "npm:^0.1.12"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4338,7 +4338,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-gitlab2: "npm:^5.0.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4356,7 +4356,7 @@ __metadata:
     google-auth-library: "npm:^9.0.0"
     passport-google-oauth20: "npm:^2.0.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4394,7 +4394,7 @@ __metadata:
     msw: "npm:^1.0.0"
     passport-microsoft: "npm:^1.0.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4412,7 +4412,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-oauth2: "npm:^1.6.1"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4426,7 +4426,7 @@ __metadata:
     "@backstage/errors": "workspace:^"
     "@backstage/plugin-auth-node": "workspace:^"
     jose: "npm:^5.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4451,7 +4451,7 @@ __metadata:
     openid-client: "npm:^5.5.0"
     passport: "npm:^0.7.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4470,7 +4470,7 @@ __metadata:
     express: "npm:^4.22.0"
     passport: "npm:^0.7.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4489,7 +4489,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-onelogin-oauth: "npm:^0.0.1"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4510,7 +4510,7 @@ __metadata:
     msw: "npm:^2.7.3"
     passport-oauth2: "npm:^1.8.0"
     supertest: "npm:^7.1.0"
-    zod: "npm:^3.24.2"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -4597,7 +4597,7 @@ __metadata:
     passport: "npm:^0.7.0"
     supertest: "npm:^7.0.0"
     uuid: "npm:^11.0.0"
-    zod: "npm:^4.3.5"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-validation-error: "npm:^5.0.0"
   languageName: unknown
   linkType: soft
@@ -4626,7 +4626,7 @@ __metadata:
     passport: "npm:^0.7.0"
     supertest: "npm:^7.0.0"
     uuid: "npm:^11.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
     zod-validation-error: "npm:^4.0.2"
   languageName: unknown
@@ -5155,7 +5155,7 @@ __metadata:
     winston: "npm:^3.13.0"
     yaml: "npm:^2.0.0"
     yn: "npm:^4.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-validation-error: "npm:^4.0.2"
   languageName: unknown
   linkType: soft
@@ -5339,7 +5339,7 @@ __metadata:
     react-use: "npm:^17.2.4"
     yaml: "npm:^2.0.0"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@backstage/frontend-test-utils": "workspace:^"
     "@types/react": ^17.0.0 || ^18.0.0
@@ -5878,7 +5878,7 @@ __metadata:
     react-resizable: "npm:^3.0.4"
     react-router-dom: "npm:^6.30.2"
     react-use: "npm:^17.2.4"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
     react: ^17.0.0 || ^18.0.0
@@ -6108,7 +6108,7 @@ __metadata:
     express-promise-router: "npm:^4.1.0"
     minimatch: "npm:^10.2.1"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6412,7 +6412,7 @@ __metadata:
     msw: "npm:^1.0.0"
     supertest: "npm:^7.0.0"
     yn: "npm:^4.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6427,7 +6427,7 @@ __metadata:
     cross-fetch: "npm:^4.0.0"
     msw: "npm:^1.0.0"
     uuid: "npm:^11.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   languageName: unknown
   linkType: soft
@@ -6450,7 +6450,7 @@ __metadata:
     express-promise-router: "npm:^4.1.0"
     msw: "npm:^1.0.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   languageName: unknown
   linkType: soft
@@ -6551,7 +6551,7 @@ __metadata:
     fs-extra: "npm:^11.2.0"
     msw: "npm:^1.0.0"
     yaml: "npm:^2.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6690,7 +6690,7 @@ __metadata:
     octokit: "npm:^3.0.0"
     octokit-plugin-create-pull-request: "npm:^5.0.0"
     yaml: "npm:^2.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6711,7 +6711,7 @@ __metadata:
     "@gitbeaker/rest": "npm:^43.8.0"
     luxon: "npm:^3.0.0"
     yaml: "npm:^2.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6836,7 +6836,7 @@ __metadata:
     winston-transport: "npm:^4.7.0"
     yaml: "npm:^2.0.0"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   languageName: unknown
   linkType: soft
@@ -6915,7 +6915,7 @@ __metadata:
     tar: "npm:^7.5.6"
     winston: "npm:^3.2.1"
     winston-transport: "npm:^4.7.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   peerDependencies:
     "@backstage/backend-test-utils": "workspace:^"
@@ -6980,7 +6980,7 @@ __metadata:
     swr: "npm:^2.0.0"
     use-immer: "npm:^0.11.0"
     zen-observable: "npm:^0.10.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   peerDependencies:
     "@backstage/frontend-test-utils": "workspace:^"
@@ -7065,7 +7065,7 @@ __metadata:
     react-window: "npm:^1.8.10"
     swr: "npm:^2.0.0"
     yaml: "npm:^2.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
     zod-to-json-schema: "npm:^3.25.1"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0
@@ -7234,7 +7234,7 @@ __metadata:
     qs: "npm:^6.10.1"
     supertest: "npm:^7.0.0"
     yn: "npm:^4.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -7700,7 +7700,7 @@ __metadata:
     knex: "npm:^3.0.0"
     p-limit: "npm:^3.1.0"
     supertest: "npm:^7.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -7822,7 +7822,7 @@ __metadata:
     ts-morph: "npm:^24.0.0"
     typedoc: "npm:^0.28.0"
     yaml-diff-patch: "npm:^2.0.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   peerDependencies:
     "@microsoft/api-extractor-model": "*"
     "@microsoft/tsdoc": "*"
@@ -10042,7 +10042,7 @@ __metadata:
     "@backstage/cli": "workspace:^"
     "@backstage/frontend-plugin-api": "workspace:^"
     "@backstage/plugin-scaffolder-react": "workspace:^"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -31204,13 +31204,13 @@ __metadata:
   linkType: hard
 
 "express-rate-limit@npm:^8.2.1, express-rate-limit@npm:^8.2.2":
-  version: 8.3.1
-  resolution: "express-rate-limit@npm:8.3.1"
+  version: 8.3.0
+  resolution: "express-rate-limit@npm:8.3.0"
   dependencies:
     ip-address: "npm:10.1.0"
   peerDependencies:
     express: ">= 4.11"
-  checksum: 10/dd97bfc48c01a6d4c5433203232b5e7a1e55e21322bde49033e5f8c4339584fe671a94096144a0810f4ea21dcec8aaaf15823109627e609f8ed1bc5912a345cf
+  checksum: 10/e896a66fecc10639e65873186fdfb71f19d6af650220eb7ea5450725215c3eed8dc6ddcfa1e68a9db8c9facc3326fbc281512ad3ccd8f107f42a2466ce12c18c
   languageName: node
   linkType: hard
 
@@ -39012,14 +39012,14 @@ __metadata:
   linkType: hard
 
 "mini-css-extract-plugin@npm:^2.4.2":
-  version: 2.10.1
-  resolution: "mini-css-extract-plugin@npm:2.10.1"
+  version: 2.10.0
+  resolution: "mini-css-extract-plugin@npm:2.10.0"
   dependencies:
     schema-utils: "npm:^4.0.0"
     tapable: "npm:^2.2.1"
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 10/2d0cecc3bea85cd7f9b1ce0974f1672976d610a9267e2988ff19f5d03b017bff12b32151a412de0f519a70be7d3b050b499b20101445fb21728cc2d35dd4041a
+  checksum: 10/bae5350ab82171c6c9a22a4397df14aa69280f5ff0e1ff4d2429ea841bc096927b1e27ba7b75a9c3dd77bd44bab449d6197bd748381f1326cbc8befcb10d1a9e
   languageName: node
   linkType: hard
 
@@ -45547,7 +45547,7 @@ __metadata:
     typescript: "npm:~5.7.0"
     vite: "npm:^7.1.5"
     yaml: "npm:^2.7.0"
-    zod: "npm:^3.25.76"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -49294,9 +49294,9 @@ __metadata:
   linkType: hard
 
 "undici@npm:^7.2.3, undici@npm:^7.22.0":
-  version: 7.24.4
-  resolution: "undici@npm:7.24.4"
-  checksum: 10/747e76e0fd685ae1bb6fc1a2ebce0caca4ee8bd5599a77da36a3f94eac146987a9547bdbec7a74d18c0776df8ad348dccb4209901ca83fc4076f560de0d5dc7a
+  version: 7.22.0
+  resolution: "undici@npm:7.22.0"
+  checksum: 10/a7a1813ba4b74c0d46cc8dd160386202c05699ffc487c5d882cf40e6d2435c8d6faff3b8f8675d09bd1ef0386e370675c26b59b9a8c8b3f17b9f82a42236a927
   languageName: node
   linkType: hard
 
@@ -51065,12 +51065,12 @@ __metadata:
   linkType: soft
 
 "yauzl@npm:^3.0.0":
-  version: 3.2.1
-  resolution: "yauzl@npm:3.2.1"
+  version: 3.2.0
+  resolution: "yauzl@npm:3.2.0"
   dependencies:
     buffer-crc32: "npm:~0.2.3"
     pend: "npm:~1.2.0"
-  checksum: 10/15dfae75fbfe59c6a1b7a2cb27a995cda0ee70549d32d6b19937e84897436170f169f6bbefc34b9e9beb9c9114a1b8a8a40e7687a907909a19681ebcbf35a1f3
+  checksum: 10/a3cd2bfcf7590673bb35750f2a4e5107e3cc939d32d98a072c0673fe42329e390f471b4a53dbbd72512229099b18aa3b79e6ddb87a73b3a17446080c903a2c4b
   languageName: node
   linkType: hard
 
@@ -51227,17 +51227,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.24.2, zod@npm:^3.25.76":
-  version: 3.25.76
-  resolution: "zod@npm:3.25.76"
-  checksum: 10/f0c963ec40cd96858451d1690404d603d36507c1fc9682f2dae59ab38b578687d542708a7fdbf645f77926f78c9ed558f57c3d3aa226c285f798df0c4da16995
-  languageName: node
-  linkType: hard
-
-"zod@npm:^3.25 || ^4.0, zod@npm:^4.1.11, zod@npm:^4.3.5":
+"zod@npm:^3.25 || ^4.0, zod@npm:^3.25.76 || ^4.0.0, zod@npm:^4.1.11":
   version: 4.3.6
   resolution: "zod@npm:4.3.6"
   checksum: 10/25fc0f62e01b557b4644bf0b393bbaf47542ab30877c37837ea8caf314a8713d220c7d7fe51f68ffa72f0e1018ddfa34d96f1973d23033f5a2a5a9b6b9d9da01
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.76":
+  version: 3.25.76
+  resolution: "zod@npm:3.25.76"
+  checksum: 10/f0c963ec40cd96858451d1690404d603d36507c1fc9682f2dae59ab38b578687d542708a7fdbf645f77926f78c9ed558f57c3d3aa226c285f798df0c4da16995
   languageName: node
   linkType: hard
 

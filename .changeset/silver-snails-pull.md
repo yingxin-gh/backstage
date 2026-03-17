@@ -8,7 +8,8 @@
 '@backstage/plugin-auth-backend-module-bitbucket-provider': patch
 '@backstage/plugin-auth-backend-module-microsoft-provider': patch
 '@backstage/plugin-auth-backend-module-openshift-provider': patch
-'@backstage/plugin-scaffolder-backend-module-cookiecutter': patch
+'@backstage/cli-module-auth': patch
+'@backstage/cli-module-new': patch
 '@backstage/plugin-auth-backend-module-onelogin-provider': patch
 '@backstage/plugin-auth-backend-module-aws-alb-provider': patch
 '@backstage/plugin-auth-backend-module-gcp-iap-provider': patch
@@ -23,7 +24,6 @@
 '@backstage/plugin-user-settings-backend': patch
 '@backstage/frontend-plugin-api': patch
 '@backstage/frontend-test-utils': patch
-'@internal/scaffolder': patch
 '@backstage/backend-plugin-api': patch
 '@backstage/backend-test-utils': patch
 '@backstage/plugin-mcp-actions-backend': patch
@@ -49,8 +49,6 @@
 '@backstage/plugin-scaffolder': patch
 '@backstage/cli-node': patch
 '@backstage/plugin-auth-node': patch
-'@backstage/plugin-api-docs': patch
-'@backstage/cli': patch
 '@backstage/plugin-home': patch
 '@backstage/plugin-app': patch
 ---

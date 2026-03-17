@@ -160,9 +160,14 @@ export const myPlugin = createBackendPlugin({
 
 ## Permissions
 
-Actions can optionally declare a `visibilityPermission` to control visibility and access through the Backstage permissions framework. When a permission is set, the action is only visible in listings and accessible by users who are authorized.
+Actions can optionally declare a `visibilityPermission` to control visibility and access through the Backstage permissions framework. This permission is evaluated without any resource context and is intended for unconditional (non-resource) permissions only. When such a permission is set, the action is only visible in listings and accessible by users who are authorized.
 
-When accessed via the Actions Service or the `/.backstage/actions/v1/...` HTTP endpoints, actions that are denied by the permission policy are filtered from list results and return a `404 Not Found` on invocation, as if they don't exist.
+When accessed via the Actions Service or the `/.backstage/actions/v1/...` HTTP endpoints, actions that are not authorized by the permission policy are filtered from list results and return a `404 Not Found` on invocation, as if they don't exist. In particular:
+
+- `ALLOW` decisions make the action visible and invokable.
+- `DENY` and `CONDITIONAL` decisions are both treated as not authorized, so the action is hidden from listings and returns `404 Not Found` when invoked.
+
+Because `visibilityPermission` is evaluated without resource context, resource-based or otherwise conditional permissions (that may normally return `CONDITIONAL` decisions) are not supported here and will effectively behave as denied.
 
 Permissions declared on actions are automatically registered with the `PermissionsRegistryService` so they appear in the permission policy system.
 

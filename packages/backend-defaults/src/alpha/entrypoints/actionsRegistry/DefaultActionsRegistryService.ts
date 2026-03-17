@@ -154,7 +154,7 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
             [{ permission: action.visibilityPermission }],
             { credentials },
           );
-          if (decision.result === AuthorizeResult.DENY) {
+          if (decision.result !== AuthorizeResult.ALLOW) {
             throw new NotFoundError(
               `Action "${req.params.actionId}" not found`,
             );
@@ -233,7 +233,7 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
 
     const deniedIds = new Set(
       permissionedEntries
-        .filter((_, index) => decisions[index].result === AuthorizeResult.DENY)
+        .filter((_, index) => decisions[index].result !== AuthorizeResult.ALLOW)
         .map(([id]) => id),
     );
 

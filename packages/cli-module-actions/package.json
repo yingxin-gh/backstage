@@ -1,7 +1,7 @@
 {
-  "name": "@backstage/cli-module-auth",
+  "name": "@backstage/cli-module-actions",
   "version": "0.0.0",
-  "description": "CLI module for Backstage CLI",
+  "description": "CLI module for executing distributed actions",
   "backstage": {
     "role": "cli-module"
   },
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/backstage/backstage",
-    "directory": "packages/cli-module-auth"
+    "directory": "packages/cli-module-actions"
   },
   "license": "Apache-2.0",
   "main": "src/index.ts",
@@ -23,6 +23,7 @@
     "dist",
     "bin"
   ],
+  "bin": "bin/backstage-cli-module-actions",
   "scripts": {
     "build": "backstage-cli package build",
     "clean": "backstage-cli package clean",
@@ -32,24 +33,12 @@
     "test": "backstage-cli package test"
   },
   "dependencies": {
+    "@backstage/cli-module-auth": "workspace:^",
     "@backstage/cli-node": "workspace:^",
-    "@backstage/errors": "workspace:^",
-    "cleye": "^2.3.0",
-    "fs-extra": "^11.2.0",
-    "glob": "^7.1.7",
-    "inquirer": "^8.2.0",
-    "proper-lockfile": "^4.1.2",
-    "yaml": "^2.0.0",
-    "zod": "^3.25.76"
+    "cleye": "^2.3.0"
   },
   "devDependencies": {
     "@backstage/backend-test-utils": "workspace:^",
-    "@backstage/cli": "workspace:^",
-    "@types/fs-extra": "^11.0.0",
-    "@types/proper-lockfile": "^4"
-  },
-  "optionalDependencies": {
-    "keytar": "^7.9.0"
-  },
-  "bin": "bin/backstage-cli-module-auth"
+    "@backstage/cli": "workspace:^"
+  }
 }

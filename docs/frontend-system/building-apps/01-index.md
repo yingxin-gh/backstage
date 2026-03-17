@@ -18,7 +18,7 @@ The create-app CLI requires Node.js Active LTS Release, see the [prerequisites d
 :::
 
 ```sh
-# The command bellow creates a Backstage App inside the current folder.
+# The command below creates a Backstage App inside the current folder.
 # The name of the app-folder is the name that was provided when prompted.
 npx @backstage/create-app@latest
 ```

@@ -162,6 +162,8 @@ describe('collectTemplateParams', () => {
     };
 
     it('should auto-fill pluginPackage for catalog plugin without prompting', async () => {
+      const promptSpy = jest.spyOn(inquirer, 'prompt');
+
       await expect(
         collectPortableTemplateInput({
           ...backendModuleOptions,
@@ -184,6 +186,9 @@ describe('collectTemplateParams', () => {
         packageName: '@internal/plugin-catalog-backend-module-my-module',
         packagePath: 'plugins/catalog-backend-module-my-module',
       });
+
+      const questions = promptSpy.mock.calls[0][0] as Array<{ name?: string }>;
+      expect(questions.some(q => q.name === 'pluginPackage')).toBe(false);
     });
 
     it('should prompt for pluginPackage for unknown plugins', async () => {
@@ -286,6 +291,8 @@ describe('collectTemplateParams', () => {
     };
 
     it('should auto-fill pluginPackage for catalog plugin without prompting', async () => {
+      const promptSpy = jest.spyOn(inquirer, 'prompt');
+
       await expect(
         collectPortableTemplateInput({
           ...frontendModuleOptions,
@@ -308,6 +315,9 @@ describe('collectTemplateParams', () => {
         packageName: '@internal/plugin-catalog-module-my-module',
         packagePath: 'plugins/catalog-module-my-module',
       });
+
+      const questions = promptSpy.mock.calls[0][0] as Array<{ name?: string }>;
+      expect(questions.some(q => q.name === 'pluginPackage')).toBe(false);
     });
 
     it('should prompt for pluginPackage for unknown plugins', async () => {

@@ -39,6 +39,7 @@ import { version as catalogClient } from '../../../catalog-client/package.json';
 import { version as catalogModel } from '../../../catalog-model/package.json';
 import { version as cli } from '../../../cli/package.json';
 import { version as cliDefaults } from '../../../cli-defaults/package.json';
+import { version as cliModuleNew } from '../../../cli-module-new/package.json';
 import { version as config } from '../../../config/package.json';
 import { version as coreAppApi } from '../../../core-app-api/package.json';
 import { version as coreCompatApi } from '../../../core-compat-api/package.json';
@@ -109,6 +110,7 @@ export const packageVersions = {
   '@backstage/catalog-model': catalogModel,
   '@backstage/cli': cli,
   '@backstage/cli-defaults': cliDefaults,
+  '@backstage/cli-module-new': cliModuleNew,
   '@backstage/config': config,
   '@backstage/core-app-api': coreAppApi,
   '@backstage/core-compat-api': coreCompatApi,

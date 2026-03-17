@@ -160,17 +160,21 @@ function extractPredicateKeyNames(
   if (typeof predicate !== 'object' || predicate === null) {
     return [];
   }
-  const typedPredicate = predicate as FilterPredicate & Record<string, unknown>;
-  if ('$all' in typedPredicate && Array.isArray(typedPredicate.$all)) {
-    return typedPredicate.$all.flatMap(p => extractPredicateKeyNames(p, key));
+  const obj = predicate as Record<string, unknown>;
+  if (Array.isArray(obj.$all)) {
+    return (obj.$all as FilterPredicate[]).flatMap(p =>
+      extractPredicateKeyNames(p, key),
+    );
   }
-  if ('$any' in typedPredicate && Array.isArray(typedPredicate.$any)) {
-    return typedPredicate.$any.flatMap(p => extractPredicateKeyNames(p, key));
+  if (Array.isArray(obj.$any)) {
+    return (obj.$any as FilterPredicate[]).flatMap(p =>
+      extractPredicateKeyNames(p, key),
+    );
   }
-  if ('$not' in typedPredicate && typedPredicate.$not !== undefined) {
-    return extractPredicateKeyNames(typedPredicate.$not, key);
+  if (obj.$not !== undefined) {
+    return extractPredicateKeyNames(obj.$not as FilterPredicate, key);
   }
-  const value = typedPredicate[key];
+  const value = obj[key];
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
     const contains = (value as Record<string, unknown>).$contains;
     if (typeof contains === 'string') {

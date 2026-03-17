@@ -62,7 +62,8 @@ describe('extractTranslations', () => {
       resolvePath(__dirname, '../../../../tsconfig.json'),
     );
 
-    // The main entry of org plugin exports components but no translation ref
+    // The main entry of org plugin exports components and a translation ref;
+    // only the translation ref should be extracted.
     const sourceFile = project.addSourceFileAtPath(
       resolvePath(__dirname, '../../../..', 'plugins/org/src/index.ts'),
     );
@@ -73,7 +74,13 @@ describe('extractTranslations', () => {
       '.',
     );
 
-    expect(refs).toHaveLength(0);
+    expect(refs).toHaveLength(1);
+    expect(refs[0]).toMatchObject({
+      id: 'org',
+      packageName: '@backstage/plugin-org',
+      exportPath: '.',
+      exportName: 'orgTranslationRef',
+    });
   });
 
   it('extracts from the test fixtures translation ref', () => {

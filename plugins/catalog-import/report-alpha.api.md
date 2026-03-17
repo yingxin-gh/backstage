@@ -37,8 +37,11 @@ export const catalogImportTranslationRef: TranslationRef<
     readonly 'importInfoCard.githubIntegration.label': 'GitHub only';
     readonly 'importInfoCard.githubIntegration.title': 'Link to a repository';
     readonly 'importStepper.finish.title': 'Finish';
+    readonly 'importStepper.singleLocation.title': 'Select Locations';
+    readonly 'importStepper.singleLocation.description': 'Discovered Locations: 1';
+    readonly 'importStepper.multipleLocations.title': 'Select Locations';
+    readonly 'importStepper.multipleLocations.description': 'Discovered Locations: {{length, number}}';
     readonly 'importStepper.noLocation.title': 'Create Pull Request';
-    readonly 'importStepper.noLocation.createPr.ownerLabel': 'Entity Owner';
     readonly 'importStepper.noLocation.createPr.detailsTitle': 'Pull Request Details';
     readonly 'importStepper.noLocation.createPr.titleLabel': 'Pull Request Title';
     readonly 'importStepper.noLocation.createPr.titlePlaceholder': 'Add Backstage catalog entity descriptor files';
@@ -50,12 +53,9 @@ export const catalogImportTranslationRef: TranslationRef<
     readonly 'importStepper.noLocation.createPr.ownerLoadingText': 'Loading groups…';
     readonly 'importStepper.noLocation.createPr.ownerHelperText': 'Select an owner from the list or enter a reference to a Group or a User';
     readonly 'importStepper.noLocation.createPr.ownerErrorHelperText': 'required value';
+    readonly 'importStepper.noLocation.createPr.ownerLabel': 'Entity Owner';
     readonly 'importStepper.noLocation.createPr.ownerPlaceholder': 'my-group';
     readonly 'importStepper.noLocation.createPr.codeownersHelperText': 'WARNING: This may fail if no CODEOWNERS file is found at the target location.';
-    readonly 'importStepper.singleLocation.title': 'Select Locations';
-    readonly 'importStepper.singleLocation.description': 'Discovered Locations: 1';
-    readonly 'importStepper.multipleLocations.title': 'Select Locations';
-    readonly 'importStepper.multipleLocations.description': 'Discovered Locations: {{length, number}}';
     readonly 'importStepper.analyze.title': 'Select URL';
     readonly 'importStepper.prepare.title': 'Import Actions';
     readonly 'importStepper.prepare.description': 'Optional';

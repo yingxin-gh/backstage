@@ -357,6 +357,7 @@ describe('createApp', () => {
           <api:app/dialog out=[core.api.factory] />
           <api:app/discovery out=[core.api.factory] />
           <api:app/alert out=[core.api.factory] />
+          <api:app/toast-forwarder out=[core.api.factory] />
           <api:app/toast out=[core.api.factory] />
           <api:app/analytics out=[core.api.factory] />
           <api:app/error out=[core.api.factory] />

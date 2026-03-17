@@ -31,7 +31,9 @@ export type AlertApi = {
 };
 
 // @public
-export const alertApiRef: ApiRef<AlertApi>;
+export const alertApiRef: ApiRef_2<AlertApi, 'core.alert'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type AlertMessage = {
@@ -46,7 +48,9 @@ export type AnalyticsApi = {
 };
 
 // @public
-export const analyticsApiRef: ApiRef<AnalyticsApi>;
+export const analyticsApiRef: ApiRef_2<AnalyticsApi, 'core.analytics'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export const AnalyticsContext: (options: {
@@ -187,9 +191,10 @@ export type ApiHolder = {
 };
 
 // @public
-export type ApiRef<T> = {
-  id: string;
-  T: T;
+export type ApiRef<T, TId extends string = string> = {
+  readonly $$type?: '@backstage/ApiRef';
+  readonly id: TId;
+  readonly T: T;
 };
 
 // @public
@@ -212,7 +217,9 @@ export type AppLanguageApi = {
 };
 
 // @public (undocumented)
-export const appLanguageApiRef: ApiRef<AppLanguageApi>;
+export const appLanguageApiRef: ApiRef_2<AppLanguageApi, 'core.applanguage'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export interface AppNode {
@@ -285,7 +292,9 @@ export type AppThemeApi = {
 };
 
 // @public
-export const appThemeApiRef: ApiRef<AppThemeApi>;
+export const appThemeApiRef: ApiRef_2<AppThemeApi, 'core.apptheme'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export interface AppTree {
@@ -305,12 +314,17 @@ export interface AppTreeApi {
 }
 
 // @public
-export const appTreeApiRef: ApiRef_2<AppTreeApi>;
+export const appTreeApiRef: ApiRef_2<AppTreeApi, 'core.app-tree'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const atlassianAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const atlassianAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.atlassian'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type AuthProviderInfo = {
@@ -348,20 +362,28 @@ export type BackstageUserIdentity = {
 };
 
 // @public
-export const bitbucketAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const bitbucketAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.bitbucket'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const bitbucketServerAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const bitbucketServerAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.bitbucket-server'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type ConfigApi = Config;
 
 // @public
-export const configApiRef: ApiRef<ConfigApi>;
+export const configApiRef: ApiRef_2<Config, 'core.config'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export interface ConfigurableExtensionDataRef<
@@ -415,8 +437,22 @@ export function createApiFactory<Api, Impl extends Api>(
   instance: Impl,
 ): ApiFactory<Api, Impl, {}>;
 
+// @public @deprecated
+export function createApiRef<T>(config: ApiRefConfig): ApiRef<T> & {
+  readonly $$type: '@backstage/ApiRef';
+};
+
 // @public
-export function createApiRef<T>(config: ApiRefConfig): ApiRef<T>;
+export function createApiRef<T>(): {
+  with<const TId extends string>(
+    config: ApiRefConfig & {
+      id: TId;
+      pluginId?: string;
+    },
+  ): ApiRef<T, TId> & {
+    readonly $$type: '@backstage/ApiRef';
+  };
+};
 
 // @public
 export function createExtension<
@@ -869,7 +905,9 @@ export interface DialogApiDialog<TResult = void> {
 }
 
 // @public
-export const dialogApiRef: ApiRef_2<DialogApi>;
+export const dialogApiRef: ApiRef_2<DialogApi, 'core.dialog'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type DiscoveryApi = {
@@ -877,7 +915,9 @@ export type DiscoveryApi = {
 };
 
 // @public
-export const discoveryApiRef: ApiRef<DiscoveryApi>;
+export const discoveryApiRef: ApiRef_2<DiscoveryApi, 'core.discovery'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type ErrorApi = {
@@ -901,7 +941,9 @@ export type ErrorApiErrorContext = {
 };
 
 // @public
-export const errorApiRef: ApiRef<ErrorApi>;
+export const errorApiRef: ApiRef_2<ErrorApi, 'core.error'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export const ErrorDisplay: {
@@ -1285,7 +1327,12 @@ export interface FeatureFlagsApi {
 }
 
 // @public
-export const featureFlagsApiRef: ApiRef<FeatureFlagsApi>;
+export const featureFlagsApiRef: ApiRef_2<
+  FeatureFlagsApi,
+  'core.featureflags'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type FeatureFlagsSaveOptions = {
@@ -1317,7 +1364,9 @@ export type FetchApi = {
 };
 
 // @public
-export const fetchApiRef: ApiRef<FetchApi>;
+export const fetchApiRef: ApiRef_2<FetchApi, 'core.fetch'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export type FrontendFeature =
@@ -1390,27 +1439,36 @@ export type FrontendPluginInfoOptions = {
 };
 
 // @public
-export const githubAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const githubAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.github'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const gitlabAuthApiRef: ApiRef<
+export const gitlabAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.gitlab'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const googleAuthApiRef: ApiRef<
+export const googleAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.google'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public @deprecated
 export type IconComponent = ComponentType<{
@@ -1430,7 +1488,9 @@ export interface IconsApi {
 }
 
 // @public
-export const iconsApiRef: ApiRef_2<IconsApi>;
+export const iconsApiRef: ApiRef_2<IconsApi, 'core.icons'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type IdentityApi = {
@@ -1443,16 +1503,21 @@ export type IdentityApi = {
 };
 
 // @public
-export const identityApiRef: ApiRef<IdentityApi>;
+export const identityApiRef: ApiRef_2<IdentityApi, 'core.identity'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const microsoftAuthApiRef: ApiRef<
+export const microsoftAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.microsoft'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public @deprecated
 export const NavItemBlueprint: ExtensionBlueprint_2<{
@@ -1515,7 +1580,12 @@ export type OAuthRequestApi = {
 };
 
 // @public
-export const oauthRequestApiRef: ApiRef<OAuthRequestApi>;
+export const oauthRequestApiRef: ApiRef_2<
+  OAuthRequestApi,
+  'core.oauthrequest'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type OAuthRequester<TAuthResponse> = (
@@ -1532,22 +1602,28 @@ export type OAuthRequesterOptions<TOAuthResponse> = {
 export type OAuthScope = string | string[];
 
 // @public
-export const oktaAuthApiRef: ApiRef<
+export const oktaAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.okta'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const oneloginAuthApiRef: ApiRef<
+export const oneloginAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.onelogin'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type OpenIdConnectApi = {
@@ -1555,9 +1631,12 @@ export type OpenIdConnectApi = {
 };
 
 // @public
-export const openshiftAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const openshiftAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.openshift'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export interface OverridableExtensionDefinition<
@@ -1845,7 +1924,12 @@ export type PluginHeaderActionsApi = {
 };
 
 // @public
-export const pluginHeaderActionsApiRef: ApiRef_2<PluginHeaderActionsApi>;
+export const pluginHeaderActionsApiRef: ApiRef_2<
+  PluginHeaderActionsApi,
+  'core.plugin-header-actions'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export interface PluginOptions<
@@ -1887,7 +1971,12 @@ export type PluginWrapperApi = {
 };
 
 // @public
-export const pluginWrapperApiRef: ApiRef_2<PluginWrapperApi>;
+export const pluginWrapperApiRef: ApiRef_2<
+  PluginWrapperApi,
+  'core.plugin-wrapper'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export const PluginWrapperBlueprint: ExtensionBlueprint_2<{
@@ -1993,7 +2082,12 @@ export interface RouteResolutionApi {
 }
 
 // @public
-export const routeResolutionApiRef: ApiRef_2<RouteResolutionApi>;
+export const routeResolutionApiRef: ApiRef_2<
+  RouteResolutionApi,
+  'core.route-resolution'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type SessionApi = {
@@ -2031,7 +2125,9 @@ export interface StorageApi {
 }
 
 // @public
-export const storageApiRef: ApiRef<StorageApi>;
+export const storageApiRef: ApiRef_2<StorageApi, 'core.storage'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type StorageValueSnapshot<TValue extends JsonValue> =
@@ -2121,7 +2217,12 @@ export interface SwappableComponentsApi {
 }
 
 // @public
-export const swappableComponentsApiRef: ApiRef_2<SwappableComponentsApi>;
+export const swappableComponentsApiRef: ApiRef_2<
+  SwappableComponentsApi,
+  'core.swappable-components'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export type TranslationApi = {
@@ -2142,7 +2243,9 @@ export type TranslationApi = {
 };
 
 // @public (undocumented)
-export const translationApiRef: ApiRef<TranslationApi>;
+export const translationApiRef: ApiRef_2<TranslationApi, 'core.translation'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export type TranslationFunction<
@@ -2332,13 +2435,16 @@ export const useTranslationRef: <TMessages extends { [key in string]: string }>(
 };
 
 // @public
-export const vmwareCloudAuthApiRef: ApiRef<
+export const vmwareCloudAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.vmware-cloud'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public @deprecated
 export function withApis<T extends {}>(

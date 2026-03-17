@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Backstage Authors
+ * Copyright 2024 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-import { createApiRef } from '../system';
-import { Observable } from '@backstage/types';
+import type { ApiRef } from '@backstage/frontend-plugin-api';
+import { OpaqueType } from '@internal/opaque';
 
-/** @public */
-export type AppLanguageApi = {
-  getAvailableLanguages(): { languages: string[] };
-
-  setLanguage(language?: string): void;
-
-  getLanguage(): { language: string };
-
-  language$(): Observable<{ language: string }>;
-};
-
-/**
- * @public
- */
-export const appLanguageApiRef = createApiRef<AppLanguageApi>().with({
-  id: 'core.applanguage',
-  pluginId: 'app',
+export const OpaqueApiRef = OpaqueType.create<{
+  public: ApiRef<unknown> & {
+    readonly $$type: '@backstage/ApiRef';
+  };
+  versions: {
+    readonly version: 'v1';
+    readonly pluginId?: string;
+  };
+}>({
+  type: '@backstage/ApiRef',
+  versions: ['v1'],
 });

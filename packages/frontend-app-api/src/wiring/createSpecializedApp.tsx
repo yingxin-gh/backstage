@@ -43,6 +43,7 @@ import {
 import { ApiFactoryRegistry, ApiResolver } from '@backstage/core-app-api';
 import {
   createExtensionDataContainer,
+  OpaqueApiRef,
   OpaqueFrontendPlugin,
 } from '@internal/frontend';
 
@@ -401,14 +402,14 @@ function createApiFactories(options: {
     const apiFactory = apiNode.instance?.getData(ApiBlueprint.dataRefs.factory);
     if (apiFactory) {
       const apiRefId = apiFactory.api.id;
-      const ownerId = getApiOwnerId(apiRefId);
+      const ownerId = getApiOwnerId(apiFactory.api);
       const pluginId = apiNode.spec.plugin.pluginId ?? 'app';
       const existingFactory = factoriesById.get(apiRefId);
 
       // This allows modules to override factories provided by the plugin, but
       // it rejects API overrides from other plugins. In the event of a
-      // conflict, the owning plugin is attempted to be inferred from the API
-      // reference ID.
+      // conflict, the owning plugin is inferred from the explicit pluginId or
+      // legacy plugin-prefixed API reference ID.
       if (existingFactory && existingFactory.pluginId !== pluginId) {
         const shouldReplace =
           ownerId === pluginId && existingFactory.pluginId !== ownerId;
@@ -455,13 +456,18 @@ function createApiFactories(options: {
 
 // TODO(Rugvip): It would be good if this was more explicit, but I think that
 //               might need to wait for some future update for API factories.
-function getApiOwnerId(apiRefId: string): string {
+function getApiOwnerId(apiRef: { id: string }): string {
+  if (OpaqueApiRef.isType(apiRef)) {
+    const { pluginId } = OpaqueApiRef.toInternal(apiRef);
+    if (pluginId) {
+      return pluginId;
+    }
+  }
+
+  const apiRefId = apiRef.id;
   const [prefix, ...rest] = apiRefId.split('.');
   if (!prefix) {
     return apiRefId;
-  }
-  if (prefix === 'core') {
-    return 'app';
   }
   if (prefix === 'plugin' && rest[0]) {
     return rest[0];

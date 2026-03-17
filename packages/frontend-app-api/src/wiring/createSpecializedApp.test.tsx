@@ -16,6 +16,7 @@
 
 import {
   AppTreeApi,
+  type ApiRef,
   appTreeApiRef,
   coreExtensionData,
   createExtension,
@@ -166,10 +167,13 @@ describe('createSpecializedApp', () => {
           "factories": Map {
             "core.featureflags" => {
               "factory": {
-                "api": ApiRefImpl {
-                  "config": {
-                    "id": "core.featureflags",
-                  },
+                "api": {
+                  "$$type": "@backstage/ApiRef",
+                  "T": null,
+                  "id": "core.featureflags",
+                  "pluginId": "app",
+                  "toString": [Function],
+                  "version": "v1",
                 },
                 "deps": {},
                 "factory": [Function],
@@ -178,10 +182,13 @@ describe('createSpecializedApp', () => {
             },
             "core.app-tree" => {
               "factory": {
-                "api": ApiRefImpl {
-                  "config": {
-                    "id": "core.app-tree",
-                  },
+                "api": {
+                  "$$type": "@backstage/ApiRef",
+                  "T": null,
+                  "id": "core.app-tree",
+                  "pluginId": "app",
+                  "toString": [Function],
+                  "version": "v1",
                 },
                 "deps": {},
                 "factory": [Function],
@@ -190,10 +197,13 @@ describe('createSpecializedApp', () => {
             },
             "core.config" => {
               "factory": {
-                "api": ApiRefImpl {
-                  "config": {
-                    "id": "core.config",
-                  },
+                "api": {
+                  "$$type": "@backstage/ApiRef",
+                  "T": null,
+                  "id": "core.config",
+                  "pluginId": "app",
+                  "toString": [Function],
+                  "version": "v1",
                 },
                 "deps": {},
                 "factory": [Function],
@@ -202,10 +212,13 @@ describe('createSpecializedApp', () => {
             },
             "core.route-resolution" => {
               "factory": {
-                "api": ApiRefImpl {
-                  "config": {
-                    "id": "core.route-resolution",
-                  },
+                "api": {
+                  "$$type": "@backstage/ApiRef",
+                  "T": null,
+                  "id": "core.route-resolution",
+                  "pluginId": "app",
+                  "toString": [Function],
+                  "version": "v1",
                 },
                 "deps": {},
                 "factory": [Function],
@@ -214,10 +227,13 @@ describe('createSpecializedApp', () => {
             },
             "core.identity" => {
               "factory": {
-                "api": ApiRefImpl {
-                  "config": {
-                    "id": "core.identity",
-                  },
+                "api": {
+                  "$$type": "@backstage/ApiRef",
+                  "T": null,
+                  "id": "core.identity",
+                  "pluginId": "app",
+                  "toString": [Function],
+                  "version": "v1",
                 },
                 "deps": {},
                 "factory": [Function],
@@ -357,6 +373,150 @@ describe('createSpecializedApp', () => {
     ]);
 
     expect(app.apis.get(testApiRef)).toEqual({ value: 'owner' });
+  });
+
+  it('should select the API factory from an explicitly owned plugin on conflict', () => {
+    const testApiRef = createApiRef<{ value: string }>().with({
+      id: 'shared.api',
+      pluginId: 'owner',
+    });
+
+    const app = createSpecializedApp({
+      features: [
+        makeAppPlugin(),
+        createFrontendPlugin({
+          pluginId: 'other-before',
+          extensions: [
+            ApiBlueprint.make({
+              params: defineParams =>
+                defineParams({
+                  api: testApiRef,
+                  deps: {},
+                  factory: () => ({ value: 'other' }),
+                }),
+            }),
+          ],
+        }),
+        createFrontendPlugin({
+          pluginId: 'owner',
+          extensions: [
+            ApiBlueprint.make({
+              params: defineParams =>
+                defineParams({
+                  api: testApiRef,
+                  deps: {},
+                  factory: () => ({ value: 'owner' }),
+                }),
+            }),
+          ],
+        }),
+      ],
+    });
+
+    expect(app.errors).toEqual([
+      expect.objectContaining({
+        code: 'API_FACTORY_CONFLICT',
+        message: expect.stringContaining("API 'shared.api'"),
+      }),
+    ]);
+
+    expect(app.apis.get(testApiRef)).toEqual({ value: 'owner' });
+  });
+
+  it('should reject unsupported opaque ApiRef versions', () => {
+    const testApiRef = {
+      $$type: '@backstage/ApiRef',
+      version: 'v0',
+      id: 'shared.api',
+      pluginId: 'owner',
+      T: null as unknown as { value: string },
+      toString() {
+        return 'apiRef{shared.api}';
+      },
+    } as ApiRef<{ value: string }, 'shared.api'> & {
+      readonly $$type: '@backstage/ApiRef';
+      readonly version: 'v0';
+      readonly pluginId: 'owner';
+    };
+
+    expect(() =>
+      createSpecializedApp({
+        features: [
+          makeAppPlugin(),
+          createFrontendPlugin({
+            pluginId: 'other-before',
+            extensions: [
+              ApiBlueprint.make({
+                params: defineParams =>
+                  defineParams({
+                    api: testApiRef,
+                    deps: {},
+                    factory: () => ({ value: 'other' }),
+                  }),
+              }),
+            ],
+          }),
+          createFrontendPlugin({
+            pluginId: 'owner',
+            extensions: [
+              ApiBlueprint.make({
+                params: defineParams =>
+                  defineParams({
+                    api: testApiRef,
+                    deps: {},
+                    factory: () => ({ value: 'owner' }),
+                  }),
+              }),
+            ],
+          }),
+        ],
+      }),
+    ).toThrow("Invalid opaque type instance, got version 'v0', expected 'v1'");
+  });
+
+  it('should not infer app ownership from core-prefixed API ids', () => {
+    const testApiRef = createApiRef<{ value: string }>({ id: 'core.shared' });
+
+    const app = createSpecializedApp({
+      features: [
+        makeAppPlugin(),
+        createFrontendPlugin({
+          pluginId: 'other-before',
+          extensions: [
+            ApiBlueprint.make({
+              params: defineParams =>
+                defineParams({
+                  api: testApiRef,
+                  deps: {},
+                  factory: () => ({ value: 'other' }),
+                }),
+            }),
+          ],
+        }),
+        createFrontendModule({
+          pluginId: 'app',
+          extensions: [
+            ApiBlueprint.make({
+              params: defineParams =>
+                defineParams({
+                  api: testApiRef,
+                  deps: {},
+                  factory: () => ({ value: 'app' }),
+                }),
+            }),
+          ],
+        }),
+      ],
+    });
+
+    expect(app.errors).toEqual([
+      expect.objectContaining({
+        code: 'API_FACTORY_CONFLICT',
+        message: expect.stringContaining("API 'core.shared'"),
+      }),
+    ]);
+
+    expect(app.apis.get(testApiRef)).toEqual({ value: 'other' });
   });
 
   it('should allow API overrides within the same plugin', () => {

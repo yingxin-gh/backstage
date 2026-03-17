@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-const knownPluginIds = [
-  'app',
+const knownBackendPluginIds = [
   'auth',
   'catalog',
   'events',
@@ -29,6 +28,19 @@ const knownPluginIds = [
   'techdocs',
 ];
 
+// Some plugin IDs only have backend packages and no corresponding frontend package
+const knownFrontendPluginIds = [
+  'app',
+  'auth',
+  'catalog',
+  'kubernetes',
+  'notifications',
+  'scaffolder',
+  'search',
+  'signals',
+  'techdocs',
+];
+
 /**
  * Maps known plugin IDs to their corresponding backend package names.
  *
@@ -36,7 +48,7 @@ const knownPluginIds = [
  */
 export const knownBackendPluginPackageNameByPluginId: Record<string, string> =
   Object.fromEntries(
-    knownPluginIds.map(pluginId => [
+    knownBackendPluginIds.map(pluginId => [
       pluginId,
       `@backstage/plugin-${pluginId}-backend`,
     ]),
@@ -49,5 +61,8 @@ export const knownBackendPluginPackageNameByPluginId: Record<string, string> =
  */
 export const knownFrontendPluginPackageNameByPluginId: Record<string, string> =
   Object.fromEntries(
-    knownPluginIds.map(pluginId => [pluginId, `@backstage/plugin-${pluginId}`]),
+    knownFrontendPluginIds.map(pluginId => [
+      pluginId,
+      `@backstage/plugin-${pluginId}`,
+    ]),
   );

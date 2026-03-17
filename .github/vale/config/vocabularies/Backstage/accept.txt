@@ -31,7 +31,6 @@ backported
 backporting
 BEPs
 bg
-BUIProvider
 bigint
 Bigtable
 Billett
@@ -44,6 +43,7 @@ breakpoint
 Brex
 broadcasted
 bugfixes
+BUIProvider
 builtins
 bundler
 bundlers

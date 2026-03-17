@@ -444,7 +444,7 @@ export function createApiRef<T>(config: ApiRefConfig): ApiRef<T> & {
 
 // @public
 export function createApiRef<T>(): {
-  with<TId extends string>(
+  with<const TId extends string>(
     config: ApiRefConfig & {
       id: TId;
       pluginId?: string;

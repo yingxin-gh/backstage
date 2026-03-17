@@ -119,7 +119,7 @@ export function createApiRef<T>(
  * @public
  */
 export function createApiRef<T>(): {
-  with<TId extends string>(
+  with<const TId extends string>(
     config: ApiRefConfig & { id: TId; pluginId?: string },
   ): ApiRef<T, TId> & {
     readonly $$type: '@backstage/ApiRef';
@@ -128,7 +128,7 @@ export function createApiRef<T>(): {
 export function createApiRef<T>(config?: ApiRefConfig):
   | (ApiRef<T> & { readonly $$type: '@backstage/ApiRef' })
   | {
-      with<TId extends string>(
+      with<const TId extends string>(
         config: ApiRefConfig & { id: TId; pluginId?: string },
       ): ApiRef<T, TId> & {
         readonly $$type: '@backstage/ApiRef';
@@ -139,7 +139,7 @@ export function createApiRef<T>(config?: ApiRefConfig):
     return makeApiRef<T, string>(config);
   }
   return {
-    with<TId extends string>(
+    with<const TId extends string>(
       withConfig: ApiRefConfig & { id: TId; pluginId?: string },
     ): ApiRef<T, TId> & { readonly $$type: '@backstage/ApiRef' } {
       validateId(withConfig.id);

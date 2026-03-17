@@ -74,6 +74,8 @@ export async function collectPortableTemplateInput(
     const pluginPkg = (parameters.pluginPackage as string | undefined)?.trim();
     if (!pluginPkg || !isValidNpmPackageName(pluginPkg)) {
       delete parameters.pluginPackage;
+    } else {
+      parameters.pluginPackage = pluginPkg;
     }
 
     if (parameters.pluginId && !parameters.pluginPackage) {

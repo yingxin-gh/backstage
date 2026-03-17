@@ -15,6 +15,7 @@
  */
 
 const knownBackendPluginIds = [
+  'app',
   'auth',
   'catalog',
   'events',
@@ -28,7 +29,7 @@ const knownBackendPluginIds = [
   'techdocs',
 ];
 
-// Some plugin IDs only have backend packages and no corresponding frontend package
+// Only includes plugin IDs that have a corresponding frontend package; some plugins are backend-only and not listed here.
 const knownFrontendPluginIds = [
   'app',
   'auth',

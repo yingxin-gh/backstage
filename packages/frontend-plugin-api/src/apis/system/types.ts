@@ -22,7 +22,6 @@
 export type ApiRef<T, TId extends string = string> = {
   readonly $$type?: '@backstage/ApiRef';
   readonly id: TId;
-  readonly pluginId?: string;
   readonly T: T;
 };
 

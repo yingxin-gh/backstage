@@ -455,9 +455,10 @@ function createApiFactories(options: {
 
 // TODO(Rugvip): It would be good if this was more explicit, but I think that
 //               might need to wait for some future update for API factories.
-function getApiOwnerId(apiRef: { id: string; pluginId?: string }): string {
-  if (apiRef.pluginId) {
-    return apiRef.pluginId;
+function getApiOwnerId(apiRef: { id: string }): string {
+  const pluginId = (apiRef as { pluginId?: string }).pluginId;
+  if (pluginId) {
+    return pluginId;
   }
 
   const apiRefId = apiRef.id;

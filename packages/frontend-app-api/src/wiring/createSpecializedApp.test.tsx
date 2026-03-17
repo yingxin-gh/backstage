@@ -168,6 +168,7 @@ describe('createSpecializedApp', () => {
               "factory": {
                 "api": {
                   "$$type": "@backstage/ApiRef",
+                  "T": null,
                   "id": "core.featureflags",
                   "pluginId": "app",
                   "toString": [Function],
@@ -182,6 +183,7 @@ describe('createSpecializedApp', () => {
               "factory": {
                 "api": {
                   "$$type": "@backstage/ApiRef",
+                  "T": null,
                   "id": "core.app-tree",
                   "pluginId": "app",
                   "toString": [Function],
@@ -196,6 +198,7 @@ describe('createSpecializedApp', () => {
               "factory": {
                 "api": {
                   "$$type": "@backstage/ApiRef",
+                  "T": null,
                   "id": "core.config",
                   "pluginId": "app",
                   "toString": [Function],
@@ -210,6 +213,7 @@ describe('createSpecializedApp', () => {
               "factory": {
                 "api": {
                   "$$type": "@backstage/ApiRef",
+                  "T": null,
                   "id": "core.route-resolution",
                   "pluginId": "app",
                   "toString": [Function],
@@ -224,6 +228,7 @@ describe('createSpecializedApp', () => {
               "factory": {
                 "api": {
                   "$$type": "@backstage/ApiRef",
+                  "T": null,
                   "id": "core.identity",
                   "pluginId": "app",
                   "toString": [Function],

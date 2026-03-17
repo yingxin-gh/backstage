@@ -27,6 +27,8 @@ describe('ApiRef', () => {
   });
 
   it('should not accept pluginId with deprecated config form', () => {
+    expect(createApiRef<string>({ id: 'abc' }).id).toBe('abc');
+
     // @ts-expect-error pluginId is only supported through .with(...)
     createApiRef<string>({ id: 'abc', pluginId: 'test' });
   });
@@ -45,9 +47,12 @@ describe('ApiRef', () => {
     const ref = createApiRef<string>().with({ id: 'abc', pluginId: 'test' });
     expect(ref.$$type).toBe('@backstage/ApiRef');
     expect(ref.id).toBe('abc');
-    expect(ref.pluginId).toBe('test');
     expect(String(ref)).toBe('apiRef{abc}');
     expect(ref.T).toBeNull();
+    expect((ref as { pluginId?: string }).pluginId).toBe('test');
+
+    // @ts-expect-error pluginId is internal runtime metadata
+    expect(ref.pluginId).toBe('test');
   });
 
   it('should infer literal ids with builder pattern', () => {

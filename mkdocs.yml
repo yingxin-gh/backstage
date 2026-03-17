@@ -141,7 +141,7 @@ nav:
           - Locations: 'integrations/google-cloud-storage/locations.md'
       - LDAP:
           - Org Data: 'integrations/ldap/org.md'
-  - Plugins:
+  - Plugins (Legacy):
       - Intro to plugins: 'plugins/index.md'
       - Create a Backstage Plugin: 'plugins/create-a-plugin.md'
       - Plugin Development: 'plugins/plugin-development.md'
@@ -162,9 +162,9 @@ nav:
       - Testing:
           - Testing with Jest: 'plugins/testing.md'
       - Publishing:
-          - Publish private: 'plugins/publish-private.md'
           - Add to Directory: 'plugins/add-to-directory.md'
           - Observability: 'plugins/observability.md'
+      - New Backend System: 'plugins/new-backend-system.md'
   - Configuration:
       - Static Configuration in Backstage: 'conf/index.md'
       - Reading Backstage Configuration: 'conf/reading.md'

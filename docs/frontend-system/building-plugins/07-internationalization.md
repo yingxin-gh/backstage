@@ -1,14 +1,9 @@
 ---
 id: internationalization
 title: Internationalization
-description: Documentation on adding internationalization to plugins and apps
+sidebar_label: Internationalization
+description: Adding internationalization to plugins and apps
 ---
-
-:::caution Legacy Documentation
-
-This section is part of the legacy plugins documentation. For the new frontend system version, see [Internationalization](../frontend-system/building-plugins/07-internationalization.md). The i18n APIs (`createTranslationRef`, `useTranslationRef`) work the same way in both the old and new frontend systems.
-
-:::
 
 ## Overview
 
@@ -19,7 +14,7 @@ The Backstage core function provides internationalization for plugins and apps. 
 When you are creating your plugin, you have the possibility to use `createTranslationRef` to define all messages for your plugin. For example:
 
 ```ts
-import { createTranslationRef } from '@backstage/core-plugin-api/alpha';
+import { createTranslationRef } from '@backstage/frontend-plugin-api';
 
 /** @alpha */
 export const myPluginTranslationRef = createTranslationRef({
@@ -39,7 +34,7 @@ export const myPluginTranslationRef = createTranslationRef({
 And then use these messages in your components like:
 
 ```tsx
-import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
+import { useTranslationRef } from '@backstage/frontend-plugin-api';
 
 const { t } = useTranslationRef(myPluginTranslationRef);
 
@@ -195,56 +190,57 @@ As an app developer you can both override the default English messages of any pl
 
 ### Overriding messages
 
-To customize specific messages without adding new languages, create a translation resource that overrides the default English messages:
+To customize specific messages without adding new languages, create a translation extension using `TranslationBlueprint` from `@backstage/plugin-app-react` together with `createTranslationMessages` from `@backstage/frontend-plugin-api`:
 
 ```ts
-// packages/app/src/translations/catalog.ts
-
-import { createTranslationResource } from '@backstage/frontend-plugin-api';
+import { createTranslationMessages } from '@backstage/frontend-plugin-api';
+import { TranslationBlueprint } from '@backstage/plugin-app-react';
 import { catalogTranslationRef } from '@backstage/plugin-catalog/alpha';
 
-export const catalogTranslations = createTranslationResource({
-  ref: catalogTranslationRef,
-  translations: {
-    en: () =>
-      Promise.resolve({
-        default: {
-          'indexPage.title': 'Service directory',
-          'indexPage.createButtonTitle': 'Register new service',
-        },
-      }),
+const catalogTranslations = TranslationBlueprint.make({
+  name: 'catalog-overrides',
+  params: {
+    resource: createTranslationMessages({
+      ref: catalogTranslationRef,
+      messages: {
+        'indexPage.title': 'Service directory',
+        'indexPage.createButtonTitle': 'Register new service',
+      },
+    }),
   },
 });
 ```
 
-Then register it in your app:
+Then install it as a feature in your app:
 
-```diff
-+ import { catalogTranslations } from './translations/catalog';
+```ts
+import { createApp } from '@backstage/frontend-defaults';
 
- const app = createApp({
-+  __experimentalTranslations: {
-+    resources: [catalogTranslations],
-+  },
- })
+const app = createApp({
+  features: [catalogTranslations],
+});
 ```
 
 You only need to include the keys you want to override — any missing keys fall back to the plugin's defaults.
 
 ### Adding language translations
 
-To add support for additional languages, create translation resources with lazy-loaded message files for each language:
+To add support for additional languages, create a translation resource with lazy-loaded message files for each language, and install it using `TranslationBlueprint`:
 
 ```ts
-// packages/app/src/translations/userSettings.ts
-
 import { createTranslationResource } from '@backstage/frontend-plugin-api';
+import { TranslationBlueprint } from '@backstage/plugin-app-react';
 import { userSettingsTranslationRef } from '@backstage/plugin-user-settings/alpha';
 
-export const userSettingsTranslations = createTranslationResource({
-  ref: userSettingsTranslationRef,
-  translations: {
-    zh: () => import('./userSettings-zh'),
+const userSettingsTranslations = TranslationBlueprint.make({
+  name: 'user-settings-zh',
+  params: {
+    resource: createTranslationResource({
+      ref: userSettingsTranslationRef,
+      translations: {
+        zh: () => import('./userSettings-zh'),
+      },
+    }),
   },
 });
 ```
@@ -287,17 +283,14 @@ export default {
 };
 ```
 
-Register it with the available languages declared:
+Install the translation extension in your app:
 
-```diff
-+ import { userSettingsTranslations } from './translations/userSettings';
+```ts
+import { createApp } from '@backstage/frontend-defaults';
 
- const app = createApp({
-+  __experimentalTranslations: {
-+    availableLanguages: ['en', 'zh'],
-+    resources: [userSettingsTranslations],
-+  },
- })
+const app = createApp({
+  features: [userSettingsTranslations],
+});
 ```
 
 Go to the Settings page — you should see language switching buttons. Switch languages to verify your translations are loaded correctly.
@@ -373,16 +366,14 @@ export default [
 ];
 ```
 
-Import the generated resources in your app:
+Install the generated resources as features in your app:
 
 ```ts
+import { createApp } from '@backstage/frontend-defaults';
 import translationResources from './translations/resources';
 
 const app = createApp({
-  __experimentalTranslations: {
-    availableLanguages: ['en', 'zh'],
-    resources: translationResources,
-  },
+  features: translationResources,
 });
 ```
 
@@ -412,4 +403,4 @@ The exported JSON files are standard key-value pairs compatible with most extern
 3. Download the translated files back into the translations directory
 4. Run `translations import` to regenerate the wiring code
 
-For full command reference, see the [CLI commands documentation](../tooling/cli/03-commands.md#translations-export).
+For full command reference, see the [CLI commands documentation](../../tooling/cli/03-commands.md#translations-export).

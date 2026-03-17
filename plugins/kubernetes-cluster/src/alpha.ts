@@ -17,7 +17,7 @@
 import { kubernetesClusterTranslationRef as _kubernetesClusterTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-kubernetes-cluster` instead.
  */
 export const kubernetesClusterTranslationRef = _kubernetesClusterTranslationRef;

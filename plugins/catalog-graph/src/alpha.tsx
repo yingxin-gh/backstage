@@ -110,7 +110,7 @@ export default createFrontendPlugin({
 import { catalogGraphTranslationRef as _catalogGraphTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-catalog-graph` instead.
  */
 export const catalogGraphTranslationRef = _catalogGraphTranslationRef;

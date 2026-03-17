@@ -16,7 +16,7 @@
 import { kubernetesTranslationRef as _kubernetesTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-kubernetes` instead.
  */
 export const kubernetesTranslationRef = _kubernetesTranslationRef;

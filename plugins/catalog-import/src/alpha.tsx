@@ -37,7 +37,7 @@ import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/
 import { catalogImportTranslationRef as _catalogImportTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-catalog-import` instead.
  */
 export const catalogImportTranslationRef = _catalogImportTranslationRef;

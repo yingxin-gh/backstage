@@ -155,7 +155,7 @@ export const settingsNavItem: OverridableExtensionDefinition<{
   };
 }>;
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const userSettingsTranslationRef: TranslationRef<
   'user-settings',
   {

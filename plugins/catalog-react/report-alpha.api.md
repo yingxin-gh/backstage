@@ -36,7 +36,7 @@ export const CatalogFilterBlueprint: ExtensionBlueprint<{
   dataRefs: never;
 }>;
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const catalogReactTranslationRef: TranslationRef<
   'catalog-react',
   {

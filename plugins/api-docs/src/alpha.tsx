@@ -237,7 +237,7 @@ export default createFrontendPlugin({
 import { apiDocsTranslationRef as _apiDocsTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-api-docs` instead.
  */
 export const apiDocsTranslationRef = _apiDocsTranslationRef;

@@ -228,7 +228,7 @@ export default createFrontendPlugin({
 import { homeTranslationRef as _homeTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-home` instead.
  */
 export const homeTranslationRef = _homeTranslationRef;

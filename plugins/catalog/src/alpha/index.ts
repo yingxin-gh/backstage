@@ -19,7 +19,7 @@ export { default } from './plugin';
 import { catalogTranslationRef as _catalogTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-catalog` instead.
  */
 export const catalogTranslationRef = _catalogTranslationRef;

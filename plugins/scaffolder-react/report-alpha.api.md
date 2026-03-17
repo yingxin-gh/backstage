@@ -307,7 +307,7 @@ export type ScaffolderReactComponentsNameToClassKey = {
 // @alpha (undocumented)
 export type ScaffolderReactTemplateCategoryPickerClassKey = 'root' | 'label';
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const scaffolderReactTranslationRef: TranslationRef<
   'scaffolder-react',
   {

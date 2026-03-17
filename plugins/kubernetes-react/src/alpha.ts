@@ -17,7 +17,7 @@
 import { kubernetesReactTranslationRef as _kubernetesReactTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-kubernetes-react` instead.
  */
 export const kubernetesReactTranslationRef = _kubernetesReactTranslationRef;

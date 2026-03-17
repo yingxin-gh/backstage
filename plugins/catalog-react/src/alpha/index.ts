@@ -19,7 +19,7 @@ export * from './converters';
 import { catalogReactTranslationRef as _catalogReactTranslationRef } from '../translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-catalog-react` instead.
  */
 export const catalogReactTranslationRef = _catalogReactTranslationRef;

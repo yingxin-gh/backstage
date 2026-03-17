@@ -96,7 +96,7 @@ export interface SearchFilterResultTypeBlueprintParams {
   value: string;
 }
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const searchReactTranslationRef: TranslationRef<
   'search-react',
   {

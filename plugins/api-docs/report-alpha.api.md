@@ -26,7 +26,7 @@ import { RouteRef } from '@backstage/core-plugin-api';
 import { RouteRef as RouteRef_2 } from '@backstage/frontend-plugin-api';
 import { TranslationRef } from '@backstage/frontend-plugin-api';
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const apiDocsTranslationRef: TranslationRef<
   'api-docs',
   {

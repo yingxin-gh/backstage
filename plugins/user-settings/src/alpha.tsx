@@ -26,7 +26,7 @@ import { settingsRouteRef } from './plugin';
 import { userSettingsTranslationRef as _userSettingsTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-user-settings` instead.
  */
 export const userSettingsTranslationRef = _userSettingsTranslationRef;

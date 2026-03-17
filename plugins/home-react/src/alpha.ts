@@ -26,7 +26,7 @@
 import { homeReactTranslationRef as _homeReactTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-home-react` instead.
  */
 export const homeReactTranslationRef = _homeReactTranslationRef;

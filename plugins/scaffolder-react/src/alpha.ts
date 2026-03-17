@@ -19,7 +19,7 @@ export * from './next';
 import { scaffolderReactTranslationRef as _scaffolderReactTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-scaffolder-react` instead.
  */
 export const scaffolderReactTranslationRef = _scaffolderReactTranslationRef;

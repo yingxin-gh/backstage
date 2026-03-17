@@ -125,7 +125,7 @@ export const homePageWidgetDataRef: ConfigurableExtensionDataRef<
   {}
 >;
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const homeReactTranslationRef: TranslationRef<
   'home-react',
   {

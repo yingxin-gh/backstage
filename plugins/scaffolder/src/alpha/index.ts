@@ -25,7 +25,7 @@ export {
 import { scaffolderTranslationRef as _scaffolderTranslationRef } from '../translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-scaffolder` instead.
  */
 export const scaffolderTranslationRef = _scaffolderTranslationRef;

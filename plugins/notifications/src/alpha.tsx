@@ -59,7 +59,7 @@ export default createFrontendPlugin({
 import { notificationsTranslationRef as _notificationsTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-notifications` instead.
  */
 export const notificationsTranslationRef = _notificationsTranslationRef;

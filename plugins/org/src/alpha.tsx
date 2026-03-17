@@ -133,7 +133,7 @@ export default createFrontendPlugin({
 import { orgTranslationRef as _orgTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-org` instead.
  */
 export const orgTranslationRef = _orgTranslationRef;

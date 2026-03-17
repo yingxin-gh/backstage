@@ -523,7 +523,7 @@ export type ScaffolderTemplateFormPreviewerClassKey =
   | 'textArea'
   | 'preview';
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const scaffolderTranslationRef: TranslationRef<
   'scaffolder',
   {

@@ -16,7 +16,7 @@
 import { coreComponentsTranslationRef as _coreComponentsTranslationRef } from './translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/core-components` instead.
  */
 export const coreComponentsTranslationRef = _coreComponentsTranslationRef;

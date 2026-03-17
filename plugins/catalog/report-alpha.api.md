@@ -32,7 +32,7 @@ import { SearchResultItemExtensionPredicate } from '@backstage/plugin-search-rea
 import { SearchResultListItemBlueprintParams } from '@backstage/plugin-search-react/alpha';
 import { TranslationRef } from '@backstage/frontend-plugin-api';
 
-// @public @deprecated (undocumented)
+// @alpha @deprecated (undocumented)
 export const catalogTranslationRef: TranslationRef<
   'catalog',
   {

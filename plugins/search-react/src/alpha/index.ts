@@ -17,7 +17,7 @@ export * from './blueprints';
 import { searchReactTranslationRef as _searchReactTranslationRef } from '../translation';
 
 /**
- * @public
+ * @alpha
  * @deprecated Import from `@backstage/plugin-search-react` instead.
  */
 export const searchReactTranslationRef = _searchReactTranslationRef;

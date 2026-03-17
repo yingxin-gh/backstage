@@ -28,12 +28,13 @@ import {
   createExtensionInput,
   useRouteRef,
   analyticsApiRef,
+  configApiRef,
   createExtensionDataRef,
+  featureFlagsApiRef,
 } from '@backstage/frontend-plugin-api';
 import { screen, render } from '@testing-library/react';
 import { createSpecializedApp } from './createSpecializedApp';
 import { mockApis, TestApiRegistry } from '@backstage/test-utils';
-import { configApiRef, featureFlagsApiRef } from '@backstage/core-plugin-api';
 import { MemoryRouter } from 'react-router-dom';
 import { ApiProvider, ConfigReader } from '@backstage/core-app-api';
 import { Fragment } from 'react';

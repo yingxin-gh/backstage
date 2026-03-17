@@ -19,8 +19,9 @@ import {
   ExtensionDataContainer,
   ExtensionDataRef,
   ExtensionInput,
-  ResolvedExtensionInputs,
 } from '@backstage/frontend-plugin-api';
+// eslint-disable-next-line @backstage/no-relative-monorepo-imports
+import { ResolvedExtensionInputs } from '../../../frontend-plugin-api/src/wiring/createExtension';
 import { ExtensionFactoryMiddleware } from '../wiring/types';
 import mapValues from 'lodash/mapValues';
 import { AppNode, AppNodeInstance } from '@backstage/frontend-plugin-api';

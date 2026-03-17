@@ -16,7 +16,11 @@
 
 import inquirer, { DistinctQuestion } from 'inquirer';
 import { getCodeownersFilePath, parseOwnerIds } from '../codeowners';
-import { targetPaths } from '@backstage/cli-common';
+import {
+  targetPaths,
+  knownBackendPluginPackageNameByPluginId,
+  knownFrontendPluginPackageNameByPluginId,
+} from '@backstage/cli-common';
 
 import {
   PortableTemplateConfig,
@@ -27,10 +31,6 @@ import {
 } from '../types';
 import { PortableTemplate } from '../types';
 import { resolvePackageParams } from './resolvePackageParams';
-import {
-  knownBackendPluginPackageNameByPluginId,
-  knownFrontendPluginPackageNameByPluginId,
-} from '@backstage/cli-common';
 
 type CollectTemplateParamsOptions = {
   config: PortableTemplateConfig;

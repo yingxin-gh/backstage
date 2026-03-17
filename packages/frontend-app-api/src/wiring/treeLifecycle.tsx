@@ -227,7 +227,7 @@ export function attachThrowingFinalizationChild(tree: AppTree, error: Error) {
   // bootstrap failures through the normal extension boundary stack.
   (bootstrapChildNode as AppNode & { instance?: AppNodeInstance }).instance = {
     getDataRefs() {
-      return [coreExtensionData.reactElement].values();
+      return [coreExtensionData.reactElement];
     },
     getData<TValue>(dataRef: ExtensionDataRef<TValue>) {
       if (dataRef.id === coreExtensionData.reactElement.id) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createApiRef, ApiRef } from '../system';
+import { createApiRef } from '../system';
 import { Observable } from '@backstage/types';
 
 /**
@@ -77,6 +77,7 @@ export type AlertApi = {
  * @public
  * @deprecated Use {@link toastApiRef} instead. AlertApi will be removed in a future release.
  */
-export const alertApiRef: ApiRef<AlertApi> = createApiRef({
+export const alertApiRef = createApiRef<AlertApi>().with({
   id: 'core.alert',
+  pluginId: 'app',
 });

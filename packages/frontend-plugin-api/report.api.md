@@ -765,12 +765,44 @@ export function createFrontendPlugin<
     [name in string]: ExternalRouteRef;
   } = {},
 >(
-  options: PluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>,
+  options: CreateFrontendPluginOptions<
+    TId,
+    TRoutes,
+    TExternalRoutes,
+    TExtensions
+  >,
 ): OverridableFrontendPlugin<
   TRoutes,
   TExternalRoutes,
   MakeSortedExtensionsMap<TExtensions[number], TId>
 >;
+
+// @public
+export interface CreateFrontendPluginOptions<
+  TId extends string,
+  TRoutes extends {
+    [name in string]: RouteRef | SubRouteRef;
+  },
+  TExternalRoutes extends {
+    [name in string]: ExternalRouteRef;
+  },
+  TExtensions extends readonly ExtensionDefinition[],
+> {
+  // (undocumented)
+  extensions?: TExtensions;
+  // (undocumented)
+  externalRoutes?: TExternalRoutes;
+  // (undocumented)
+  featureFlags?: FeatureFlagConfig[];
+  icon?: IconElement;
+  // (undocumented)
+  info?: FrontendPluginInfoOptions;
+  // (undocumented)
+  pluginId: TId;
+  // (undocumented)
+  routes?: TRoutes;
+  title?: string;
+}
 
 // @public
 export function createRouteRef<
@@ -1931,8 +1963,8 @@ export const pluginHeaderActionsApiRef: ApiRef_2<
   readonly $$type: '@backstage/ApiRef';
 };
 
-// @public (undocumented)
-export interface PluginOptions<
+// @public @deprecated (undocumented)
+export type PluginOptions<
   TId extends string,
   TRoutes extends {
     [name in string]: RouteRef | SubRouteRef;
@@ -1941,22 +1973,7 @@ export interface PluginOptions<
     [name in string]: ExternalRouteRef;
   },
   TExtensions extends readonly ExtensionDefinition[],
-> {
-  // (undocumented)
-  extensions?: TExtensions;
-  // (undocumented)
-  externalRoutes?: TExternalRoutes;
-  // (undocumented)
-  featureFlags?: FeatureFlagConfig[];
-  icon?: IconElement;
-  // (undocumented)
-  info?: FrontendPluginInfoOptions;
-  // (undocumented)
-  pluginId: TId;
-  // (undocumented)
-  routes?: TRoutes;
-  title?: string;
-}
+> = CreateFrontendPluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>;
 
 // @public
 export type PluginWrapperApi = {
@@ -2038,19 +2055,6 @@ export const Progress: {
 
 // @public (undocumented)
 export type ProgressProps = {};
-
-// @public
-export type ResolvedExtensionInputs<
-  TInputs extends {
-    [name in string]: ExtensionInput;
-  },
-> = {
-  [InputName in keyof TInputs]: false extends TInputs[InputName]['config']['singleton']
-    ? Array<Expand<ResolvedExtensionInput<TInputs[InputName]>>>
-    : false extends TInputs[InputName]['config']['optional']
-    ? Expand<ResolvedExtensionInput<TInputs[InputName]>>
-    : Expand<ResolvedExtensionInput<TInputs[InputName]> | undefined>;
-};
 
 // @public
 export type RouteFunc<TParams extends AnyRouteRefParams> = (

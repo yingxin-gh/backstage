@@ -24,8 +24,9 @@ import {
   ExtensionDefinitionParameters,
   ExtensionInput,
   PortableSchema,
-  ResolvedExtensionInputs,
 } from '@backstage/frontend-plugin-api';
+// eslint-disable-next-line @backstage/no-relative-monorepo-imports
+import { ResolvedExtensionInputs } from '../../../frontend-plugin-api/src/wiring/createExtension';
 import { OpaqueType } from '@internal/opaque';
 
 export const OpaqueExtensionDefinition = OpaqueType.create<{

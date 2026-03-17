@@ -16,30 +16,28 @@
 
 import { ConfigReader } from '@backstage/config';
 import {
+  AnyApiFactory,
   ApiBlueprint,
+  ApiHolder,
+  AppNode,
   AppTree,
   AppTreeApi,
   appTreeApiRef,
-  RouteRef,
-  ExternalRouteRef,
-  SubRouteRef,
   AnyRouteRefParams,
-  RouteFunc,
-  RouteResolutionApi,
-  createApiFactory,
-  routeResolutionApiRef,
-  AppNode,
-  FrontendFeature,
-} from '@backstage/frontend-plugin-api';
-import { ExtensionFactoryMiddleware } from './types';
-import {
-  AnyApiFactory,
-  ApiHolder,
   ConfigApi,
   configApiRef,
+  createApiFactory,
+  ExternalRouteRef,
   featureFlagsApiRef,
+  FrontendFeature,
   identityApiRef,
-} from '@backstage/core-plugin-api';
+  RouteFunc,
+  RouteRef,
+  RouteResolutionApi,
+  routeResolutionApiRef,
+  SubRouteRef,
+} from '@backstage/frontend-plugin-api';
+import { ExtensionFactoryMiddleware } from './types';
 import { ApiFactoryRegistry, ApiResolver } from '@backstage/core-app-api';
 import {
   createExtensionDataContainer,

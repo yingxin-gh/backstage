@@ -53,7 +53,8 @@ type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
 
 /**
  * Converts an extension input map into a matching collection of resolved inputs.
- * @public
+ *
+ * @ignore
  */
 export type ResolvedExtensionInputs<
   TInputs extends {

@@ -170,8 +170,12 @@ export interface FrontendPlugin<
   info(): Promise<FrontendPluginInfo>;
 }
 
-/** @public */
-export interface PluginOptions<
+/**
+ * Options for {@link createFrontendPlugin}.
+ *
+ * @public
+ */
+export interface CreateFrontendPluginOptions<
   TId extends string,
   TRoutes extends { [name in string]: RouteRef | SubRouteRef },
   TExternalRoutes extends { [name in string]: ExternalRouteRef },
@@ -193,6 +197,17 @@ export interface PluginOptions<
   featureFlags?: FeatureFlagConfig[];
   info?: FrontendPluginInfoOptions;
 }
+
+/**
+ * @deprecated Use {@link CreateFrontendPluginOptions} instead.
+ * @public
+ */
+export type PluginOptions<
+  TId extends string,
+  TRoutes extends { [name in string]: RouteRef | SubRouteRef },
+  TExternalRoutes extends { [name in string]: ExternalRouteRef },
+  TExtensions extends readonly ExtensionDefinition[],
+> = CreateFrontendPluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>;
 
 /**
  * Creates a new plugin that can be installed in a Backstage app.
@@ -230,7 +245,12 @@ export function createFrontendPlugin<
   TRoutes extends { [name in string]: RouteRef | SubRouteRef } = {},
   TExternalRoutes extends { [name in string]: ExternalRouteRef } = {},
 >(
-  options: PluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>,
+  options: CreateFrontendPluginOptions<
+    TId,
+    TRoutes,
+    TExternalRoutes,
+    TExtensions
+  >,
 ): OverridableFrontendPlugin<
   TRoutes,
   TExternalRoutes,

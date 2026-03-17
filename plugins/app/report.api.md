@@ -478,7 +478,7 @@ const appPlugin: OverridableFrontendPlugin<
         icons: ExtensionInput<
           ConfigurableExtensionDataRef<
             {
-              [x: string]: IconComponent | IconElement;
+              [x: string]: IconElement | IconComponent;
             },
             'core.icons',
             {}

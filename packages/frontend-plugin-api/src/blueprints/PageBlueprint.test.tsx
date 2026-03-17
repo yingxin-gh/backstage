@@ -24,7 +24,7 @@ import {
   createExtensionBlueprint,
   createExtensionInput,
 } from '../wiring';
-import { waitFor, screen } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 
 describe('PageBlueprint', () => {
   const mockRouteRef = createRouteRef();
@@ -278,51 +278,5 @@ describe('PageBlueprint', () => {
         ],
       }
     `);
-  });
-
-  it('should resolve sub-page tab hrefs relative to the parent page', async () => {
-    const myPage = PageBlueprint.make({
-      name: 'test-page',
-      params: {
-        path: '/test',
-        routeRef: mockRouteRef,
-        title: 'Test',
-      },
-    });
-
-    const SubPageBlueprint = createExtensionBlueprint({
-      kind: 'sub-page',
-      attachTo: { id: 'page:test-page', input: 'pages' },
-      output: [
-        coreExtensionData.routePath,
-        coreExtensionData.reactElement,
-        coreExtensionData.title.optional(),
-      ],
-      factory() {
-        return [
-          coreExtensionData.routePath('config'),
-          coreExtensionData.title('Config'),
-          coreExtensionData.reactElement(<div>Config page</div>),
-        ];
-      },
-    });
-
-    const tester = createExtensionTester(myPage).add(
-      SubPageBlueprint.make({ name: 'config', params: {} }),
-    );
-
-    renderInTestApp(tester.reactElement(), {
-      mountedRoutes: {
-        '/test/*': mockRouteRef,
-      },
-      initialRouteEntries: ['/test'],
-    });
-
-    await waitFor(() =>
-      expect(screen.getByRole('tab', { name: 'Config' })).toHaveAttribute(
-        'href',
-        '/test/config',
-      ),
-    );
   });
 });

@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
-export * from './routing';
-export * from './apis';
-export * from './wiring';
+import type { ApiRef } from '@backstage/frontend-plugin-api';
+import { OpaqueType } from '@internal/opaque';
+
+export const OpaqueApiRef = OpaqueType.create<{
+  public: ApiRef<unknown> & {
+    readonly $$type: '@backstage/ApiRef';
+  };
+  versions: {
+    readonly version: 'v1';
+    readonly pluginId?: string;
+  };
+}>({
+  type: '@backstage/ApiRef',
+  versions: ['v1'],
+});

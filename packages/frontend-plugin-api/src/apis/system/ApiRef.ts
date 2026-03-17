@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { OpaqueType } from '@internal/opaque';
+import { OpaqueApiRef } from '@internal/frontend';
 import type { ApiRef } from './types';
 
 /**
@@ -30,20 +30,6 @@ type ApiRefBuilderConfig<TId extends string> = {
   id: TId;
   pluginId?: string;
 };
-
-/** @internal */
-export const OpaqueApiRef = OpaqueType.create<{
-  public: ApiRef<unknown> & {
-    readonly $$type: '@backstage/ApiRef';
-  };
-  versions: {
-    readonly version: 'v1';
-    readonly pluginId?: string;
-  };
-}>({
-  type: '@backstage/ApiRef',
-  versions: ['v1'],
-});
 
 function validateId(id: string): void {
   const valid = id

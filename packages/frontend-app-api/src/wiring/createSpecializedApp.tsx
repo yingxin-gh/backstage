@@ -43,6 +43,7 @@ import {
 import { ApiFactoryRegistry, ApiResolver } from '@backstage/core-app-api';
 import {
   createExtensionDataContainer,
+  OpaqueApiRef,
   OpaqueFrontendPlugin,
 } from '@internal/frontend';
 
@@ -51,8 +52,6 @@ import {
   resolveExtensionDefinition,
   toInternalExtension,
 } from '../../../frontend-plugin-api/src/wiring/resolveExtensionDefinition';
-// eslint-disable-next-line @backstage/no-relative-monorepo-imports
-import { OpaqueApiRef } from '../../../frontend-plugin-api/src/apis/system/ApiRef';
 
 import {
   extractRouteInfoFromAppNode,
@@ -459,13 +458,9 @@ function createApiFactories(options: {
 //               might need to wait for some future update for API factories.
 function getApiOwnerId(apiRef: { id: string }): string {
   if (OpaqueApiRef.isType(apiRef)) {
-    try {
-      const { pluginId } = OpaqueApiRef.toInternal(apiRef);
-      if (pluginId) {
-        return pluginId;
-      }
-    } catch {
-      // Fall back to legacy ID inference for unsupported opaque ApiRef versions.
+    const { pluginId } = OpaqueApiRef.toInternal(apiRef);
+    if (pluginId) {
+      return pluginId;
     }
   }
 

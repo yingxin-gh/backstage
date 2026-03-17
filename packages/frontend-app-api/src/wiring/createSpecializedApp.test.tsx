@@ -423,7 +423,7 @@ describe('createSpecializedApp', () => {
     expect(app.apis.get(testApiRef)).toEqual({ value: 'owner' });
   });
 
-  it('should ignore plugin ownership metadata from unsupported opaque ApiRefs', () => {
+  it('should reject unsupported opaque ApiRef versions', () => {
     const testApiRef = {
       $$type: '@backstage/ApiRef',
       version: 'v0',
@@ -439,46 +439,39 @@ describe('createSpecializedApp', () => {
       readonly pluginId: 'owner';
     };
 
-    const app = createSpecializedApp({
-      features: [
-        makeAppPlugin(),
-        createFrontendPlugin({
-          pluginId: 'other-before',
-          extensions: [
-            ApiBlueprint.make({
-              params: defineParams =>
-                defineParams({
-                  api: testApiRef,
-                  deps: {},
-                  factory: () => ({ value: 'other' }),
-                }),
-            }),
-          ],
-        }),
-        createFrontendPlugin({
-          pluginId: 'owner',
-          extensions: [
-            ApiBlueprint.make({
-              params: defineParams =>
-                defineParams({
-                  api: testApiRef,
-                  deps: {},
-                  factory: () => ({ value: 'owner' }),
-                }),
-            }),
-          ],
-        }),
-      ],
-    });
-
-    expect(app.errors).toEqual([
-      expect.objectContaining({
-        code: 'API_FACTORY_CONFLICT',
-        message: expect.stringContaining("API 'shared.api'"),
+    expect(() =>
+      createSpecializedApp({
+        features: [
+          makeAppPlugin(),
+          createFrontendPlugin({
+            pluginId: 'other-before',
+            extensions: [
+              ApiBlueprint.make({
+                params: defineParams =>
+                  defineParams({
+                    api: testApiRef,
+                    deps: {},
+                    factory: () => ({ value: 'other' }),
+                  }),
+              }),
+            ],
+          }),
+          createFrontendPlugin({
+            pluginId: 'owner',
+            extensions: [
+              ApiBlueprint.make({
+                params: defineParams =>
+                  defineParams({
+                    api: testApiRef,
+                    deps: {},
+                    factory: () => ({ value: 'owner' }),
+                  }),
+              }),
+            ],
+          }),
+        ],
       }),
-    ]);
-
-    expect(app.apis.get(testApiRef)).toEqual({ value: 'other' });
+    ).toThrow("Invalid opaque type instance, got version 'v0', expected 'v1'");
   });
 
   it('should not infer app ownership from core-prefixed API ids', () => {

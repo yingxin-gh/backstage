@@ -14,7 +14,7 @@ import { FilterPredicate } from '@backstage/filter-predicates';
 import { JsonObject } from '@backstage/types';
 import { JSX as JSX_2 } from 'react';
 import { ReactNode } from 'react';
-import type { z } from 'zod';
+import type { z } from 'zod/v3';
 
 // @public
 export type AnyRouteRefParams =

@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-import { CliAuth, type StoredInstance } from '@backstage/cli-node';
-
-export async function resolveAuth(instanceFlag?: string): Promise<{
-  instance: StoredInstance;
-  accessToken: string;
-  pluginSources: string[];
-}> {
-  const auth = await CliAuth.create({ instanceName: instanceFlag });
-  const accessToken = await auth.getAccessToken();
-  const pluginSources = (await auth.getConfig<string[]>('pluginSources')) ?? [];
-
-  return { instance: auth.instance, accessToken, pluginSources };
-}
+export { CliAuth, type CliAuthCreateOptions } from './CliAuth';
+export { type StoredInstance } from './storage';
+export { httpJson, type HttpInit } from './httpJson';
+export { getSecretStore, type SecretStore } from './secretStore';

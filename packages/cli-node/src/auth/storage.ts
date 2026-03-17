@@ -18,12 +18,8 @@ import { NotFoundError } from '@backstage/errors';
 import fs from 'fs-extra';
 import os from 'node:os';
 import path from 'node:path';
-import lockfile from 'proper-lockfile';
 import YAML from 'yaml';
-import { z } from 'zod/v3';
-
-export type { StoredInstance } from '@backstage/cli-node';
-import type { StoredInstance } from '@backstage/cli-node';
+import { z } from 'zod';
 
 const METADATA_FILE = 'auth-instances.yaml';
 
@@ -42,11 +38,23 @@ const storedInstanceSchema = z.object({
   config: z.record(z.string(), z.unknown()).optional(),
 });
 
+/** @public */
+export type StoredInstance = {
+  name: string;
+  baseUrl: string;
+  clientId: string;
+  issuedAt: number;
+  accessTokenExpiresAt: number;
+  selected?: boolean;
+  config?: Record<string, unknown>;
+};
+
 const authYamlSchema = z.object({
   instances: z.array(storedInstanceSchema).default([]),
 });
 
-function getMetadataFilePath(): string {
+/** @internal */
+export function getMetadataFilePath(): string {
   const root =
     process.env.XDG_CONFIG_HOME ||
     (process.platform === 'win32'
@@ -56,7 +64,8 @@ function getMetadataFilePath(): string {
   return path.join(root, 'backstage-cli', METADATA_FILE);
 }
 
-async function readAll(): Promise<{ instances: StoredInstance[] }> {
+/** @internal */
+export async function readAll(): Promise<{ instances: StoredInstance[] }> {
   const file = getMetadataFilePath();
   if (!(await fs.pathExists(file))) {
     return { instances: [] };
@@ -77,13 +86,7 @@ async function readAll(): Promise<{ instances: StoredInstance[] }> {
   }
 }
 
-async function writeAll(data: { instances: StoredInstance[] }): Promise<void> {
-  const file = getMetadataFilePath();
-  await fs.ensureDir(path.dirname(file));
-  const yaml = YAML.stringify(authYamlSchema.parse(data), { indentSeq: false });
-  await fs.writeFile(file, yaml, { encoding: 'utf8', mode: 0o600 });
-}
-
+/** @internal */
 export async function getAllInstances(): Promise<{
   instances: StoredInstance[];
   selected: StoredInstance | undefined;
@@ -99,7 +102,7 @@ export async function getAllInstances(): Promise<{
   };
 }
 
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
+/** @internal */
 export async function getSelectedInstance(
   instanceName?: string,
 ): Promise<StoredInstance> {
@@ -115,6 +118,7 @@ export async function getSelectedInstance(
   return selected;
 }
 
+/** @internal */
 export async function getInstanceByName(name: string): Promise<StoredInstance> {
   const { instances } = await readAll();
   const instance = instances.find(i => i.name === name);
@@ -124,45 +128,7 @@ export async function getInstanceByName(name: string): Promise<StoredInstance> {
   return instance;
 }
 
-export async function upsertInstance(instance: StoredInstance): Promise<void> {
-  const data = await readAll();
-  const idx = data.instances.findIndex(i => i.name === instance.name);
-  if (idx === -1) {
-    data.instances.push(instance);
-  } else {
-    data.instances[idx] = instance;
-  }
-  await writeAll(data);
-}
-
-export async function removeInstance(name: string): Promise<void> {
-  const data = await readAll();
-  const next = data.instances.filter(i => i.name !== name);
-  if (next.length !== data.instances.length) {
-    await writeAll({ instances: next });
-  }
-}
-
-export async function setSelectedInstance(name: string): Promise<void> {
-  return withMetadataLock(async () => {
-    const data = await readAll();
-    let found = false;
-    data.instances = data.instances.map(i => {
-      if (i.name === name) {
-        found = true;
-        return { ...i, selected: true };
-      }
-      const { selected, ...rest } = i;
-      return { ...rest, selected: false };
-    });
-    if (!found) {
-      throw new Error(`Unknown instance '${name}'`);
-    }
-    await writeAll(data);
-  });
-}
-
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth.getConfig} instead. */
+/** @internal */
 export async function getInstanceConfig<T = unknown>(
   instanceName: string,
   key: string,
@@ -171,38 +137,8 @@ export async function getInstanceConfig<T = unknown>(
   return instance.config?.[key] as T | undefined;
 }
 
-/** @public */
-export async function updateInstanceConfig(
-  instanceName: string,
-  key: string,
-  value: unknown,
-): Promise<void> {
-  return withMetadataLock(async () => {
-    const data = await readAll();
-    const idx = data.instances.findIndex(i => i.name === instanceName);
-    if (idx === -1) {
-      throw new NotFoundError(`Instance '${instanceName}' not found`);
-    }
-    data.instances[idx] = {
-      ...data.instances[idx],
-      config: { ...data.instances[idx].config, [key]: value },
-    };
-    await writeAll(data);
-  });
-}
-
-export async function withMetadataLock<T>(fn: () => Promise<T>): Promise<T> {
-  const file = getMetadataFilePath();
-  await fs.ensureDir(path.dirname(file));
-  if (!(await fs.pathExists(file))) {
-    await fs.writeFile(file, '', { encoding: 'utf8', mode: 0o600 });
-  }
-  const release = await lockfile.lock(file, {
-    retries: { retries: 5, factor: 1.5, minTimeout: 100, maxTimeout: 1000 },
-  });
-  try {
-    return await fn();
-  } finally {
-    await release();
-  }
+/** @internal */
+export function accessTokenNeedsRefresh(instance: StoredInstance): boolean {
+  // 2 minutes before expiration
+  return instance.accessTokenExpiresAt <= Date.now() + 2 * 60_000;
 }

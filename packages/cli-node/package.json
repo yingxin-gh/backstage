@@ -52,6 +52,9 @@
     "@backstage/test-utils": "workspace:^",
     "@types/yarnpkg__lockfile": "^1.1.4"
   },
+  "optionalDependencies": {
+    "keytar": "^7.9.0"
+  },
   "peerDependencies": {
     "@swc/core": "^1.15.6"
   },

@@ -15,10 +15,7 @@
  */
 
 import { cli } from 'cleye';
-import type { CliCommandContext } from '@backstage/cli-node';
-import { accessTokenNeedsRefresh, refreshAccessToken } from '../lib/auth';
-import { getSelectedInstance } from '../lib/storage';
-import { getSecretStore } from '../lib/secretStore';
+import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
 
 export default async ({ args, info }: CliCommandContext) => {
   const {
@@ -37,18 +34,8 @@ export default async ({ args, info }: CliCommandContext) => {
     args,
   );
 
-  let instance = await getSelectedInstance(instanceFlag);
-
-  if (accessTokenNeedsRefresh(instance)) {
-    instance = await refreshAccessToken(instance.name);
-  }
-
-  const secretStore = await getSecretStore();
-  const service = `backstage-cli:auth-instance:${instance.name}`;
-  const accessToken = await secretStore.get(service, 'accessToken');
-  if (!accessToken) {
-    throw new Error('No access token found. Run "auth login" to authenticate.');
-  }
+  const auth = await CliAuth.create({ instanceName: instanceFlag });
+  const accessToken = await auth.getAccessToken();
 
   process.stdout.write(`${accessToken}\n`);
 };

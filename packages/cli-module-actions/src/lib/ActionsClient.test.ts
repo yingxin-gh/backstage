@@ -15,11 +15,15 @@
  */
 
 import { ActionsClient } from './ActionsClient';
-import { httpJson } from '@backstage/cli-module-auth';
+import { httpJson } from '@backstage/cli-node';
 
-jest.mock('@backstage/cli-module-auth', () => ({
-  httpJson: jest.fn(),
-}));
+jest.mock('@backstage/cli-node', () => {
+  const actual = jest.requireActual('@backstage/cli-node');
+  return {
+    ...actual,
+    httpJson: jest.fn(),
+  };
+});
 
 const mockHttpJson = httpJson as jest.MockedFunction<typeof httpJson>;
 

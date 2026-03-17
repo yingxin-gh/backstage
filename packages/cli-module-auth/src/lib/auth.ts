@@ -15,12 +15,8 @@
  */
 
 import { z } from 'zod/v3';
-import {
-  StoredInstance,
-  upsertInstance,
-  withMetadataLock,
-  getInstanceByName,
-} from './storage';
+import type { StoredInstance } from '@backstage/cli-node';
+import { upsertInstance, withMetadataLock, getInstanceByName } from './storage';
 import { getSecretStore } from './secretStore';
 import { httpJson } from './http';
 
@@ -31,12 +27,13 @@ const TokenResponseSchema = z.object({
   refresh_token: z.string().min(1).optional(),
 });
 
-/** @public */
+/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
 export function accessTokenNeedsRefresh(instance: StoredInstance): boolean {
-  return instance.accessTokenExpiresAt <= Date.now() + 2 * 60_000; // 2 minutes before expiration
+  // 2 minutes before expiration
+  return instance.accessTokenExpiresAt <= Date.now() + 2 * 60_000;
 }
 
-/** @public */
+/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
 export async function refreshAccessToken(
   instanceName: string,
 ): Promise<StoredInstance> {

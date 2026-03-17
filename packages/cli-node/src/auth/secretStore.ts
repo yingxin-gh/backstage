@@ -18,8 +18,12 @@ import fs from 'fs-extra';
 import os from 'node:os';
 import path from 'node:path';
 
-export type { SecretStore } from '@backstage/cli-node';
-import type { SecretStore } from '@backstage/cli-node';
+/** @public */
+export type SecretStore = {
+  get(service: string, account: string): Promise<string | undefined>;
+  set(service: string, account: string, secret: string): Promise<void>;
+  delete(service: string, account: string): Promise<void>;
+};
 
 async function loadKeytar(): Promise<typeof import('keytar') | undefined> {
   try {

@@ -15,11 +15,7 @@
  */
 
 import { cli } from 'cleye';
-import type { CliCommandContext } from '@backstage/cli-node';
-import { httpJson } from '../lib/http';
-import { getSelectedInstance } from '../lib/storage';
-import { accessTokenNeedsRefresh, refreshAccessToken } from '../lib/auth';
-import { getSecretStore } from '../lib/secretStore';
+import { CliAuth, httpJson, type CliCommandContext } from '@backstage/cli-node';
 
 export default async ({ args, info }: CliCommandContext) => {
   const {
@@ -38,22 +34,12 @@ export default async ({ args, info }: CliCommandContext) => {
     args,
   );
 
-  let instance = await getSelectedInstance(instanceFlag);
+  const auth = await CliAuth.create({ instanceName: instanceFlag });
+  const accessToken = await auth.getAccessToken();
 
-  if (accessTokenNeedsRefresh(instance)) {
-    process.stdout.write('Refreshing access token...\n');
-    instance = await refreshAccessToken(instance.name);
-  }
-  const authBase = new URL('/api/auth', instance.baseUrl)
+  const authBase = new URL('/api/auth', auth.baseUrl)
     .toString()
     .replace(/\/$/, '');
-
-  const secretStore = await getSecretStore();
-  const service = `backstage-cli:auth-instance:${instance.name}`;
-  const accessToken = await secretStore.get(service, 'accessToken');
-  if (!accessToken) {
-    throw new Error('No access token found. Run "auth login" to authenticate.');
-  }
 
   const userinfo = await httpJson<{ claims: { sub: string; ent: string[] } }>(
     `${authBase}/v1/userinfo`,

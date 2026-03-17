@@ -20,6 +20,7 @@
  * @packageDocumentation
  */
 
+export * from './auth';
 export * from './cache';
 export * from './cli-module';
 export * from './concurrency';

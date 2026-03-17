@@ -14,28 +14,4 @@
  * limitations under the License.
  */
 
-import { ResponseError } from '@backstage/errors';
-
-/** @public */
-export type HttpInit = {
-  headers?: Record<string, string>;
-  method?: string;
-  body?: any;
-  signal?: AbortSignal;
-};
-
-/** @public */
-export async function httpJson<T>(url: string, init?: HttpInit): Promise<T> {
-  const res = await fetch(url, {
-    ...init,
-    body: init?.body ? JSON.stringify(init.body) : undefined,
-    headers: {
-      ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
-      ...init?.headers,
-    },
-  });
-  if (!res.ok) {
-    throw await ResponseError.fromResponse(res);
-  }
-  return (await res.json()) as T;
-}
+export { httpJson, type HttpInit } from '@backstage/cli-node';

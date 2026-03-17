@@ -4,61 +4,44 @@
 
 ```ts
 import { CliModule } from '@backstage/cli-node';
+import { getSecretStore } from '@backstage/cli-node';
+import { HttpInit } from '@backstage/cli-node';
+import { httpJson } from '@backstage/cli-node';
+import { SecretStore } from '@backstage/cli-node';
+import { StoredInstance } from '@backstage/cli-node';
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export function accessTokenNeedsRefresh(instance: StoredInstance): boolean;
 
 // @public (undocumented)
 const _default: CliModule;
 export default _default;
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export function getInstanceConfig<T = unknown>(
   instanceName: string,
   key: string,
 ): Promise<T | undefined>;
 
-// @public (undocumented)
-export function getSecretStore(): Promise<SecretStore>;
+export { getSecretStore };
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export function getSelectedInstance(
   instanceName?: string,
 ): Promise<StoredInstance>;
 
-// @public (undocumented)
-export type HttpInit = {
-  headers?: Record<string, string>;
-  method?: string;
-  body?: any;
-  signal?: AbortSignal;
-};
+export { HttpInit };
 
-// @public (undocumented)
-export function httpJson<T>(url: string, init?: HttpInit): Promise<T>;
+export { httpJson };
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export function refreshAccessToken(
   instanceName: string,
 ): Promise<StoredInstance>;
 
-// @public (undocumented)
-export type SecretStore = {
-  get(service: string, account: string): Promise<string | undefined>;
-  set(service: string, account: string, secret: string): Promise<void>;
-  delete(service: string, account: string): Promise<void>;
-};
+export { SecretStore };
 
-// @public (undocumented)
-export type StoredInstance = {
-  name: string;
-  baseUrl: string;
-  clientId: string;
-  issuedAt: number;
-  accessTokenExpiresAt: number;
-  selected?: boolean;
-  config?: Record<string, unknown>;
-};
+export { StoredInstance };
 
 // @public (undocumented)
 export function updateInstanceConfig(

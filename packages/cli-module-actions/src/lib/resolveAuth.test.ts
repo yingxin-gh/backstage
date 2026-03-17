@@ -15,39 +15,17 @@
  */
 
 import { resolveAuth } from './resolveAuth';
-import {
-  getSelectedInstance,
-  getInstanceConfig,
-  accessTokenNeedsRefresh,
-  refreshAccessToken,
-  getSecretStore,
-  type StoredInstance,
-} from '@backstage/cli-module-auth';
+import { CliAuth, type StoredInstance } from '@backstage/cli-node';
 
-jest.mock('@backstage/cli-module-auth', () => ({
-  getSelectedInstance: jest.fn(),
-  getInstanceConfig: jest.fn(),
-  accessTokenNeedsRefresh: jest.fn(),
-  refreshAccessToken: jest.fn(),
-  getSecretStore: jest.fn(),
-}));
+jest.mock('@backstage/cli-node', () => {
+  const actual = jest.requireActual('@backstage/cli-node');
+  return {
+    ...actual,
+    CliAuth: { create: jest.fn() },
+  };
+});
 
-const mockGetSelectedInstance = getSelectedInstance as jest.MockedFunction<
-  typeof getSelectedInstance
->;
-const mockGetInstanceConfig = getInstanceConfig as jest.MockedFunction<
-  typeof getInstanceConfig
->;
-const mockAccessTokenNeedsRefresh =
-  accessTokenNeedsRefresh as jest.MockedFunction<
-    typeof accessTokenNeedsRefresh
-  >;
-const mockRefreshAccessToken = refreshAccessToken as jest.MockedFunction<
-  typeof refreshAccessToken
->;
-const mockGetSecretStore = getSecretStore as jest.MockedFunction<
-  typeof getSecretStore
->;
+const mockCreate = CliAuth.create as jest.MockedFunction<typeof CliAuth.create>;
 
 describe('resolveAuth', () => {
   const mockInstance: StoredInstance = {
@@ -58,27 +36,22 @@ describe('resolveAuth', () => {
     accessTokenExpiresAt: Date.now() + 3600_000,
   };
 
-  const mockSecretStore = {
-    get: jest.fn(),
-    set: jest.fn(),
-    delete: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetSelectedInstance.mockResolvedValue(mockInstance);
-    mockAccessTokenNeedsRefresh.mockReturnValue(false);
-    mockGetSecretStore.mockResolvedValue(mockSecretStore);
-    mockSecretStore.get.mockResolvedValue('test-access-token');
-    mockGetInstanceConfig.mockResolvedValue(['catalog', 'scaffolder']);
   });
 
   it('resolves auth with the selected instance and stored token', async () => {
+    mockCreate.mockResolvedValue({
+      instance: mockInstance,
+      instanceName: mockInstance.name,
+      baseUrl: mockInstance.baseUrl,
+      getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
+      getConfig: jest.fn().mockResolvedValue(['catalog', 'scaffolder']),
+    } as unknown as CliAuth);
+
     const result = await resolveAuth();
 
-    expect(mockGetSelectedInstance).toHaveBeenCalledWith(undefined);
-    expect(mockAccessTokenNeedsRefresh).toHaveBeenCalledWith(mockInstance);
-    expect(mockRefreshAccessToken).not.toHaveBeenCalled();
+    expect(mockCreate).toHaveBeenCalledWith({ instanceName: undefined });
     expect(result).toEqual({
       instance: mockInstance,
       accessToken: 'test-access-token',
@@ -86,28 +59,32 @@ describe('resolveAuth', () => {
     });
   });
 
-  it('passes instance name flag to getSelectedInstance', async () => {
+  it('passes instance name flag to CliAuth.create', async () => {
+    mockCreate.mockResolvedValue({
+      instance: mockInstance,
+      instanceName: mockInstance.name,
+      baseUrl: mockInstance.baseUrl,
+      getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
+      getConfig: jest.fn().mockResolvedValue([]),
+    } as unknown as CliAuth);
+
     await resolveAuth('staging');
 
-    expect(mockGetSelectedInstance).toHaveBeenCalledWith('staging');
+    expect(mockCreate).toHaveBeenCalledWith({ instanceName: 'staging' });
   });
 
-  it('refreshes the access token when it is about to expire', async () => {
-    const refreshedInstance = {
-      ...mockInstance,
-      accessTokenExpiresAt: Date.now() + 7200_000,
-    };
-    mockAccessTokenNeedsRefresh.mockReturnValue(true);
-    mockRefreshAccessToken.mockResolvedValue(refreshedInstance);
-
-    const result = await resolveAuth();
-
-    expect(mockRefreshAccessToken).toHaveBeenCalledWith('production');
-    expect(result.instance).toBe(refreshedInstance);
-  });
-
-  it('throws when no access token is stored', async () => {
-    mockSecretStore.get.mockResolvedValue(undefined);
+  it('throws when getAccessToken fails', async () => {
+    mockCreate.mockResolvedValue({
+      instance: mockInstance,
+      instanceName: mockInstance.name,
+      baseUrl: mockInstance.baseUrl,
+      getAccessToken: jest
+        .fn()
+        .mockRejectedValue(
+          new Error('No access token found. Run "auth login" to authenticate.'),
+        ),
+      getConfig: jest.fn().mockResolvedValue([]),
+    } as unknown as CliAuth);
 
     await expect(resolveAuth()).rejects.toThrow(
       'No access token found. Run "auth login" to authenticate.',
@@ -115,7 +92,13 @@ describe('resolveAuth', () => {
   });
 
   it('returns empty plugin sources when none are configured', async () => {
-    mockGetInstanceConfig.mockResolvedValue(undefined);
+    mockCreate.mockResolvedValue({
+      instance: mockInstance,
+      instanceName: mockInstance.name,
+      baseUrl: mockInstance.baseUrl,
+      getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
+      getConfig: jest.fn().mockResolvedValue(undefined),
+    } as unknown as CliAuth);
 
     const result = await resolveAuth();
 

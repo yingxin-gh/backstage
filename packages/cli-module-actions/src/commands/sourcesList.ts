@@ -15,18 +15,13 @@
  */
 
 import { cli } from 'cleye';
-import type { CliCommandContext } from '@backstage/cli-node';
-import {
-  getSelectedInstance,
-  getInstanceConfig,
-} from '@backstage/cli-module-auth';
+import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
 
 export default async ({ args, info }: CliCommandContext) => {
   cli({ help: info }, undefined, args);
 
-  const instance = await getSelectedInstance();
-  const sources =
-    (await getInstanceConfig<string[]>(instance.name, 'pluginSources')) ?? [];
+  const auth = await CliAuth.create();
+  const sources = (await auth.getConfig<string[]>('pluginSources')) ?? [];
 
   if (!sources.length) {
     process.stderr.write('No plugin sources configured.\n');

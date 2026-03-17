@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { httpJson } from '@backstage/cli-module-auth';
+import { httpJson } from '@backstage/cli-node';
 
 export type ActionDef = {
   id: string;

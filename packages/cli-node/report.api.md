@@ -87,6 +87,21 @@ export interface BackstagePackageJson {
 }
 
 // @public
+export class CliAuth {
+  get baseUrl(): string;
+  static create(options?: CliAuthCreateOptions): Promise<CliAuth>;
+  getAccessToken(): Promise<string>;
+  getConfig<T = unknown>(key: string): Promise<T | undefined>;
+  get instance(): StoredInstance;
+  get instanceName(): string;
+}
+
+// @public
+export interface CliAuthCreateOptions {
+  instanceName?: string;
+}
+
+// @public
 export interface CliCommand {
   deprecated?: boolean;
   description: string;
@@ -133,6 +148,9 @@ export function createCliModule(options: {
   }) => Promise<void>;
 }): CliModule;
 
+// @public (undocumented)
+export function getSecretStore(): Promise<SecretStore>;
+
 // @public
 export class GitUtils {
   static listChangedFiles(ref: string): Promise<string[]>;
@@ -141,6 +159,17 @@ export class GitUtils {
 
 // @public
 export function hasBackstageYarnPlugin(workspaceDir?: string): Promise<boolean>;
+
+// @public (undocumented)
+export type HttpInit = {
+  headers?: Record<string, string>;
+  method?: string;
+  body?: any;
+  signal?: AbortSignal;
+};
+
+// @public (undocumented)
+export function httpJson<T>(url: string, init?: HttpInit): Promise<T>;
 
 // @public
 export function isMonoRepo(): Promise<boolean>;
@@ -271,6 +300,24 @@ export function runWorkerQueueThreads<TItem, TResult, TContext>(
 ): Promise<{
   results: TResult[];
 }>;
+
+// @public (undocumented)
+export type SecretStore = {
+  get(service: string, account: string): Promise<string | undefined>;
+  set(service: string, account: string, secret: string): Promise<void>;
+  delete(service: string, account: string): Promise<void>;
+};
+
+// @public (undocumented)
+export type StoredInstance = {
+  name: string;
+  baseUrl: string;
+  clientId: string;
+  issuedAt: number;
+  accessTokenExpiresAt: number;
+  selected?: boolean;
+  config?: Record<string, unknown>;
+};
 
 // @public
 export class SuccessCache {

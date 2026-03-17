@@ -6,13 +6,17 @@ export default async ({ args, info }: CliCommandContext) => {
     {
       help: info,
       booleanFlagNegation: true,
-      flags: {},
+      flags: {
+        name: {
+          type: String,
+          description: 'Your name',
+        },
+      },
     },
     undefined,
     args,
   );
 
-  void flags;
-
-  console.log('Hello from example command!');
+  const name = flags.name ?? 'World';
+  console.log(`Hello, ${name}!`);
 };

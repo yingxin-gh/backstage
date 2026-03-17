@@ -16,6 +16,7 @@
 
 import {
   AppTreeApi,
+  type ApiRef,
   appTreeApiRef,
   coreExtensionData,
   createExtension,
@@ -420,6 +421,64 @@ describe('createSpecializedApp', () => {
     ]);
 
     expect(app.apis.get(testApiRef)).toEqual({ value: 'owner' });
+  });
+
+  it('should ignore plugin ownership metadata from unsupported opaque ApiRefs', () => {
+    const testApiRef = {
+      $$type: '@backstage/ApiRef',
+      version: 'v0',
+      id: 'shared.api',
+      pluginId: 'owner',
+      T: null as unknown as { value: string },
+      toString() {
+        return 'apiRef{shared.api}';
+      },
+    } as ApiRef<{ value: string }, 'shared.api'> & {
+      readonly $$type: '@backstage/ApiRef';
+      readonly version: 'v0';
+      readonly pluginId: 'owner';
+    };
+
+    const app = createSpecializedApp({
+      features: [
+        makeAppPlugin(),
+        createFrontendPlugin({
+          pluginId: 'other-before',
+          extensions: [
+            ApiBlueprint.make({
+              params: defineParams =>
+                defineParams({
+                  api: testApiRef,
+                  deps: {},
+                  factory: () => ({ value: 'other' }),
+                }),
+            }),
+          ],
+        }),
+        createFrontendPlugin({
+          pluginId: 'owner',
+          extensions: [
+            ApiBlueprint.make({
+              params: defineParams =>
+                defineParams({
+                  api: testApiRef,
+                  deps: {},
+                  factory: () => ({ value: 'owner' }),
+                }),
+            }),
+          ],
+        }),
+      ],
+    });
+
+    expect(app.errors).toEqual([
+      expect.objectContaining({
+        code: 'API_FACTORY_CONFLICT',
+        message: expect.stringContaining("API 'shared.api'"),
+      }),
+    ]);
+
+    expect(app.apis.get(testApiRef)).toEqual({ value: 'other' });
   });
 
   it('should not infer app ownership from core-prefixed API ids', () => {

@@ -51,6 +51,8 @@ import {
   resolveExtensionDefinition,
   toInternalExtension,
 } from '../../../frontend-plugin-api/src/wiring/resolveExtensionDefinition';
+// eslint-disable-next-line @backstage/no-relative-monorepo-imports
+import { OpaqueApiRef } from '../../../frontend-plugin-api/src/apis/system/ApiRef';
 
 import {
   extractRouteInfoFromAppNode,
@@ -456,9 +458,15 @@ function createApiFactories(options: {
 // TODO(Rugvip): It would be good if this was more explicit, but I think that
 //               might need to wait for some future update for API factories.
 function getApiOwnerId(apiRef: { id: string }): string {
-  const pluginId = (apiRef as { pluginId?: string }).pluginId;
-  if (pluginId) {
-    return pluginId;
+  if (OpaqueApiRef.isType(apiRef)) {
+    try {
+      const { pluginId } = OpaqueApiRef.toInternal(apiRef);
+      if (pluginId) {
+        return pluginId;
+      }
+    } catch {
+      // Fall back to legacy ID inference for unsupported opaque ApiRef versions.
+    }
   }
 
   const apiRefId = apiRef.id;

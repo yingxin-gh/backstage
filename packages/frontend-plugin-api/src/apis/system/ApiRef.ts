@@ -31,12 +31,14 @@ type ApiRefBuilderConfig<TId extends string> = {
   pluginId?: string;
 };
 
-const OpaqueApiRef = OpaqueType.create<{
+/** @internal */
+export const OpaqueApiRef = OpaqueType.create<{
   public: ApiRef<unknown> & {
     readonly $$type: '@backstage/ApiRef';
   };
   versions: {
     readonly version: 'v1';
+    readonly pluginId?: string;
   };
 }>({
   type: '@backstage/ApiRef',

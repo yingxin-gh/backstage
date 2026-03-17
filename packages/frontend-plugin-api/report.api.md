@@ -25,18 +25,18 @@ import { ReactNode } from 'react';
 import { SwappableComponentRef as SwappableComponentRef_2 } from '@backstage/frontend-plugin-api';
 import type { z } from 'zod';
 
-// @public
+// @public @deprecated
 export type AlertApi = {
   post(alert: AlertMessage): void;
   alert$(): Observable<AlertMessage>;
 };
 
-// @public
+// @public @deprecated
 export const alertApiRef: ApiRef_2<AlertApi, 'core.alert'> & {
   readonly $$type: '@backstage/ApiRef';
 };
 
-// @public
+// @public @deprecated
 export type AlertMessage = {
   message: string;
   severity?: 'success' | 'info' | 'warning' | 'error';
@@ -2240,6 +2240,34 @@ export const swappableComponentsApiRef: ApiRef_2<
 > & {
   readonly $$type: '@backstage/ApiRef';
 };
+
+// @public
+export type ToastApi = {
+  post(toast: ToastApiMessage): ToastApiPostResult;
+};
+
+// @public
+export type ToastApiMessage = {
+  title: ReactNode;
+  description?: ReactNode;
+  status?: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+  links?: ToastApiMessageLink[];
+  timeout?: number;
+};
+
+// @public
+export type ToastApiMessageLink = {
+  label: string;
+  href: string;
+};
+
+// @public
+export type ToastApiPostResult = {
+  close(): void;
+};
+
+// @public
+export const toastApiRef: ApiRef<ToastApi>;
 
 // @public (undocumented)
 export type TranslationApi = {

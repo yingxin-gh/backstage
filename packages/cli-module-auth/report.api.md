@@ -4,7 +4,6 @@
 
 ```ts
 import { CliModule } from '@backstage/cli-node';
-import { getSecretStore } from '@backstage/cli-node';
 import { HttpInit } from '@backstage/cli-node';
 import { httpJson } from '@backstage/cli-node';
 import { SecretStore } from '@backstage/cli-node';
@@ -23,7 +22,8 @@ export function getInstanceConfig<T = unknown>(
   key: string,
 ): Promise<T | undefined>;
 
-export { getSecretStore };
+// @public (undocumented)
+export function getSecretStore(): Promise<SecretStore>;
 
 // @public @deprecated (undocumented)
 export function getSelectedInstance(

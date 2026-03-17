@@ -237,7 +237,11 @@ describe('collectTemplateParams', () => {
         }),
       );
 
-      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(inquirer.prompt).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'pluginPackage' }),
+        ]),
+      );
     });
 
     it('should re-prompt when pluginPackage is prefilled with an invalid name', async () => {
@@ -262,7 +266,11 @@ describe('collectTemplateParams', () => {
         }),
       );
 
-      expect(inquirer.prompt).toHaveBeenCalled();
+      expect(inquirer.prompt).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'pluginPackage' }),
+        ]),
+      );
     });
   });
 

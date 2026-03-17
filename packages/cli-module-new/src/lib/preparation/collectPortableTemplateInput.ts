@@ -71,10 +71,8 @@ export async function collectPortableTemplateInput(
     template.role === 'backend-plugin-module' ||
     template.role === 'frontend-plugin-module'
   ) {
-    if (
-      parameters.pluginPackage &&
-      !isValidNpmPackageName(parameters.pluginPackage as string)
-    ) {
+    const pluginPkg = (parameters.pluginPackage as string | undefined)?.trim();
+    if (!pluginPkg || !isValidNpmPackageName(pluginPkg)) {
       delete parameters.pluginPackage;
     }
 

@@ -20,6 +20,7 @@ import { analyticsApiRef } from '@backstage/core-plugin-api';
 import {
   catalogApiRef,
   EntityProvider,
+  entityPresentationApiRef,
   entityRouteRef,
 } from '@backstage/plugin-catalog-react';
 import { catalogApiMock } from '@backstage/plugin-catalog-react/testUtils';
@@ -36,6 +37,14 @@ import { CatalogGraphCard } from './CatalogGraphCard';
 import Button from '@material-ui/core/Button';
 import { translationApiRef } from '@backstage/core-plugin-api/alpha';
 import { catalogGraphApiRef, DefaultCatalogGraphApi } from '../../api';
+import { defaultEntityPresentation } from '@backstage/plugin-catalog-react';
+
+const mockEntityPresentationApi = {
+  forEntity(entityOrRef: Parameters<typeof defaultEntityPresentation>[0]) {
+    const snapshot = defaultEntityPresentation(entityOrRef);
+    return { snapshot, promise: Promise.resolve(snapshot) };
+  },
+};
 
 describe('<CatalogGraphCard/>', () => {
   let entity: Entity;
@@ -58,6 +67,7 @@ describe('<CatalogGraphCard/>', () => {
       [catalogApiRef, catalog],
       [translationApiRef, mockApis.translation()],
       [catalogGraphApiRef, new DefaultCatalogGraphApi()],
+      [entityPresentationApiRef, mockEntityPresentationApi],
     );
 
     wrapper = (
@@ -241,7 +251,7 @@ describe('<CatalogGraphCard/>', () => {
     expect(analyticsApi.captureEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'click',
-        subject: 'b:d/c',
+        subject: 'd/c',
         attributes: {
           to: '/entity/{kind}/{namespace}/{name}',
         },

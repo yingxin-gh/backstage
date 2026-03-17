@@ -21,9 +21,20 @@ import {
   createTestEntityPage,
   catalogApiMock,
 } from '@backstage/plugin-catalog-react/testUtils';
+import {
+  defaultEntityPresentation,
+  entityPresentationApiRef,
+} from '@backstage/plugin-catalog-react';
 import catalogGraphPlugin from './alpha';
 import { catalogGraphRouteRef } from './routes';
 import { catalogGraphApiRef, DefaultCatalogGraphApi } from './api';
+
+const mockEntityPresentationApi = {
+  forEntity(entityOrRef: Parameters<typeof defaultEntityPresentation>[0]) {
+    const snapshot = defaultEntityPresentation(entityOrRef);
+    return { snapshot, promise: Promise.resolve(snapshot) };
+  },
+};
 
 const CatalogGraphEntityCard = catalogGraphPlugin.getExtension(
   'entity-card:catalog-graph/relations',
@@ -59,6 +70,7 @@ describe('catalog-graph alpha plugin', () => {
         apis: [
           catalogApiMock({ entities: [entity] }),
           [catalogGraphApiRef, new DefaultCatalogGraphApi()],
+          [entityPresentationApiRef, mockEntityPresentationApi],
         ],
       });
 
@@ -96,6 +108,7 @@ describe('catalog-graph alpha plugin', () => {
         apis: [
           catalogApiMock({ entities: [entity] }),
           [catalogGraphApiRef, new DefaultCatalogGraphApi()],
+          [entityPresentationApiRef, mockEntityPresentationApi],
         ],
       });
 
@@ -132,6 +145,7 @@ describe('catalog-graph alpha plugin', () => {
         apis: [
           catalogApiMock({ entities: [entity] }),
           [catalogGraphApiRef, new DefaultCatalogGraphApi()],
+          [entityPresentationApiRef, mockEntityPresentationApi],
         ],
       });
 

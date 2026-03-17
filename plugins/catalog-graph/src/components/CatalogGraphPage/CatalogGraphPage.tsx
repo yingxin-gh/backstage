@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { parseEntityRef } from '@backstage/catalog-model';
+import { parseEntityRef, stringifyEntityRef } from '@backstage/catalog-model';
 import {
   Content,
   ContentHeader,
@@ -22,10 +22,10 @@ import {
   Page,
   SupportButton,
 } from '@backstage/core-components';
-import { useAnalytics, useRouteRef } from '@backstage/core-plugin-api';
+import { useAnalytics, useRouteRef, useApi } from '@backstage/core-plugin-api';
 import {
+  entityPresentationApiRef,
   entityRouteRef,
-  humanizeEntityRef,
 } from '@backstage/plugin-catalog-react';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -157,9 +157,12 @@ export const CatalogGraphPage = (
     toggleShowFilters,
   } = useCatalogGraphPage({ initialState });
   const analytics = useAnalytics();
+  const entityPresentationApi = useApi(entityPresentationApiRef);
   const onNodeClick = useCallback(
     (node: EntityNode, event: MouseEvent<unknown>) => {
       const nodeEntityName = parseEntityRef(node.id);
+      const nodeTitle = entityPresentationApi.forEntity(node.entity).snapshot
+        .primaryTitle;
 
       if (event.shiftKey) {
         const path = catalogEntityRoute({
@@ -168,28 +171,35 @@ export const CatalogGraphPage = (
           name: nodeEntityName.name,
         });
 
-        analytics.captureEvent(
-          'click',
-          node.entity.metadata.title ?? humanizeEntityRef(nodeEntityName),
-          { attributes: { to: path } },
-        );
+        analytics.captureEvent('click', nodeTitle, {
+          attributes: { to: path },
+        });
         navigate(path);
       } else {
-        analytics.captureEvent(
-          'click',
-          node.entity.metadata.title ?? humanizeEntityRef(nodeEntityName),
-        );
+        analytics.captureEvent('click', nodeTitle);
         setRootEntityNames([nodeEntityName]);
       }
     },
-    [catalogEntityRoute, navigate, setRootEntityNames, analytics],
+    [
+      catalogEntityRoute,
+      navigate,
+      setRootEntityNames,
+      analytics,
+      entityPresentationApi,
+    ],
   );
 
   return (
     <Page themeId="home">
       <Header
         title={t('catalogGraphPage.title')}
-        subtitle={rootEntityNames.map(e => humanizeEntityRef(e)).join(', ')}
+        subtitle={rootEntityNames
+          .map(
+            e =>
+              entityPresentationApi.forEntity(stringifyEntityRef(e)).snapshot
+                .primaryTitle,
+          )
+          .join(', ')}
       />
       <Content stretch className={classes.content}>
         <ContentHeader

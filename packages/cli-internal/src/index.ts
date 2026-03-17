@@ -31,3 +31,7 @@ export {
   resetSecretStore,
   type SecretStore,
 } from './secretStore';
+export {
+  knownBackendPluginPackageNameByPluginId,
+  knownFrontendPluginPackageNameByPluginId,
+} from './knownPluginPackages';

@@ -29,12 +29,6 @@ export function findPaths(searchDir: string): Paths;
 export function isChildPath(base: string, path: string): boolean;
 
 // @public
-export const knownBackendPluginPackageNameByPluginId: Record<string, string>;
-
-// @public
-export const knownFrontendPluginPackageNameByPluginId: Record<string, string>;
-
-// @public
 export type OwnPaths = {
   dir: string;
   rootDir: string;

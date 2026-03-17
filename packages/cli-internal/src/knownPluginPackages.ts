@@ -44,8 +44,6 @@ const knownFrontendPluginIds = [
 
 /**
  * Maps known plugin IDs to their corresponding backend package names.
- *
- * @public
  */
 export const knownBackendPluginPackageNameByPluginId: Record<string, string> =
   Object.fromEntries(
@@ -57,8 +55,6 @@ export const knownBackendPluginPackageNameByPluginId: Record<string, string> =
 
 /**
  * Maps known plugin IDs to their corresponding frontend package names.
- *
- * @public
  */
 export const knownFrontendPluginPackageNameByPluginId: Record<string, string> =
   Object.fromEntries(

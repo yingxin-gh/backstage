@@ -1,6 +1,5 @@
 ---
 '@backstage/cli-module-maintenance': patch
-'@backstage/cli-common': patch
 ---
 
-Exposes `knownBackendPluginPackageNameByPluginId` and `knownFrontendPluginPackageNameByPluginId` from `@backstage/cli-common` for auto-filling plugin package names.
+Added auto-fill of `backstage.pluginPackage` metadata for known plugins during `repo fix`.

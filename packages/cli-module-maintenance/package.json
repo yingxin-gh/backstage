@@ -19,6 +19,7 @@
   "license": "Apache-2.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "bin": "bin/backstage-cli-module-maintenance",
   "files": [
     "dist",
     "bin"
@@ -42,6 +43,5 @@
   "devDependencies": {
     "@backstage/cli": "workspace:^",
     "@types/fs-extra": "^11.0.0"
-  },
-  "bin": "bin/backstage-cli-module-maintenance"
+  }
 }

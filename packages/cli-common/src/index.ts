@@ -33,7 +33,3 @@ export {
   type RunOnOutput,
 } from './run';
 export { ExitCodeError } from './errors';
-export {
-  knownBackendPluginPackageNameByPluginId,
-  knownFrontendPluginPackageNameByPluginId,
-} from './knownPluginPackages';

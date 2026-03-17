@@ -29,11 +29,11 @@ import {
   relative as relativePath,
   extname,
 } from 'node:path';
+import { targetPaths } from '@backstage/cli-common';
 import {
-  targetPaths,
   knownBackendPluginPackageNameByPluginId,
   knownFrontendPluginPackageNameByPluginId,
-} from '@backstage/cli-common';
+} from '@internal/cli';
 
 const SCRIPT_EXTS = ['.js', '.jsx', '.ts', '.tsx', '.json'];
 

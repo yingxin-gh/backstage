@@ -839,7 +839,7 @@ export const CheckboxDefinition: {
 
 // @public (undocumented)
 export type CheckboxOwnProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 };
 

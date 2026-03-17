@@ -1,14 +1,9 @@
 ---
 id: analytics
 title: Plugin Analytics
-description: Measuring usage of your Backstage instance.
+sidebar_label: Analytics
+description: Measuring usage of your Backstage instance
 ---
-
-:::caution Legacy Documentation
-
-This section is part of the legacy plugins documentation. For the new frontend system version, see [Plugin Analytics](../frontend-system/building-plugins/08-analytics.md). The concepts and events described here apply to both the old and new frontend systems.
-
-:::
 
 Setting up, maintaining, and iterating on an instance of Backstage can be a
 large investment. To help measure return on this investment, Backstage comes
@@ -85,30 +80,13 @@ _OSS plugin maintainers: feel free to document your events in the table above._
 
 ## Writing Integrations
 
-Analytics event forwarding is implemented as a Backstage utility API. Just as
-you might provide a custom API implementation for errors or SCM Authentication,
-you can provide one for analytics.
-
-The provided API need only provide a single method `captureEvent`, which takes
+Analytics event forwarding is implemented as a Backstage [Utility API](../utility-apis/01-index.md). The
+provided API need only provide a single method `captureEvent`, which takes
 an `AnalyticsEvent` object.
 
+A simple implementation using `AnalyticsImplementationBlueprint`:
+
 ```ts
-import {
-  analyticsApiRef,
-  AnalyticsEvent,
-  AnyApiFactory,
-  createApiFactory,
-} from '@backstage/core-plugin-api';
-
-export const apis: AnyApiFactory[] = [
-  createApiFactory(analyticsApiRef, {
-    captureEvent: (event: AnalyticsEvent) => {
-      window._AcmeAnalyticsQ.push(event);
-    },
-  }),
-];
-
-// Or, when building for the new frontend system:
 import { AnalyticsImplementationBlueprint } from '@backstage/frontend-plugin-api';
 
 export const acmeAnalyticsImplementation =
@@ -134,22 +112,20 @@ some details from configuration. A more complete example might look like:
 ```ts
 import {
   AnalyticsApi,
-  analyticsApiRef,
   AnalyticsEvent,
-  AnyApiFactory,
   configApiRef,
-  createApiFactory,
-} from '@backstage/core-plugin-api';
+} from '@backstage/frontend-plugin-api';
+import { AnalyticsImplementationBlueprint } from '@backstage/frontend-plugin-api';
 import { AcmeAnalytics } from 'acme-analytics';
 
-class AcmeAnalytics implements AnalyticsApi {
+class AcmeAnalyticsImpl implements AnalyticsApi {
   private constructor(accountId: number) {
     AcmeAnalytics.init(accountId);
   }
 
   static fromConfig(config) {
     const accountId = config.getString('app.analytics.acme.id');
-    return new AcmeAnalytics(accountId);
+    return new AcmeAnalyticsImpl(accountId);
   }
 
   captureEvent(event: AnalyticsEvent) {
@@ -158,24 +134,13 @@ class AcmeAnalytics implements AnalyticsApi {
   }
 }
 
-export const apis: AnyApiFactory[] = [
-  createApiFactory({
-    api: analyticsApiRef,
-    deps: { configApi: configApiRef },
-    factory: ({ configApi }) => AcmeAnalytics.fromConfig(configApi),
-  }),
-];
-
-// Or, when building for the new frontend system:
-import { AnalyticsImplementationBlueprint } from '@backstage/frontend-plugin-api';
-
 export const acmeAnalyticsImplementation =
   AnalyticsImplementationBlueprint.make({
     name: 'acme',
     params: define =>
       define({
         deps: { configApi: configApiRef },
-        factory: ({ configApi }) => AcmeAnalytics.fromConfig(configApi),
+        factory: ({ configApi }) => AcmeAnalyticsImpl.fromConfig(configApi),
       }),
   });
 ```
@@ -194,65 +159,19 @@ user identity, you can (optionally) choose to support this by the following this
 convention:
 
 - Allow your implementation to be instantiated with the `identityApi` as one of
-  its options in a `fromConfig` static method.
+  its dependencies.
 - Use the `userEntityRef` resolved by `identityApi`'s `getBackstageIdentity()`
   method as the basis for the user ID you send to your analytics platform.
-
-For example:
-
-```typescript
-import {
-  AnalyticsApi,
-  analyticsApiRef,
-  AnyApiFactory,
-  configApiRef,
-  createApiFactory,
-  identityApiRef,
-  IdentityApi,
-} from '@backstage/core-plugin-api';
-
-// Implementation that optionally initializes with a userId.
-class AcmeAnalytics implements AnalyticsApi {
-  private constructor(accountId: number, identityApi?: IdentityApi) {
-    if (identityApi) {
-      identityApi.getBackstageIdentity().then(identity => {
-        AcmeAnalytics.init(accountId, {
-          userId: identity.userEntityRef,
-        });
-      });
-    } else {
-      AcmeAnalytics.init(accountId);
-    }
-  }
-
-  static fromConfig(config, options) {
-    const accountId = config.getString('app.analytics.acme.id');
-    return new AcmeAnalytics(accountId, options.identityApi);
-  }
-}
-
-// Your implementation should be instantiated like this:
-export const apis: AnyApiFactory[] = [
-  createApiFactory({
-    api: analyticsApiRef,
-    deps: { configApi: configApiRef, identityApi: identityApiRef },
-    factory: ({ configApi, identityApi }) =>
-      AcmeAnalytics.fromConfig(configApi, {
-        identityApi,
-      }),
-  }),
-];
-```
 
 ## Capturing Events
 
 To instrument an event in a component, start by retrieving an analytics tracker
-using the `useAnalytics()` hook provided by `@backstage/core-plugin-api`. The
+using the `useAnalytics()` hook provided by `@backstage/frontend-plugin-api`. The
 tracker includes a `captureEvent` method which takes an `action` and a `subject`
 as arguments.
 
 ```ts
-import { useAnalytics } from '@backstage/core-plugin-api';
+import { useAnalytics } from '@backstage/frontend-plugin-api';
 
 const analytics = useAnalytics();
 analytics.captureEvent('deploy', serviceName);
@@ -296,7 +215,7 @@ further up the react tree, or to help app integrators aggregate distinct events
 by some common value, use an `<AnalyticsContext>`.
 
 ```tsx
-import { AnalyticsContext, useAnalytics } from '@backstage/core-plugin-api';
+import { AnalyticsContext, useAnalytics } from '@backstage/frontend-plugin-api';
 
 const MyComponent = ({ value }) => {
   const analytics = useAnalytics();
@@ -355,7 +274,7 @@ it's important to keep each of these levels of detail disaggregated.
 
 ### Unit Testing Event Capture
 
-The `@backstage/test-utils` package includes a `MockAnalyticsApi` implementation
+The `@backstage/frontend-test-utils` package includes a `MockAnalyticsApi` implementation
 that you can use in your unit tests to spy on and make assertions about any
 analytics events captured.
 
@@ -363,19 +282,17 @@ Use it like this:
 
 ```tsx
 import { render, fireEvent, waitFor } from '@testing-library/react';
-import { analyticsApiRef } from '@backstage/core-plugin-api';
+import { analyticsApiRef } from '@backstage/frontend-plugin-api';
 import {
   MockAnalyticsApi,
   TestApiProvider,
   wrapInTestApp,
-} from '@backstage/test-utils';
+} from '@backstage/frontend-test-utils';
 
 describe('SomeComponent', () => {
   it('should capture event on click', () => {
-    // Use the Mock Analytics API to spy on event captures.
     const apiSpy = new MockAnalyticsApi();
 
-    // Render the component being tested
     const { getByText } = render(
       wrapInTestApp(
         <TestApiProvider apis={[[analyticsApiRef, apiSpy]]}>
@@ -384,10 +301,8 @@ describe('SomeComponent', () => {
       ),
     );
 
-    // Fire the event that triggers event capture.
     fireEvent.click(getByText('some component text'));
 
-    // Assert that the event was captured with the expected data.
     await waitFor(() => {
       expect(apiSpy.getEvents()[0]).toMatchObject({
         action: 'expected action',

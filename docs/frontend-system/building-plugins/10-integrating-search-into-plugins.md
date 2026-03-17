@@ -1,14 +1,9 @@
 ---
 id: integrating-search-into-plugins
-title: Integrating Search into a plugin
+title: Integrating Search into a Plugin
+sidebar_label: Integrating Search
 description: How to integrate Search into a Backstage plugin
 ---
-
-:::caution Legacy Documentation
-
-This section is part of the legacy plugins documentation. For the new frontend system version, see [Integrating Search into a Plugin](../frontend-system/building-plugins/10-integrating-search-into-plugins.md). The backend search collator patterns described here use the new backend system and are still current. The frontend search experience examples use the old frontend system APIs.
-
-:::
 
 The Backstage Search Platform was designed to give plugin developers the APIs
 and interfaces needed to offer search experiences within their plugins, while
@@ -22,7 +17,7 @@ Search Platform in your plugin.
 
 ### Create a collator
 
-> Knowing what a [collator](../features/search/concepts.md#collators) is will help you as you build it out.
+> Knowing what a [collator](../../features/search/concepts.md#collators) is will help you as you build it out.
 
 Imagine you have a plugin that is responsible for storing FAQ snippets in a database. You want other engineers to be able to easily find your questions and answers. So that means you want them to be indexed by the search platform. Lets say the FAQ snippets can be viewed at a URL like `backstage.example.biz/faq-snippets`.
 
@@ -243,7 +238,7 @@ To verify your implementation works as expected make sure to add tests for it. F
 
 Look at [DefaultTechDocsCollatorFactory test](https://github.com/backstage/backstage/blob/de294ce5c410c9eb56da6870a1fab795268f60e3/plugins/techdocs-backend/src/search/DefaultTechDocsCollatorFactory.test.ts), for an example.
 
-You can also check out the documentation on [how to test Backstage plugin modules](../backend-system/building-plugins-and-modules/02-testing.md).
+You can also check out the documentation on [how to test Backstage plugin modules](../../backend-system/building-plugins-and-modules/02-testing.md).
 
 #### 9. Running the collator locally
 
@@ -274,6 +269,28 @@ an autocomplete-style search bar focused on documents provided by your plugin
 component), or as abstract as a widget that presents a list of links that
 are contextually related to something else on the page.
 
+### Search Result List Items
+
+In the new frontend system, search result list items are created using `SearchResultListItemBlueprint` from `@backstage/plugin-search-react/alpha`. This blueprint lets you register custom result renderers that the search plugin will use when displaying results of your document type.
+
+```tsx
+import { SearchResultListItemBlueprint } from '@backstage/plugin-search-react/alpha';
+
+const mySearchResultListItem = SearchResultListItemBlueprint.make({
+  name: 'my-plugin',
+  params: {
+    lineClamp: 3,
+    predicate: result => result.type === 'my-plugin',
+    component: async () => {
+      const { MySearchResultListItem } = await import(
+        './components/MySearchResultListItem'
+      );
+      return MySearchResultListItem;
+    },
+  },
+});
+```
+
 ### Search Experience Concepts
 
 Knowing these high-level concepts will help you as you craft your in-plugin
@@ -303,7 +320,7 @@ have as dependencies for your plugin; be sure to add them before you use them!
   frontend plugins, including plugins like yours!
 - [`@backstage/plugin-search`](https://www.npmjs.com/package/@backstage/plugin-search) - The
   main search plugin, used by app integrators to compose global search
-  experiences. <!-- todo(@backstage/techdocs-core): remove all references to @backstage/plugin-search once #11676 is resolved -->
+  experiences.
 - [`@backstage/core-components`](https://www.npmjs.com/package/@backstage/core-components) - A
   package containing generic components useful for a variety of experiences
   built in Backstage.
@@ -458,7 +475,7 @@ The example below imagines `YourCustomSearchResult` as a type of search result t
 
 ```tsx
 import { Link } from '@backstage/core-components';
-import { useAnalytics } from '@backstage/core-plugin-api';
+import { useAnalytics } from '@backstage/frontend-plugin-api';
 import { ResultHighlight } from '@backstage/plugin-search-common';
 import { HighlightedSearchResultText } from '@backstage/plugin-search-react';
 
@@ -526,7 +543,7 @@ The optional use of the `<HighlightedSearchResultText>` component makes it possi
 
 **Note on Analytics**: In order for app integrators to track and improve search experiences across Backstage, it's important for them to understand when and what users search for, as well as what they click on after searching. When providing a custom result component, it's your responsibility as a plugin developer to instrument it according to search analytics conventions. In particular:
 
-- You must use the `analytics.captureEvent` method, from the `useAnalytics()` hook (detailed [plugin analytics docs are here](./analytics.md)).
+- You must use the `analytics.captureEvent` method, from the `useAnalytics()` hook (detailed [plugin analytics docs are here](./08-analytics.md)).
 - You must ensure that the action of the event, representing a click on a search result item, is `discover`, and the subject is the `title` of the clicked result. In addition, the `to` attribute should be set to the result's `location`, and the `value` of the event must be set to the `rank` (passed in as a prop).
 - You must ensure that the aforementioned `captureEvent` method is called when a user clicks the link; you should further ensure that the `noTrack` prop is added to the link (which disables default link click tracking, in favor of this custom instrumentation).
 

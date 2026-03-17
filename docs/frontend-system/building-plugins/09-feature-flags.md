@@ -1,14 +1,9 @@
 ---
 id: feature-flags
 title: Feature Flags
-description: Details the process of defining setting and reading a feature flag.
+sidebar_label: Feature Flags
+description: Defining and using feature flags in plugins and apps
 ---
-
-:::caution Legacy Documentation
-
-This page describes feature flags using the **old frontend system** APIs (`createPlugin` from `@backstage/core-plugin-api` and `createApp` from `@backstage/app-defaults`). For the new frontend system version, see [Feature Flags](../frontend-system/building-plugins/09-feature-flags.md). The `FeatureFlagged` component and `featureFlagsApiRef` work the same way in both systems.
-
-:::
 
 Backstage offers the ability to define feature flags inside a plugin or during application creation. This allows you to restrict parts of your plugin to those individual users who have toggled the feature flag to on.
 
@@ -18,20 +13,22 @@ This page describes the process of defining, setting and reading a feature flag.
 
 ### In a plugin
 
-Defining a feature flag in a plugin is done by passing the name of the feature flag into the `featureFlags` array:
+Feature flags are declared via the `featureFlags` option in `createFrontendPlugin`:
 
 ```ts title="src/plugin.ts"
-import { createPlugin } from '@backstage/core-plugin-api';
+import { createFrontendPlugin } from '@backstage/frontend-plugin-api';
 
-export const examplePlugin = createPlugin({
-  // ...
+export const examplePlugin = createFrontendPlugin({
+  pluginId: 'example',
   featureFlags: [
     {
       name: 'show-example-feature',
       description: 'Enables the new beta dashboard view',
     },
   ],
-  // ...
+  extensions: [
+    // ...
+  ],
 });
 ```
 
@@ -39,19 +36,16 @@ Note that the `description` property is optional. If not provided, the default "
 
 ### In the application
 
-Defining a feature flag in the application is done by adding feature flags in `featureFlags` array in the
+Defining a feature flag in the application is done by adding feature flags in the `featureFlags` array in the
 `createApp()` function call:
 
 ```ts title="packages/app/src/App.tsx"
-import { createApp } from '@backstage/app-defaults';
+import { createApp } from '@backstage/frontend-defaults';
 
 const app = createApp({
   // ...
   featureFlags: [
     {
-      // pluginId is required for feature flags used in plugins.
-      // pluginId can be left blank for a feature flag used in the application and not in plugins.
-      pluginId: '',
       name: 'tech-radar',
       description: 'Enables the tech radar plugin',
     },
@@ -89,7 +83,7 @@ import { FeatureFlagged } from '@backstage/core-app-api';
 It is also possible to query a feature flag using the [FeatureFlags Api](https://backstage.io/api/stable/interfaces/_backstage_core-plugin-api.index.FeatureFlagsApi.html).
 
 ```ts
-import { useApi, featureFlagsApiRef } from '@backstage/core-plugin-api';
+import { useApi, featureFlagsApiRef } from '@backstage/frontend-plugin-api';
 
 const featureFlagsApi = useApi(featureFlagsApiRef);
 const isOn = featureFlagsApi.isActive('show-example-feature');

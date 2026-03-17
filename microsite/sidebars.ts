@@ -412,18 +412,6 @@ export default {
     ),
     sidebarElementWithIndex(
       {
-        label: 'OpenAPI',
-        description:
-          'Work with OpenAPI specifications and generate clients.',
-      },
-      [
-        'openapi/01-getting-started',
-        'openapi/generate-client',
-        'openapi/test-case-validation',
-      ],
-    ),
-    sidebarElementWithIndex(
-      {
         label: 'Configuration',
         description: 'Manage static configuration files and settings.',
       },
@@ -555,6 +543,10 @@ export default {
                 'frontend-system/building-plugins/common-extension-blueprints',
                 'frontend-system/building-plugins/built-in-data-refs',
                 'frontend-system/building-plugins/migrating',
+                'frontend-system/building-plugins/internationalization',
+                'frontend-system/building-plugins/analytics',
+                'frontend-system/building-plugins/feature-flags',
+                'frontend-system/building-plugins/integrating-search-into-plugins',
               ],
             ),
             sidebarElementWithIndex(
@@ -622,6 +614,18 @@ export default {
             'conf/user-interface/logo',
             'conf/user-interface/icons',
             'conf/user-interface/sidebar',
+          ],
+        ),
+        sidebarElementWithIndex(
+          {
+            label: 'OpenAPI',
+            description:
+              'Work with OpenAPI specifications and generate clients.',
+          },
+          [
+            'openapi/01-getting-started',
+            'openapi/generate-client',
+            'openapi/test-case-validation',
           ],
         ),
       ],

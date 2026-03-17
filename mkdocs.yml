@@ -141,10 +141,6 @@ nav:
           - Locations: 'integrations/google-cloud-storage/locations.md'
       - LDAP:
           - Org Data: 'integrations/ldap/org.md'
-  - OpenAPI:
-      - Schema-first plugins with OpenAPI (Experimental): 'openapi/01-getting-started.md'
-      - Generate a client from your OpenAPI spec: 'openapi/generate-client.md'
-      - Validate your OpenAPI spec against test data: 'openapi/test-case-validation.md'
   - Plugins (Legacy):
       - Intro to plugins: 'plugins/index.md'
       - Create a Backstage Plugin: 'plugins/create-a-plugin.md'
@@ -155,6 +151,10 @@ nav:
       - Plugin Analytics: 'plugins/analytics.md'
       - Feature Flags: 'plugins/feature-flags.md'
       - Internationalization (i18n): 'plugins/internationalization.md'
+      - OpenAPI:
+          - Schema-first plugins with OpenAPI (Experimental): 'openapi/01-getting-started.md'
+          - Generate a client from your OpenAPI spec: 'openapi/generate-client.md'
+          - Validate your OpenAPI spec against test data: 'openapi/test-case-validation.md'
       - Backends and APIs:
           - Proxying: 'plugins/proxying.md'
           - Backend plugin: 'plugins/backend-plugin.md'

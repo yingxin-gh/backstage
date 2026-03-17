@@ -162,7 +162,6 @@ nav:
       - Testing:
           - Testing with Jest: 'plugins/testing.md'
       - Publishing:
-          - Publish private: 'plugins/publish-private.md'
           - Add to Directory: 'plugins/add-to-directory.md'
           - Observability: 'plugins/observability.md'
       - New Backend System: 'plugins/new-backend-system.md'

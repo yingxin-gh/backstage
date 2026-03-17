@@ -715,7 +715,6 @@ export default {
         sidebarElementWithIndex(
           { label: 'Publishing', description: 'Publishing your plugins.' },
           [
-            'plugins/publish-private',
             'plugins/add-to-directory',
             'plugins/plugin-directory-audit',
           ],

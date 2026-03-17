@@ -29,6 +29,7 @@ import {
 import { PluginHeader } from '@backstage/ui';
 import Button from '@material-ui/core/Button';
 import { useMemo } from 'react';
+import { useResolvedPath } from 'react-router-dom';
 
 export const Progress = SwappableComponentBlueprint.make({
   name: 'core-progress',
@@ -75,13 +76,18 @@ export const PageLayout = SwappableComponentBlueprint.make({
       component: SwappablePageLayout,
       loader: () => (props: PageLayoutProps) => {
         const { title, icon, noHeader, headerActions, tabs, children } = props;
-        const tabsWithMatchStrategy = useMemo(
+        // TODO(Rugvip): Different solution to this path handling would be good
+        const parentPath = useResolvedPath('.').pathname.replace(/\/$/, '');
+        const resolvedTabs = useMemo(
           () =>
             tabs?.map(tab => ({
               ...tab,
+              href: tab.href.startsWith('/')
+                ? tab.href
+                : `${parentPath}/${tab.href}`.replace(/\/{2,}/g, '/'),
               matchStrategy: 'prefix' as const,
             })),
-          [tabs],
+          [tabs, parentPath],
         );
 
         if (noHeader) {
@@ -93,7 +99,7 @@ export const PageLayout = SwappableComponentBlueprint.make({
             <PluginHeader
               title={title}
               icon={icon}
-              tabs={tabsWithMatchStrategy}
+              tabs={resolvedTabs}
               customActions={headerActions}
             />
             {children}

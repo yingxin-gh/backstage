@@ -30,7 +30,10 @@ import {
   extname,
 } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
-import { knownBackendPluginPackageNameByPluginId } from '@backstage/cli-common';
+import {
+  knownBackendPluginPackageNameByPluginId,
+  knownFrontendPluginPackageNameByPluginId,
+} from '@backstage/cli-common';
 
 const SCRIPT_EXTS = ['.js', '.jsx', '.ts', '.tsx', '.json'];
 
@@ -400,7 +403,10 @@ export function fixPluginPackages(
         p =>
           p.packageJson.backstage?.pluginId === pluginId &&
           p.packageJson.backstage?.role === targetRole,
-      )?.packageJson.name ?? knownBackendPluginPackageNameByPluginId[pluginId];
+      )?.packageJson.name ??
+      (role === 'backend-plugin-module'
+        ? knownBackendPluginPackageNameByPluginId[pluginId]
+        : knownFrontendPluginPackageNameByPluginId[pluginId]);
     if (!pluginPkgName) {
       // If we can't find a matching package in the repo but one is declared, skip
       if (pkgBackstage.pluginPackage) {

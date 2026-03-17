@@ -86,10 +86,6 @@ export const components: Page[] = [
     slug: 'radio-group',
   },
   {
-    title: 'SearchAutocomplete',
-    slug: 'search-autocomplete',
-  },
-  {
     title: 'SearchField',
     slug: 'search-field',
   },

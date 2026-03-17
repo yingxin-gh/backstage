@@ -60,31 +60,19 @@ Feature flags are defaulted to off and can be updated by individual users in the
 
 The user's selection is saved in the user's browser local storage. Once a feature flag is toggled it may be required for a user to refresh the page to see the change.
 
-## FeatureFlagged Component
-
-The easiest way to control content based on the state of a feature flag is to use the [FeatureFlagged](https://backstage.io/api/stable/functions/_backstage_core-app-api.FeatureFlagged.html) component.
-
-```ts
-import { FeatureFlagged } from '@backstage/core-app-api';
-
-...
-
-<FeatureFlagged with="show-example-feature">
-  <NewFeatureComponent />
-</FeatureFlagged>
-
-<FeatureFlagged without="show-example-feature">
-  <PreviousFeatureComponent />
-</FeatureFlagged>
-```
-
 ## Evaluating Feature Flag State
 
-It is also possible to query a feature flag using the [FeatureFlags Api](https://backstage.io/api/stable/interfaces/_backstage_core-plugin-api.index.FeatureFlagsApi.html).
+You can query a feature flag using the [FeatureFlagsApi](https://backstage.io/api/stable/interfaces/_backstage_frontend-plugin-api.index.FeatureFlagsApi.html):
 
-```ts
+```tsx
 import { useApi, featureFlagsApiRef } from '@backstage/frontend-plugin-api';
 
-const featureFlagsApi = useApi(featureFlagsApiRef);
-const isOn = featureFlagsApi.isActive('show-example-feature');
+function MyComponent() {
+  const featureFlagsApi = useApi(featureFlagsApiRef);
+
+  if (featureFlagsApi.isActive('show-example-feature')) {
+    return <NewFeatureComponent />;
+  }
+  return <PreviousFeatureComponent />;
+}
 ```

@@ -42,7 +42,7 @@ import {
 import { configApiRef, useApi, useRouteRef } from '@backstage/core-plugin-api';
 import { TechDocsReaderPageContent } from '../reader/components/TechDocsReaderPageContent';
 import { TechDocsReaderPageSubheader } from '../reader/components/TechDocsReaderPageSubheader';
-import { rootDocsRouteRef } from '../routes';
+import { rootRouteRef } from '../routes';
 
 const skeleton = <Skeleton animation="wave" variant="text" height={40} />;
 
@@ -51,7 +51,7 @@ const NfsTechDocsReaderPageHeader = (props: PropsWithChildren<{}>) => {
   const addons = useTechDocsAddons();
   const configApi = useApi(configApiRef);
   const entityPresentationApi = useApi(entityPresentationApiRef);
-  const docsRootLink = useRouteRef(rootDocsRouteRef)();
+  const docsRootLink = useRouteRef(rootRouteRef)();
   const { '*': path = '' } = useParams();
 
   const {

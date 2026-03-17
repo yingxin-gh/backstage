@@ -14,35 +14,27 @@
  * limitations under the License.
  */
 
-import {
-  getSelectedInstance,
-  getInstanceConfig,
-  accessTokenNeedsRefresh,
-  refreshAccessToken,
-  getSecretStore,
-  type StoredInstance,
-} from '@backstage/cli-module-auth';
+import { CliAuth } from '@backstage/cli-node';
+import { z } from 'zod/v3';
+
+const pluginSourcesSchema = z.array(z.string()).default([]);
 
 export async function resolveAuth(instanceFlag?: string): Promise<{
-  instance: StoredInstance;
+  baseUrl: string;
+  instanceName: string;
   accessToken: string;
   pluginSources: string[];
 }> {
-  let instance = await getSelectedInstance(instanceFlag);
+  const auth = await CliAuth.create({ instanceName: instanceFlag });
+  const accessToken = await auth.getAccessToken();
+  const pluginSources = pluginSourcesSchema.parse(
+    await auth.getMetadata('pluginSources'),
+  );
 
-  if (accessTokenNeedsRefresh(instance)) {
-    instance = await refreshAccessToken(instance.name);
-  }
-
-  const secretStore = await getSecretStore();
-  const service = `backstage-cli:auth-instance:${instance.name}`;
-  const accessToken = await secretStore.get(service, 'accessToken');
-  if (!accessToken) {
-    throw new Error('No access token found. Run "auth login" to authenticate.');
-  }
-
-  const pluginSources =
-    (await getInstanceConfig<string[]>(instance.name, 'pluginSources')) ?? [];
-
-  return { instance, accessToken, pluginSources };
+  return {
+    baseUrl: auth.getBaseUrl(),
+    instanceName: auth.getInstanceName(),
+    accessToken,
+    pluginSources,
+  };
 }

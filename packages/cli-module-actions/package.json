@@ -33,9 +33,10 @@
     "test": "backstage-cli package test"
   },
   "dependencies": {
-    "@backstage/cli-module-auth": "workspace:^",
     "@backstage/cli-node": "workspace:^",
-    "cleye": "^2.3.0"
+    "@backstage/errors": "workspace:^",
+    "cleye": "^2.3.0",
+    "zod": "^3.25.76 || ^4.0.0"
   },
   "devDependencies": {
     "@backstage/backend-test-utils": "workspace:^",

@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-import { cli } from 'cleye';
-import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
+import { ResponseError } from '@backstage/errors';
 
-export default async ({ args, info }: CliCommandContext) => {
-  const {
-    flags: { instance: instanceFlag },
-  } = cli(
-    {
-      help: info,
-      flags: {
-        instance: {
-          type: String,
-          description: 'Name of the instance to use',
-        },
-      },
-    },
-    undefined,
-    args,
-  );
-
-  const auth = await CliAuth.create({ instanceName: instanceFlag });
-  const accessToken = await auth.getAccessToken();
-
-  process.stdout.write(`${accessToken}\n`);
+type HttpInit = {
+  headers?: Record<string, string>;
+  method?: string;
+  body?: any;
+  signal?: AbortSignal;
 };
+
+export async function httpJson<T>(url: string, init?: HttpInit): Promise<T> {
+  const res = await fetch(url, {
+    ...init,
+    body: init?.body ? JSON.stringify(init.body) : undefined,
+    headers: {
+      ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+      ...init?.headers,
+    },
+  });
+  if (!res.ok) {
+    throw await ResponseError.fromResponse(res);
+  }
+  return (await res.json()) as T;
+}

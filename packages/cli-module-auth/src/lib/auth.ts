@@ -16,12 +16,12 @@
 
 import { z } from 'zod/v3';
 import {
-  StoredInstance,
+  type StoredInstance,
   upsertInstance,
   withMetadataLock,
   getInstanceByName,
 } from './storage';
-import { getSecretStore } from './secretStore';
+import { getSecretStore, getAuthInstanceService } from '@internal/cli';
 import { httpJson } from './http';
 
 const TokenResponseSchema = z.object({
@@ -31,12 +31,11 @@ const TokenResponseSchema = z.object({
   refresh_token: z.string().min(1).optional(),
 });
 
-/** @public */
 export function accessTokenNeedsRefresh(instance: StoredInstance): boolean {
-  return instance.accessTokenExpiresAt <= Date.now() + 2 * 60_000; // 2 minutes before expiration
+  // 2 minutes before expiration
+  return instance.accessTokenExpiresAt <= Date.now() + 2 * 60_000;
 }
 
-/** @public */
 export async function refreshAccessToken(
   instanceName: string,
 ): Promise<StoredInstance> {
@@ -45,7 +44,7 @@ export async function refreshAccessToken(
   return withMetadataLock(async () => {
     const instance = await getInstanceByName(instanceName);
 
-    const service = `backstage-cli:auth-instance:${instanceName}`;
+    const service = getAuthInstanceService(instanceName);
     const refreshToken = (await secretStore.get(service, 'refreshToken')) ?? '';
     if (!refreshToken) {
       throw new Error(

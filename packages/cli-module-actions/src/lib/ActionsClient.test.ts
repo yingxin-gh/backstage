@@ -15,9 +15,9 @@
  */
 
 import { ActionsClient } from './ActionsClient';
-import { httpJson } from '@backstage/cli-module-auth';
+import { httpJson } from './httpJson';
 
-jest.mock('@backstage/cli-module-auth', () => ({
+jest.mock('./httpJson', () => ({
   httpJson: jest.fn(),
 }));
 

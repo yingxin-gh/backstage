@@ -87,6 +87,21 @@ export interface BackstagePackageJson {
 }
 
 // @public
+export class CliAuth {
+  static create(options?: CliAuthCreateOptions): Promise<CliAuth>;
+  getAccessToken(): Promise<string>;
+  getBaseUrl(): string;
+  getInstanceName(): string;
+  getMetadata(key: string): Promise<unknown>;
+  setMetadata(key: string, value: unknown): Promise<void>;
+}
+
+// @public
+export interface CliAuthCreateOptions {
+  instanceName?: string;
+}
+
+// @public
 export interface CliCommand {
   deprecated?: boolean;
   description: string;

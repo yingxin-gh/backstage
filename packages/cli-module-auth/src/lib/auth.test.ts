@@ -16,15 +16,15 @@
 
 import { accessTokenNeedsRefresh, refreshAccessToken } from './auth';
 import * as storage from './storage';
-import * as secretStore from './secretStore';
+import * as internalCli from '@internal/cli';
 import * as http from './http';
 
 jest.mock('./storage');
-jest.mock('./secretStore');
+jest.mock('@internal/cli');
 jest.mock('./http');
 
 const mockStorage = storage as jest.Mocked<typeof storage>;
-const mockSecretStore = secretStore as jest.Mocked<typeof secretStore>;
+const mockInternalCli = internalCli as jest.Mocked<typeof internalCli>;
 const mockHttp = http as jest.Mocked<typeof http>;
 
 describe('auth', () => {
@@ -95,7 +95,10 @@ describe('auth', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      mockSecretStore.getSecretStore.mockResolvedValue(mockSecretStoreInstance);
+      mockInternalCli.getSecretStore.mockResolvedValue(mockSecretStoreInstance);
+      mockInternalCli.getAuthInstanceService.mockImplementation(
+        (name: string) => `backstage-cli:auth-instance:${name}`,
+      );
     });
 
     it('should successfully refresh access token', async () => {

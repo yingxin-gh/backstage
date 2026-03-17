@@ -65,9 +65,9 @@ export default async ({ args, info }: CliCommandContext) => {
     process.exit(1);
   }
 
-  const { accessToken, instance } = await resolveAuth(instanceFlag);
+  const { accessToken, baseUrl } = await resolveAuth(instanceFlag);
 
-  const client = new ActionsClient(instance.baseUrl, accessToken);
+  const client = new ActionsClient(baseUrl, accessToken);
   const actions = await client.listForPlugin(actionId);
   const action = actions.find(a => a.id === actionId);
 

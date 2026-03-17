@@ -19,6 +19,7 @@
   "license": "Apache-2.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "bin": "bin/backstage-cli-module-auth",
   "files": [
     "dist",
     "bin"
@@ -50,6 +51,5 @@
   },
   "optionalDependencies": {
     "keytar": "^7.9.0"
-  },
-  "bin": "bin/backstage-cli-module-auth"
+  }
 }

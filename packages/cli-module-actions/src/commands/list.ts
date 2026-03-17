@@ -36,7 +36,7 @@ export default async ({ args, info }: CliCommandContext) => {
     args,
   );
 
-  const { accessToken, pluginSources, instance } = await resolveAuth(
+  const { accessToken, pluginSources, baseUrl } = await resolveAuth(
     instanceFlag,
   );
 
@@ -47,7 +47,7 @@ export default async ({ args, info }: CliCommandContext) => {
     return;
   }
 
-  const client = new ActionsClient(instance.baseUrl, accessToken);
+  const client = new ActionsClient(baseUrl, accessToken);
   const actions = await client.list(pluginSources);
 
   if (!actions.length) {

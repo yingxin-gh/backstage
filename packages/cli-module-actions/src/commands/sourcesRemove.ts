@@ -15,12 +15,10 @@
  */
 
 import { cli } from 'cleye';
-import type { CliCommandContext } from '@backstage/cli-node';
-import {
-  getSelectedInstance,
-  getInstanceConfig,
-  updateInstanceConfig,
-} from '@backstage/cli-module-auth';
+import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
+import { z } from 'zod/v3';
+
+const pluginSourcesSchema = z.array(z.string()).default([]);
 
 export default async ({ args, info }: CliCommandContext) => {
   const parsed = cli(
@@ -34,17 +32,17 @@ export default async ({ args, info }: CliCommandContext) => {
 
   const pluginId = parsed._[0];
 
-  const instance = await getSelectedInstance();
-  const existing =
-    (await getInstanceConfig<string[]>(instance.name, 'pluginSources')) ?? [];
+  const auth = await CliAuth.create();
+  const existing = pluginSourcesSchema.parse(
+    await auth.getMetadata('pluginSources'),
+  );
 
   if (!existing.includes(pluginId)) {
     process.stderr.write(`Plugin source "${pluginId}" is not configured.\n`);
     return;
   }
 
-  await updateInstanceConfig(
-    instance.name,
+  await auth.setMetadata(
     'pluginSources',
     existing.filter(s => s !== pluginId),
   );

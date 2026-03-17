@@ -21,12 +21,45 @@ import { schemaToFlags } from '../lib/schemaToFlags';
 import { resolveAuth } from '../lib/resolveAuth';
 
 export default async ({ args, info }: CliCommandContext) => {
+  if (args.includes('--help') || args.includes('-h')) {
+    cli(
+      {
+        help: info,
+        parameters: ['<action-id>'],
+        flags: {
+          instance: {
+            type: String,
+            description: 'Name of the instance to use',
+          },
+        },
+      },
+      undefined,
+      args,
+    );
+    return;
+  }
+
   const instanceIdx = args.indexOf('--instance');
   const instanceFlag = instanceIdx !== -1 ? args[instanceIdx + 1] : undefined;
 
-  const actionId = args.find(
-    (a, i) => !a.startsWith('-') && i !== instanceIdx + 1,
-  );
+  // Skip flag names, flag values (the argument after a known flag), and
+  // the --instance value position so we only pick up positional arguments.
+  const skipIndices = new Set<number>();
+  if (instanceIdx !== -1) {
+    skipIndices.add(instanceIdx);
+    skipIndices.add(instanceIdx + 1);
+  }
+
+  let actionId: string | undefined;
+  let actionIdIdx = -1;
+  for (let i = 0; i < args.length; i++) {
+    if (!skipIndices.has(i) && !args[i].startsWith('-')) {
+      actionId = args[i];
+      actionIdIdx = i;
+      break;
+    }
+  }
+
   if (!actionId) {
     process.stderr.write('Usage: actions execute <action-id> [flags]\n');
     process.exit(1);
@@ -46,7 +79,7 @@ export default async ({ args, info }: CliCommandContext) => {
 
   const schemaFlags = schemaToFlags(action.schema.input as any);
 
-  const flagArgs = args.filter(a => a !== actionId);
+  const flagArgs = args.filter((_, i) => i !== actionIdIdx);
 
   const { flags } = cli(
     {

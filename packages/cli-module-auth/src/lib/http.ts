@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import fetch from 'cross-fetch';
 import { ResponseError } from '@backstage/errors';
 
 /** @public */

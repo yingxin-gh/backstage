@@ -2830,6 +2830,8 @@ __metadata:
     "@backstage/cli-module-auth": "workspace:^"
     "@backstage/cli-node": "workspace:^"
     cleye: "npm:^2.3.0"
+  bin:
+    cli-module-actions: bin/backstage-cli-module-actions
   languageName: unknown
   linkType: soft
 
@@ -2844,7 +2846,6 @@ __metadata:
     "@types/fs-extra": "npm:^11.0.0"
     "@types/proper-lockfile": "npm:^4"
     cleye: "npm:^2.3.0"
-    cross-fetch: "npm:^4.0.0"
     fs-extra: "npm:^11.2.0"
     glob: "npm:^7.1.7"
     inquirer: "npm:^8.2.0"

@@ -359,7 +359,7 @@ export const searchPage: OverridableExtensionDefinition<{
   };
 }>;
 
-// @alpha (undocumented)
+// @public @deprecated (undocumented)
 export const searchTranslationRef: TranslationRef<
   'search',
   {

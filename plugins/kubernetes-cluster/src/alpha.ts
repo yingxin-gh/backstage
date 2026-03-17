@@ -14,4 +14,10 @@
  * limitations under the License.
  */
 
-export { kubernetesClusterTranslationRef } from './translation';
+import { kubernetesClusterTranslationRef as _kubernetesClusterTranslationRef } from './translation';
+
+/**
+ * @public
+ * @deprecated Import from `@backstage/plugin-kubernetes-cluster` instead.
+ */
+export const kubernetesClusterTranslationRef = _kubernetesClusterTranslationRef;

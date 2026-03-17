@@ -23,7 +23,13 @@ import {
 import SettingsIcon from '@material-ui/icons/Settings';
 import { settingsRouteRef } from './plugin';
 
-export * from './translation';
+import { userSettingsTranslationRef as _userSettingsTranslationRef } from './translation';
+
+/**
+ * @public
+ * @deprecated Import from `@backstage/plugin-user-settings` instead.
+ */
+export const userSettingsTranslationRef = _userSettingsTranslationRef;
 
 const userSettingsPage = PageBlueprint.makeWithOverrides({
   inputs: {

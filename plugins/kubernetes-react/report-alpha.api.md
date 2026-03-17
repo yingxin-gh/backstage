@@ -5,7 +5,7 @@
 ```ts
 import { TranslationRef } from '@backstage/frontend-plugin-api';
 
-// @alpha (undocumented)
+// @public @deprecated (undocumented)
 export const kubernetesReactTranslationRef: TranslationRef<
   'kubernetes-react',
   {

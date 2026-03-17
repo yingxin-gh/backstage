@@ -202,7 +202,7 @@ const _default: OverridableFrontendPlugin<
 >;
 export default _default;
 
-// @alpha (undocumented)
+// @public @deprecated (undocumented)
 export const orgTranslationRef: TranslationRef<
   'org',
   {

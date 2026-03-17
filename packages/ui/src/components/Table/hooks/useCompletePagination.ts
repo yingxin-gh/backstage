@@ -43,7 +43,7 @@ export function useCompletePagination<T extends TableItem, TFilter>(
   const getData = useStableCallback(getDataProp);
   const { sort, filter, search } = query;
 
-  const [items, setItems] = useState<T[]>([]);
+  const [items, setItems] = useState<T[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(!data);
   const [error, setError] = useState<Error | undefined>(undefined);
   const [loadCount, setLoadCount] = useState(0);
@@ -95,6 +95,9 @@ export function useCompletePagination<T extends TableItem, TFilter>(
 
   // Process data client-side (filter, search, sort)
   const processedData = useMemo(() => {
+    if (!resolvedItems) {
+      return undefined;
+    }
     let result = [...resolvedItems];
     if (filter !== undefined && filterFn) {
       result = filterFn(result, filter);
@@ -108,11 +111,11 @@ export function useCompletePagination<T extends TableItem, TFilter>(
     return result;
   }, [resolvedItems, sort, filter, search, filterFn, searchFn, sortFn]);
 
-  const totalCount = processedData.length;
+  const totalCount = processedData?.length ?? 0;
 
   // Paginate the processed data
   const paginatedData = useMemo(
-    () => processedData.slice(offset, offset + pageSize),
+    () => processedData?.slice(offset, offset + pageSize),
     [processedData, offset, pageSize],
   );
 

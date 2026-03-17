@@ -6,7 +6,7 @@ description: How to integrate Search into a Backstage plugin
 
 :::caution Legacy Documentation
 
-This section is part of the legacy plugins documentation. For the new frontend system version, see [Integrating Search into a Plugin](../frontend-system/building-plugins/10-integrating-search-into-plugins.md). The backend search collator patterns described here use the new backend system and are still current. The frontend search experience examples use the old frontend system APIs.
+This section is part of the legacy plugins documentation. The backend search collator patterns described here use the new backend system and are still current. The frontend search experience examples use the old frontend system APIs.
 
 :::
 

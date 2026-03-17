@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 
+import { Page, Header, Content } from '@backstage/core-components';
 import { useRouteRef } from '@backstage/core-plugin-api';
 import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 import {
@@ -31,7 +32,6 @@ import { editRouteRef } from '../../../routes';
 import { scaffolderTranslationRef } from '../../../translation';
 
 import { TemplateFormPreviewer } from './TemplateFormPreviewer';
-import { ScaffolderPageLayout } from '../../../components/ScaffolderPageLayout';
 
 const useStyles = makeStyles({
   root: {
@@ -44,7 +44,6 @@ interface TemplateFormPageProps {
   formProps?: FormProps;
   fieldExtensions?: FieldExtensionOptions<any, any>[];
   defaultPreviewTemplate?: string;
-  headerVariant?: 'legacy' | 'bui';
 }
 
 export function TemplateFormPage(props: TemplateFormPageProps) {
@@ -58,22 +57,22 @@ export function TemplateFormPage(props: TemplateFormPageProps) {
   }, [navigate, editLink]);
 
   return (
-    <ScaffolderPageLayout
-      themeId="home"
-      headerVariant={props.headerVariant}
-      title={t('templateFormPage.title')}
-      subtitle={t('templateFormPage.subtitle')}
-      type={t('templateIntroPage.title')}
-      typeLink={editLink()}
-      contentClassName={classes.root}
-    >
-      <TemplateFormPreviewer
-        layouts={props.layouts}
-        formProps={props.formProps}
-        customFieldExtensions={props.fieldExtensions}
-        defaultPreviewTemplate={props.defaultPreviewTemplate}
-        onClose={handleClose}
+    <Page themeId="home">
+      <Header
+        title={t('templateFormPage.title')}
+        subtitle={t('templateFormPage.subtitle')}
+        type={t('templateIntroPage.title')}
+        typeLink={editLink()}
       />
-    </ScaffolderPageLayout>
+      <Content className={classes.root}>
+        <TemplateFormPreviewer
+          layouts={props.layouts}
+          formProps={props.formProps}
+          customFieldExtensions={props.fieldExtensions}
+          defaultPreviewTemplate={props.defaultPreviewTemplate}
+          onClose={handleClose}
+        />
+      </Content>
+    </Page>
   );
 }

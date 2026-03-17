@@ -20,8 +20,11 @@ import { TemplateEntityV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { useApp, useRouteRef } from '@backstage/core-plugin-api';
 
 import {
+  Content,
   ContentHeader,
   DocsIcon,
+  Header,
+  Page,
   SupportButton,
 } from '@backstage/core-components';
 import {
@@ -56,7 +59,6 @@ import {
   useTranslationRef,
 } from '@backstage/core-plugin-api/alpha';
 import { scaffolderTranslationRef } from '../../../translation';
-import { ScaffolderPageLayout } from '../../../components/ScaffolderPageLayout';
 import { buildTechDocsURL } from '@backstage/plugin-techdocs-react';
 import {
   TECHDOCS_ANNOTATION,
@@ -83,7 +85,6 @@ export type TemplateListPageProps = {
     title?: string;
     subtitle?: string;
   };
-  headerVariant?: 'legacy' | 'bui';
 };
 
 const createGroupsWithOther = (
@@ -182,62 +183,55 @@ export const TemplateListPage = (props: TemplateListPageProps) => {
     },
     [navigate, templateRoute],
   );
-  const pageActions = (
-    <>
-      <RegisterExistingButton
-        title={t('templateListPage.contentHeader.registerExistingButtonTitle')}
-        to={registerComponentLink && registerComponentLink()}
-      />
-      <SupportButton>
-        {t('templateListPage.contentHeader.supportButtonTitle')}
-      </SupportButton>
-    </>
-  );
 
   return (
     <EntityListProvider>
-      <ScaffolderPageLayout
-        themeId="home"
-        headerVariant={props.headerVariant}
-        pageTitleOverride={
-          headerOptions?.pageTitleOverride ?? t('templateListPage.pageTitle')
-        }
-        title={headerOptions?.title ?? t('templateListPage.title')}
-        subtitle={headerOptions?.subtitle ?? t('templateListPage.subtitle')}
-        headerActions={
-          <>
-            {props.headerVariant === 'bui' ? pageActions : undefined}
-            <ScaffolderPageContextMenu {...scaffolderPageContextMenuProps} />
-          </>
-        }
-      >
-        {props.headerVariant !== 'bui' ? (
-          <ContentHeader>{pageActions}</ContentHeader>
-        ) : null}
+      <Page themeId="home">
+        <Header
+          pageTitleOverride={t('templateListPage.pageTitle')}
+          title={t('templateListPage.title')}
+          subtitle={t('templateListPage.subtitle')}
+          {...headerOptions}
+        >
+          <ScaffolderPageContextMenu {...scaffolderPageContextMenuProps} />
+        </Header>
+        <Content>
+          <ContentHeader>
+            <RegisterExistingButton
+              title={t(
+                'templateListPage.contentHeader.registerExistingButtonTitle',
+              )}
+              to={registerComponentLink && registerComponentLink()}
+            />
+            <SupportButton>
+              {t('templateListPage.contentHeader.supportButtonTitle')}
+            </SupportButton>
+          </ContentHeader>
 
-        <CatalogFilterLayout>
-          <CatalogFilterLayout.Filters>
-            <EntitySearchBar />
-            <EntityKindPicker initialFilter="template" hidden />
-            <UserListPicker
-              initialFilter="all"
-              availableFilters={['all', 'starred']}
-            />
-            <TemplateCategoryPicker />
-            <EntityTagPicker />
-            <EntityOwnerPicker />
-          </CatalogFilterLayout.Filters>
-          <CatalogFilterLayout.Content>
-            <TemplateGroups
-              groups={groups}
-              templateFilter={templateFilter}
-              TemplateCardComponent={TemplateCardComponent}
-              onTemplateSelected={onTemplateSelected}
-              additionalLinksForEntity={additionalLinksForEntity}
-            />
-          </CatalogFilterLayout.Content>
-        </CatalogFilterLayout>
-      </ScaffolderPageLayout>
+          <CatalogFilterLayout>
+            <CatalogFilterLayout.Filters>
+              <EntitySearchBar />
+              <EntityKindPicker initialFilter="template" hidden />
+              <UserListPicker
+                initialFilter="all"
+                availableFilters={['all', 'starred']}
+              />
+              <TemplateCategoryPicker />
+              <EntityTagPicker />
+              <EntityOwnerPicker />
+            </CatalogFilterLayout.Filters>
+            <CatalogFilterLayout.Content>
+              <TemplateGroups
+                groups={groups}
+                templateFilter={templateFilter}
+                TemplateCardComponent={TemplateCardComponent}
+                onTemplateSelected={onTemplateSelected}
+                additionalLinksForEntity={additionalLinksForEntity}
+              />
+            </CatalogFilterLayout.Content>
+          </CatalogFilterLayout>
+        </Content>
+      </Page>
     </EntityListProvider>
   );
 };

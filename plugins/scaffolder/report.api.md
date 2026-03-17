@@ -499,14 +499,7 @@ export type RouterProps = {
     TemplateCardComponent?: ComponentType<{
       template: TemplateEntityV1beta3;
     }>;
-    TaskPageComponent?: ComponentType<
-      PropsWithChildren<{
-        TemplateOutputsComponent?: ComponentType<{
-          output?: ScaffolderTaskOutput_2;
-        }>;
-        headerVariant?: 'legacy' | 'bui';
-      }>
-    >;
+    TaskPageComponent?: ComponentType<PropsWithChildren<{}>>;
     EXPERIMENTAL_TemplateOutputsComponent?: ComponentType<{
       output?: ScaffolderTaskOutput_2;
     }>;
@@ -629,7 +622,6 @@ export const TaskPage: (props: {
   TemplateOutputsComponent?: ComponentType<{
     output?: ScaffolderTaskOutput_2;
   }>;
-  headerVariant?: 'legacy' | 'bui';
 }) => JSX_2.Element;
 
 // @public @deprecated

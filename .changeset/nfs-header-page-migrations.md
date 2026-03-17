@@ -7,7 +7,6 @@
 '@backstage/plugin-catalog-unprocessed-entities': patch
 '@backstage/plugin-devtools': patch
 '@backstage/plugin-notifications': patch
-'@backstage/plugin-scaffolder': patch
 '@backstage/plugin-search': patch
 '@backstage/plugin-techdocs': patch
 '@backstage/plugin-user-settings': patch

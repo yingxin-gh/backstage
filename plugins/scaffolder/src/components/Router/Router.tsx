@@ -77,14 +77,7 @@ export type RouterProps = {
     TemplateCardComponent?: ComponentType<{
       template: TemplateEntityV1beta3;
     }>;
-    TaskPageComponent?: ComponentType<
-      PropsWithChildren<{
-        TemplateOutputsComponent?: ComponentType<{
-          output?: ScaffolderTaskOutput;
-        }>;
-        headerVariant?: 'legacy' | 'bui';
-      }>
-    >;
+    TaskPageComponent?: ComponentType<PropsWithChildren<{}>>;
     EXPERIMENTAL_TemplateOutputsComponent?: ComponentType<{
       output?: ScaffolderTaskOutput;
     }>;
@@ -124,7 +117,6 @@ export const InternalRouter = (
   props: PropsWithChildren<
     RouterProps & {
       formFields?: Array<FormField>;
-      headerVariant?: 'legacy' | 'bui';
     }
   >,
 ) => {
@@ -170,7 +162,6 @@ export const InternalRouter = (
             groups={props.groups}
             templateFilter={props.templateFilter}
             headerOptions={props.headerOptions}
-            headerVariant={props.headerVariant}
           />
         }
       />
@@ -184,7 +175,6 @@ export const InternalRouter = (
               layouts={customLayouts}
               components={{ ReviewStepComponent }}
               formProps={props.formProps}
-              headerVariant={props.headerVariant}
             />
           </SecretsContextProvider>
         }
@@ -194,7 +184,6 @@ export const InternalRouter = (
         element={
           <TaskPageComponent
             TemplateOutputsComponent={TemplateOutputsComponent}
-            headerVariant={props.headerVariant}
           />
         }
       />
@@ -203,7 +192,7 @@ export const InternalRouter = (
         element={
           <RequirePermission permission={templateManagementPermission}>
             <SecretsContextProvider>
-              <TemplateIntroPage headerVariant={props.headerVariant} />
+              <TemplateIntroPage />
             </SecretsContextProvider>
           </RequirePermission>
         }
@@ -213,10 +202,7 @@ export const InternalRouter = (
         element={
           <RequirePermission permission={templateManagementPermission}>
             <SecretsContextProvider>
-              <CustomFieldsPage
-                fieldExtensions={fieldExtensions}
-                headerVariant={props.headerVariant}
-              />
+              <CustomFieldsPage fieldExtensions={fieldExtensions} />
             </SecretsContextProvider>
           </RequirePermission>
         }
@@ -230,7 +216,6 @@ export const InternalRouter = (
                 layouts={customLayouts}
                 formProps={props.formProps}
                 fieldExtensions={fieldExtensions}
-                headerVariant={props.headerVariant}
               />
             </SecretsContextProvider>
           </RequirePermission>
@@ -239,21 +224,11 @@ export const InternalRouter = (
 
       <Route
         path={actionsRouteRef.path}
-        element={
-          <ActionsPage
-            contextMenu={props.contextMenu}
-            headerVariant={props.headerVariant}
-          />
-        }
+        element={<ActionsPage contextMenu={props.contextMenu} />}
       />
       <Route
         path={scaffolderListTaskRouteRef.path}
-        element={
-          <ListTasksPage
-            contextMenu={props.contextMenu}
-            headerVariant={props.headerVariant}
-          />
-        }
+        element={<ListTasksPage contextMenu={props.contextMenu} />}
       />
       <Route
         path={editorRouteRef.path}
@@ -264,7 +239,6 @@ export const InternalRouter = (
                 layouts={customLayouts}
                 formProps={props.formProps}
                 fieldExtensions={fieldExtensions}
-                headerVariant={props.headerVariant}
               />
             </SecretsContextProvider>
           </RequirePermission>
@@ -272,12 +246,7 @@ export const InternalRouter = (
       />
       <Route
         path={templatingExtensionsRouteRef.path}
-        element={
-          <TemplatingExtensionsPage
-            contextMenu={props.contextMenu}
-            headerVariant={props.headerVariant}
-          />
-        }
+        element={<TemplatingExtensionsPage contextMenu={props.contextMenu} />}
       />
       <Route path="*" element={<NotFoundErrorPage />} />
     </Routes>

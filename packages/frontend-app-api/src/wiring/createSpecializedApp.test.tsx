@@ -16,7 +16,6 @@
 
 import {
   AppTreeApi,
-  type ApiRef,
   appTreeApiRef,
   coreExtensionData,
   createExtension,

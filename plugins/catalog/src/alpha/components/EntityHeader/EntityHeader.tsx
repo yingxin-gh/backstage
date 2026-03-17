@@ -27,14 +27,13 @@ import useAsync from 'react-use/esm/useAsync';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 
-import { Breadcrumbs } from '@backstage/core-components';
+import { Header, Breadcrumbs } from '@backstage/core-components';
 import {
   useApi,
   useRouteRef,
   useRouteRefParams,
 } from '@backstage/core-plugin-api';
 import { IconComponent } from '@backstage/frontend-plugin-api';
-import { HeaderPage } from '@backstage/ui';
 
 import {
   Entity,
@@ -49,6 +48,7 @@ import {
   EntityRefLink,
   InspectEntityDialog,
   UnregisterEntityDialog,
+  EntityDisplayName,
   FavoriteEntity,
 } from '@backstage/plugin-catalog-react';
 
@@ -57,11 +57,12 @@ import { EntityContextMenu } from '../../../components/EntityContextMenu';
 import { rootRouteRef, unregisterRedirectRouteRef } from '../../../routes';
 
 function headerProps(
-  _paramKind: string | undefined,
+  paramKind: string | undefined,
   paramNamespace: string | undefined,
   paramName: string | undefined,
   entity: Entity | undefined,
-): { headerTitle: string } {
+): { headerTitle: string; headerType: string } {
+  const kind = paramKind ?? entity?.kind ?? '';
   const namespace = paramNamespace ?? entity?.metadata.namespace ?? '';
   const name =
     entity?.metadata.title ?? paramName ?? entity?.metadata.name ?? '';
@@ -70,6 +71,14 @@ function headerProps(
     headerTitle: `${name}${
       namespace && namespace !== DEFAULT_NAMESPACE ? ` in ${namespace}` : ''
     }`,
+    headerType: (() => {
+      let t = kind.toLocaleLowerCase('en-US');
+      if (entity && entity.spec && 'type' in entity.spec) {
+        t += ' — ';
+        t += (entity.spec as { type: string }).type.toLocaleLowerCase('en-US');
+      }
+      return t;
+    })(),
   };
 }
 
@@ -103,12 +112,30 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+function EntityHeaderTitle() {
+  const { entity } = useAsyncEntity();
+  const { kind, namespace, name } = useRouteRefParams(entityRouteRef);
+  const { headerTitle: title } = headerProps(kind, namespace, name, entity);
+  return (
+    <Box display="inline-flex" alignItems="center" height="1em" maxWidth="100%">
+      <Box
+        component="span"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
+        overflow="hidden"
+      >
+        {entity ? <EntityDisplayName entityRef={entity} hideIcon /> : title}
+      </Box>
+      {entity && <FavoriteEntity entity={entity} />}
+    </Box>
+  );
+}
+
 function EntityHeaderSubtitle(props: { parentEntityRelations?: string[] }) {
   const { parentEntityRelations } = props;
   const classes = useStyles();
   const { entity } = useAsyncEntity();
   const { name } = useRouteRefParams(entityRouteRef);
-  const entityName = entity?.metadata.title ?? name;
   const parentEntity = findParentRelation(
     entity?.relations ?? [],
     parentEntityRelations ?? [],
@@ -132,7 +159,7 @@ function EntityHeaderSubtitle(props: { parentEntityRelations?: string[] }) {
         <EntityRefLink entityRef={ancestorEntity.targetRef} disableTooltip />
       )}
       <EntityRefLink entityRef={parentEntity.targetRef} disableTooltip />
-      {entityName}
+      {name}
     </Breadcrumbs>
   ) : null;
 }
@@ -176,7 +203,12 @@ export function EntityHeader(props: {
   } = props;
   const { entity } = useAsyncEntity();
   const { kind, namespace, name } = useRouteRefParams(entityRouteRef);
-  const { headerTitle } = headerProps(kind, namespace, name, entity);
+  const { headerTitle: entityFallbackText, headerType: type } = headerProps(
+    kind,
+    namespace,
+    name,
+    entity,
+  );
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -233,44 +265,28 @@ export function EntityHeader(props: {
   );
 
   const inspectDialogOpen = typeof selectedInspectEntityDialogTab === 'string';
-  const customTitle = typeof title === 'string' ? undefined : title;
-  const headerSubtitle = subtitle ?? (
-    <EntityHeaderSubtitle parentEntityRelations={parentEntityRelations} />
-  );
-  const renderedTitle = typeof title === 'string' ? title : headerTitle;
 
   return (
-    <>
-      <HeaderPage
-        title={renderedTitle}
-        customActions={
-          entity ? (
-            <>
-              <FavoriteEntity entity={entity} />
-              <EntityContextMenu
-                UNSTABLE_extraContextMenuItems={UNSTABLE_extraContextMenuItems}
-                UNSTABLE_contextMenuOptions={UNSTABLE_contextMenuOptions}
-                contextMenuItems={contextMenuItems}
-                onInspectEntity={openInspectEntityDialog}
-                onUnregisterEntity={openUnregisterEntityDialog}
-              />
-            </>
-          ) : undefined
-        }
-      />
-      {(customTitle || headerSubtitle || entity) && (
-        <Box mt={2}>
-          {customTitle}
-          {headerSubtitle}
-          {entity && (
-            <Box mt={customTitle || headerSubtitle ? 1 : 0}>
-              <EntityLabels entity={entity} />
-            </Box>
-          )}
-        </Box>
-      )}
+    <Header
+      pageTitleOverride={entityFallbackText}
+      type={type}
+      title={title ?? <EntityHeaderTitle />}
+      subtitle={
+        subtitle ?? (
+          <EntityHeaderSubtitle parentEntityRelations={parentEntityRelations} />
+        )
+      }
+    >
       {entity && (
         <>
+          <EntityLabels entity={entity} />
+          <EntityContextMenu
+            UNSTABLE_extraContextMenuItems={UNSTABLE_extraContextMenuItems}
+            UNSTABLE_contextMenuOptions={UNSTABLE_contextMenuOptions}
+            contextMenuItems={contextMenuItems}
+            onInspectEntity={openInspectEntityDialog}
+            onUnregisterEntity={openUnregisterEntityDialog}
+          />
           <InspectEntityDialog
             entity={entity!}
             initialTab={
@@ -290,6 +306,6 @@ export function EntityHeader(props: {
           />
         </>
       )}
-    </>
+    </Header>
   );
 }

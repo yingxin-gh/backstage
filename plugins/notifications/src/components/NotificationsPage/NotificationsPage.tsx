@@ -21,7 +21,6 @@ import {
   PageWithHeader,
   ResponseErrorPanel,
 } from '@backstage/core-components';
-import { HeaderPage } from '@backstage/ui';
 import Grid from '@material-ui/core/Grid';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { useSignal } from '@backstage/plugin-signals-react';
@@ -233,12 +232,7 @@ function NotificationsPageContent(
   );
 
   if (headerVariant === 'bui') {
-    return (
-      <>
-        <HeaderPage title={subtitle || title} />
-        {pageContent}
-      </>
-    );
+    return pageContent;
   }
 
   return (

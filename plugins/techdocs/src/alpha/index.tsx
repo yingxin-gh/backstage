@@ -46,6 +46,7 @@ import {
   rootDocsRouteRef,
   rootRouteRef,
 } from '../routes';
+import { TechDocsReaderLayout } from '../reader';
 import {
   TechDocsAddons,
   techdocsApiRef,
@@ -139,7 +140,9 @@ const techDocsPage = PageBlueprint.make({
     path: '/docs',
     routeRef: rootRouteRef,
     loader: () =>
-      import('./NfsTechDocsIndexPage').then(m => <m.NfsTechDocsIndexPage />),
+      import('../home/components/TechDocsIndexPage').then(m => (
+        <m.TechDocsIndexPage />
+      )),
   },
 });
 
@@ -183,12 +186,9 @@ const techDocsReaderPage = PageBlueprint.makeWithOverrides({
           );
         });
 
-        return Promise.all([
-          import('../Router'),
-          import('./NfsTechDocsReaderLayout'),
-        ]).then(([{ TechDocsReaderRouter }, { NfsTechDocsReaderLayout }]) => (
+        return import('../Router').then(({ TechDocsReaderRouter }) => (
           <TechDocsReaderRouter>
-            <NfsTechDocsReaderLayout
+            <TechDocsReaderLayout
               withSearch={!config.withoutSearch}
               withHeader={!config.withoutHeader}
             />

@@ -15,7 +15,7 @@
  */
 
 import { JSX } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useResolvedPath } from 'react-router-dom';
 import { IconElement } from '../icons/types';
 import { RouteRef } from '../routing';
 import {
@@ -72,6 +72,7 @@ export const PageBlueprint = createExtensionBlueprint({
     { config, node, inputs },
   ) {
     const title = config.title ?? params.title;
+    const routePath = config.path ?? params.path;
     const icon = params.icon;
     const pluginId = node.spec.plugin.pluginId;
     const noHeader = params.noHeader ?? false;
@@ -79,7 +80,7 @@ export const PageBlueprint = createExtensionBlueprint({
       title ?? node.spec.plugin.title ?? node.spec.plugin.pluginId;
     const resolvedIcon = icon ?? node.spec.plugin.icon;
 
-    yield coreExtensionData.routePath(config.path ?? params.path);
+    yield coreExtensionData.routePath(routePath);
     if (params.loader) {
       const loader = params.loader;
       const PageContent = () => {
@@ -99,24 +100,34 @@ export const PageBlueprint = createExtensionBlueprint({
       };
       yield coreExtensionData.reactElement(<PageContent />);
     } else if (inputs.pages.length > 0) {
-      // Parent page with sub-pages - render header with tabs
-      const tabs: PageLayoutTab[] = inputs.pages.map(page => {
-        const path = page.get(coreExtensionData.routePath);
-        const tabTitle = page.get(coreExtensionData.title);
-        const tabIcon = page.get(coreExtensionData.icon);
-        return {
-          id: path,
-          label: tabTitle || path,
-          icon: tabIcon,
-          href: path,
-        };
-      });
-
       const PageContent = () => {
         const firstPagePath = inputs.pages[0]?.get(coreExtensionData.routePath);
-
         const headerActionsApi = useApi(pluginHeaderActionsApiRef);
         const headerActions = headerActionsApi.getPluginHeaderActions(pluginId);
+        const parentPath = useResolvedPath('.').pathname.replace(/\/$/, '');
+        const staticParentPath =
+          routePath.startsWith('/') &&
+          !routePath.includes('/:') &&
+          !routePath.includes('*')
+            ? routePath.replace(/\/$/, '')
+            : undefined;
+        const tabs: PageLayoutTab[] = inputs.pages.map(page => {
+          const path = page.get(coreExtensionData.routePath);
+          const tabTitle = page.get(coreExtensionData.title);
+          const tabIcon = page.get(coreExtensionData.icon);
+          const tabPath = path.replace(/^\/+/, '');
+          const basePath = staticParentPath ?? parentPath ?? '';
+          const href = path.startsWith('/')
+            ? path
+            : `${basePath}/${tabPath}`.replace(/\/{2,}/g, '/');
+
+          return {
+            id: path,
+            label: tabTitle || path,
+            icon: tabIcon,
+            href,
+          };
+        });
 
         return (
           <PageLayout

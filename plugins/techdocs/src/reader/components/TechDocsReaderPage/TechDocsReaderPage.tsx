@@ -140,7 +140,6 @@ export type TechDocsReaderLayoutProps = {
  */
 export const TechDocsReaderLayout = (props: TechDocsReaderLayoutProps) => {
   const { withSearch, withHeader = true } = props;
-
   return (
     <Page themeId="documentation">
       {withHeader && <TechDocsReaderPageHeader />}

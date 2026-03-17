@@ -215,6 +215,7 @@ export function pluginPackagePrompt(
   return {
     type: 'input',
     name: 'pluginPackage',
+    filter: (value: string) => value.trim(),
     message: `Enter the package name of the plugin this module extends (e.g. ${examplePackage}) [required]`,
     validate: (value: string) => {
       if (!value) {

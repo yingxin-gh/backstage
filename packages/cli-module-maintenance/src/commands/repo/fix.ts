@@ -29,8 +29,8 @@ import {
   relative as relativePath,
   extname,
 } from 'node:path';
-import { targetPaths } from '@backstage/cli-common';
 import {
+  targetPaths,
   knownBackendPluginPackageNameByPluginId,
   knownFrontendPluginPackageNameByPluginId,
 } from '@backstage/cli-common';

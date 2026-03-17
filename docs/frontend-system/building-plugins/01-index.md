@@ -246,4 +246,3 @@ The following guides cover cross-cutting concerns for building frontend plugins:
 - [Internationalization (i18n)](./07-internationalization.md) — Adding translations to your plugin using `createTranslationRef` and `useTranslationRef`.
 - [Plugin Analytics](./08-analytics.md) — Instrumenting user interactions with the Analytics API using `AnalyticsImplementationBlueprint`.
 - [Feature Flags](./09-feature-flags.md) — Defining and using feature flags via the `featureFlags` option of `createFrontendPlugin`.
-- [Integrating Search into Plugins](./10-integrating-search-into-plugins.md) — Building search experiences, collators, and custom result list items using `SearchResultListItemBlueprint`.

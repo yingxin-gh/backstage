@@ -87,7 +87,7 @@ an `AnalyticsEvent` object.
 A simple implementation using `AnalyticsImplementationBlueprint`:
 
 ```ts
-import { AnalyticsImplementationBlueprint } from '@backstage/frontend-plugin-api';
+import { AnalyticsImplementationBlueprint } from '@backstage/plugin-app-react';
 
 export const acmeAnalyticsImplementation =
   AnalyticsImplementationBlueprint.make({
@@ -115,7 +115,7 @@ import {
   AnalyticsEvent,
   configApiRef,
 } from '@backstage/frontend-plugin-api';
-import { AnalyticsImplementationBlueprint } from '@backstage/frontend-plugin-api';
+import { AnalyticsImplementationBlueprint } from '@backstage/plugin-app-react';
 import { AcmeAnalytics } from 'acme-analytics';
 
 class AcmeAnalyticsImpl implements AnalyticsApi {

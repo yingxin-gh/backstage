@@ -15,11 +15,12 @@
  */
 
 import { NotFoundError } from '@backstage/errors';
-import fs from 'fs-extra';
+import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import lockfile from 'proper-lockfile';
 import YAML from 'yaml';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 const METADATA_FILE = 'auth-instances.yaml';
 
@@ -35,10 +36,13 @@ const storedInstanceSchema = z.object({
   issuedAt: z.number().int().nonnegative(),
   accessTokenExpiresAt: z.number().int().nonnegative(),
   selected: z.boolean().optional(),
-  config: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
-/** @public */
+const authYamlSchema = z.object({
+  instances: z.array(storedInstanceSchema).default([]),
+});
+
 export type StoredInstance = {
   name: string;
   baseUrl: string;
@@ -46,12 +50,17 @@ export type StoredInstance = {
   issuedAt: number;
   accessTokenExpiresAt: number;
   selected?: boolean;
-  config?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 };
 
-const authYamlSchema = z.object({
-  instances: z.array(storedInstanceSchema).default([]),
-});
+async function pathExists(p: string): Promise<boolean> {
+  try {
+    await fs.stat(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /** @internal */
 export function getMetadataFilePath(): string {
@@ -67,7 +76,7 @@ export function getMetadataFilePath(): string {
 /** @internal */
 export async function readAll(): Promise<{ instances: StoredInstance[] }> {
   const file = getMetadataFilePath();
-  if (!(await fs.pathExists(file))) {
+  if (!(await pathExists(file))) {
     return { instances: [] };
   }
   const text = await fs.readFile(file, 'utf8');
@@ -83,6 +92,29 @@ export async function readAll(): Promise<{ instances: StoredInstance[] }> {
     return { instances: [] };
   } catch {
     return { instances: [] };
+  }
+}
+
+async function writeAll(data: { instances: StoredInstance[] }): Promise<void> {
+  const file = getMetadataFilePath();
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  const yaml = YAML.stringify(authYamlSchema.parse(data), { indentSeq: false });
+  await fs.writeFile(file, yaml, { encoding: 'utf8', mode: 0o600 });
+}
+
+async function withMetadataLock<T>(fn: () => Promise<T>): Promise<T> {
+  const file = getMetadataFilePath();
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  if (!(await pathExists(file))) {
+    await fs.writeFile(file, '', { encoding: 'utf8', mode: 0o600 });
+  }
+  const release = await lockfile.lock(file, {
+    retries: { retries: 5, factor: 1.5, minTimeout: 100, maxTimeout: 1000 },
+  });
+  try {
+    return await fn();
+  } finally {
+    await release();
   }
 }
 
@@ -129,12 +161,32 @@ export async function getInstanceByName(name: string): Promise<StoredInstance> {
 }
 
 /** @internal */
-export async function getInstanceConfig<T = unknown>(
+export async function getInstanceMetadata(
   instanceName: string,
   key: string,
-): Promise<T | undefined> {
+): Promise<unknown> {
   const instance = await getInstanceByName(instanceName);
-  return instance.config?.[key] as T | undefined;
+  return instance.metadata?.[key];
+}
+
+/** @internal */
+export async function updateInstanceMetadata(
+  instanceName: string,
+  key: string,
+  value: unknown,
+): Promise<void> {
+  return withMetadataLock(async () => {
+    const data = await readAll();
+    const idx = data.instances.findIndex(i => i.name === instanceName);
+    if (idx === -1) {
+      throw new NotFoundError(`Instance '${instanceName}' not found`);
+    }
+    data.instances[idx] = {
+      ...data.instances[idx],
+      metadata: { ...data.instances[idx].metadata, [key]: value },
+    };
+    await writeAll(data);
+  });
 }
 
 /** @internal */

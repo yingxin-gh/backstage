@@ -15,6 +15,9 @@
  */
 
 import { CliAuth } from '@backstage/cli-node';
+import { z } from 'zod/v3';
+
+const pluginSourcesSchema = z.array(z.string()).default([]);
 
 export async function resolveAuth(instanceFlag?: string): Promise<{
   baseUrl: string;
@@ -24,7 +27,9 @@ export async function resolveAuth(instanceFlag?: string): Promise<{
 }> {
   const auth = await CliAuth.create({ instanceName: instanceFlag });
   const accessToken = await auth.getAccessToken();
-  const pluginSources = (await auth.getConfig<string[]>('pluginSources')) ?? [];
+  const pluginSources = pluginSourcesSchema.parse(
+    await auth.getMetadata('pluginSources'),
+  );
 
   return {
     baseUrl: auth.getBaseUrl(),

@@ -37,7 +37,7 @@ describe('resolveAuth', () => {
       getInstanceName: jest.fn().mockReturnValue('production'),
       getBaseUrl: jest.fn().mockReturnValue('https://backstage.example.com'),
       getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
-      getConfig: jest.fn().mockResolvedValue(['catalog', 'scaffolder']),
+      getMetadata: jest.fn().mockResolvedValue(['catalog', 'scaffolder']),
     } as unknown as CliAuth);
 
     const result = await resolveAuth();
@@ -56,7 +56,7 @@ describe('resolveAuth', () => {
       getInstanceName: jest.fn().mockReturnValue('staging'),
       getBaseUrl: jest.fn().mockReturnValue('https://staging.example.com'),
       getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
-      getConfig: jest.fn().mockResolvedValue([]),
+      getMetadata: jest.fn().mockResolvedValue([]),
     } as unknown as CliAuth);
 
     await resolveAuth('staging');
@@ -73,7 +73,7 @@ describe('resolveAuth', () => {
         .mockRejectedValue(
           new Error('No access token found. Run "auth login" to authenticate.'),
         ),
-      getConfig: jest.fn().mockResolvedValue([]),
+      getMetadata: jest.fn().mockResolvedValue([]),
     } as unknown as CliAuth);
 
     await expect(resolveAuth()).rejects.toThrow(
@@ -86,7 +86,7 @@ describe('resolveAuth', () => {
       getInstanceName: jest.fn().mockReturnValue('production'),
       getBaseUrl: jest.fn().mockReturnValue('https://backstage.example.com'),
       getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
-      getConfig: jest.fn().mockResolvedValue(undefined),
+      getMetadata: jest.fn().mockResolvedValue(undefined),
     } as unknown as CliAuth);
 
     const result = await resolveAuth();

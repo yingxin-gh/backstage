@@ -16,7 +16,9 @@
 
 import { cli } from 'cleye';
 import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
-import { updateInstanceConfig } from '@backstage/cli-module-auth';
+import { z } from 'zod/v3';
+
+const pluginSourcesSchema = z.array(z.string()).default([]);
 
 export default async ({ args, info }: CliCommandContext) => {
   const parsed = cli(
@@ -31,7 +33,9 @@ export default async ({ args, info }: CliCommandContext) => {
   const pluginId = parsed._[0];
 
   const auth = await CliAuth.create();
-  const existing = (await auth.getConfig<string[]>('pluginSources')) ?? [];
+  const existing = pluginSourcesSchema.parse(
+    await auth.getMetadata('pluginSources'),
+  );
 
   if (existing.includes(pluginId)) {
     process.stderr.write(
@@ -40,10 +44,7 @@ export default async ({ args, info }: CliCommandContext) => {
     return;
   }
 
-  await updateInstanceConfig(auth.getInstanceName(), 'pluginSources', [
-    ...existing,
-    pluginId,
-  ]);
+  await auth.setMetadata('pluginSources', [...existing, pluginId]);
 
   process.stdout.write(`Added plugin source "${pluginId}".\n`);
 };

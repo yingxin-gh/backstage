@@ -29,7 +29,7 @@ export type StoredInstance = {
   issuedAt: number;
   accessTokenExpiresAt: number;
   selected?: boolean;
-  config?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 };
 
 const METADATA_FILE = 'auth-instances.yaml';
@@ -46,7 +46,7 @@ const storedInstanceSchema = z.object({
   issuedAt: z.number().int().nonnegative(),
   accessTokenExpiresAt: z.number().int().nonnegative(),
   selected: z.boolean().optional(),
-  config: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const authYamlSchema = z.object({
@@ -168,16 +168,15 @@ export async function setSelectedInstance(name: string): Promise<void> {
   });
 }
 
-export async function getInstanceConfig<T = unknown>(
+export async function getInstanceMetadata(
   instanceName: string,
   key: string,
-): Promise<T | undefined> {
+): Promise<unknown> {
   const instance = await getInstanceByName(instanceName);
-  return instance.config?.[key] as T | undefined;
+  return instance.metadata?.[key];
 }
 
-/** @public */
-export async function updateInstanceConfig(
+export async function updateInstanceMetadata(
   instanceName: string,
   key: string,
   value: unknown,
@@ -190,7 +189,7 @@ export async function updateInstanceConfig(
     }
     data.instances[idx] = {
       ...data.instances[idx],
-      config: { ...data.instances[idx].config, [key]: value },
+      metadata: { ...data.instances[idx].metadata, [key]: value },
     };
     await writeAll(data);
   });

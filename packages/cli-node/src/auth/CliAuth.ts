@@ -17,13 +17,14 @@
 import {
   type StoredInstance,
   getSelectedInstance,
-  getInstanceConfig,
+  getInstanceMetadata,
+  updateInstanceMetadata,
   accessTokenNeedsRefresh,
 } from './storage';
 import { getSecretStore, type SecretStore } from './secretStore';
 import { getAuthInstanceService } from './authIdentifiers';
 import { httpJson } from './httpJson';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 const TokenResponseSchema = z.object({
   access_token: z.string().min(1),
@@ -104,11 +105,18 @@ export class CliAuth {
   }
 
   /**
-   * Reads a per-instance configuration value previously stored by the
+   * Reads a per-instance metadata value previously stored by the
    * auth module (e.g. `pluginSources`).
    */
-  async getConfig<T = unknown>(key: string): Promise<T | undefined> {
-    return getInstanceConfig<T>(this.#instance.name, key);
+  async getMetadata(key: string): Promise<unknown> {
+    return getInstanceMetadata(this.#instance.name, key);
+  }
+
+  /**
+   * Writes a per-instance metadata value to the on-disk instance store.
+   */
+  async setMetadata(key: string, value: unknown): Promise<void> {
+    return updateInstanceMetadata(this.#instance.name, key, value);
   }
 
   async #refreshAccessToken(): Promise<void> {

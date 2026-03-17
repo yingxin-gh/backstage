@@ -16,12 +16,17 @@
 
 import { cli } from 'cleye';
 import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
+import { z } from 'zod/v3';
+
+const pluginSourcesSchema = z.array(z.string()).default([]);
 
 export default async ({ args, info }: CliCommandContext) => {
   cli({ help: info }, undefined, args);
 
   const auth = await CliAuth.create();
-  const sources = (await auth.getConfig<string[]>('pluginSources')) ?? [];
+  const sources = pluginSourcesSchema.parse(
+    await auth.getMetadata('pluginSources'),
+  );
 
   if (!sources.length) {
     process.stderr.write('No plugin sources configured.\n');

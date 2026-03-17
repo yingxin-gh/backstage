@@ -180,30 +180,43 @@ describe('CliAuth', () => {
     });
   });
 
-  describe('getConfig', () => {
-    it('returns a config value from the instance', async () => {
-      mockStorage.getInstanceConfig.mockResolvedValue([
+  describe('getMetadata / setMetadata', () => {
+    it('returns a metadata value from the instance', async () => {
+      mockStorage.getInstanceMetadata.mockResolvedValue([
         'catalog',
         'scaffolder',
       ]);
 
       const auth = await CliAuth.create();
-      const sources = await auth.getConfig<string[]>('pluginSources');
+      const sources = await auth.getMetadata('pluginSources');
 
       expect(sources).toEqual(['catalog', 'scaffolder']);
-      expect(mockStorage.getInstanceConfig).toHaveBeenCalledWith(
+      expect(mockStorage.getInstanceMetadata).toHaveBeenCalledWith(
         'production',
         'pluginSources',
       );
     });
 
-    it('returns undefined for missing config keys', async () => {
-      mockStorage.getInstanceConfig.mockResolvedValue(undefined);
+    it('returns undefined for missing metadata keys', async () => {
+      mockStorage.getInstanceMetadata.mockResolvedValue(undefined);
 
       const auth = await CliAuth.create();
-      const value = await auth.getConfig('nonexistent');
+      const value = await auth.getMetadata('nonexistent');
 
       expect(value).toBeUndefined();
+    });
+
+    it('writes a metadata value to the instance store', async () => {
+      mockStorage.updateInstanceMetadata.mockResolvedValue(undefined);
+
+      const auth = await CliAuth.create();
+      await auth.setMetadata('pluginSources', ['catalog']);
+
+      expect(mockStorage.updateInstanceMetadata).toHaveBeenCalledWith(
+        'production',
+        'pluginSources',
+        ['catalog'],
+      );
     });
   });
 });

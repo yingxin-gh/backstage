@@ -52,5 +52,3 @@ export default createCliModule({
     });
   },
 });
-
-export { updateInstanceConfig } from './lib/storage';

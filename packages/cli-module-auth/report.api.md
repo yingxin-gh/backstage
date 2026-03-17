@@ -9,12 +9,5 @@ import { CliModule } from '@backstage/cli-node';
 const _default: CliModule;
 export default _default;
 
-// @public (undocumented)
-export function updateInstanceConfig(
-  instanceName: string,
-  key: string,
-  value: unknown,
-): Promise<void>;
-
 // (No @packageDocumentation comment for this package)
 ```

@@ -91,8 +91,9 @@ export class CliAuth {
   static create(options?: CliAuthCreateOptions): Promise<CliAuth>;
   getAccessToken(): Promise<string>;
   getBaseUrl(): string;
-  getConfig<T = unknown>(key: string): Promise<T | undefined>;
   getInstanceName(): string;
+  getMetadata(key: string): Promise<unknown>;
+  setMetadata(key: string, value: unknown): Promise<void>;
 }
 
 // @public

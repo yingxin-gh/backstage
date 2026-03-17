@@ -66,20 +66,6 @@ export async function runCommand(opts: OptionValues) {
     env: { ...process.env, CI: undefined },
   });
 
-  await switchToReact17(appDir);
-
-  print(`Running 'yarn install' to install React 17`);
-  await runOutput(['yarn', 'install'], { cwd: appDir });
-
-  print(`Running 'yarn tsc' with React 17`);
-  await runOutput(['yarn', 'tsc'], { cwd: appDir });
-
-  print(`Running 'yarn test:e2e' with React 17`);
-  await runOutput(['yarn', 'test:e2e'], {
-    cwd: appDir,
-    env: { ...process.env, CI: undefined },
-  });
-
   if (
     Boolean(process.env.POSTGRES_USER) ||
     Boolean(process.env.MYSQL_CONNECTION)
@@ -410,38 +396,6 @@ async function createPlugin(options: {
   } finally {
     child.kill();
   }
-}
-
-/**
- * Switch the entire project to use React 17
- */
-async function switchToReact17(appDir: string) {
-  const rootPkg = await fs.readJson(resolvePath(appDir, 'package.json'));
-  rootPkg.resolutions = {
-    ...(rootPkg.resolutions || {}),
-    react: '^17.0.0',
-    'react-dom': '^17.0.0',
-    '@types/react': '^17.0.0',
-    '@types/react-dom': '^17.0.0',
-    'swagger-ui-react/react': '17.0.2',
-    'swagger-ui-react/react-dom': '17.0.2',
-    'swagger-ui-react/react-redux': '^8',
-  };
-  await fs.writeJson(resolvePath(appDir, 'package.json'), rootPkg, {
-    spaces: 2,
-  });
-
-  await fs.writeFile(
-    resolvePath(appDir, 'packages/app/src/index.tsx'),
-    `import '@backstage/cli/asset-types';
-import ReactDOM from 'react-dom';
-import App from './App';
-import '@backstage/ui/css/styles.css';
-
-ReactDOM.render(App.createRoot(), document.getElementById('root'));
-`,
-    'utf8',
-  );
 }
 
 /** Drops PG databases */

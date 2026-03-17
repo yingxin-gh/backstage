@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-export { DependsOnResourcesCard } from './DependsOnResourcesCard';
-export type {
-  DependsOnResourcesCardLegacyProps,
-  DependsOnResourcesCardProps,
-} from './DependsOnResourcesCard';
+export { EntityDataTable } from './EntityDataTable';
+export type { EntityDataTableProps } from './EntityDataTable';
+export { columnFactories as entityDataTableColumns } from './columnFactories';
+export type { EntityRow, EntityColumnConfig } from './columnFactories';
+export { entityColumnPresets } from './presets';

@@ -307,16 +307,11 @@ export type ScaffolderReactComponentsNameToClassKey = {
 // @alpha (undocumented)
 export type ScaffolderReactTemplateCategoryPickerClassKey = 'root' | 'label';
 
-// @alpha (undocumented)
+// @alpha @deprecated (undocumented)
 export const scaffolderReactTranslationRef: TranslationRef<
   'scaffolder-react',
   {
     readonly 'workflow.noDescription': 'No description';
-    readonly 'stepper.backButtonText': 'Back';
-    readonly 'stepper.nextButtonText': 'Next';
-    readonly 'stepper.createButtonText': 'Create';
-    readonly 'stepper.reviewButtonText': 'Review';
-    readonly 'stepper.stepIndexLabel': 'Step {{index, number}}';
     readonly 'passwordWidget.content': 'This widget is insecure. Please use [`ui:field: Secret`](https://backstage.io/docs/features/software-templates/writing-templates/#using-secrets) instead of `ui:widget: password`';
     readonly 'scaffolderPageContextMenu.createLabel': 'Create';
     readonly 'scaffolderPageContextMenu.moreLabel': 'more';
@@ -324,6 +319,11 @@ export const scaffolderReactTranslationRef: TranslationRef<
     readonly 'scaffolderPageContextMenu.actionsLabel': 'Installed Actions';
     readonly 'scaffolderPageContextMenu.tasksLabel': 'Task List';
     readonly 'scaffolderPageContextMenu.templatingExtensionsLabel': 'Templating Extensions';
+    readonly 'stepper.backButtonText': 'Back';
+    readonly 'stepper.nextButtonText': 'Next';
+    readonly 'stepper.createButtonText': 'Create';
+    readonly 'stepper.reviewButtonText': 'Review';
+    readonly 'stepper.stepIndexLabel': 'Step {{index, number}}';
     readonly 'templateCategoryPicker.title': 'Categories';
     readonly 'templateCard.noDescription': 'No description';
     readonly 'templateCard.chooseButtonText': 'Choose';

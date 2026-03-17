@@ -16,7 +16,7 @@
 
 import { createTranslationRef } from '@backstage/core-plugin-api/alpha';
 
-/** @alpha */
+/** @public */
 export const catalogReactTranslationRef = createTranslationRef({
   id: 'catalog-react',
   messages: {

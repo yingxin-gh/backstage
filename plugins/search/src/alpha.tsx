@@ -285,5 +285,10 @@ export default createFrontendPlugin({
   },
 });
 
-/** @alpha */
-export { searchTranslationRef } from './translation';
+import { searchTranslationRef as _searchTranslationRef } from './translation';
+
+/**
+ * @alpha
+ * @deprecated Import from `@backstage/plugin-search` instead.
+ */
+export const searchTranslationRef = _searchTranslationRef;

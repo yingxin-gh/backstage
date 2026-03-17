@@ -52,10 +52,14 @@ export { MenuDefinition } from './components/Menu/definition';
 export { PasswordFieldDefinition } from './components/PasswordField/definition';
 export { PopoverDefinition } from './components/Popover/definition';
 export { RadioGroupDefinition } from './components/RadioGroup/definition';
-export { SliderDefinition } from './components/Slider/definition';
+export {
+  SearchAutocompleteDefinition,
+  SearchAutocompleteItemDefinition,
+} from './components/SearchAutocomplete/definition';
 export { SearchFieldDefinition } from './components/SearchField/definition';
 export { SelectDefinition } from './components/Select/definition';
 export { SkeletonDefinition } from './components/Skeleton/definition';
+export { SliderDefinition } from './components/Slider/definition';
 export { SwitchDefinition } from './components/Switch/definition';
 export { ToggleButtonDefinition } from './components/ToggleButton/definition';
 export { ToggleButtonGroupDefinition } from './components/ToggleButtonGroup/definition';

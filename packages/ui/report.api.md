@@ -19,6 +19,8 @@ import type { DisclosurePanelProps } from 'react-aria-components';
 import type { DisclosureProps } from 'react-aria-components';
 import type { ElementType } from 'react';
 import { ForwardRefExoticComponent } from 'react';
+import type { GridListItemProps } from 'react-aria-components';
+import type { GridListProps } from 'react-aria-components';
 import type { HeadingProps } from 'react-aria-components';
 import type { HTMLAttributes } from 'react';
 import { JSX as JSX_2 } from 'react/jsx-runtime';
@@ -1553,6 +1555,80 @@ export type LinkOwnProps = {
 export interface LinkProps
   extends Omit<LinkProps_2, 'children' | 'className'>,
     LinkOwnProps {}
+
+// @public
+export const List: <T extends object>(props: ListProps<T>) => JSX_2.Element;
+
+// @public
+export const ListDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly classNames: {
+    readonly root: 'bui-List';
+  };
+  readonly propDefs: {
+    readonly items: {};
+    readonly children: {};
+    readonly renderEmptyState: {};
+    readonly className: {};
+  };
+};
+
+// @public
+export type ListOwnProps<T = object> = {
+  items?: GridListProps<T>['items'];
+  children?: GridListProps<T>['children'];
+  renderEmptyState?: GridListProps<T>['renderEmptyState'];
+  className?: string;
+};
+
+// @public
+export interface ListProps<T>
+  extends ListOwnProps<T>,
+    Omit<GridListProps<T>, keyof ListOwnProps<T>> {}
+
+// @public
+export const ListRow: (props: ListRowProps) => JSX_2.Element;
+
+// @public
+export const ListRowDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly bg: 'consumer';
+  readonly classNames: {
+    readonly root: 'bui-ListRow';
+    readonly check: 'bui-ListRowCheck';
+    readonly icon: 'bui-ListRowIcon';
+    readonly label: 'bui-ListRowLabel';
+    readonly description: 'bui-ListRowDescription';
+    readonly actions: 'bui-ListRowActions';
+  };
+  readonly propDefs: {
+    readonly children: {};
+    readonly description: {};
+    readonly icon: {};
+    readonly menuItems: {};
+    readonly customActions: {};
+    readonly className: {};
+  };
+};
+
+// @public
+export type ListRowOwnProps = {
+  children?: React.ReactNode;
+  description?: string;
+  icon?: React.ReactElement;
+  menuItems?: React.ReactNode;
+  customActions?: React.ReactNode;
+  className?: string;
+};
+
+// @public
+export interface ListRowProps
+  extends ListRowOwnProps,
+    Omit<GridListItemProps, keyof ListRowOwnProps> {}
 
 // @public (undocumented)
 export interface MarginProps {

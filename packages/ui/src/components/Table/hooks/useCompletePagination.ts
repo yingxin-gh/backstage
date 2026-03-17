@@ -37,6 +37,7 @@ export function useCompletePagination<T extends TableItem, TFilter>(
     filterFn,
     searchFn,
   } = options;
+  const hasGetData = 'getData' in options;
   const { initialOffset = 0 } = paginationOptions;
   const defaultPageSize = getEffectivePageSize(paginationOptions);
 
@@ -54,6 +55,11 @@ export function useCompletePagination<T extends TableItem, TFilter>(
   // Load data on mount and when loadCount changes (reload trigger)
   useEffect(() => {
     if (data) {
+      setIsLoading(false);
+      return;
+    }
+
+    if (!hasGetData) {
       return;
     }
 
@@ -64,9 +70,9 @@ export function useCompletePagination<T extends TableItem, TFilter>(
     (async () => {
       try {
         const result = getData();
-        const data = result instanceof Promise ? await result : result;
+        const resolvedData = result instanceof Promise ? await result : result;
         if (!cancelled) {
-          setItems(data);
+          setItems(resolvedData);
           setIsLoading(false);
         }
       } catch (err) {
@@ -80,7 +86,7 @@ export function useCompletePagination<T extends TableItem, TFilter>(
     return () => {
       cancelled = true;
     };
-  }, [data, getData, loadCount]);
+  }, [data, getData, hasGetData, loadCount]);
 
   // Reset offset when query changes (query object is memoized)
   const prevQueryRef = useRef(query);

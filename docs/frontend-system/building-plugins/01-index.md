@@ -238,3 +238,12 @@ export const examplePlugin = createFrontendPlugin({
 The `ExampleEntityContent` itself is again a regular React component where you can implement any functionality you want. To access the entity that the content is being rendered for, you can use the `useEntity` hook from `@backstage/plugin-catalog-react`. You can see a full list of APIs provided by the catalog React library in [the API reference](https://backstage.io/api/stable/modules/_backstage_plugin-catalog-react.index.html).
 
 For a more complete list of the different kinds of extensions that you can create for your plugin, see the [extension blueprints](./03-common-extension-blueprints.md) section.
+
+## Related topics
+
+The following guides cover cross-cutting concerns that apply to both the old and new frontend systems:
+
+- [Internationalization (i18n)](../../plugins/internationalization.md) — Adding translations to your plugin using `createTranslationRef` and `useTranslationRef`.
+- [Plugin Analytics](../../plugins/analytics.md) — Instrumenting user interactions with the Analytics API, including the `AnalyticsImplementationBlueprint` for the new frontend system.
+- [Feature Flags](../../plugins/feature-flags.md) — Defining and using feature flags. In the new frontend system, flags are declared in the `featureFlags` option of `createFrontendPlugin`.
+- [Integrating Search into Plugins](../../plugins/integrating-search-into-plugins.md) — Building search experiences and collators. For the new frontend system, use `SearchResultListItemBlueprint` from `@backstage/plugin-search-react/alpha`.

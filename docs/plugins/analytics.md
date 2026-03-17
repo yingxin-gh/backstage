@@ -4,6 +4,12 @@ title: Plugin Analytics
 description: Measuring usage of your Backstage instance.
 ---
 
+:::caution Legacy Documentation
+
+This section is part of the legacy plugins documentation. The concepts and events described here apply to both the old and new frontend systems. However, the "Writing Integrations" section shows examples for both the old frontend system (`createApiFactory`) and the new frontend system (`AnalyticsImplementationBlueprint`). For new development, prefer the new frontend system approach. See also [Utility APIs](../frontend-system/utility-apis/01-index.md).
+
+:::
+
 Setting up, maintaining, and iterating on an instance of Backstage can be a
 large investment. To help measure return on this investment, Backstage comes
 with an event-based Analytics API that grants app integrators the flexibility to

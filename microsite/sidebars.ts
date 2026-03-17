@@ -412,56 +412,14 @@ export default {
     ),
     sidebarElementWithIndex(
       {
-        label: 'Plugins',
-        description: 'Extend Backstage with custom functionality.',
+        label: 'OpenAPI',
+        description:
+          'Work with OpenAPI specifications and generate clients.',
       },
       [
-        'plugins/index',
-        'plugins/create-a-plugin',
-        'plugins/plugin-development',
-        'plugins/structure-of-a-plugin',
-        'plugins/integrating-plugin-into-software-catalog',
-        'plugins/integrating-search-into-plugins',
-        'plugins/composability',
-        'plugins/internationalization',
-        'plugins/analytics',
-        'plugins/feature-flags',
-        sidebarElementWithIndex(
-          {
-            label: 'OpenAPI',
-            description:
-              'Work with OpenAPI specifications and generate clients.',
-          },
-          [
-            'openapi/01-getting-started',
-            'openapi/generate-client',
-            'openapi/test-case-validation',
-          ],
-        ),
-        sidebarElementWithIndex(
-          {
-            label: 'Backends and APIs',
-            description: 'Build and manage backend services and APIs.',
-          },
-          [
-            'plugins/proxying',
-            'plugins/backend-plugin',
-            'plugins/call-existing-api',
-          ],
-        ),
-        sidebarElementWithIndex(
-          { label: 'Testing', description: 'Testing plugins and modules.' },
-          ['plugins/testing'],
-        ),
-        sidebarElementWithIndex(
-          { label: 'Publishing', description: 'Publishing your plugins.' },
-          [
-            'plugins/publish-private',
-            'plugins/add-to-directory',
-            'plugins/plugin-directory-audit',
-          ],
-        ),
-        'plugins/observability',
+        'openapi/01-getting-started',
+        'openapi/generate-client',
+        'openapi/test-case-validation',
       ],
     ),
     sidebarElementWithIndex(
@@ -717,6 +675,50 @@ export default {
             'tutorials/jsx-transform-migration',
           ],
         ),
+      ],
+    ),
+    sidebarElementWithIndex(
+      {
+        label: 'Plugins (Legacy)',
+        description:
+          'Legacy plugin development documentation for the old frontend system. For new development, see the Frontend System and Backend System sections under Framework.',
+      },
+      [
+        'plugins/index',
+        'plugins/create-a-plugin',
+        'plugins/plugin-development',
+        'plugins/structure-of-a-plugin',
+        'plugins/integrating-plugin-into-software-catalog',
+        'plugins/integrating-search-into-plugins',
+        'plugins/composability',
+        'plugins/internationalization',
+        'plugins/analytics',
+        'plugins/feature-flags',
+        sidebarElementWithIndex(
+          {
+            label: 'Backends and APIs',
+            description: 'Build and manage backend services and APIs.',
+          },
+          [
+            'plugins/proxying',
+            'plugins/backend-plugin',
+            'plugins/call-existing-api',
+          ],
+        ),
+        sidebarElementWithIndex(
+          { label: 'Testing', description: 'Testing plugins and modules.' },
+          ['plugins/testing'],
+        ),
+        sidebarElementWithIndex(
+          { label: 'Publishing', description: 'Publishing your plugins.' },
+          [
+            'plugins/publish-private',
+            'plugins/add-to-directory',
+            'plugins/plugin-directory-audit',
+          ],
+        ),
+        'plugins/observability',
+        'plugins/new-backend-system',
       ],
     ),
     sidebarElementWithIndex(

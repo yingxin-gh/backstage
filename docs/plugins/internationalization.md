@@ -4,6 +4,12 @@ title: Internationalization
 description: Documentation on adding internationalization to plugins and apps
 ---
 
+:::caution Legacy Documentation
+
+This section is part of the legacy plugins documentation. The i18n APIs (`createTranslationRef`, `useTranslationRef`) work the same way in both the old and new frontend systems. The "For an application developer" section already shows the new frontend system approach using `createTranslationResource` from `@backstage/frontend-plugin-api`.
+
+:::
+
 ## Overview
 
 The Backstage core function provides internationalization for plugins and apps. The underlying library is [`i18next`](https://www.i18next.com/) with some additional Backstage typescript magic for type safety with keys.

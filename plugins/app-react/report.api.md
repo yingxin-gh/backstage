@@ -86,7 +86,7 @@ export const IconBundleBlueprint: ExtensionBlueprint<{
   };
   output: ExtensionDataRef<
     {
-      [x: string]: IconElement | IconComponent;
+      [x: string]: IconComponent | IconElement;
     },
     'core.icons',
     {}
@@ -97,7 +97,7 @@ export const IconBundleBlueprint: ExtensionBlueprint<{
   dataRefs: {
     icons: ConfigurableExtensionDataRef<
       {
-        [x: string]: IconElement | IconComponent;
+        [x: string]: IconComponent | IconElement;
       },
       'core.icons',
       {}

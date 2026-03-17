@@ -147,7 +147,7 @@ const appPlugin: OverridableFrontendPlugin<
           ConfigurableExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>,
           {
             singleton: true;
-            optional: false;
+            optional: true;
             internal: false;
           }
         >;
@@ -478,7 +478,7 @@ const appPlugin: OverridableFrontendPlugin<
         icons: ExtensionInput<
           ConfigurableExtensionDataRef<
             {
-              [x: string]: IconElement | IconComponent;
+              [x: string]: IconComponent | IconElement;
             },
             'core.icons',
             {}

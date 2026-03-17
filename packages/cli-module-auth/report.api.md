@@ -4,44 +4,10 @@
 
 ```ts
 import { CliModule } from '@backstage/cli-node';
-import { HttpInit } from '@backstage/cli-node';
-import { httpJson } from '@backstage/cli-node';
-import { SecretStore } from '@backstage/cli-node';
-import { StoredInstance } from '@backstage/cli-node';
-
-// @public @deprecated (undocumented)
-export function accessTokenNeedsRefresh(instance: StoredInstance): boolean;
 
 // @public (undocumented)
 const _default: CliModule;
 export default _default;
-
-// @public @deprecated (undocumented)
-export function getInstanceConfig<T = unknown>(
-  instanceName: string,
-  key: string,
-): Promise<T | undefined>;
-
-// @public (undocumented)
-export function getSecretStore(): Promise<SecretStore>;
-
-// @public @deprecated (undocumented)
-export function getSelectedInstance(
-  instanceName?: string,
-): Promise<StoredInstance>;
-
-export { HttpInit };
-
-export { httpJson };
-
-// @public @deprecated (undocumented)
-export function refreshAccessToken(
-  instanceName: string,
-): Promise<StoredInstance>;
-
-export { SecretStore };
-
-export { StoredInstance };
 
 // @public (undocumented)
 export function updateInstanceConfig(

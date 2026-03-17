@@ -27,13 +27,11 @@ const TokenResponseSchema = z.object({
   refresh_token: z.string().min(1).optional(),
 });
 
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
 export function accessTokenNeedsRefresh(instance: StoredInstance): boolean {
   // 2 minutes before expiration
   return instance.accessTokenExpiresAt <= Date.now() + 2 * 60_000;
 }
 
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
 export async function refreshAccessToken(
   instanceName: string,
 ): Promise<StoredInstance> {

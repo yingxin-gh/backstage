@@ -16,5 +16,3 @@
 
 export { CliAuth, type CliAuthCreateOptions } from './CliAuth';
 export { type StoredInstance } from './storage';
-export { httpJson, type HttpInit } from './httpJson';
-export { getSecretStore, type SecretStore } from './secretStore';

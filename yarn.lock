@@ -2830,6 +2830,7 @@ __metadata:
     "@backstage/cli": "workspace:^"
     "@backstage/cli-module-auth": "workspace:^"
     "@backstage/cli-node": "workspace:^"
+    "@backstage/errors": "workspace:^"
     cleye: "npm:^2.3.0"
   bin:
     cli-module-actions: bin/backstage-cli-module-actions

@@ -15,7 +15,8 @@
  */
 
 import { cli } from 'cleye';
-import { CliAuth, httpJson, type CliCommandContext } from '@backstage/cli-node';
+import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
+import { httpJson } from '../lib/http';
 
 export default async ({ args, info }: CliCommandContext) => {
   const {

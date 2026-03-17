@@ -53,16 +53,4 @@ export default createCliModule({
   },
 });
 
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
-export {
-  getSelectedInstance,
-  getInstanceConfig,
-  updateInstanceConfig,
-  type StoredInstance,
-} from './lib/storage';
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
-export { accessTokenNeedsRefresh, refreshAccessToken } from './lib/auth';
-/** @public @deprecated Import from {@link @backstage/cli-node} instead. */
-export { getSecretStore, type SecretStore } from './lib/secretStore';
-/** @public @deprecated Import from {@link @backstage/cli-node} instead. */
-export { httpJson, type HttpInit } from './lib/http';
+export { updateInstanceConfig } from './lib/storage';

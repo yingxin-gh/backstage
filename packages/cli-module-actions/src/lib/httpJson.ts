@@ -16,7 +16,7 @@
 
 import { ResponseError } from '@backstage/errors';
 
-export type HttpInit = {
+type HttpInit = {
   headers?: Record<string, string>;
   method?: string;
   body?: any;

@@ -99,7 +99,6 @@ export async function getAllInstances(): Promise<{
   };
 }
 
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth} instead. */
 export async function getSelectedInstance(
   instanceName?: string,
 ): Promise<StoredInstance> {
@@ -162,7 +161,6 @@ export async function setSelectedInstance(name: string): Promise<void> {
   });
 }
 
-/** @public @deprecated Use {@link @backstage/cli-node#CliAuth.getConfig} instead. */
 export async function getInstanceConfig<T = unknown>(
   instanceName: string,
   key: string,

@@ -714,10 +714,7 @@ export default {
         ),
         sidebarElementWithIndex(
           { label: 'Publishing', description: 'Publishing your plugins.' },
-          [
-            'plugins/add-to-directory',
-            'plugins/plugin-directory-audit',
-          ],
+          ['plugins/add-to-directory', 'plugins/plugin-directory-audit'],
         ),
         'plugins/observability',
         'plugins/new-backend-system',

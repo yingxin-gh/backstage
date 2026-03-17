@@ -38,7 +38,7 @@ export default async ({ args, info }: CliCommandContext) => {
   const auth = await CliAuth.create({ instanceName: instanceFlag });
   const accessToken = await auth.getAccessToken();
 
-  const authBase = new URL('/api/auth', auth.baseUrl)
+  const authBase = new URL('/api/auth', auth.getBaseUrl())
     .toString()
     .replace(/\/$/, '');
 

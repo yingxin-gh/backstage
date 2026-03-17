@@ -15,9 +15,13 @@
  */
 
 import { z } from 'zod/v3';
-import type { StoredInstance } from '@backstage/cli-node';
-import { upsertInstance, withMetadataLock, getInstanceByName } from './storage';
-import { getSecretStore } from './secretStore';
+import {
+  type StoredInstance,
+  upsertInstance,
+  withMetadataLock,
+  getInstanceByName,
+} from './storage';
+import { getSecretStore, getAuthInstanceService } from '@internal/cli';
 import { httpJson } from './http';
 
 const TokenResponseSchema = z.object({
@@ -40,7 +44,7 @@ export async function refreshAccessToken(
   return withMetadataLock(async () => {
     const instance = await getInstanceByName(instanceName);
 
-    const service = `backstage-cli:auth-instance:${instanceName}`;
+    const service = getAuthInstanceService(instanceName);
     const refreshToken = (await secretStore.get(service, 'refreshToken')) ?? '';
     if (!refreshToken) {
       throw new Error(

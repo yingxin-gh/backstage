@@ -22,8 +22,15 @@ import lockfile from 'proper-lockfile';
 import YAML from 'yaml';
 import { z } from 'zod/v3';
 
-export type { StoredInstance } from '@backstage/cli-node';
-import type { StoredInstance } from '@backstage/cli-node';
+export type StoredInstance = {
+  name: string;
+  baseUrl: string;
+  clientId: string;
+  issuedAt: number;
+  accessTokenExpiresAt: number;
+  selected?: boolean;
+  config?: Record<string, unknown>;
+};
 
 const METADATA_FILE = 'auth-instances.yaml';
 

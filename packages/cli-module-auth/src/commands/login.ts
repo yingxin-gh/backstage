@@ -27,7 +27,7 @@ import {
   getInstanceByName,
   StoredInstance,
 } from '../lib/storage';
-import { getSecretStore } from '../lib/secretStore';
+import { getSecretStore, getAuthInstanceService } from '@internal/cli';
 import crypto from 'node:crypto';
 import fs from 'fs-extra';
 import path from 'node:path';
@@ -321,7 +321,7 @@ async function persistInstance(options: {
   const { instanceName, backendBaseUrl, clientId, token } = options;
   const secretStore = await getSecretStore();
   await withMetadataLock(async () => {
-    const service = `backstage-cli:auth-instance:${instanceName}`;
+    const service = getAuthInstanceService(instanceName);
     await secretStore.set(service, 'accessToken', token.access_token);
     if (token.refresh_token) {
       await secretStore.set(service, 'refreshToken', token.refresh_token);

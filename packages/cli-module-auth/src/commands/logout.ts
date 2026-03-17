@@ -16,7 +16,7 @@
 
 import { cli } from 'cleye';
 import type { CliCommandContext } from '@backstage/cli-node';
-import { getSecretStore } from '../lib/secretStore';
+import { getSecretStore, getAuthInstanceService } from '@internal/cli';
 import {
   removeInstance,
   withMetadataLock,
@@ -47,7 +47,7 @@ export default async ({ args, info }: CliCommandContext) => {
   await withMetadataLock(async () => {
     const instance = await getInstanceByName(instanceName);
     const secretStore = await getSecretStore();
-    const service = `backstage-cli:auth-instance:${instanceName}`;
+    const service = getAuthInstanceService(instanceName);
     const refreshToken = (await secretStore.get(service, 'refreshToken')) ?? '';
 
     if (refreshToken) {

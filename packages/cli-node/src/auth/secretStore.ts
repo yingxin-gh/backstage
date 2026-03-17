@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import fs from 'fs-extra';
+import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-/** @public */
+/** @internal */
 export type SecretStore = {
   get(service: string, account: string): Promise<string | undefined>;
   set(service: string, account: string, secret: string): Promise<void>;
@@ -55,6 +55,15 @@ class KeytarSecretStore implements SecretStore {
   }
 }
 
+async function pathExists(p: string): Promise<boolean> {
+  try {
+    await fs.stat(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 class FileSecretStore implements SecretStore {
   private readonly baseDir: string;
   constructor() {
@@ -74,23 +83,31 @@ class FileSecretStore implements SecretStore {
   }
   async get(service: string, account: string): Promise<string | undefined> {
     const file = this.filePath(service, account);
-    if (!(await fs.pathExists(file))) return undefined;
+    if (!(await pathExists(file))) {
+      return undefined;
+    }
     return await fs.readFile(file, 'utf8');
   }
   async set(service: string, account: string, secret: string): Promise<void> {
     const file = this.filePath(service, account);
-    await fs.ensureDir(path.dirname(file));
+    await fs.mkdir(path.dirname(file), { recursive: true });
     await fs.writeFile(file, secret, { encoding: 'utf8', mode: 0o600 });
   }
   async delete(service: string, account: string): Promise<void> {
     const file = this.filePath(service, account);
-    await fs.remove(file);
+    try {
+      await fs.unlink(file);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw err;
+      }
+    }
   }
 }
 
 let singleton: SecretStore | undefined;
 
-/** @public */
+/** @internal */
 export async function getSecretStore(): Promise<SecretStore> {
   if (!singleton) {
     const keytar = await loadKeytar();

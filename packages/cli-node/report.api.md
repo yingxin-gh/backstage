@@ -88,12 +88,11 @@ export interface BackstagePackageJson {
 
 // @public
 export class CliAuth {
-  get baseUrl(): string;
   static create(options?: CliAuthCreateOptions): Promise<CliAuth>;
   getAccessToken(): Promise<string>;
+  getBaseUrl(): string;
   getConfig<T = unknown>(key: string): Promise<T | undefined>;
-  get instance(): StoredInstance;
-  get instanceName(): string;
+  getInstanceName(): string;
 }
 
 // @public
@@ -286,17 +285,6 @@ export function runWorkerQueueThreads<TItem, TResult, TContext>(
 ): Promise<{
   results: TResult[];
 }>;
-
-// @public (undocumented)
-export type StoredInstance = {
-  name: string;
-  baseUrl: string;
-  clientId: string;
-  issuedAt: number;
-  accessTokenExpiresAt: number;
-  selected?: boolean;
-  config?: Record<string, unknown>;
-};
 
 // @public
 export class SuccessCache {

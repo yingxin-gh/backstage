@@ -21,6 +21,7 @@ import {
   accessTokenNeedsRefresh,
 } from './storage';
 import { getSecretStore, type SecretStore } from './secretStore';
+import { getAuthInstanceService } from './authIdentifiers';
 import { httpJson } from './httpJson';
 import { z } from 'zod';
 
@@ -73,18 +74,13 @@ export class CliAuth {
     this.#secretStore = secretStore;
   }
 
-  /** The resolved instance metadata. */
-  get instance(): StoredInstance {
-    return this.#instance;
-  }
-
-  /** Shorthand for `instance.name`. */
-  get instanceName(): string {
+  /** Returns the name of the resolved auth instance. */
+  getInstanceName(): string {
     return this.#instance.name;
   }
 
-  /** Shorthand for `instance.baseUrl`. */
-  get baseUrl(): string {
+  /** Returns the base URL of the resolved auth instance. */
+  getBaseUrl(): string {
     return this.#instance.baseUrl;
   }
 
@@ -97,7 +93,7 @@ export class CliAuth {
       await this.#refreshAccessToken();
     }
 
-    const service = `backstage-cli:auth-instance:${this.#instance.name}`;
+    const service = getAuthInstanceService(this.#instance.name);
     const token = await this.#secretStore.get(service, 'accessToken');
     if (!token) {
       throw new Error(
@@ -116,7 +112,7 @@ export class CliAuth {
   }
 
   async #refreshAccessToken(): Promise<void> {
-    const service = `backstage-cli:auth-instance:${this.#instance.name}`;
+    const service = getAuthInstanceService(this.#instance.name);
     const refreshToken =
       (await this.#secretStore.get(service, 'refreshToken')) ?? '';
     if (!refreshToken) {

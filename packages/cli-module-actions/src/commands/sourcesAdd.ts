@@ -40,7 +40,7 @@ export default async ({ args, info }: CliCommandContext) => {
     return;
   }
 
-  await updateInstanceConfig(auth.instanceName, 'pluginSources', [
+  await updateInstanceConfig(auth.getInstanceName(), 'pluginSources', [
     ...existing,
     pluginId,
   ]);

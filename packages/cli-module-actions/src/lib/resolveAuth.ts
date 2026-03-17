@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { CliAuth, type StoredInstance } from '@backstage/cli-node';
+import { CliAuth } from '@backstage/cli-node';
 
 export async function resolveAuth(instanceFlag?: string): Promise<{
-  instance: StoredInstance;
+  baseUrl: string;
+  instanceName: string;
   accessToken: string;
   pluginSources: string[];
 }> {
@@ -25,5 +26,10 @@ export async function resolveAuth(instanceFlag?: string): Promise<{
   const accessToken = await auth.getAccessToken();
   const pluginSources = (await auth.getConfig<string[]>('pluginSources')) ?? [];
 
-  return { instance: auth.instance, accessToken, pluginSources };
+  return {
+    baseUrl: auth.getBaseUrl(),
+    instanceName: auth.getInstanceName(),
+    accessToken,
+    pluginSources,
+  };
 }

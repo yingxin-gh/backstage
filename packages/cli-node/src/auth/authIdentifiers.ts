@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Backstage Authors
+ * Copyright 2025 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-export { OpaqueCliModule } from './InternalCliModule';
-export type {
-  CommandNode,
-  CommandTreeNode,
-  CommandLeafNode,
-} from './InternalCommandNode';
-export {
-  OpaqueCommandTreeNode,
-  OpaqueCommandLeafNode,
-  isCommandNodeHidden,
-} from './InternalCommandNode';
-export { getAuthInstanceService } from './authIdentifiers';
-export {
-  getSecretStore,
-  resetSecretStore,
-  type SecretStore,
-} from './secretStore';
+/** @internal */
+export function getAuthInstanceService(instanceName: string): string {
+  return `backstage-cli:auth-instance:${instanceName}`;
+}

@@ -21,7 +21,7 @@ jest.mock('keytar', () => {
 import fs from 'fs-extra';
 import path from 'node:path';
 import { createMockDirectory } from '@backstage/backend-test-utils';
-import { getSecretStore, resetSecretStore } from './secretStore';
+import { getSecretStore, resetSecretStore } from '@internal/cli';
 
 const mockDir = createMockDirectory();
 

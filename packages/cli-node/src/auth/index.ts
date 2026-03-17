@@ -15,4 +15,3 @@
  */
 
 export { CliAuth, type CliAuthCreateOptions } from './CliAuth';
-export { type StoredInstance } from './storage';

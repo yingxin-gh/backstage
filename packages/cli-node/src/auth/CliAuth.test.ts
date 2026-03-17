@@ -58,9 +58,8 @@ describe('CliAuth', () => {
       const auth = await CliAuth.create();
 
       expect(mockStorage.getSelectedInstance).toHaveBeenCalledWith(undefined);
-      expect(auth.instance).toEqual(mockInstance);
-      expect(auth.instanceName).toBe('production');
-      expect(auth.baseUrl).toBe('https://backstage.example.com');
+      expect(auth.getInstanceName()).toBe('production');
+      expect(auth.getBaseUrl()).toBe('https://backstage.example.com');
     });
 
     it('resolves a named instance when specified', async () => {

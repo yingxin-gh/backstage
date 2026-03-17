@@ -145,6 +145,10 @@ describe('CliAuth', () => {
         'refreshToken',
         'new-refresh-token',
       );
+      expect(mockStorage.updateInstance).toHaveBeenCalledWith('production', {
+        issuedAt: expect.any(Number),
+        accessTokenExpiresAt: expect.any(Number),
+      });
     });
 
     it('throws when refresh token is missing and access token has expired', async () => {

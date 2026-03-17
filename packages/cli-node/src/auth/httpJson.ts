@@ -16,7 +16,7 @@
 
 import { ResponseError } from '@backstage/errors';
 
-/** @public */
+/** @internal */
 export type HttpInit = {
   headers?: Record<string, string>;
   method?: string;
@@ -24,7 +24,7 @@ export type HttpInit = {
   signal?: AbortSignal;
 };
 
-/** @public */
+/** @internal */
 export async function httpJson<T>(url: string, init?: HttpInit): Promise<T> {
   const res = await fetch(url, {
     ...init,

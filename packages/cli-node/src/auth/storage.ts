@@ -124,6 +124,9 @@ export async function getAllInstances(): Promise<{
   selected: StoredInstance | undefined;
 }> {
   const { instances } = await readAll();
+  if (instances.length === 0) {
+    return { instances: [], selected: undefined };
+  }
   const selected = instances.find(i => i.selected) ?? instances[0];
   return {
     instances: instances.map(i => ({
@@ -185,6 +188,22 @@ export async function updateInstanceMetadata(
       ...data.instances[idx],
       metadata: { ...data.instances[idx].metadata, [key]: value },
     };
+    await writeAll(data);
+  });
+}
+
+/** @internal */
+export async function updateInstance(
+  instanceName: string,
+  updates: Partial<Pick<StoredInstance, 'issuedAt' | 'accessTokenExpiresAt'>>,
+): Promise<void> {
+  return withMetadataLock(async () => {
+    const data = await readAll();
+    const idx = data.instances.findIndex(i => i.name === instanceName);
+    if (idx === -1) {
+      throw new NotFoundError(`Instance '${instanceName}' not found`);
+    }
+    data.instances[idx] = { ...data.instances[idx], ...updates };
     await writeAll(data);
   });
 }

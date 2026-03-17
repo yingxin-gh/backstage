@@ -19,6 +19,7 @@ import {
   getSelectedInstance,
   getInstanceMetadata,
   updateInstanceMetadata,
+  updateInstance,
   accessTokenNeedsRefresh,
 } from './storage';
 import { getSecretStore, type SecretStore } from './secretStore';
@@ -151,10 +152,12 @@ export class CliAuth {
     if (token.refresh_token) {
       await this.#secretStore.set(service, 'refreshToken', token.refresh_token);
     }
-    this.#instance = {
-      ...this.#instance,
-      issuedAt: Date.now(),
-      accessTokenExpiresAt: Date.now() + token.expires_in * 1000,
-    };
+    const issuedAt = Date.now();
+    const accessTokenExpiresAt = Date.now() + token.expires_in * 1000;
+    this.#instance = { ...this.#instance, issuedAt, accessTokenExpiresAt };
+    await updateInstance(this.#instance.name, {
+      issuedAt,
+      accessTokenExpiresAt,
+    });
   }
 }

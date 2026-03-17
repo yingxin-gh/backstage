@@ -96,6 +96,9 @@ export async function getAllInstances(): Promise<{
   selected: StoredInstance | undefined;
 }> {
   const { instances } = await readAll();
+  if (instances.length === 0) {
+    return { instances: [], selected: undefined };
+  }
   const selected = instances.find(i => i.selected) ?? instances[0];
   return {
     instances: instances.map(i => ({

@@ -91,6 +91,7 @@ export const TableBodyDefinition = defineComponent<TableBodyOwnProps>()({
 export const RowDefinition = defineComponent<RowOwnProps>()({
   styles,
   analytics: true,
+  bg: 'consumer',
   classNames: {
     root: 'bui-TableRow',
     cell: 'bui-TableCell',

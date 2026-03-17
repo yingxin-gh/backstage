@@ -31,7 +31,7 @@ export type AlertApi = {
   alert$(): Observable<AlertMessage>;
 };
 
-// @public
+// @public @deprecated
 export const alertApiRef: ApiRef_2<AlertApi, 'core.alert'> & {
   readonly $$type: '@backstage/ApiRef';
 };

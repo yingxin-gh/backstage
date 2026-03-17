@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * Copyright 2025 The Backstage Authors
  *
@@ -14,16 +15,18 @@
  * limitations under the License.
  */
 
-export const defaultTemplates = [
-  '@backstage/cli/templates/frontend-plugin',
-  '@backstage/cli/templates/backend-plugin',
-  '@backstage/cli/templates/backend-plugin-module',
-  '@backstage/cli/templates/plugin-web-library',
-  '@backstage/cli/templates/plugin-node-library',
-  '@backstage/cli/templates/plugin-common-library',
-  '@backstage/cli/templates/web-library',
-  '@backstage/cli/templates/node-library',
-  '@backstage/cli/templates/cli-module',
-  '@backstage/cli/templates/catalog-provider-module',
-  '@backstage/cli/templates/scaffolder-backend-module',
-];
+const path = require('node:path');
+
+/* eslint-disable-next-line no-restricted-syntax */
+const isLocal = require('node:fs').existsSync(
+  path.resolve(__dirname, '../src'),
+);
+
+if (isLocal) {
+  require('@backstage/cli-node/config/nodeTransform.cjs');
+}
+
+const { runCliModule } = require('@backstage/cli-node');
+const cliModule = require(isLocal ? '../src/index' : '..').default;
+const pkg = require('../package.json');
+runCliModule({ module: cliModule, name: pkg.name, version: pkg.version });

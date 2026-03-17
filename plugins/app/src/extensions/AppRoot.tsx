@@ -29,6 +29,7 @@ import {
   createExtension,
   createExtensionInput,
   routeResolutionApiRef,
+  pluginWrapperApiRef,
   useAnalytics,
 } from '@backstage/frontend-plugin-api';
 import {
@@ -115,23 +116,27 @@ export const AppRoot = createExtension({
       }
     }
 
+    const pluginWrapperApi = apis.get(pluginWrapperApiRef);
+    const RootWrapper = pluginWrapperApi?.getRootWrapper();
+    if (RootWrapper) {
+      content = <RootWrapper>{content}</RootWrapper>;
+    }
+
     return [
       coreExtensionData.reactElement(
-        <BUIProvider useAnalytics={useAnalytics}>
-          <AppRouter
-            SignInPageComponent={inputs.signInPage?.get(
-              SignInPageBlueprint.dataRefs.component,
-            )}
-            RouterComponent={inputs.router?.get(
-              RouterBlueprint.dataRefs.component,
-            )}
-            extraElements={inputs.elements?.map(el =>
-              el.get(coreExtensionData.reactElement),
-            )}
-          >
-            {content}
-          </AppRouter>
-        </BUIProvider>,
+        <AppRouter
+          SignInPageComponent={inputs.signInPage?.get(
+            SignInPageBlueprint.dataRefs.component,
+          )}
+          RouterComponent={inputs.router?.get(
+            RouterBlueprint.dataRefs.component,
+          )}
+          extraElements={inputs.elements?.map(el =>
+            el.get(coreExtensionData.reactElement),
+          )}
+        >
+          {content}
+        </AppRouter>,
       ),
     ];
   },
@@ -273,23 +278,27 @@ export function AppRouter(props: AppRouterProps) {
 
     return (
       <RouterComponent>
-        {...extraElements}
-        <RouteTracker routeObjects={routeObjects} />
-        {children}
+        <BUIProvider useAnalytics={useAnalytics}>
+          {...extraElements}
+          <RouteTracker routeObjects={routeObjects} />
+          {children}
+        </BUIProvider>
       </RouterComponent>
     );
   }
 
   return (
     <RouterComponent>
-      {...extraElements}
-      <RouteTracker routeObjects={routeObjects} />
-      <SignInPageWrapper
-        component={SignInPageComponent}
-        appIdentityProxy={appIdentityProxy}
-      >
-        {children}
-      </SignInPageWrapper>
+      <BUIProvider useAnalytics={useAnalytics}>
+        {...extraElements}
+        <RouteTracker routeObjects={routeObjects} />
+        <SignInPageWrapper
+          component={SignInPageComponent}
+          appIdentityProxy={appIdentityProxy}
+        >
+          {children}
+        </SignInPageWrapper>
+      </BUIProvider>
     </RouterComponent>
   );
 }

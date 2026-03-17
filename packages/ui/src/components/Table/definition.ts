@@ -27,6 +27,20 @@ import type {
 } from './types';
 import styles from './Table.module.css';
 
+/** @internal */
+export const TableWrapperDefinition = defineComponent<{
+  className?: string;
+}>()({
+  styles,
+  classNames: {
+    root: 'bui-TableWrapper',
+    resizableContainer: 'bui-TableResizableContainer',
+  },
+  propDefs: {
+    className: {},
+  },
+});
+
 /**
  * Component definition for Table
  * @public
@@ -38,6 +52,7 @@ export const TableDefinition = defineComponent<TableRootOwnProps>()({
   },
   propDefs: {
     stale: { dataAttribute: true },
+    loading: { dataAttribute: true },
   },
 });
 

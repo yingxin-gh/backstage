@@ -107,6 +107,7 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
           name: action.name,
           title: action.title,
           description: action.description,
+          pluginId: this.metadata.getId(),
           attributes: {
             // Inspired by the @modelcontextprotocol/sdk defaults for the hints.
             // https://github.com/modelcontextprotocol/typescript-sdk/blob/dd69efa1de8646bb6b195ff8d5f52e13739f4550/src/types.ts#L777-L812

@@ -316,7 +316,7 @@ export const atlassianAuthApiRef: ApiRef<
 export type AuthProviderInfo = {
   id: string;
   title: string;
-  icon: IconComponent;
+  icon: IconComponent | IconElement;
   message?: string;
 };
 
@@ -1157,12 +1157,6 @@ export type ExtensionDataRef<
 };
 
 // @public (undocumented)
-export type ExtensionDataRefToValue<TDataRef extends ExtensionDataRef> =
-  TDataRef extends ExtensionDataRef<infer IData, infer IId, any>
-    ? ExtensionDataValue<IData, IId>
-    : never;
-
-// @public (undocumented)
 export type ExtensionDataValue<TData, TId extends string> = {
   readonly $$type: '@backstage/ExtensionDataValue';
   readonly id: TId;
@@ -1880,6 +1874,55 @@ export interface PluginOptions<
   title?: string;
 }
 
+// @public
+export type PluginWrapperApi = {
+  getRootWrapper(): ComponentType<{
+    children: ReactNode;
+  }>;
+  getPluginWrapper(pluginId: string):
+    | ComponentType<{
+        children: ReactNode;
+      }>
+    | undefined;
+};
+
+// @public
+export const pluginWrapperApiRef: ApiRef_2<PluginWrapperApi>;
+
+// @public
+export const PluginWrapperBlueprint: ExtensionBlueprint_2<{
+  kind: 'plugin-wrapper';
+  params: <TValue = never>(params: {
+    loader: () => Promise<PluginWrapperDefinition<TValue>>;
+  }) => ExtensionBlueprintParams_2<{
+    loader: () => Promise<PluginWrapperDefinition>;
+  }>;
+  output: ExtensionDataRef_2<
+    () => Promise<PluginWrapperDefinition>,
+    'core.plugin-wrapper.loader',
+    {}
+  >;
+  inputs: {};
+  config: {};
+  configInput: {};
+  dataRefs: {
+    wrapper: ConfigurableExtensionDataRef_2<
+      () => Promise<PluginWrapperDefinition>,
+      'core.plugin-wrapper.loader',
+      {}
+    >;
+  };
+}>;
+
+// @public
+export type PluginWrapperDefinition<TValue = unknown | never> = {
+  useWrapperValue?: () => TValue;
+  component: ComponentType<{
+    children: ReactNode;
+    value: TValue;
+  }>;
+};
+
 // @public (undocumented)
 export type PortableSchema<TOutput, TInput = TOutput> = {
   parse: (input: TInput) => TOutput;
@@ -1906,14 +1949,6 @@ export const Progress: {
 
 // @public (undocumented)
 export type ProgressProps = {};
-
-// @public
-export type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
-  TExtensionInput['extensionData'] extends Array<ExtensionDataRef>
-    ? {
-        node: AppNode;
-      } & ExtensionDataContainer<TExtensionInput['extensionData'][number]>
-    : never;
 
 // @public
 export type ResolvedExtensionInputs<

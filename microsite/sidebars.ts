@@ -115,6 +115,14 @@ export default {
       [
         sidebarElementWithIndex(
           {
+            label: 'AI',
+            description:
+              'Features in Backstage you can leverage with your AI tools.',
+          },
+          ['ai/mcp-actions', 'ai/well-known-actions'],
+        ),
+        sidebarElementWithIndex(
+          {
             label: 'Auth and Identity',
             description: 'Authentication and identity management features.',
           },
@@ -399,6 +407,7 @@ export default {
           'integrations/google-cloud-storage/locations',
         ]),
         sidebarElementWithIndex({ label: 'LDAP' }, ['integrations/ldap/org']),
+        sidebarElementWithIndex({ label: 'Okta' }, ['integrations/okta/org']),
       ],
     ),
     sidebarElementWithIndex(
@@ -551,15 +560,15 @@ export default {
         ),
         sidebarElementWithIndex(
           {
-            label: 'New Frontend System',
-            description: 'New frontend system components and architecture.',
+            label: 'Frontend System',
+            description: 'Frontend system components and architecture.',
           },
           [
             'frontend-system/index',
             sidebarElementWithIndex(
               {
                 label: 'Architecture',
-                description: 'Architecture of the new frontend system.',
+                description: 'Architecture of the frontend system.',
                 differentiator: 'frontend-system/',
               },
               [
@@ -597,6 +606,7 @@ export default {
               },
               [
                 'frontend-system/building-apps/index',
+                'frontend-system/building-apps/installing-plugins',
                 'frontend-system/building-apps/configuring-extensions',
                 'frontend-system/building-apps/built-in-extensions',
                 'frontend-system/building-apps/plugin-conversion',

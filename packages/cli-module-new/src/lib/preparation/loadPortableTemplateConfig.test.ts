@@ -360,6 +360,141 @@ describe('loadPortableTemplateConfig', () => {
     );
   });
 
+  it('should filter out legacy frontend template for new frontend system apps', async () => {
+    mockDir.setContent({
+      'package.json': JSON.stringify({}),
+      packages: {
+        app: {
+          'package.json': JSON.stringify({
+            dependencies: {
+              '@backstage/frontend-defaults': '^0.1.0',
+            },
+          }),
+        },
+      },
+      node_modules: Object.fromEntries(
+        defaultTemplates.map(t => {
+          // Match the real behavior: both frontend-plugin and legacy-frontend-plugin
+          // have the same template name "frontend-plugin"
+          const name = t.endsWith('/legacy-frontend-plugin')
+            ? 'frontend-plugin'
+            : basename(t);
+          return [
+            t,
+            { [TEMPLATE_FILE_NAME]: `name: ${name}\nrole: web-library\n` },
+          ];
+        }),
+      ),
+    });
+
+    const config = await loadPortableTemplateConfig({
+      packagePath: mockDir.resolve('package.json'),
+    });
+
+    expect(config.isUsingDefaultTemplates).toBe(true);
+
+    const templateNames = config.templatePointers.map(t => t.name);
+    expect(templateNames).toContain('frontend-plugin');
+    expect(templateNames).toContain('frontend-plugin-module');
+    expect(templateNames).toContain('backend-plugin');
+    // Legacy template should be filtered out
+    expect(templateNames).not.toContain('legacy-frontend-plugin');
+
+    // The frontend-plugin in the list should be from the new template, not legacy
+    const frontendPlugin = config.templatePointers.find(
+      t => t.name === 'frontend-plugin',
+    );
+    expect(frontendPlugin?.target).toContain('/frontend-plugin/');
+    expect(frontendPlugin?.target).not.toContain('/legacy-frontend-plugin/');
+  });
+
+  it('should filter out new frontend templates for legacy frontend system apps', async () => {
+    mockDir.setContent({
+      'package.json': JSON.stringify({}),
+      packages: {
+        app: {
+          'package.json': JSON.stringify({
+            dependencies: {
+              '@backstage/app-defaults': '^0.1.0',
+              '@backstage/core-app-api': '^0.1.0',
+            },
+          }),
+        },
+      },
+      node_modules: Object.fromEntries(
+        defaultTemplates.map(t => {
+          const name = t.endsWith('/legacy-frontend-plugin')
+            ? 'frontend-plugin'
+            : basename(t);
+          return [
+            t,
+            { [TEMPLATE_FILE_NAME]: `name: ${name}\nrole: web-library\n` },
+          ];
+        }),
+      ),
+    });
+
+    const config = await loadPortableTemplateConfig({
+      packagePath: mockDir.resolve('package.json'),
+    });
+
+    expect(config.isUsingDefaultTemplates).toBe(true);
+
+    const templateNames = config.templatePointers.map(t => t.name);
+    // Legacy template should be present (shown as "frontend-plugin")
+    expect(templateNames).toContain('frontend-plugin');
+    expect(templateNames).toContain('backend-plugin');
+    // New frontend templates should be filtered out
+    expect(templateNames).not.toContain('frontend-plugin-module');
+
+    // The frontend-plugin in the list should be from the legacy template
+    const frontendPlugin = config.templatePointers.find(
+      t => t.name === 'frontend-plugin',
+    );
+    expect(frontendPlugin?.target).toContain('/legacy-frontend-plugin/');
+  });
+
+  it('should not filter templates when using explicit configuration', async () => {
+    mockDir.setContent({
+      'package.json': JSON.stringify({
+        backstage: {
+          cli: {
+            new: {
+              templates: ['./my-frontend-plugin', './my-backend-plugin'],
+            },
+          },
+        },
+      }),
+      // Even with a new frontend system app, explicit templates aren't filtered
+      packages: {
+        app: {
+          'package.json': JSON.stringify({
+            dependencies: {
+              '@backstage/frontend-defaults': '^0.1.0',
+            },
+          }),
+        },
+      },
+      'my-frontend-plugin': {
+        [TEMPLATE_FILE_NAME]: 'name: frontend-plugin\nrole: frontend-plugin\n',
+      },
+      'my-backend-plugin': {
+        [TEMPLATE_FILE_NAME]: 'name: backend-plugin\nrole: backend-plugin\n',
+      },
+    });
+
+    const config = await loadPortableTemplateConfig({
+      packagePath: mockDir.resolve('package.json'),
+    });
+
+    expect(config.isUsingDefaultTemplates).toBe(false);
+    expect(config.templatePointers).toHaveLength(2);
+    expect(config.templatePointers.map(t => t.name)).toEqual([
+      'frontend-plugin',
+      'backend-plugin',
+    ]);
+  });
+
   it('should handle missing backstage.new configuration', async () => {
     mockDir.setContent({
       'package.json': JSON.stringify({}),

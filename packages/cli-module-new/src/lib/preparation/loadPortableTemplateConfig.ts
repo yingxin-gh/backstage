@@ -15,12 +15,7 @@
  */
 
 import fs from 'fs-extra';
-import {
-  resolve as resolvePath,
-  dirname,
-  isAbsolute,
-  join,
-} from 'node:path';
+import { resolve as resolvePath, dirname, isAbsolute, join } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 import { defaultTemplates } from '../defaultTemplates';
 import {

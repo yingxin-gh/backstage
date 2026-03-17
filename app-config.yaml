@@ -147,7 +147,7 @@ app:
     # - entity-content:azure-devops/git-tags
 
     # Enable the catalog-unprocessed-entities tab in devtools
-    - devtools-content:catalog-unprocessed-entities: true
+    - sub-page:catalog-unprocessed-entities/unprocessed-entities: true
     # Disable the catalog-unprocessed-entities element outside devtools
     - page:catalog-unprocessed-entities: false
 

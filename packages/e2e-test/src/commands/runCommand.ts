@@ -35,9 +35,9 @@ const ownPaths = findOwnPaths(__dirname);
 
 const templatePackagePaths = [
   'packages/cli-module-new/templates/frontend-plugin/package.json.hbs',
-  'packages/create-app/templates/default-app/package.json.hbs',
-  'packages/create-app/templates/default-app/packages/app/package.json.hbs',
-  'packages/create-app/templates/default-app/packages/backend/package.json.hbs',
+  'packages/create-app/templates/next-app/package.json.hbs',
+  'packages/create-app/templates/next-app/packages/app/package.json.hbs',
+  'packages/create-app/templates/next-app/packages/backend/package.json.hbs',
 ];
 
 export async function runCommand(opts: OptionValues) {

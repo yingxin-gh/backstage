@@ -50,3 +50,5 @@ export * from './StorageApi';
 export * from './AnalyticsApi';
 export * from './ToastApi';
 export * from './TranslationApi';
+export * from './PluginHeaderActionsApi';
+export * from './PluginWrapperApi';

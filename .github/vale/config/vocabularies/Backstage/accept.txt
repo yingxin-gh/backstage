@@ -30,6 +30,7 @@ backend's
 backported
 backporting
 BEPs
+bg
 bigint
 Bigtable
 Billett
@@ -245,6 +246,7 @@ Levenshtein
 lightbox
 Lightsail
 limitranges
+liveness
 LocalStack
 lockdown
 lockfile
@@ -322,6 +324,7 @@ openapi
 OpenSearch
 OpenShift
 openssl
+opentelemetry
 orgs
 overridable
 padding
@@ -422,7 +425,9 @@ SCM
 SCMs
 scrollable
 scrollbar
+scrollbars
 sdks
+SearchField
 seb
 semlas
 semver
@@ -492,6 +497,7 @@ templater
 Templater
 templaters
 Templaters
+TextField
 TFRecord
 theia
 Themer
@@ -525,6 +531,7 @@ unassign
 unbreak
 Unconference
 undici
+ungrouped
 unicode
 unmanaged
 unmount
@@ -548,6 +555,7 @@ validators
 Valkey
 varchar
 viewport
+virtualized
 vite
 VMware
 Vodafone
@@ -574,3 +582,4 @@ zsh
 resizable
 enums
 LLMs
+cleye

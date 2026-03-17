@@ -69,8 +69,16 @@ export default {
       ]),
       sidebarElementWithIndex({ label: 'Using Backstage' }, [
         'getting-started/logging-in',
-        'getting-started/register-a-component',
-        'getting-started/create-a-component',
+        'getting-started/viewing-catalog',
+        'getting-started/view-what-you-own',
+        'getting-started/viewing-entity-relationships',
+        'getting-started/filter-catalog',
+        sidebarElementWithIndex({ label: 'Managing Components' }, [
+          'getting-started/register-a-component',
+          'getting-started/create-a-component',
+          'getting-started/update-a-component',
+          'getting-started/unregister-delete-component',
+        ]),
       ]),
       'overview/support',
       'getting-started/keeping-backstage-updated',
@@ -105,6 +113,14 @@ export default {
         description: 'Features powering the core of Backstage.',
       },
       [
+        sidebarElementWithIndex(
+          {
+            label: 'AI',
+            description:
+              'Features in Backstage you can leverage with your AI tools.',
+          },
+          ['ai/mcp-actions', 'ai/well-known-actions'],
+        ),
         sidebarElementWithIndex(
           {
             label: 'Auth and Identity',
@@ -391,6 +407,7 @@ export default {
           'integrations/google-cloud-storage/locations',
         ]),
         sidebarElementWithIndex({ label: 'LDAP' }, ['integrations/ldap/org']),
+        sidebarElementWithIndex({ label: 'Okta' }, ['integrations/okta/org']),
       ],
     ),
     sidebarElementWithIndex(
@@ -438,7 +455,11 @@ export default {
         ),
         sidebarElementWithIndex(
           { label: 'Publishing', description: 'Publishing your plugins.' },
-          ['plugins/publish-private', 'plugins/add-to-directory'],
+          [
+            'plugins/publish-private',
+            'plugins/add-to-directory',
+            'plugins/plugin-directory-audit',
+          ],
         ),
         'plugins/observability',
       ],
@@ -517,6 +538,7 @@ export default {
                 'backend-system/core-services/identity',
                 'backend-system/core-services/lifecycle',
                 'backend-system/core-services/logger',
+                'backend-system/core-services/metrics',
                 'backend-system/core-services/permissions',
                 'backend-system/core-services/permissions-registry',
                 'backend-system/core-services/plugin-metadata',
@@ -538,15 +560,15 @@ export default {
         ),
         sidebarElementWithIndex(
           {
-            label: 'New Frontend System',
-            description: 'New frontend system components and architecture.',
+            label: 'Frontend System',
+            description: 'Frontend system components and architecture.',
           },
           [
             'frontend-system/index',
             sidebarElementWithIndex(
               {
                 label: 'Architecture',
-                description: 'Architecture of the new frontend system.',
+                description: 'Architecture of the frontend system.',
                 differentiator: 'frontend-system/',
               },
               [
@@ -556,6 +578,7 @@ export default {
                 'frontend-system/architecture/extensions',
                 'frontend-system/architecture/extension-blueprints',
                 'frontend-system/architecture/extension-overrides',
+                'frontend-system/architecture/sharing-extensions',
                 'frontend-system/architecture/references',
                 'frontend-system/architecture/utility-apis',
                 'frontend-system/architecture/routes',
@@ -583,6 +606,7 @@ export default {
               },
               [
                 'frontend-system/building-apps/index',
+                'frontend-system/building-apps/installing-plugins',
                 'frontend-system/building-apps/configuring-extensions',
                 'frontend-system/building-apps/built-in-extensions',
                 'frontend-system/building-apps/plugin-conversion',

@@ -27,10 +27,13 @@ import { UserInfoDatabase } from '../database/UserInfoDatabase';
 import { OidcDatabase } from '../database/OidcDatabase';
 import { OfflineAccessService } from './OfflineAccessService';
 import { json } from 'express';
-import { readDcrTokenExpiration } from './readTokenExpiration';
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 import { OidcError } from './OidcError';
+
+function ensureTrailingSlash(url: string): string {
+  return url.endsWith('/') ? url : `${url}/`;
+}
 
 const authorizeQuerySchema = z.object({
   client_id: z.string().min(1),
@@ -81,12 +84,13 @@ function validateRequest<T>(schema: z.ZodSchema<T>, data: unknown): T {
   return parseResult.data;
 }
 
-async function authenticateClient(
-  req: { headers: { authorization?: string } },
-  oidc: OidcService,
-  bodyClientId?: string,
-  bodyClientSecret?: string,
-): Promise<{ clientId: string; clientSecret: string }> {
+async function authenticateClient(opts: {
+  req: { headers: { authorization?: string } };
+  oidc: OidcService;
+  bodyClientId?: string;
+  bodyClientSecret?: string;
+}): Promise<{ clientId: string; clientSecret: string }> {
+  const { req, oidc, bodyClientId, bodyClientSecret } = opts;
   let clientId: string | undefined;
   let clientSecret: string | undefined;
 
@@ -141,6 +145,7 @@ export class OidcRouter {
   private readonly appUrl: string;
   private readonly httpAuth: HttpAuthService;
   private readonly config: RootConfigService;
+  private readonly baseUrl: string;
 
   private constructor(
     oidc: OidcService,
@@ -149,6 +154,7 @@ export class OidcRouter {
     appUrl: string,
     httpAuth: HttpAuthService,
     config: RootConfigService,
+    baseUrl: string,
   ) {
     this.oidc = oidc;
     this.logger = logger;
@@ -156,6 +162,7 @@ export class OidcRouter {
     this.appUrl = appUrl;
     this.httpAuth = httpAuth;
     this.config = config;
+    this.baseUrl = baseUrl;
   }
 
   static create(options: {
@@ -177,6 +184,7 @@ export class OidcRouter {
       options.appUrl,
       options.httpAuth,
       options.config,
+      options.baseUrl,
     );
   }
 
@@ -198,6 +206,32 @@ export class OidcRouter {
     router.get('/.well-known/jwks.json', async (_req, res) => {
       const { keys } = await this.oidc.listPublicKeys();
       res.json({ keys });
+    });
+
+    // CIMD metadata endpoint for the Backstage CLI
+    // Automatically available when CIMD is enabled
+    router.get('/.well-known/oauth-client/cli.json', (_req, res) => {
+      const cimdEnabled = this.config.getOptionalBoolean(
+        'auth.experimentalClientIdMetadataDocuments.enabled',
+      );
+
+      if (!cimdEnabled) {
+        res.status(404).json({
+          error: 'not_found',
+          error_description: 'Client ID metadata documents not enabled',
+        });
+        return;
+      }
+
+      res.json({
+        client_id: `${this.baseUrl}/.well-known/oauth-client/cli.json`,
+        client_name: 'Backstage CLI',
+        redirect_uris: ['http://127.0.0.1:8055/callback'],
+        response_types: ['code'],
+        grant_types: ['authorization_code'],
+        token_endpoint_auth_method: 'none',
+        scope: 'openid offline_access',
+      });
     });
 
     // UserInfo endpoint
@@ -223,8 +257,11 @@ export class OidcRouter {
     const dcrEnabled = this.config.getOptionalBoolean(
       'auth.experimentalDynamicClientRegistration.enabled',
     );
+    const cimdEnabled = this.config.getOptionalBoolean(
+      'auth.experimentalClientIdMetadataDocuments.enabled',
+    );
 
-    if (dcrEnabled) {
+    if (dcrEnabled || cimdEnabled) {
       // Authorization endpoint
       // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
       // Handles the initial authorization request from the client, validates parameters,
@@ -389,8 +426,6 @@ export class OidcRouter {
           client_secret: bodyClientSecret,
         } = validateRequest(tokenRequestBodySchema, req.body);
 
-        const expiresIn = readDcrTokenExpiration(this.config);
-
         try {
           // Handle authorization_code grant type
           if (grantType === 'authorization_code') {
@@ -407,7 +442,6 @@ export class OidcRouter {
               redirectUri,
               codeVerifier,
               grantType,
-              expiresIn,
             });
 
             return res.json({
@@ -439,12 +473,12 @@ export class OidcRouter {
 
             let authenticatedClientId: string | undefined;
             if (hasCredentials) {
-              const { clientId: authedId } = await authenticateClient(
+              const { clientId: authedId } = await authenticateClient({
                 req,
-                this.oidc,
+                oidc: this.oidc,
                 bodyClientId,
                 bodyClientSecret,
-              );
+              });
               authenticatedClientId = authedId;
             }
 
@@ -520,12 +554,12 @@ export class OidcRouter {
             client_secret: bodyClientSecret,
           } = validateRequest(revokeRequestBodySchema, req.body ?? {});
 
-          await authenticateClient(
+          await authenticateClient({
             req,
-            this.oidc,
+            oidc: this.oidc,
             bodyClientId,
             bodyClientSecret,
-          );
+          });
 
           try {
             await this.oidc.revokeRefreshToken(token);
@@ -545,10 +579,4 @@ export class OidcRouter {
 
     return router;
   }
-}
-function ensureTrailingSlash(appUrl: string): string {
-  if (appUrl.endsWith('/')) {
-    return appUrl;
-  }
-  return `${appUrl}/`;
 }

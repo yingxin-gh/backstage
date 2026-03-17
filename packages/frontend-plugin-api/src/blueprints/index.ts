@@ -22,3 +22,9 @@ export { ApiBlueprint } from './ApiBlueprint';
 export { AppRootElementBlueprint } from './AppRootElementBlueprint';
 export { NavItemBlueprint } from './NavItemBlueprint';
 export { PageBlueprint } from './PageBlueprint';
+export { SubPageBlueprint } from './SubPageBlueprint';
+export { PluginHeaderActionBlueprint } from './PluginHeaderActionBlueprint';
+export {
+  PluginWrapperBlueprint,
+  type PluginWrapperDefinition,
+} from './PluginWrapperBlueprint';

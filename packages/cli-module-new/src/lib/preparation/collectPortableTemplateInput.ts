@@ -271,8 +271,8 @@ export function ownerPrompt(): DistinctQuestion {
   };
 }
 
-// Reuses the same pattern as namePrompt/pluginIdPrompt but extended to support npm scopes
-// Matches: @scope/package-name, @scope/package, package-name, package
+// Based on the same pattern as namePrompt/pluginIdPrompt, but extended to support npm scopes
+// and additional allowed characters ('.' and '_'). Matches: @scope/package-name, @scope/package,
 const packageNamePattern = /^[a-z0-9][a-z0-9._-]*$/;
 const scopedPackageNamePattern =
   /^@[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*$/;

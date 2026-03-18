@@ -20,4 +20,8 @@ import { catalogModuleGitlabDiscoveryEntityProvider } from './module/catalogModu
 const _feature = catalogModuleGitlabDiscoveryEntityProvider;
 export default _feature;
 
-export { analyzeGitLabWebhookEvent } from './events/analyzeGitLabWebhookEvent';
+export {
+  analyzeGitLabWebhookEvent,
+  type AnalyzeWebhookEventOptions,
+  type AnalyzeWebhookEventResult,
+} from './events/analyzeGitLabWebhookEvent';

@@ -21,11 +21,13 @@ import { WebhookPushEventSchema } from '@gitbeaker/rest';
 
 type StringRecord = Record<string, unknown>;
 
+/** @alpha */
 export interface AnalyzeWebhookEventOptions {
   logger?: LoggerService;
   isRelevantPath: (path: string) => boolean;
 }
 
+/** @alpha */
 export type AnalyzeWebhookEventResult =
   | {
       result: 'unsupported-event';
@@ -135,9 +137,10 @@ function extractBranchName(ref?: string): string | undefined {
   return ref.slice('refs/heads/'.length);
 }
 
-function getCommitUrl(commit: GitLabPushCommit, repositoryUrl?: string):
-  | string
-  | undefined {
+function getCommitUrl(
+  commit: GitLabPushCommit,
+  repositoryUrl?: string,
+): string | undefined {
   if (commit.url) {
     return commit.url;
   }
@@ -297,9 +300,9 @@ async function onPushEvent(
     }
   }
 
-  const commits = (Array.isArray(event.commits)
-    ? event.commits
-    : []) as GitLabPushCommit[];
+  const commits = (
+    Array.isArray(event.commits) ? event.commits : []
+  ) as GitLabPushCommit[];
 
   if (!commits.length) {
     return {
@@ -427,7 +430,9 @@ function getPreviousRepositoryUrl(
   return toRepositoryUrl(baseUrl, oldPathWithNamespace);
 }
 
-function isRepositoryDeletionEvent(event: GitLabRepositoryUpdateEvent): boolean {
+function isRepositoryDeletionEvent(
+  event: GitLabRepositoryUpdateEvent,
+): boolean {
   const eventName = asString(event.event_name)?.toLowerCase() ?? '';
   const action = asString(event.action)?.toLowerCase() ?? '';
 
@@ -501,6 +506,7 @@ async function onRepositoryUpdateEvent(
   };
 }
 
+/** @alpha */
 export async function analyzeGitLabWebhookEvent(
   eventType: string,
   eventPayload: unknown,
@@ -513,9 +519,14 @@ export async function analyzeGitLabWebhookEvent(
   let result: AnalyzeWebhookEventResult;
 
   if (eventType === 'push') {
-    result = await onPushEvent(eventPayload as unknown as WebhookPushEventSchema, options);
+    result = await onPushEvent(
+      eventPayload as unknown as WebhookPushEventSchema,
+      options,
+    );
   } else if (eventType === 'repository_update') {
-    result = await onRepositoryUpdateEvent(eventPayload as GitLabRepositoryUpdateEvent);
+    result = await onRepositoryUpdateEvent(
+      eventPayload as GitLabRepositoryUpdateEvent,
+    );
   } else {
     result = { result: 'unsupported-event', event: eventType };
   }

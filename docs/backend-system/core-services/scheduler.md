@@ -156,6 +156,35 @@ Responds with
 - `404 Not Found` if there was no such registered task for this plugin
 - `409 Conflict` if the task was already in a running state
 
+### `POST <pluginBaseURL>/.backstage/scheduler/v1/tasks/<taskId>/cancel`
+
+Cancels the running task with the given task ID.
+
+For example, to cancel a specific Catalog task:
+
+```bash
+curl -X POST "https://<instance-name>/api/catalog/.backstage/scheduler/v1/tasks/InternalOpenApiDocumentationProvider:refresh/cancel"
+```
+
+A working example would be:
+
+```bash
+curl -X POST "https://demo.backstage.io/api/catalog/.backstage/scheduler/v1/tasks/InternalOpenApiDocumentationProvider:refresh/cancel"
+```
+
+Note that there can still be an additional small delay before a worker discovers
+that the task is cancelled. This can take up to a few seconds. Note also that it
+is up to the task implementation to properly react to the abort signal that was
+passed in to it.
+
+The request has no body.
+
+Responds with
+
+- `200 OK` if successful
+- `404 Not Found` if there was no such registered task for this plugin
+- `409 Conflict` if the task was not in a running state
+
 ## Testing
 
 The `@backstage/backend-test-utils` package provides `mockServices.scheduler`, which provides a mocked implementation of the scheduler service that can be used in tests. This mocked implementation is used by default in `startTestBackend`, and it will immediately run any registered tasks on startup as long as they're not configured to run manually or with an initial delay.

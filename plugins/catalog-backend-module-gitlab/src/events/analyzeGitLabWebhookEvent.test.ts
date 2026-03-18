@@ -85,7 +85,7 @@ describe('analyzeGitLabWebhookEvent', () => {
       `);
     });
 
-    it('handles file rename as location move', async () => {
+    it('handles file add and delete in the same commit as separate events', async () => {
       const payload = {
         object_kind: 'push',
         ref: 'refs/heads/main',
@@ -116,9 +116,15 @@ describe('analyzeGitLabWebhookEvent', () => {
               "context": {
                 "commitUrl": "https://gitlab.example.com/group-a/repo-a/-/commit/c3",
               },
-              "fromUrl": "https://gitlab.example.com/group-a/repo-a/-/blob/main/old/catalog-info.yaml",
-              "toUrl": "https://gitlab.example.com/group-a/repo-a/-/blob/main/new/catalog-info.yaml",
-              "type": "location.moved",
+              "type": "location.created",
+              "url": "https://gitlab.example.com/group-a/repo-a/-/blob/main/new/catalog-info.yaml",
+            },
+            {
+              "context": {
+                "commitUrl": "https://gitlab.example.com/group-a/repo-a/-/commit/c3",
+              },
+              "type": "location.deleted",
+              "url": "https://gitlab.example.com/group-a/repo-a/-/blob/main/old/catalog-info.yaml",
             },
           ],
           "result": "ok",

@@ -21,13 +21,31 @@ import { WebhookPushEventSchema } from '@gitbeaker/rest';
 
 type StringRecord = Record<string, unknown>;
 
-/** @alpha */
+/**
+ * Options for {@link analyzeGitLabWebhookEvent}.
+ * @alpha
+ */
 export interface AnalyzeWebhookEventOptions {
+  /** Optional logger for debug output when events are ignored or unsupported. */
   logger?: LoggerService;
+  /**
+   * Predicate that returns true for file paths that are relevant to the
+   * catalog (e.g. paths ending in `.yaml` or `.yml`).
+   */
   isRelevantPath: (path: string) => boolean;
 }
 
-/** @alpha */
+/**
+ * The result of analyzing a GitLab webhook event.
+ *
+ * - `ok` — one or more catalog SCM events were produced.
+ * - `ignored` — the event was valid but not relevant (e.g. push to a
+ *   non-default branch, or no catalog files affected).
+ * - `aborted` — the event could not be fully processed due to missing data.
+ * - `unsupported-event` — the event type is not handled by this analyzer.
+ *
+ * @alpha
+ */
 export type AnalyzeWebhookEventResult =
   | {
       result: 'unsupported-event';
@@ -53,11 +71,6 @@ type PathState =
     }
   | {
       type: 'removed';
-      commitUrl?: string;
-    }
-  | {
-      type: 'renamed';
-      fromPath: string;
       commitUrl?: string;
     }
   | {
@@ -172,13 +185,6 @@ function pathStateToCatalogScmEvent(
         url: toBlobUrl(path),
         context,
       };
-    case 'renamed':
-      return {
-        type: 'location.moved',
-        fromUrl: toBlobUrl(event.fromPath),
-        toUrl: toBlobUrl(path),
-        context,
-      };
     case 'changed':
       return {
         type: 'location.updated',
@@ -226,13 +232,6 @@ function applyRemovedPath(
     pathState.set(path, { type: 'removed', commitUrl });
     return;
   }
-  if (previous.type === 'renamed') {
-    if (!pathState.has(previous.fromPath)) {
-      pathState.set(previous.fromPath, { type: 'removed', commitUrl });
-    }
-    pathState.delete(path);
-    return;
-  }
   pathState.set(path, previous);
 }
 
@@ -251,34 +250,6 @@ function applyModifiedPath(
     return;
   }
   pathState.set(path, previous);
-}
-
-function applyRenamedPath(
-  pathState: Map<string, PathState>,
-  fromPath: string,
-  toPath: string,
-  commitUrl: string | undefined,
-) {
-  const previous = pathState.get(fromPath);
-  pathState.delete(fromPath);
-
-  if (!previous) {
-    pathState.set(toPath, { type: 'renamed', fromPath, commitUrl });
-    return;
-  }
-  if (previous.type === 'added') {
-    pathState.set(toPath, { type: 'added', commitUrl });
-    return;
-  }
-  if (previous.type === 'renamed') {
-    pathState.set(toPath, {
-      type: 'renamed',
-      fromPath: previous.fromPath,
-      commitUrl,
-    });
-    return;
-  }
-  pathState.set(toPath, { type: 'renamed', fromPath, commitUrl });
 }
 
 async function onPushEvent(
@@ -328,16 +299,11 @@ async function onPushEvent(
       applyModifiedPath(pathState, path, commitUrl);
     }
 
-    const renamePairs = Math.min(added.length, removed.length);
-    for (let i = 0; i < renamePairs; i++) {
-      applyRenamedPath(pathState, removed[i], added[i], commitUrl);
-    }
-
-    for (const path of added.slice(renamePairs)) {
+    for (const path of added) {
       applyAddedPath(pathState, path, commitUrl);
     }
 
-    for (const path of removed.slice(renamePairs)) {
+    for (const path of removed) {
       applyRemovedPath(pathState, path, commitUrl);
     }
   }
@@ -506,7 +472,19 @@ async function onRepositoryUpdateEvent(
   };
 }
 
-/** @alpha */
+/**
+ * Analyzes a GitLab webhook event and translates it into zero or more catalog
+ * SCM events that entity providers can act on.
+ *
+ * Supported event types:
+ * - `push` — translates file-level adds, modifications, and deletions on the
+ *   default branch into `location.created`, `location.updated`, and
+ *   `location.deleted` events for paths matching `isRelevantPath`.
+ * - `repository_update` — translates repository renames, transfers, and
+ *   deletions into `repository.moved` and `repository.deleted` events.
+ *
+ * @alpha
+ */
 export async function analyzeGitLabWebhookEvent(
   eventType: string,
   eventPayload: unknown,

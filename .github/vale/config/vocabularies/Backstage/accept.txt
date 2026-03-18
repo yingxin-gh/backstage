@@ -43,6 +43,7 @@ breakpoint
 Brex
 broadcasted
 bugfixes
+BUIProvider
 builtins
 bundler
 bundlers

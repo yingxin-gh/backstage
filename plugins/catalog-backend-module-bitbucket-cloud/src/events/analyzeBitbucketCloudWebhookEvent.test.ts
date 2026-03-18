@@ -16,9 +16,6 @@
 
 import { analyzeBitbucketCloudWebhookEvent } from './analyzeBitbucketCloudWebhookEvent';
 
-const isRelevantPath = (path: string): boolean =>
-  path.endsWith('.yaml') || path.endsWith('.yml');
-
 const baseRepository = {
   type: 'repository',
   full_name: 'test-ws/test-repo',
@@ -37,15 +34,11 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
   describe('repo:push', () => {
     it('emits repository.updated for a push event', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:push',
-          {
-            actor: { type: 'user' },
-            repository: baseRepository,
-            push: { changes: [] },
-          },
-          { isRelevantPath },
-        ),
+        analyzeBitbucketCloudWebhookEvent('repo:push', {
+          actor: { type: 'user' },
+          repository: baseRepository,
+          push: { changes: [] },
+        }),
       ).resolves.toEqual({
         result: 'ok',
         events: [
@@ -59,15 +52,11 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
 
     it('aborts when repository URL is missing', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:push',
-          {
-            actor: { type: 'user' },
-            repository: { type: 'repository' },
-            push: { changes: [] },
-          },
-          { isRelevantPath },
-        ),
+        analyzeBitbucketCloudWebhookEvent('repo:push', {
+          actor: { type: 'user' },
+          repository: { type: 'repository' },
+          push: { changes: [] },
+        }),
       ).resolves.toEqual({
         result: 'aborted',
         reason:
@@ -79,41 +68,37 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
   describe('repo:updated', () => {
     it('emits repository.moved when the URL changes', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:updated',
-          {
-            actor: { type: 'user' },
-            repository: {
-              ...baseRepository,
-              full_name: 'test-ws/test-repo-new',
-              links: {
+        analyzeBitbucketCloudWebhookEvent('repo:updated', {
+          actor: { type: 'user' },
+          repository: {
+            ...baseRepository,
+            full_name: 'test-ws/test-repo-new',
+            links: {
+              html: {
+                href: 'https://bitbucket.org/test-ws/test-repo-new',
+              },
+            },
+          },
+          changes: {
+            name: { new: 'test-repo-new', old: 'test-repo-old' },
+            full_name: {
+              new: 'test-ws/test-repo-new',
+              old: 'test-ws/test-repo-old',
+            },
+            links: {
+              new: {
                 html: {
                   href: 'https://bitbucket.org/test-ws/test-repo-new',
                 },
               },
-            },
-            changes: {
-              name: { new: 'test-repo-new', old: 'test-repo-old' },
-              full_name: {
-                new: 'test-ws/test-repo-new',
-                old: 'test-ws/test-repo-old',
-              },
-              links: {
-                new: {
-                  html: {
-                    href: 'https://bitbucket.org/test-ws/test-repo-new',
-                  },
-                },
-                old: {
-                  html: {
-                    href: 'https://bitbucket.org/test-ws/test-repo-old',
-                  },
+              old: {
+                html: {
+                  href: 'https://bitbucket.org/test-ws/test-repo-old',
                 },
               },
             },
           },
-          { isRelevantPath },
-        ),
+        }),
       ).resolves.toEqual({
         result: 'ok',
         events: [
@@ -128,28 +113,24 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
 
     it('falls back to full_name for old URL when links.old is missing', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:updated',
-          {
-            actor: { type: 'user' },
-            repository: {
-              ...baseRepository,
-              full_name: 'test-ws/test-repo-new',
-              links: {
-                html: {
-                  href: 'https://bitbucket.org/test-ws/test-repo-new',
-                },
-              },
-            },
-            changes: {
-              full_name: {
-                new: 'test-ws/test-repo-new',
-                old: 'test-ws/test-repo-old',
+        analyzeBitbucketCloudWebhookEvent('repo:updated', {
+          actor: { type: 'user' },
+          repository: {
+            ...baseRepository,
+            full_name: 'test-ws/test-repo-new',
+            links: {
+              html: {
+                href: 'https://bitbucket.org/test-ws/test-repo-new',
               },
             },
           },
-          { isRelevantPath },
-        ),
+          changes: {
+            full_name: {
+              new: 'test-ws/test-repo-new',
+              old: 'test-ws/test-repo-old',
+            },
+          },
+        }),
       ).resolves.toEqual({
         result: 'ok',
         events: [
@@ -164,17 +145,13 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
 
     it('emits repository.updated when no URL change is detected', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:updated',
-          {
-            actor: { type: 'user' },
-            repository: baseRepository,
-            changes: {
-              description: { new: 'new desc', old: 'old desc' },
-            },
+        analyzeBitbucketCloudWebhookEvent('repo:updated', {
+          actor: { type: 'user' },
+          repository: baseRepository,
+          changes: {
+            description: { new: 'new desc', old: 'old desc' },
           },
-          { isRelevantPath },
-        ),
+        }),
       ).resolves.toEqual({
         result: 'ok',
         events: [
@@ -190,44 +167,40 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
   describe('repo:transfer', () => {
     it('emits repository.moved when transferred to a new workspace', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:transfer',
-          {
-            actor: { type: 'user' },
-            repository: {
-              ...baseRepository,
-              full_name: 'new-ws/test-repo',
-              links: {
+        analyzeBitbucketCloudWebhookEvent('repo:transfer', {
+          actor: { type: 'user' },
+          repository: {
+            ...baseRepository,
+            full_name: 'new-ws/test-repo',
+            links: {
+              html: {
+                href: 'https://bitbucket.org/new-ws/test-repo',
+              },
+            },
+            workspace: {
+              type: 'workspace',
+              slug: 'new-ws',
+            },
+          },
+          changes: {
+            full_name: {
+              new: 'new-ws/test-repo',
+              old: 'test-ws/test-repo',
+            },
+            links: {
+              new: {
                 html: {
                   href: 'https://bitbucket.org/new-ws/test-repo',
                 },
               },
-              workspace: {
-                type: 'workspace',
-                slug: 'new-ws',
-              },
-            },
-            changes: {
-              full_name: {
-                new: 'new-ws/test-repo',
-                old: 'test-ws/test-repo',
-              },
-              links: {
-                new: {
-                  html: {
-                    href: 'https://bitbucket.org/new-ws/test-repo',
-                  },
-                },
-                old: {
-                  html: {
-                    href: 'https://bitbucket.org/test-ws/test-repo',
-                  },
+              old: {
+                html: {
+                  href: 'https://bitbucket.org/test-ws/test-repo',
                 },
               },
             },
           },
-          { isRelevantPath },
-        ),
+        }),
       ).resolves.toEqual({
         result: 'ok',
         events: [
@@ -244,14 +217,10 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
   describe('repo:deleted', () => {
     it('emits repository.deleted', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'repo:deleted',
-          {
-            actor: { type: 'user' },
-            repository: baseRepository,
-          },
-          { isRelevantPath },
-        ),
+        analyzeBitbucketCloudWebhookEvent('repo:deleted', {
+          actor: { type: 'user' },
+          repository: baseRepository,
+        }),
       ).resolves.toEqual({
         result: 'ok',
         events: [
@@ -267,17 +236,13 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
   describe('general behavior', () => {
     it('throws on non-object payloads', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent('repo:push', undefined, {
-          isRelevantPath,
-        }),
+        analyzeBitbucketCloudWebhookEvent('repo:push', undefined),
       ).rejects.toThrow(
         'Bitbucket Cloud webhook event payload is not an object',
       );
 
       await expect(
-        analyzeBitbucketCloudWebhookEvent('repo:push', [], {
-          isRelevantPath,
-        }),
+        analyzeBitbucketCloudWebhookEvent('repo:push', []),
       ).rejects.toThrow(
         'Bitbucket Cloud webhook event payload is not an object',
       );
@@ -285,11 +250,9 @@ describe('analyzeBitbucketCloudWebhookEvent', () => {
 
     it('returns unsupported-event for unknown event types', async () => {
       await expect(
-        analyzeBitbucketCloudWebhookEvent(
-          'pullrequest:created',
-          { actor: { type: 'user' } },
-          { isRelevantPath },
-        ),
+        analyzeBitbucketCloudWebhookEvent('pullrequest:created', {
+          actor: { type: 'user' },
+        }),
       ).resolves.toEqual({
         result: 'unsupported-event',
         event: 'pullrequest:created',

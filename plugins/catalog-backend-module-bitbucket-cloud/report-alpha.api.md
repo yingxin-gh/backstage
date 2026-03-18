@@ -10,13 +10,7 @@ import { CatalogScmEvent } from '@backstage/plugin-catalog-node/alpha';
 export function analyzeBitbucketCloudWebhookEvent(
   eventType: string,
   eventPayload: unknown,
-  _options: AnalyzeBitbucketCloudWebhookEventOptions,
 ): Promise<AnalyzeBitbucketCloudWebhookEventResult>;
-
-// @alpha
-export interface AnalyzeBitbucketCloudWebhookEventOptions {
-  isRelevantPath: (path: string) => boolean;
-}
 
 // @alpha
 export type AnalyzeBitbucketCloudWebhookEventResult =

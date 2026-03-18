@@ -22,6 +22,5 @@ export default _feature;
 
 export {
   analyzeBitbucketCloudWebhookEvent,
-  type AnalyzeBitbucketCloudWebhookEventOptions,
   type AnalyzeBitbucketCloudWebhookEventResult,
 } from './events/analyzeBitbucketCloudWebhookEvent';

@@ -18,18 +18,6 @@ import { InputError } from '@backstage/errors';
 import { CatalogScmEvent } from '@backstage/plugin-catalog-node/alpha';
 
 /**
- * Options for {@link analyzeBitbucketCloudWebhookEvent}.
- * @alpha
- */
-export interface AnalyzeBitbucketCloudWebhookEventOptions {
-  /**
-   * Predicate that returns true for file paths that are relevant to the
-   * catalog (e.g. paths ending in `.yaml` or `.yml`).
-   */
-  isRelevantPath: (path: string) => boolean;
-}
-
-/**
  * The result of analyzing a Bitbucket Cloud webhook event.
  *
  * - `ok` — one or more catalog SCM events were produced.
@@ -213,10 +201,13 @@ async function onRepoDeletedEvent(
  * Analyzes a Bitbucket Cloud webhook event and translates it into zero or more
  * catalog SCM events that entity providers can act on.
  *
+ * Bitbucket Cloud push payloads do not include file-level change data, so only
+ * repository-level events are produced (unlike GitLab and Azure DevOps
+ * analyzers which can emit fine-grained `location.*` events).
+ *
  * Supported event types:
  * - `repo:push` — emits a `repository.updated` event to trigger catalog
- *   refresh for the repository. Bitbucket Cloud push payloads do not include
- *   file-level change data, so only repository-level events are produced.
+ *   refresh for the repository.
  * - `repo:updated` — translates repository renames into `repository.moved`
  *   events, or emits `repository.updated` for other metadata changes.
  * - `repo:transfer` — translates repository transfers into `repository.moved`
@@ -228,7 +219,6 @@ async function onRepoDeletedEvent(
 export async function analyzeBitbucketCloudWebhookEvent(
   eventType: string,
   eventPayload: unknown,
-  _options: AnalyzeBitbucketCloudWebhookEventOptions,
 ): Promise<AnalyzeBitbucketCloudWebhookEventResult> {
   const payload = asObject(eventPayload);
   if (!payload) {

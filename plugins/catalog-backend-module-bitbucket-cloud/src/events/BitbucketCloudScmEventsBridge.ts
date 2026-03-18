@@ -78,10 +78,6 @@ export class BitbucketCloudScmEventsBridge {
         const output = await analyzeBitbucketCloudWebhookEvent(
           eventType,
           params.eventPayload,
-          {
-            isRelevantPath: path =>
-              path.endsWith('.yaml') || path.endsWith('.yml'),
-          },
         );
 
         if (output.result === 'ok') {

@@ -175,7 +175,7 @@ curl -X POST "https://demo.backstage.io/api/catalog/.backstage/scheduler/v1/task
 Note that there can still be an additional small delay before a worker discovers
 that the task is cancelled. This can take up to a few seconds. Note also that it
 is up to the task implementation to properly react to the abort signal that was
-passed in to it.
+passed into it.
 
 The request has no body.
 

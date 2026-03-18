@@ -160,16 +160,20 @@ Responds with
 
 Cancels the running task with the given task ID.
 
+Note that `<taskId>` must be URL-encoded so that it remains a single path segment
+in the URL (for example by using `encodeURIComponent` in JavaScript or standard
+percent-encoding).
+
 For example, to cancel a specific Catalog task:
 
 ```bash
-curl -X POST "https://<instance-name>/api/catalog/.backstage/scheduler/v1/tasks/InternalOpenApiDocumentationProvider:refresh/cancel"
+curl -X POST "https://<instance-name>/api/catalog/.backstage/scheduler/v1/tasks/InternalOpenApiDocumentationProvider%3Arefresh/cancel"
 ```
 
 A working example would be:
 
 ```bash
-curl -X POST "https://demo.backstage.io/api/catalog/.backstage/scheduler/v1/tasks/InternalOpenApiDocumentationProvider:refresh/cancel"
+curl -X POST "https://demo.backstage.io/api/catalog/.backstage/scheduler/v1/tasks/InternalOpenApiDocumentationProvider%3Arefresh/cancel"
 ```
 
 Note that there can still be an additional small delay before a worker discovers

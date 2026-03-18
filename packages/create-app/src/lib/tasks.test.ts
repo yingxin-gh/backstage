@@ -276,7 +276,7 @@ describe('tasks', () => {
 
   describe('templatingTask', () => {
     it('should generate a project populating context parameters', async () => {
-      const templateDir = resolvePath(__dirname, '../../templates/default-app');
+      const templateDir = resolvePath(__dirname, '../../templates/legacy-app');
       const destinationDir = 'templatedApp';
       const context = {
         name: 'SuperCoolBackstageInstance',

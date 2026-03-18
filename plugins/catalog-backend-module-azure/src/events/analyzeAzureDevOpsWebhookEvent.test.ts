@@ -22,7 +22,8 @@ const baseRepository = {
   id: 'repo-id',
   name: 'example-repo',
   defaultBranch: 'refs/heads/main',
-  remoteUrl: 'https://dev.azure.com/example-org/example-project/_git/example-repo',
+  remoteUrl:
+    'https://dev.azure.com/example-org/example-project/_git/example-repo',
 };
 
 const withPushEvent = (resource: Record<string, unknown>) => ({

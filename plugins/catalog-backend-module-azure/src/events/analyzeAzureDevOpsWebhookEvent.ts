@@ -17,10 +17,28 @@
 import { InputError } from '@backstage/errors';
 import { CatalogScmEvent } from '@backstage/plugin-catalog-node/alpha';
 
+/**
+ * Options for {@link analyzeAzureDevOpsWebhookEvent}.
+ * @alpha
+ */
 export interface AnalyzeAzureDevOpsWebhookEventOptions {
+  /**
+   * Predicate that returns true for file paths that are relevant to the
+   * catalog (e.g. paths ending in `.yaml` or `.yml`).
+   */
   isRelevantPath: (path: string) => boolean;
 }
 
+/**
+ * The result of analyzing an Azure DevOps webhook event.
+ *
+ * - `ok` — one or more catalog SCM events were produced.
+ * - `ignored` — the event was valid but not relevant.
+ * - `aborted` — the event could not be fully processed due to missing data.
+ * - `unsupported-event` — the event type is not handled by this analyzer.
+ *
+ * @alpha
+ */
 export type AnalyzeAzureDevOpsWebhookEventResult =
   | {
       result: 'unsupported-event';
@@ -263,7 +281,9 @@ function normalizePushCommitChanges(
 
   for (const change of commit.changes ?? []) {
     const changeType = change.changeType?.toLowerCase() ?? '';
-    const toPath = normalizePath(change.item?.path ?? change.path ?? change.newPath);
+    const toPath = normalizePath(
+      change.item?.path ?? change.path ?? change.newPath,
+    );
     const fromPath = normalizePath(
       change.originalPath ??
         change.item?.originalPath ??
@@ -380,9 +400,11 @@ async function onPushEvent(
 ): Promise<AnalyzeAzureDevOpsWebhookEventResult> {
   const resource = asObject(eventPayload.resource);
   const repository = getRepository(resource);
-  const refUpdates = (resource?.refUpdates as AzurePushRefUpdate[] | undefined) ?? [];
+  const refUpdates =
+    (resource?.refUpdates as AzurePushRefUpdate[] | undefined) ?? [];
   const commits = (resource?.commits as AzurePushCommit[] | undefined) ?? [];
-  const contextUrl = asString(resource?.url) ?? repository.remoteUrl ?? '<unknown>';
+  const contextUrl =
+    asString(resource?.url) ?? repository.remoteUrl ?? '<unknown>';
 
   if (commits.length === 0) {
     return {
@@ -507,6 +529,17 @@ async function onRepositoryEvent(
   };
 }
 
+/**
+ * Analyzes an Azure DevOps webhook event and translates it into zero or more
+ * catalog SCM events that entity providers can act on.
+ *
+ * Supported event types:
+ * - `git.push` — translates file-level adds, modifications, and deletions on
+ *   the default branch into catalog SCM events for paths matching
+ *   `isRelevantPath`.
+ *
+ * @alpha
+ */
 export async function analyzeAzureDevOpsWebhookEvent(
   eventType: string,
   eventPayload: unknown,

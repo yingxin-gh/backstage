@@ -172,12 +172,17 @@ function toLocationUrl(options: {
     return undefined;
   }
 
-  const url = new URL(options.remoteUrl);
+  // Match the URL format produced by AzureDevOpsEntityProvider.createObjectUrl
+  // which uses encodeURI on the full URL string with path and version as raw
+  // query parameter values. Using URL/searchParams would produce different
+  // encoding (e.g. %2F for slashes in branch names) and fail to match existing
+  // catalog location targets.
   const branch = branchNameFromRef(options.branchRef);
-  url.search = branch
-    ? `path=${options.path}&version=GB${branch}`
-    : `path=${options.path}`;
-  return encodeURI(url.toString());
+  let fullUrl = `${options.remoteUrl}?path=${options.path}`;
+  if (branch) {
+    fullUrl += `&version=GB${branch}`;
+  }
+  return encodeURI(fullUrl);
 }
 
 function toCommitUrl(
@@ -495,18 +500,15 @@ async function onRepositoryEvent(
 
   if (eventType === 'git.repo.renamed' && toUrl) {
     const oldName = asString(resource?.oldName);
-    if (!oldName) {
-      return {
-        result: 'ignored',
-        reason: 'Azure DevOps repository renamed event is missing oldName',
-      };
-    }
-    const fromUrl = replaceRepoNameInRemoteUrl(toUrl, oldName);
+    const fromUrl = oldName
+      ? replaceRepoNameInRemoteUrl(toUrl, oldName)
+      : undefined;
     if (!fromUrl) {
       return {
         result: 'ignored',
-        reason:
-          'Azure DevOps repository renamed event has an unexpected repository.remoteUrl format',
+        reason: oldName
+          ? 'Azure DevOps repository renamed event has an unexpected repository.remoteUrl format'
+          : 'Azure DevOps repository renamed event is missing oldName',
       };
     }
 

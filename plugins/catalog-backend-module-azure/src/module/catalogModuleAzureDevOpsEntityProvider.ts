@@ -75,17 +75,22 @@ export const catalogModuleAzureEntityProvider = createBackendModule({
           );
         }
 
-        const bridge = new AzureDevOpsScmEventsBridge({
-          logger,
-          events,
-          catalogScmEvents,
-        });
-        lifecycle.addStartupHook(async () => {
-          await bridge.start();
-        });
-        lifecycle.addShutdownHook(async () => {
-          await bridge.stop();
-        });
+        // Only wire up the SCM events bridge when Azure DevOps provider
+        // configuration is present — Azure Blob Storage users should not be
+        // required to handle Azure DevOps webhook events.
+        if (config.has('catalog.providers.azureDevOps')) {
+          const bridge = new AzureDevOpsScmEventsBridge({
+            logger,
+            events,
+            catalogScmEvents,
+          });
+          lifecycle.addStartupHook(async () => {
+            await bridge.start();
+          });
+          lifecycle.addShutdownHook(async () => {
+            await bridge.stop();
+          });
+        }
       },
     });
   },

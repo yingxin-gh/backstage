@@ -147,13 +147,6 @@ function normalizePath(path: string | undefined): string | undefined {
   return path.startsWith('/') ? path : `/${path}`;
 }
 
-function branchNameFromRef(ref: string | undefined): string | undefined {
-  if (!ref) {
-    return undefined;
-  }
-  return ref.replace(/^refs\/heads\//, '');
-}
-
 function getRepository(resource: JsonObject | undefined): AzureRepository {
   const repository = asObject(resource?.repository);
   return {
@@ -166,7 +159,6 @@ function getRepository(resource: JsonObject | undefined): AzureRepository {
 function toLocationUrl(options: {
   remoteUrl: string | undefined;
   path: string;
-  branchRef: string | undefined;
 }): string | undefined {
   if (!options.remoteUrl) {
     return undefined;
@@ -174,14 +166,15 @@ function toLocationUrl(options: {
 
   // Match the URL format produced by AzureDevOpsEntityProvider.createObjectUrl
   // which uses encodeURI on the full URL string with path and version as raw
-  // query parameter values. Using URL/searchParams would produce different
-  // encoding (e.g. %2F for slashes in branch names) and fail to match existing
-  // catalog location targets.
-  const branch = branchNameFromRef(options.branchRef);
-  let fullUrl = `${options.remoteUrl}?path=${options.path}`;
-  if (branch) {
-    fullUrl += `&version=GB${branch}`;
-  }
+  // query parameter values.
+  //
+  // The version parameter is intentionally omitted here because the entity
+  // provider only includes it when the user explicitly configures a `branch`
+  // in the provider config. Since we cannot know at analysis time whether a
+  // branch was configured, omitting version matches the default provider
+  // behavior and avoids URL mismatches that would prevent SCM events from
+  // triggering catalog refreshes.
+  const fullUrl = `${options.remoteUrl}?path=${options.path}`;
   return encodeURI(fullUrl);
 }
 
@@ -200,12 +193,11 @@ function toCommitUrl(
 
 function toCatalogScmEventForPathState(options: {
   repository: AzureRepository;
-  branchRef: string | undefined;
   path: string;
   pathState: PushPathState;
   isRelevantPath: (path: string) => boolean;
 }): CatalogScmEvent[] {
-  const { repository, branchRef, path, pathState, isRelevantPath } = options;
+  const { repository, path, pathState, isRelevantPath } = options;
   const commitUrl = toCommitUrl(repository, pathState.commit);
   const context = commitUrl ? { commitUrl } : undefined;
 
@@ -215,12 +207,10 @@ function toCatalogScmEventForPathState(options: {
     const fromUrl = toLocationUrl({
       remoteUrl: repository.remoteUrl,
       path: pathState.fromPath,
-      branchRef,
     });
     const toUrl = toLocationUrl({
       remoteUrl: repository.remoteUrl,
       path,
-      branchRef,
     });
 
     if (fromRelevant && toRelevant && fromUrl && toUrl) {
@@ -242,7 +232,6 @@ function toCatalogScmEventForPathState(options: {
   const url = toLocationUrl({
     remoteUrl: repository.remoteUrl,
     path,
-    branchRef,
   });
   if (!url) {
     return [];
@@ -446,13 +435,9 @@ async function onPushEvent(
     };
   }
 
-  const branchRef =
-    repository.defaultBranch ?? asString(refUpdates[0]?.name) ?? undefined;
-
   const events = Array.from(state.entries()).flatMap(([path, pathState]) =>
     toCatalogScmEventForPathState({
       repository,
-      branchRef,
       path,
       pathState,
       isRelevantPath: options.isRelevantPath,
@@ -539,6 +524,11 @@ async function onRepositoryEvent(
  * - `git.push` — translates file-level adds, modifications, and deletions on
  *   the default branch into catalog SCM events for paths matching
  *   `isRelevantPath`.
+ * - `git.repo.created` — emits a `repository.created` event.
+ * - `git.repo.deleted` — emits a `repository.deleted` event.
+ * - `git.repo.statuschanged` — emits a `repository.updated` event.
+ * - `git.repo.renamed` — emits a `repository.moved` event with the old and
+ *   new repository URLs.
  *
  * @alpha
  */

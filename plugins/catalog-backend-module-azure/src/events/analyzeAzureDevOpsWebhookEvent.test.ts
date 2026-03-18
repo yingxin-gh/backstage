@@ -83,43 +83,43 @@ describe('analyzeAzureDevOpsWebhookEvent', () => {
         events: [
           {
             type: 'location.created',
-            url: `${baseRepository.remoteUrl}?path=/catalog-info.yaml&version=GBmain`,
+            url: `${baseRepository.remoteUrl}?path=/catalog-info.yaml`,
             context: {
               commitUrl: `${baseRepository.remoteUrl}/commit/1111111111111111111111111111111111111111`,
             },
           },
           {
             type: 'location.updated',
-            url: `${baseRepository.remoteUrl}?path=/service.yaml&version=GBmain`,
+            url: `${baseRepository.remoteUrl}?path=/service.yaml`,
             context: {
               commitUrl: `${baseRepository.remoteUrl}/commit/1111111111111111111111111111111111111111`,
             },
           },
           {
             type: 'location.deleted',
-            url: `${baseRepository.remoteUrl}?path=/obsolete.yaml&version=GBmain`,
+            url: `${baseRepository.remoteUrl}?path=/obsolete.yaml`,
             context: {
               commitUrl: `${baseRepository.remoteUrl}/commit/1111111111111111111111111111111111111111`,
             },
           },
           {
             type: 'location.moved',
-            fromUrl: `${baseRepository.remoteUrl}?path=/old-name.yaml&version=GBmain`,
-            toUrl: `${baseRepository.remoteUrl}?path=/new-name.yaml&version=GBmain`,
+            fromUrl: `${baseRepository.remoteUrl}?path=/old-name.yaml`,
+            toUrl: `${baseRepository.remoteUrl}?path=/new-name.yaml`,
             context: {
               commitUrl: `${baseRepository.remoteUrl}/commit/1111111111111111111111111111111111111111`,
             },
           },
           {
             type: 'location.deleted',
-            url: `${baseRepository.remoteUrl}?path=/catalog-out.yaml&version=GBmain`,
+            url: `${baseRepository.remoteUrl}?path=/catalog-out.yaml`,
             context: {
               commitUrl: `${baseRepository.remoteUrl}/commit/1111111111111111111111111111111111111111`,
             },
           },
           {
             type: 'location.created',
-            url: `${baseRepository.remoteUrl}?path=/catalog-in.yaml&version=GBmain`,
+            url: `${baseRepository.remoteUrl}?path=/catalog-in.yaml`,
             context: {
               commitUrl: `${baseRepository.remoteUrl}/commit/1111111111111111111111111111111111111111`,
             },
@@ -128,17 +128,13 @@ describe('analyzeAzureDevOpsWebhookEvent', () => {
       });
     });
 
-    it('does not double-encode branch names containing slashes', async () => {
-      const repoWithSlashBranch = {
-        ...baseRepository,
-        defaultBranch: 'refs/heads/feature/my-branch',
-      };
+    it('omits version parameter to match default provider URL format', async () => {
       await expect(
         analyzeAzureDevOpsWebhookEvent(
           'git.push',
           withPushEvent({
-            repository: repoWithSlashBranch,
-            refUpdates: [{ name: 'refs/heads/feature/my-branch' }],
+            repository: baseRepository,
+            refUpdates: [{ name: 'refs/heads/main' }],
             commits: [
               {
                 commitId: 'abc',
@@ -155,7 +151,7 @@ describe('analyzeAzureDevOpsWebhookEvent', () => {
         events: [
           {
             type: 'location.created',
-            url: `${baseRepository.remoteUrl}?path=/catalog-info.yaml&version=GBfeature/my-branch`,
+            url: `${baseRepository.remoteUrl}?path=/catalog-info.yaml`,
             context: { commitUrl: `${baseRepository.remoteUrl}/commit/abc` },
           },
         ],

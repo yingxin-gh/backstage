@@ -7,22 +7,20 @@ import { BackendFeature } from '@backstage/backend-plugin-api';
 import { CatalogScmEvent } from '@backstage/plugin-catalog-node/alpha';
 import { LoggerService } from '@backstage/backend-plugin-api';
 
-// @alpha (undocumented)
+// @alpha
 export function analyzeGitLabWebhookEvent(
   eventType: string,
   eventPayload: unknown,
   options: AnalyzeWebhookEventOptions,
 ): Promise<AnalyzeWebhookEventResult>;
 
-// @alpha (undocumented)
+// @alpha
 export interface AnalyzeWebhookEventOptions {
-  // (undocumented)
   isRelevantPath: (path: string) => boolean;
-  // (undocumented)
   logger?: LoggerService;
 }
 
-// @alpha (undocumented)
+// @alpha
 export type AnalyzeWebhookEventResult =
   | {
       result: 'unsupported-event';

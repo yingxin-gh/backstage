@@ -109,11 +109,13 @@ export const CatalogTable = (props: CatalogTableProps) => {
     paginationMode,
   } = entityListContext;
 
-  // Only show the full loading indicator when there's no data to display yet
-  // (i.e. initial load). During filter changes we already have stale data to
-  // show, so we keep it visible and let the new results swap in seamlessly
-  // instead of briefly flashing an empty table.
-  const isLoading = loading && entities.length === 0;
+  // For non-paginated tables, only show the full loading indicator when
+  // there's no data yet (initial load). During filter changes we keep stale
+  // data visible and let the new results swap in seamlessly. For paginated
+  // tables we always show loading, since stale data from a different page
+  // would be misleading.
+  const isLoading =
+    paginationMode === 'none' ? loading && entities.length === 0 : loading;
 
   const tableColumns = useMemo(
     () =>

@@ -351,7 +351,7 @@ describe('McpService', () => {
     expect(toolExecutionCall![0]).toMatchObject({
       eventId: 'tool-execution',
       severityLevel: 'medium',
-      meta: { toolName: 'test:mock-action' },
+      meta: { toolName: 'test.mock-action' },
     });
     const toolExecutionEvent = await mockAuditor.createEvent.mock.results.find(
       (_: unknown, i: number) =>
@@ -872,6 +872,7 @@ describe('McpService', () => {
         actions: actionsRegistryServiceMock(),
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const server = mcpService.getServer({
@@ -896,6 +897,7 @@ describe('McpService', () => {
         actions: actionsRegistryServiceMock(),
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const server = mcpService.getServer({
@@ -926,6 +928,7 @@ describe('McpService', () => {
         actions: actionsRegistryServiceMock(),
         metrics: metricsServiceMock.mock(),
         tracingService: tracingServiceMock.mock(),
+        auditor: mockServices.auditor.mock(),
       });
 
       const server = mcpService.getServer({

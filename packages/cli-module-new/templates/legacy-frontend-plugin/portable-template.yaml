@@ -1,4 +1,4 @@
-name: frontend-plugin
+name: legacy-frontend-plugin
 role: frontend-plugin
 description: A new frontend plugin (legacy system)
 values:

@@ -12,10 +12,7 @@ import { SidebarLogo } from './SidebarLogo';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { SidebarSearchModal } from '@backstage/plugin-search';
-import {
-  UserSettingsSignInAvatar,
-  Settings as SidebarSettings,
-} from '@backstage/plugin-user-settings';
+import { UserSettingsSignInAvatar } from '@backstage/plugin-user-settings';
 import { NotificationsSidebarItem } from '@backstage/plugin-notifications';
 
 export const SidebarContent = NavContentBlueprint.make({
@@ -50,7 +47,7 @@ export const SidebarContent = NavContentBlueprint.make({
             icon={<UserSettingsSignInAvatar />}
             to="/settings"
           >
-            <SidebarSettings />
+            {nav.take('page:user-settings')}
           </SidebarGroup>
         </Sidebar>,
       );

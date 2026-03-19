@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Text,
@@ -22,29 +21,10 @@ import {
   SearchAutocomplete,
   SearchAutocompleteItem,
 } from '@backstage/ui';
-import {
-  SearchContextProvider,
-  useSearch,
-} from '@backstage/plugin-search-react';
+import { SearchContextProvider } from '@backstage/plugin-search-react';
 import { CompoundEntityRef } from '@backstage/catalog-model';
-import { ResultHighlight } from '@backstage/plugin-search-common';
 import { HighlightedSearchResultText } from '@backstage/plugin-search-react';
-
-type TechDocsDoc = {
-  namespace: string;
-  kind: string;
-  name: string;
-  path: string;
-  location: string;
-  title: string;
-  text: string;
-};
-
-type TechDocsSearchResult = {
-  type: string;
-  document: TechDocsDoc;
-  highlight?: ResultHighlight;
-};
+import { useTechDocsSearch } from '../../hooks/useTechDocsSearch';
 
 type TechDocsReaderSearchBarProps = {
   entityId: CompoundEntityRef;
@@ -53,40 +33,8 @@ type TechDocsReaderSearchBarProps = {
 const TechDocsReaderSearchBar = (props: TechDocsReaderSearchBarProps) => {
   const { entityId } = props;
   const navigate = useNavigate();
-  const {
-    setFilters,
-    setTerm,
-    term,
-    result: { loading, value: searchVal },
-  } = useSearch();
-  const [results, setResults] = useState<TechDocsSearchResult[]>([]);
-  const [deferredLoading, setDeferredLoading] = useState(false);
-  const loadingTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => {
-    if (searchVal) {
-      setResults(searchVal.results.slice(0, 10) as TechDocsSearchResult[]);
-    }
-  }, [loading, searchVal]);
-
-  useEffect(() => {
-    clearTimeout(loadingTimer.current);
-    setDeferredLoading(false);
-    if (loading) {
-      loadingTimer.current = setTimeout(() => setDeferredLoading(true), 200);
-    }
-    return () => clearTimeout(loadingTimer.current);
-  }, [term, loading]);
-
-  const { kind, name, namespace } = entityId;
-  useEffect(() => {
-    setFilters(prevFilters => ({
-      ...prevFilters,
-      kind,
-      namespace,
-      name,
-    }));
-  }, [kind, namespace, name, setFilters]);
+  const { results, term, setTerm, deferredLoading } =
+    useTechDocsSearch(entityId);
 
   return (
     <SearchAutocomplete

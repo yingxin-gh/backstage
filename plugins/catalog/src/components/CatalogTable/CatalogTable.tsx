@@ -203,10 +203,10 @@ export const CatalogTable = (props: CatalogTableProps) => {
       .join(' ');
   const title =
     loading && !isLoading ? (
-      <>
+      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
         {titleText}{' '}
-        <CircularProgress size="1em" data-testid="loading-indicator" />
-      </>
+        <CircularProgress size="0.8em" data-testid="loading-indicator" />
+      </span>
     ) : (
       titleText
     );

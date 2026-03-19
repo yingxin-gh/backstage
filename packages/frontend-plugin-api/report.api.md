@@ -1951,11 +1951,9 @@ export type PendingOAuthRequest = {
 // @public
 export const PluginHeaderActionBlueprint: ExtensionBlueprint_2<{
   kind: 'plugin-header-action';
-  params: (params: {
+  params: {
     loader: () => Promise<JSX.Element>;
-  }) => ExtensionBlueprintParams_2<{
-    loader: () => Promise<JSX.Element>;
-  }>;
+  };
   output: ExtensionDataRef_2<JSX_2, 'core.reactElement', {}>;
   inputs: {};
   config: {};

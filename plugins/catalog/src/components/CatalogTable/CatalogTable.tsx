@@ -108,6 +108,12 @@ export const CatalogTable = (props: CatalogTableProps) => {
     paginationMode,
   } = entityListContext;
 
+  // Only show the full loading indicator when there's no data to display yet
+  // (i.e. initial load). During filter changes we already have stale data to
+  // show, so we keep it visible and let the new results swap in seamlessly
+  // instead of briefly flashing an empty table.
+  const isLoading = loading && entities.length === 0;
+
   const tableColumns = useMemo(
     () =>
       typeof columns === 'function' ? columns(entityListContext) : columns,
@@ -199,7 +205,7 @@ export const CatalogTable = (props: CatalogTableProps) => {
   const options: TableProps['options'] = {
     actionsColumnIndex: -1,
     loadingType: 'linear' as const,
-    showEmptyDataSourceMessage: !loading,
+    showEmptyDataSourceMessage: !isLoading,
     padding: 'dense' as const,
     ...tableOptions,
   };
@@ -209,7 +215,7 @@ export const CatalogTable = (props: CatalogTableProps) => {
       <CursorPaginatedCatalogTable
         columns={tableColumns}
         emptyContent={emptyContent}
-        isLoading={loading}
+        isLoading={isLoading}
         title={title}
         actions={actions}
         subtitle={subtitle}
@@ -224,7 +230,7 @@ export const CatalogTable = (props: CatalogTableProps) => {
       <OffsetPaginatedCatalogTable
         columns={tableColumns}
         emptyContent={emptyContent}
-        isLoading={loading}
+        isLoading={isLoading}
         title={title}
         actions={actions}
         subtitle={subtitle}
@@ -240,7 +246,7 @@ export const CatalogTable = (props: CatalogTableProps) => {
 
   return (
     <Table<CatalogTableRow>
-      isLoading={loading}
+      isLoading={isLoading}
       columns={tableColumns}
       options={{
         paging: showPagination,

@@ -652,6 +652,7 @@ export default {
             'tutorials/manual-knex-rollback',
             'tutorials/switching-sqlite-postgres',
             'tutorials/using-backstage-proxy-within-plugin',
+            'tutorials/corporate-proxy',
             'tutorials/enable-public-entry',
             'tutorials/setup-opentelemetry',
             'tutorials/integrating-event-driven-updates-with-entity-providers',

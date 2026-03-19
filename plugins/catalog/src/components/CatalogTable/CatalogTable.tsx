@@ -34,6 +34,7 @@ import {
   useEntityList,
   useStarredEntities,
 } from '@backstage/plugin-catalog-react';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import { visuallyHidden } from '@mui/utils';
 import Edit from '@material-ui/icons/Edit';
@@ -195,11 +196,20 @@ export const CatalogTable = (props: CatalogTableProps) => {
   const titlePreamble = capitalize(
     filters.user?.value ?? t('catalogTable.allFilters'),
   );
-  const title =
+  const titleText =
     props.title ||
     [titlePreamble, currentType, pluralize(currentKind), currentCount]
       .filter(s => s)
       .join(' ');
+  const title =
+    loading && !isLoading ? (
+      <>
+        {titleText}{' '}
+        <CircularProgress size="1em" data-testid="loading-indicator" />
+      </>
+    ) : (
+      titleText
+    );
 
   const actions = props.actions || defaultActions;
   const options: TableProps['options'] = {

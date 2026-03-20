@@ -1,5 +1,5 @@
 ---
-'@backstage/cli-module-new': minor
+'@backstage/cli-module-new': patch
 ---
 
 Rename the legacy `frontend-plugin` to `legacy-frontend-plugin`

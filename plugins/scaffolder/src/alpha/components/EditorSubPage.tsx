@@ -30,9 +30,11 @@ import { useTemplateDirectory } from './TemplateEditorPage/useTemplateDirectory'
 const useEditorStyles = makeStyles({
   editorContent: {
     padding: 0,
+    height: 'calc(100dvh - var(--bui-header-height, 0px))',
   },
   formContent: {
     padding: 0,
+    height: 'calc(100dvh - var(--bui-header-height, 0px))',
   },
 });
 

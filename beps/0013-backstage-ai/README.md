@@ -5,6 +5,8 @@ authors:
   - '@drodil'
 owners:
   - '@backstage/maintainers'
+project-areas:
+  - core
 creation-date: 2026-03-06
 ---
 

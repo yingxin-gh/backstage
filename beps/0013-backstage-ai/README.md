@@ -27,7 +27,7 @@ creation-date: 2026-03-06
 This BEP proposes that curated Backstage AI skills are authored in the main Backstage
 repository and published separately to a well-known endpoint on `backstage.io`. Instead
 of creating a new Backstage-owned repository and custom discovery protocol, Backstage
-will publish skills using the well-known layout already supported by `skills.sh`.
+will publish skills using the well-known layout already supported by [`skills.sh`](https://skills.sh/).
 
 The published output can be released on its own publishing cadence even though the source
 content lives in the main monorepo.

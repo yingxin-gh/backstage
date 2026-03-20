@@ -36,7 +36,7 @@ import {
   RepositoryRenamedEvent,
 } from '@octokit/webhooks-types';
 
-type PartialDeep<T> = T extends (...args: any[]) => any
+type PartialDeep<T> = T extends (...args: unknown[]) => unknown
   ? T
   : T extends Array<infer U>
   ? Array<PartialDeep<U>>

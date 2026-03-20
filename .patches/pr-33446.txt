@@ -1,1 +1,1 @@
-Rename the legacy to to avoid template name collision when running
+Fixed incorrect name of the `legacy-frontend-plugin` template

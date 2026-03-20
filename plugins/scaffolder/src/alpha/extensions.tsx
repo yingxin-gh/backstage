@@ -45,9 +45,10 @@ export const scaffolderPage = PageBlueprint.make({
 export const scaffolderTemplatesSubPage = SubPageBlueprint.makeWithOverrides({
   name: 'templates',
   inputs: {
-    formFields: createExtensionInput([
-      FormFieldBlueprint.dataRefs.formFieldLoader,
-    ]),
+    formFields: createExtensionInput(
+      [FormFieldBlueprint.dataRefs.formFieldLoader],
+      { replaces: [{ id: 'page:scaffolder', input: 'formFields' }] },
+    ),
   },
   factory(originalFactory, { apis, inputs }) {
     const formFieldsApi = apis.get(formFieldsApiRef);

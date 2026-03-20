@@ -18,14 +18,12 @@ module.exports = {
     collect: {
       url: [
         /** Software Catalog */
-        // TODO(Rugvip): Figure out why these don't work after the BUI header switch
-        // 'http://localhost:3000/catalog',
-        // 'http://localhost:3000/catalog-import',
-        // 'http://localhost:3000/catalog/default/component/backstage',
+        'http://localhost:3000/catalog',
+        'http://localhost:3000/catalog-import',
+        'http://localhost:3000/catalog/default/component/backstage',
         /** TechDocs */
-        // TODO(Rugvip): Figure out why these don't work after the BUI header switch
-        // 'http://localhost:3000/docs',
-        // 'http://localhost:3000/docs/default/component/backstage',
+        'http://localhost:3000/docs',
+        'http://localhost:3000/docs/default/component/backstage',
         /** Software Templates */
         // TODO(Rugvip): Figure out why these don't work after the BUI header switch
         // 'http://localhost:3000/create',
@@ -35,8 +33,7 @@ module.exports = {
         // 'http://localhost:3000/create/templating-extensions',
         // 'http://localhost:3000/create/templates/default/react-ssr-template',
         /** Search */
-        // TODO(Rugvip): Figure out why these don't work after the BUI header switch
-        // 'http://localhost:3000/search',
+        'http://localhost:3000/search',
         /** Miscellaneous */
         // TODO(Rugvip): Figure out why these don't work after the BUI header switch
         // 'http://localhost:3000/settings/general',
@@ -44,13 +41,11 @@ module.exports = {
         // 'http://localhost:3000/devtools/info',
         // 'http://localhost:3000/devtools/config',
         /** plugin-explore */
-        // TODO(Rugvip): Figure out why these don't work after the BUI header switch
-        // 'http://localhost:3000/explore',
-        // 'http://localhost:3000/explore/groups',
-        // 'http://localhost:3000/explore/tools',
+        'http://localhost:3000/explore',
+        'http://localhost:3000/explore/groups',
+        'http://localhost:3000/explore/tools',
         /** plugin-tech-radar */
-        // TODO(Rugvip): Figure out why these don't work after the BUI header switch
-        // 'http://localhost:3000/tech-radar',
+        'http://localhost:3000/tech-radar',
       ],
       settings: {
         onlyCategories: ['accessibility'],

@@ -34,37 +34,31 @@ import { scmIntegrationsApiRef } from '@backstage/integration-react';
 import { scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
 import { ScaffolderClient } from '../api';
 
-export const scaffolderPage = PageBlueprint.make({
-  params: {
-    routeRef: rootRouteRef,
-    path: '/create',
-    title: 'Create',
+export const scaffolderPage = PageBlueprint.makeWithOverrides({
+  inputs: {
+    formFields: createExtensionInput([
+      FormFieldBlueprint.dataRefs.formFieldLoader,
+    ]),
+  },
+  factory(originalFactory) {
+    return originalFactory({
+      routeRef: rootRouteRef,
+      path: '/create',
+      title: 'Create',
+    });
   },
 });
 
 export const scaffolderTemplatesSubPage = SubPageBlueprint.makeWithOverrides({
   name: 'templates',
-  inputs: {
-    formFields: createExtensionInput(
-      [FormFieldBlueprint.dataRefs.formFieldLoader],
-      { replaces: [{ id: 'page:scaffolder', input: 'formFields' }] },
-    ),
-  },
-  factory(originalFactory, { apis, inputs }) {
+  factory(originalFactory, { apis }) {
     const formFieldsApi = apis.get(formFieldsApiRef);
 
     return originalFactory({
       path: 'templates',
       title: 'Templates',
       loader: async () => {
-        const apiFormFields = (await formFieldsApi?.loadFormFields()) ?? [];
-        const formFieldLoaders = inputs.formFields.map(output =>
-          output.get(FormFieldBlueprint.dataRefs.formFieldLoader),
-        );
-        const loadedFormFields = await Promise.all(
-          formFieldLoaders.map(loader => loader()),
-        );
-        const formFields = [...apiFormFields, ...loadedFormFields];
+        const formFields = (await formFieldsApi?.loadFormFields()) ?? [];
 
         return import('./components/TemplatesSubPage').then(m => (
           <m.TemplatesSubPage formFields={formFields} />

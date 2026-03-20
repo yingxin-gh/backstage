@@ -195,8 +195,6 @@ const _default: OverridableFrontendPlugin<
       };
     }>;
     'page:scaffolder': OverridableExtensionDefinition<{
-      kind: 'page';
-      name: undefined;
       config: {
         path: string | undefined;
         title: string | undefined;
@@ -260,7 +258,21 @@ const _default: OverridableFrontendPlugin<
             internal: false;
           }
         >;
+        formFields: ExtensionInput<
+          ConfigurableExtensionDataRef<
+            () => Promise<FormField>,
+            'scaffolder.form-field-loader',
+            {}
+          >,
+          {
+            singleton: false;
+            optional: false;
+            internal: false;
+          }
+        >;
       };
+      kind: 'page';
+      name: undefined;
       params: {
         path: string;
         title?: string;
@@ -561,20 +573,7 @@ const _default: OverridableFrontendPlugin<
               optional: true;
             }
           >;
-      inputs: {
-        formFields: ExtensionInput<
-          ConfigurableExtensionDataRef<
-            () => Promise<FormField>,
-            'scaffolder.form-field-loader',
-            {}
-          >,
-          {
-            singleton: false;
-            optional: false;
-            internal: false;
-          }
-        >;
-      };
+      inputs: {};
       kind: 'sub-page';
       name: 'templates';
       params: {

@@ -344,7 +344,9 @@ async function overrideModuleResolutions(appDir: string, workspaceDir: string) {
 
       pkgJson.dependencies[name] = `file:${pkgPath}`;
       pkgJson.resolutions[name] = `file:${pkgPath}`;
-      delete pkgJson.devDependencies[name];
+      if (pkgJson.devDependencies) {
+        delete pkgJson.devDependencies[name];
+      }
     }
   }
   fs.writeJson(pkgJsonPath, pkgJson, { spaces: 2 });

@@ -143,8 +143,10 @@ export class DefaultCatalogProcessingEngine {
       loadTasks: async count => {
         try {
           const { items } =
-            await this.processingDatabase.getProcessableEntities(this.knex, {
-              processBatchSize: count,
+            await this.processingDatabase.transaction(async tx => {
+              return this.processingDatabase.getProcessableEntities(tx, {
+                processBatchSize: count,
+              });
             });
           return items;
         } catch (error) {

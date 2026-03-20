@@ -31420,15 +31420,15 @@ __metadata:
   linkType: hard
 
 "find-process@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "find-process@npm:2.1.0"
+  version: 2.1.1
+  resolution: "find-process@npm:2.1.1"
   dependencies:
     chalk: "npm:~4.1.2"
-    commander: "npm:^12.1.0"
+    commander: "npm:^14.0.3"
     loglevel: "npm:^1.9.2"
   bin:
     find-process: dist/cjs/bin/find-process.js
-  checksum: 10/5ccaaddf66eacf74eb2605ddd8d8aaa4515029dc78eed2b0a39ceef3a4f1ae229046d30ff44845fd496b6306e2c750a7abad8db16f0683be7c32aa502dc61a21
+  checksum: 10/15c88be4ee12cc224bf8edd1c10681b62136f1e97e42e20c0facef163eef3a0c039da0a5ca2dd5c8b3c0e72867e5316d2dd3e9847abad9dc5dad5d2779ed577c
   languageName: node
   linkType: hard
 

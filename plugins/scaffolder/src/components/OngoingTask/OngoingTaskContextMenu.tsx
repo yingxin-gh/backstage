@@ -82,7 +82,7 @@ export function OngoingTaskContextMenu(props: OngoingTaskContextMenuProps) {
           <ButtonIcon
             variant="tertiary"
             icon={<RiMore2Line />}
-            aria-label="More options"
+            aria-label={t('ongoingTask.contextMenu.moreOptions')}
           />
           <Menu placement="bottom end">
             <MenuItem

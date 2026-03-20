@@ -58,6 +58,7 @@ import { scaffolderTranslationRef } from '../../translation';
 import { entityPresentationApiRef } from '@backstage/plugin-catalog-react';
 import { default as reactUseAsync } from 'react-use/esm/useAsync';
 import { stringifyEntityRef } from '@backstage/catalog-model';
+import { OngoingTaskContextMenu } from './OngoingTaskContextMenu';
 
 const useStyles = makeStyles(theme => ({
   contentWrapper: {
@@ -132,9 +133,119 @@ export function OngoingTaskBody(props: {
     output?: ScaffolderTaskOutput;
   }>;
 }) {
+  const { taskId } = useParams();
+  const taskStream = useTaskEventStream(taskId!);
+  const entityPresentationApi = useApi(entityPresentationApiRef);
+  const { t } = useTranslationRef(scaffolderTranslationRef);
+
+  const [logsVisible, setLogVisibleState] = useState(false);
+  const [buttonBarVisible, setButtonBarVisibleState] = useState(true);
+
+  const { allowed: canCancelTask } = usePermission({
+    permission: taskCancelPermission,
+    resourceRef: taskId,
+  });
+
+  const { allowed: canReadTask } = usePermission({
+    permission: taskReadPermission,
+    resourceRef: taskId,
+  });
+
+  const { allowed: canCreateTask } = usePermission({
+    permission: taskCreatePermission,
+  });
+
+  const isRetryableTask =
+    taskStream.task?.spec.EXPERIMENTAL_recovery?.EXPERIMENTAL_strategy ===
+    'startOver';
+
+  const canRetry = canReadTask && canCreateTask && isRetryableTask;
+
+  const cancelEnabled = !(taskStream.cancelled || taskStream.completed);
+  const isCancelButtonDisabled = !cancelEnabled || !canCancelTask;
+
+  const { value: presentation } = reactUseAsync(async () => {
+    const templateEntityRef = taskStream.task?.spec.templateInfo?.entityRef;
+    if (!templateEntityRef) {
+      return undefined;
+    }
+    return entityPresentationApi.forEntity(templateEntityRef).promise;
+  }, [entityPresentationApi, taskStream.task?.spec.templateInfo?.entityRef]);
+
+  const templateRouteRef = useRouteRef(selectedTemplateRouteRef);
+  const navigate = useNavigate();
+  const analytics = useAnalytics();
+  const scaffolderApi = useApi(scaffolderApiRef);
+
+  const startOver = useCallback(() => {
+    const { namespace, name } =
+      taskStream.task?.spec.templateInfo?.entity?.metadata ?? {};
+
+    const formData = taskStream.task?.spec.parameters ?? {};
+
+    if (!namespace || !name) {
+      return;
+    }
+
+    analytics.captureEvent('click', `Task has been started over`);
+
+    navigate({
+      pathname: templateRouteRef({
+        namespace,
+        templateName: name,
+      }),
+      search: `?${qs.stringify({ formData: JSON.stringify(formData) })}`,
+    });
+  }, [
+    analytics,
+    navigate,
+    taskStream.task?.spec.parameters,
+    taskStream.task?.spec.templateInfo?.entity?.metadata,
+    templateRouteRef,
+  ]);
+
+  const [, { execute: triggerRetry }] = useAsync(async () => {
+    if (taskId) {
+      analytics.captureEvent('retried', 'Template has been retried');
+      await scaffolderApi.retry?.(taskId);
+    }
+  });
+
+  const [{ status: cancelStatus }, { execute: triggerCancel }] = useAsync(
+    async () => {
+      if (taskId) {
+        analytics.captureEvent('cancelled', 'Template has been cancelled');
+        await scaffolderApi.cancelTask(taskId);
+      }
+    },
+  );
+
   return (
     <OngoingTaskAnalyticsContext>
-      <OngoingTaskContent {...props} />
+      <OngoingTaskContextMenu
+        title={presentation?.primaryTitle ?? t('ongoingTask.title')}
+        cancelEnabled={cancelEnabled}
+        canRetry={canRetry}
+        isRetryableTask={isRetryableTask}
+        logsVisible={logsVisible}
+        buttonBarVisible={buttonBarVisible}
+        onStartOver={startOver}
+        onRetry={triggerRetry}
+        onToggleLogs={setLogVisibleState}
+        onToggleButtonBar={setButtonBarVisibleState}
+        taskId={taskId}
+        onCancel={triggerCancel}
+        isCancelButtonDisabled={
+          isCancelButtonDisabled || cancelStatus !== 'not-executed'
+        }
+      />
+      <OngoingTaskContent
+        {...props}
+        logsVisibleOverride={logsVisible}
+        buttonBarVisibleOverride={buttonBarVisible}
+        onToggleLogs={setLogVisibleState}
+        onToggleButtonBar={setButtonBarVisibleState}
+      />
     </OngoingTaskAnalyticsContext>
   );
 }

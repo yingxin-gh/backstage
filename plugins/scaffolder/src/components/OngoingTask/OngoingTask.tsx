@@ -15,6 +15,7 @@
  */
 import {
   ComponentType,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -79,15 +80,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-/**
- * @public
- */
-export const OngoingTask = (props: {
-  TemplateOutputsComponent?: ComponentType<{
-    output?: ScaffolderTaskOutput;
-  }>;
-}) => {
-  // todo(blam): check that task Id actually exists, and that it's valid. otherwise redirect to something more useful.
+function OngoingTaskAnalyticsContext(props: { children: ReactNode }) {
   const { taskId } = useParams();
   const taskStream = useTaskEventStream(taskId!);
   const { namespace, name } =
@@ -106,10 +99,25 @@ export const OngoingTask = (props: {
         taskId,
       }}
     >
+      {props.children}
+    </AnalyticsContext>
+  );
+}
+
+/**
+ * @public
+ */
+export const OngoingTask = (props: {
+  TemplateOutputsComponent?: ComponentType<{
+    output?: ScaffolderTaskOutput;
+  }>;
+}) => {
+  return (
+    <OngoingTaskAnalyticsContext>
       <Page themeId="website">
         <OngoingTaskChrome {...props} />
       </Page>
-    </AnalyticsContext>
+    </OngoingTaskAnalyticsContext>
   );
 };
 
@@ -124,26 +132,10 @@ export function OngoingTaskBody(props: {
     output?: ScaffolderTaskOutput;
   }>;
 }) {
-  const { taskId } = useParams();
-  const taskStream = useTaskEventStream(taskId!);
-  const { namespace, name } =
-    taskStream.task?.spec.templateInfo?.entity?.metadata ?? {};
-
   return (
-    <AnalyticsContext
-      attributes={{
-        entityRef:
-          name &&
-          stringifyEntityRef({
-            kind: 'template',
-            namespace,
-            name,
-          }),
-        taskId,
-      }}
-    >
+    <OngoingTaskAnalyticsContext>
       <OngoingTaskContent {...props} />
-    </AnalyticsContext>
+    </OngoingTaskAnalyticsContext>
   );
 }
 

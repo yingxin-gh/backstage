@@ -129,7 +129,9 @@ export const PluginHeader = (props: PluginHeaderProps) => {
     <>
       <div className={classes.toolbar} data-has-tabs={hasTabs}>
         <div className={classes.toolbarContent}>
-          <div className={classes.toolbarIcon}>{icon || <RiShapesLine />}</div>
+          <div className={classes.toolbarIcon} aria-hidden="true">
+            {icon || <RiShapesLine />}
+          </div>
           <h1 className={classes.toolbarName}>
             {titleLink ? (
               <Link href={titleLink} standalone variant="body-medium">

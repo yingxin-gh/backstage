@@ -1,7 +1,7 @@
 # Confluence
 
 > [!NOTE]
-> This documentation is deprecated and will be removed at a future date, please use the well maintained [`@backstage-community/plugin-search-backend-module-confluence-collator` Community Plugin](https://github.com/backstage/community-plugins/tree/main/workspaces/confluence/plugins/search-backend-module-confluence-collator) for this.
+> This documentation is deprecated and will be removed at a future date. Please use the well-maintained [`@backstage-community/plugin-search-backend-module-confluence-collator` Community Plugin](https://github.com/backstage/community-plugins/tree/main/workspaces/confluence/plugins/search-backend-module-confluence-collator) instead.
 
 These files help you add Confluence as a source to the Backstage Search plugin.
 To do so, add both files in this directory under the packages/backend/src/plugins/search/ pathway in your Backstage app.

@@ -17,12 +17,13 @@
 import type { PluginHeaderProps } from './types';
 import { Tabs, TabList, Tab } from '../Tabs';
 import { useDefinition } from '../../hooks/useDefinition';
+import { useBgProvider, BgProvider } from '../../hooks/useBg';
 import { PluginHeaderDefinition } from './definition';
 import { type NavigateOptions } from 'react-router-dom';
 import { Children, useMemo, useRef } from 'react';
 import { useIsomorphicLayoutEffect } from '../../hooks/useIsomorphicLayoutEffect';
 import { Box } from '../Box';
-import { Link } from 'react-aria-components';
+import { Link } from '../Link';
 import { RiShapesLine } from '@remixicon/react';
 import { Text } from '../Text';
 
@@ -33,8 +34,9 @@ declare module 'react-aria-components' {
 }
 
 /**
- * A component that renders a plugin header with icon, title, custom actions,
- * and navigation tabs.
+ * Renders a plugin header with icon, title, custom actions, and optional tabs.
+ * Always participates in the background context system so descendants (e.g. buttons)
+ * get the correct `data-on-bg` styling inside the toolbar and tabs.
  *
  * @public
  */
@@ -50,11 +52,9 @@ export const PluginHeader = (props: PluginHeaderProps) => {
     onTabSelectionChange,
   } = ownProps;
 
+  const providerBg = useBgProvider('neutral');
   const hasTabs = tabs && tabs.length > 0;
   const headerRef = useRef<HTMLElement>(null);
-  const toolbarWrapperRef = useRef<HTMLDivElement>(null);
-  const toolbarContentRef = useRef<HTMLDivElement>(null);
-  const toolbarControlsRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastAppliedHeightRef = useRef<number | undefined>(undefined);
 
@@ -123,37 +123,29 @@ export const PluginHeader = (props: PluginHeaderProps) => {
     };
   }, []);
 
-  const titleContent = (
-    <>
-      <div className={classes.toolbarIcon} aria-hidden="true">
-        {icon || <RiShapesLine />}
-      </div>
-      <Text variant="body-medium">{title || 'Your plugin'}</Text>
-    </>
-  );
+  const titleText = title || 'Your plugin';
 
-  return (
-    <header ref={headerRef} className={classes.root}>
+  const inner = (
+    <>
       <div className={classes.toolbar} data-has-tabs={hasTabs}>
-        <div className={classes.toolbarWrapper} ref={toolbarWrapperRef}>
-          <div className={classes.toolbarContent} ref={toolbarContentRef}>
-            <Text as="h1" variant="body-medium">
-              {titleLink ? (
-                <Link className={classes.toolbarName} href={titleLink}>
-                  {titleContent}
-                </Link>
-              ) : (
-                <div className={classes.toolbarName}>{titleContent}</div>
-              )}
-            </Text>
-          </div>
-          <div className={classes.toolbarControls} ref={toolbarControlsRef}>
-            {actionChildren}
-          </div>
+        <div className={classes.toolbarContent}>
+          <div className={classes.toolbarIcon}>{icon || <RiShapesLine />}</div>
+          <h1 className={classes.toolbarName}>
+            {titleLink ? (
+              <Link href={titleLink} standalone variant="body-medium">
+                {titleText}
+              </Link>
+            ) : (
+              <Text as="span" variant="body-medium">
+                {titleText}
+              </Text>
+            )}
+          </h1>
         </div>
+        <div className={classes.toolbarControls}>{actionChildren}</div>
       </div>
       {tabs && (
-        <Box bg="neutral" className={classes.tabs}>
+        <Box className={classes.tabs}>
           <Tabs onSelectionChange={onTabSelectionChange}>
             <TabList>
               {tabs?.map(tab => (
@@ -170,6 +162,14 @@ export const PluginHeader = (props: PluginHeaderProps) => {
           </Tabs>
         </Box>
       )}
+    </>
+  );
+
+  const { bg: surfaceBg } = providerBg;
+
+  return (
+    <header ref={headerRef} className={classes.root} data-bg={surfaceBg}>
+      {surfaceBg ? <BgProvider bg={surfaceBg}>{inner}</BgProvider> : inner}
     </header>
   );
 };

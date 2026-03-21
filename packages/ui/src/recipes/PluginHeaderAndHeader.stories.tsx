@@ -83,11 +83,28 @@ const meta = preview.meta({
   },
 });
 
-// ---------------------------------------------------------------------------
-// Story: Catalog entity page
-// ---------------------------------------------------------------------------
+export const NoHeader = meta.story({
+  decorators: [withLayout],
+  render: () => (
+    <>
+      <PluginHeader icon={<RiCodeSSlashLine />} title="APIs" />
+      <PageContent />
+    </>
+  ),
+});
 
-export const CatalogEntityPage = meta.story({
+export const SimpleHeader = meta.story({
+  decorators: [withLayout],
+  render: () => (
+    <>
+      <PluginHeader icon={<RiCodeSSlashLine />} title="APIs" />
+      <Header title="payments-api" />
+      <PageContent />
+    </>
+  ),
+});
+
+export const WithTabs = meta.story({
   decorators: [withLayout],
   render: () => (
     <>
@@ -126,17 +143,6 @@ export const CatalogEntityPage = meta.story({
       />
       <Header
         title="payment-service"
-        breadcrumbs={[
-          { label: 'Catalog', href: '/catalog' },
-          { label: 'Services', href: '/catalog?kind=Component' },
-        ]}
-        tabs={[
-          { id: 'overview', label: 'Overview', href: '/overview' },
-          { id: 'ci-cd', label: 'CI/CD', href: '/ci-cd' },
-          { id: 'api', label: 'API', href: '/api' },
-          { id: 'dependencies', label: 'Dependencies', href: '/dependencies' },
-          { id: 'docs', label: 'Docs', href: '/docs' },
-        ]}
         customActions={
           <>
             <Button variant="secondary" iconStart={<RiEdit2Line />}>
@@ -153,11 +159,7 @@ export const CatalogEntityPage = meta.story({
   ),
 });
 
-// ---------------------------------------------------------------------------
-// Story: CI/CD pipeline view
-// ---------------------------------------------------------------------------
-
-export const CICDPipelineView = meta.story({
+export const WithBreadcrumb = meta.story({
   decorators: [withLayout],
   render: () => (
     <>
@@ -174,7 +176,7 @@ export const CICDPipelineView = meta.story({
         customActions={
           <>
             <ButtonIcon
-              variant="tertiary"
+              variant="secondary"
               icon={<RiRefreshLine />}
               aria-label="Refresh"
             />
@@ -183,11 +185,9 @@ export const CICDPipelineView = meta.story({
       />
       <Header
         title="main · #842"
-        tabs={[
-          { id: 'summary', label: 'Summary', href: '/summary' },
-          { id: 'steps', label: 'Steps', href: '/steps' },
-          { id: 'artifacts', label: 'Artifacts', href: '/artifacts' },
-          { id: 'logs', label: 'Logs', href: '/logs' },
+        breadcrumbs={[
+          { label: 'Catalog', href: '/catalog' },
+          { label: 'Services', href: '/catalog?kind=Component' },
         ]}
         customActions={
           <>
@@ -205,121 +205,53 @@ export const CICDPipelineView = meta.story({
   ),
 });
 
-// ---------------------------------------------------------------------------
-// Story: TechDocs page
-// ---------------------------------------------------------------------------
-
-export const TechDocsPage = meta.story({
+export const WithSubTabs = meta.story({
   decorators: [withLayout],
   render: () => (
     <>
       <PluginHeader
-        icon={<RiBookOpenLine />}
-        title="TechDocs"
+        icon={<RiGitBranchLine />}
+        title="CI/CD"
         titleLink="/"
         tabs={[
-          { id: 'explore', label: 'Explore', href: '/explore' },
-          { id: 'owned', label: 'Owned by me', href: '/owned' },
-          { id: 'starred', label: 'Starred', href: '/starred' },
-        ]}
-      />
-      <Header
-        title="Getting started"
-        tabs={[
-          { id: 'overview', label: 'Overview', href: '/overview' },
-          {
-            id: 'architecture',
-            label: 'Architecture',
-            href: '/architecture',
-          },
-          { id: 'runbooks', label: 'Runbooks', href: '/runbooks' },
-          { id: 'adr', label: 'ADRs', href: '/adr' },
-        ]}
-        customActions={
-          <MenuTrigger>
-            <ButtonIcon
-              variant="tertiary"
-              icon={<RiMore2Line />}
-              aria-label="More options"
-            />
-            <Menu placement="bottom end">
-              <MenuItem iconStart={<RiShareBoxLine />} href="/share">
-                Share link
-              </MenuItem>
-              <MenuItem iconStart={<RiEdit2Line />} href="/edit">
-                Edit on GitHub
-              </MenuItem>
-            </Menu>
-          </MenuTrigger>
-        }
-      />
-      <PageContent />
-    </>
-  ),
-});
-
-// ---------------------------------------------------------------------------
-// Story: Security / compliance audit page
-// ---------------------------------------------------------------------------
-
-export const SecurityAuditPage = meta.story({
-  decorators: [withLayout],
-  render: () => (
-    <>
-      <PluginHeader
-        icon={<RiShieldCheckLine />}
-        title="Security"
-        titleLink="/"
-        tabs={[
-          { id: 'overview', label: 'Overview', href: '/overview' },
-          { id: 'vulnerabilities', label: 'Vulnerabilities', href: '/vulns' },
-          { id: 'policies', label: 'Policies', href: '/policies' },
-          { id: 'audits', label: 'Audits', href: '/audits' },
+          { id: 'builds', label: 'Builds', href: '/builds' },
+          { id: 'pipelines', label: 'Pipelines', href: '/pipelines' },
+          { id: 'deployments', label: 'Deployments', href: '/deployments' },
+          { id: 'settings', label: 'Settings', href: '/settings' },
         ]}
         customActions={
           <>
             <ButtonIcon
-              variant="tertiary"
+              variant="secondary"
               icon={<RiRefreshLine />}
-              aria-label="Refresh scan"
+              aria-label="Refresh"
             />
-            <Button variant="primary" iconStart={<RiTerminalLine />}>
-              Run scan
-            </Button>
           </>
         }
       />
       <Header
-        title="payment-service"
+        title="main · #842"
         tabs={[
-          { id: 'critical', label: 'Critical', href: '/critical' },
-          { id: 'high', label: 'High', href: '/high' },
-          { id: 'medium', label: 'Medium', href: '/medium' },
-          { id: 'low', label: 'Low', href: '/low' },
+          { id: 'summary', label: 'Summary', href: '/summary' },
+          { id: 'steps', label: 'Steps', href: '/steps' },
+          { id: 'artifacts', label: 'Artifacts', href: '/artifacts' },
+          { id: 'logs', label: 'Logs', href: '/logs' },
+        ]}
+        breadcrumbs={[
+          { label: 'Catalog', href: '/catalog' },
+          { label: 'Services', href: '/catalog?kind=Component' },
         ]}
         customActions={
           <>
             <Button variant="secondary" iconStart={<RiDownloadLine />}>
-              Export report
+              Download logs
+            </Button>
+            <Button variant="primary" iconStart={<RiPlayLine />}>
+              Re-run pipeline
             </Button>
           </>
         }
       />
-      <PageContent />
-    </>
-  ),
-});
-
-// ---------------------------------------------------------------------------
-// Story: Minimal — no tabs, no actions
-// ---------------------------------------------------------------------------
-
-export const Minimal = meta.story({
-  decorators: [withLayout],
-  render: () => (
-    <>
-      <PluginHeader icon={<RiCodeSSlashLine />} title="APIs" titleLink="/" />
-      <Header title="payments-api" />
       <PageContent />
     </>
   ),

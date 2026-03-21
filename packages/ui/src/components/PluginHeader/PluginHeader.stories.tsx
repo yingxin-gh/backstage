@@ -119,11 +119,11 @@ export const WithCustomActions = meta.story({
       {...args}
       customActions={
         <>
-          <ButtonIcon variant="tertiary" icon={<RiCloudy2Line />} />
-          <ButtonIcon variant="tertiary" icon={<RiEmotionHappyLine />} />
-          <ButtonIcon variant="tertiary" icon={<RiHeartLine />} />
+          <ButtonIcon variant="secondary" icon={<RiCloudy2Line />} />
+          <ButtonIcon variant="secondary" icon={<RiEmotionHappyLine />} />
+          <ButtonIcon variant="secondary" icon={<RiHeartLine />} />
           <MenuTrigger>
-            <ButtonIcon variant="tertiary" icon={<RiMore2Line />} />
+            <ButtonIcon variant="secondary" icon={<RiMore2Line />} />
             <Menu placement="bottom end">
               {menuItems.map(option => (
                 <MenuItem

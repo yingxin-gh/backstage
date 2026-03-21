@@ -95,42 +95,6 @@ const withRouter = (Story: StoryFn) => (
   </MemoryRouter>
 );
 
-// Extract layout decorator as a reusable constant
-const layoutDecorator = [
-  (Story: StoryFn) => (
-    <>
-      <div
-        style={{
-          width: '250px',
-          position: 'fixed',
-          left: 'var(--sb-panel-left)',
-          top: 'var(--sb-panel-top)',
-          bottom: 'var(--sb-panel-bottom)',
-          backgroundColor: 'var(--sb-sidebar-bg)',
-          borderRadius: 'var(--sb-panel-radius)',
-          border: 'var(--sb-sidebar-border)',
-          borderRight: 'var(--sb-sidebar-border-right)',
-          zIndex: 1,
-        }}
-      />
-      <div
-        style={{
-          paddingLeft: 'var(--sb-content-padding-inline)',
-          minHeight: '200vh',
-        }}
-      >
-        <Story />
-        <Container>
-          <Text>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-            quos.
-          </Text>
-        </Container>
-      </div>
-    </>
-  ),
-];
-
 export const Default = meta.story({
   args: {
     title: 'Page Title',
@@ -206,10 +170,6 @@ export const WithEverything = meta.story({
       breadcrumbs={[{ label: 'Home', href: '/' }]}
     />
   ),
-});
-
-export const WithLayout = WithEverything.extend({
-  decorators: [...layoutDecorator],
 });
 
 export const WithTabsMatchingStrategies = meta.story({

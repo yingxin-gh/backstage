@@ -66,6 +66,7 @@ import { isInternalLink } from '../../utils/linkUtils';
 import { getNodeText } from '../../analytics/getNodeText';
 import { Box } from '../Box';
 import { BgReset } from '../../hooks/useBg';
+import { useCallback } from 'react';
 
 // The height will be used for virtualized menus. It should match the size set in CSS for each menu item.
 const rowHeight = 32;
@@ -308,7 +309,7 @@ export const MenuItem = (props: MenuItemProps) => {
   );
   const { classes, iconStart, children, href } = ownProps;
 
-  const handleAction = () => {
+  const handleAction = useCallback(() => {
     if (href) {
       const text =
         restProps['aria-label'] ?? getNodeText(children) ?? String(href);
@@ -316,7 +317,7 @@ export const MenuItem = (props: MenuItemProps) => {
         attributes: { to: String(href) },
       });
     }
-  };
+  }, [href, restProps, analytics, children]);
 
   // External links open in new tab via window.open instead of client-side routing
   if (href && !isInternalLink(href)) {
@@ -332,14 +333,12 @@ export const MenuItem = (props: MenuItemProps) => {
           window.open(href, '_blank', 'noopener,noreferrer');
         }}
       >
-        <div className={classes.itemWrapper}>
-          <div className={classes.itemContent}>
-            {iconStart}
-            {children}
-          </div>
-          <div className={classes.itemArrow}>
-            <RiArrowRightSLine />
-          </div>
+        <div className={classes.itemContent}>
+          {iconStart}
+          {children}
+        </div>
+        <div className={classes.itemArrow}>
+          <RiArrowRightSLine />
         </div>
       </RAMenuItem>
     );
@@ -382,13 +381,11 @@ export const MenuListBoxItem = (props: MenuListBoxItemProps) => {
       className={classes.root}
       {...restProps}
     >
-      <div className={classes.itemWrapper}>
-        <div className={classes.itemContent}>
-          <div className={classes.check}>
-            <RiCheckLine />
-          </div>
-          {children}
+      <div className={classes.itemContent}>
+        <div className={classes.check}>
+          <RiCheckLine />
         </div>
+        {children}
       </div>
     </RAListBoxItem>
   );

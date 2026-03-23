@@ -357,14 +357,12 @@ export const MenuItem = (props: MenuItemProps) => {
         handleAction();
       }}
     >
-      <div className={classes.itemWrapper}>
-        <div className={classes.itemContent}>
-          {iconStart}
-          {children}
-        </div>
-        <div className={classes.itemArrow}>
-          <RiArrowRightSLine />
-        </div>
+      <div className={classes.itemContent}>
+        {iconStart}
+        {children}
+      </div>
+      <div className={classes.itemArrow}>
+        <RiArrowRightSLine />
       </div>
     </RAMenuItem>
   );

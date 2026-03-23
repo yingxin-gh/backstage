@@ -1949,7 +1949,6 @@ export const PluginHeaderDefinition: {
   readonly classNames: {
     readonly root: 'bui-PluginHeader';
     readonly toolbar: 'bui-PluginHeaderToolbar';
-    readonly toolbarWrapper: 'bui-PluginHeaderToolbarWrapper';
     readonly toolbarContent: 'bui-PluginHeaderToolbarContent';
     readonly toolbarControls: 'bui-PluginHeaderToolbarControls';
     readonly toolbarIcon: 'bui-PluginHeaderToolbarIcon';

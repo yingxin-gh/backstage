@@ -66,7 +66,6 @@ import { isInternalLink } from '../../utils/linkUtils';
 import { getNodeText } from '../../analytics/getNodeText';
 import { Box } from '../Box';
 import { BgReset } from '../../hooks/useBg';
-import { useCallback } from 'react';
 
 // The height will be used for virtualized menus. It should match the size set in CSS for each menu item.
 const rowHeight = 32;
@@ -309,7 +308,7 @@ export const MenuItem = (props: MenuItemProps) => {
   );
   const { classes, iconStart, children, href } = ownProps;
 
-  const handleAction = useCallback(() => {
+  const captureHrefClick = () => {
     if (href) {
       const text =
         restProps['aria-label'] ?? getNodeText(children) ?? String(href);
@@ -317,7 +316,7 @@ export const MenuItem = (props: MenuItemProps) => {
         attributes: { to: String(href) },
       });
     }
-  }, [href, restProps, analytics, children]);
+  };
 
   // External links open in new tab via window.open instead of client-side routing
   if (href && !isInternalLink(href)) {
@@ -329,7 +328,7 @@ export const MenuItem = (props: MenuItemProps) => {
         {...restProps}
         onAction={() => {
           restProps.onAction?.();
-          handleAction();
+          captureHrefClick();
           window.open(href, '_blank', 'noopener,noreferrer');
         }}
       >
@@ -353,7 +352,7 @@ export const MenuItem = (props: MenuItemProps) => {
       {...restProps}
       onAction={() => {
         restProps.onAction?.();
-        handleAction();
+        captureHrefClick();
       }}
     >
       <div className={classes.itemContent}>

@@ -120,10 +120,23 @@
   }
 
   .bui-MenuItemListBox {
-    padding-inline: var(--bui-space-1);
-    display: block;
+    display: flex;
+    align-items: center;
+    height: 2rem;
+    padding-inline: var(--bui-space-2);
+    border-radius: var(--bui-radius-2);
+    outline: none;
+    cursor: default;
+    color: var(--bui-fg-primary);
+    font-size: var(--bui-font-size-3);
 
-    &:hover .bui-MenuItemWrapper {
+    &[data-focus-visible] {
+      outline: 2px solid var(--bui-ring);
+      outline-offset: -2px;
+    }
+
+    &[data-hovered],
+    &[data-focused] {
       background: var(--bui-bg-neutral-2);
       color: var(--bui-fg-primary);
     }

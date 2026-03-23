@@ -308,51 +308,26 @@ export const MenuItem = (props: MenuItemProps) => {
   );
   const { classes, iconStart, children, href } = ownProps;
 
-  const captureHrefClick = () => {
-    if (href) {
-      const text =
-        restProps['aria-label'] ?? getNodeText(children) ?? String(href);
-      analytics.captureEvent('click', text, {
-        attributes: { to: String(href) },
-      });
-    }
-  };
-
-  // External links open in new tab via window.open instead of client-side routing
-  if (href && !isInternalLink(href)) {
-    return (
-      <RAMenuItem
-        className={classes.root}
-        {...dataAttributes}
-        textValue={typeof children === 'string' ? children : undefined}
-        {...restProps}
-        onAction={() => {
-          restProps.onAction?.();
-          captureHrefClick();
-          window.open(href, '_blank', 'noopener,noreferrer');
-        }}
-      >
-        <div className={classes.itemContent}>
-          {iconStart}
-          {children}
-        </div>
-        <div className={classes.itemArrow}>
-          <RiArrowRightSLine />
-        </div>
-      </RAMenuItem>
-    );
-  }
+  const isExternal = href && !isInternalLink(href);
 
   return (
     <RAMenuItem
       className={classes.root}
       {...dataAttributes}
       href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
       textValue={typeof children === 'string' ? children : undefined}
       {...restProps}
       onAction={() => {
         restProps.onAction?.();
-        captureHrefClick();
+        if (href) {
+          const text =
+            restProps['aria-label'] ?? getNodeText(children) ?? String(href);
+          analytics.captureEvent('click', text, {
+            attributes: { to: String(href) },
+          });
+        }
       }}
     >
       <div className={classes.itemContent}>

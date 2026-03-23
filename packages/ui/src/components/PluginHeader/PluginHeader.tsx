@@ -147,7 +147,7 @@ export const PluginHeader = (props: PluginHeaderProps) => {
           <div className={classes.toolbarControls}>{actionChildren}</div>
         </Box>
         {tabs && (
-          <Box className={classes.tabs}>
+          <Box bg="neutral" className={classes.tabs}>
             <Tabs onSelectionChange={onTabSelectionChange}>
               <TabList>
                 {tabs?.map(tab => (

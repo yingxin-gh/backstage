@@ -72,6 +72,5 @@
   .bui-PluginHeaderTabsWrapper {
     padding-inline: var(--bui-space-3);
     border-bottom: 1px solid var(--bui-border-1);
-    background-color: var(--bui-bg-neutral-1);
   }
 }

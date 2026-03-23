@@ -69,10 +69,8 @@
     box-sizing: border-box;
     overflow: auto;
     min-width: 150px;
-    box-sizing: border-box;
     outline: none;
     padding-block: var(--bui-space-1);
-    padding-inline: var(--bui-space-1);
   }
 
   .bui-MenuItem {
@@ -83,11 +81,11 @@
     padding-inline: var(--bui-space-2);
     border-radius: var(--bui-radius-2);
     outline: none;
-    cursor: default;
     color: var(--bui-fg-primary);
     font-size: var(--bui-font-size-3);
     gap: var(--bui-space-6);
     cursor: pointer;
+    margin-inline: var(--bui-space-1);
 
     &[data-focus-visible] {
       outline: 2px solid var(--bui-ring);
@@ -127,7 +125,6 @@
     padding-inline: var(--bui-space-2);
     border-radius: var(--bui-radius-2);
     outline: none;
-    cursor: default;
     color: var(--bui-fg-primary);
     font-size: var(--bui-font-size-3);
     cursor: pointer;

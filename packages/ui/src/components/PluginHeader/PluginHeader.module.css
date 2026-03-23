@@ -53,7 +53,6 @@
     width: 2rem;
     height: 2rem;
     border-radius: var(--bui-radius-2);
-    background-color: var(--bui-bg-neutral-2);
     color: var(--bui-fg-primary);
 
     & svg {

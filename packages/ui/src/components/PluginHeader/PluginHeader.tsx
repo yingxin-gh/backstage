@@ -129,9 +129,13 @@ export const PluginHeader = (props: PluginHeaderProps) => {
       <header ref={headerRef} className={classes.root}>
         <Box bg="neutral" className={classes.toolbar} data-has-tabs={hasTabs}>
           <div className={classes.toolbarContent}>
-            <div className={classes.toolbarIcon} aria-hidden="true">
+            <Box
+              bg="neutral"
+              className={classes.toolbarIcon}
+              aria-hidden="true"
+            >
               {icon || <RiShapesLine />}
-            </div>
+            </Box>
             <h1 className={classes.toolbarName}>
               {titleLink ? (
                 <Link href={titleLink} standalone variant="body-medium">

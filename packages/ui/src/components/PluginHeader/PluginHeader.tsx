@@ -25,6 +25,7 @@ import { Box } from '../Box';
 import { Link } from '../Link';
 import { RiShapesLine } from '@remixicon/react';
 import { Text } from '../Text';
+import { BgReset } from '../../hooks/useBg';
 
 declare module 'react-aria-components' {
   interface RouterConfig {
@@ -124,44 +125,46 @@ export const PluginHeader = (props: PluginHeaderProps) => {
   const titleText = title || 'Your plugin';
 
   return (
-    <header ref={headerRef} className={classes.root}>
-      <Box bg="neutral" className={classes.toolbar} data-has-tabs={hasTabs}>
-        <div className={classes.toolbarContent}>
-          <div className={classes.toolbarIcon} aria-hidden="true">
-            {icon || <RiShapesLine />}
+    <BgReset>
+      <header ref={headerRef} className={classes.root}>
+        <Box bg="neutral" className={classes.toolbar} data-has-tabs={hasTabs}>
+          <div className={classes.toolbarContent}>
+            <div className={classes.toolbarIcon} aria-hidden="true">
+              {icon || <RiShapesLine />}
+            </div>
+            <h1 className={classes.toolbarName}>
+              {titleLink ? (
+                <Link href={titleLink} standalone variant="body-medium">
+                  {titleText}
+                </Link>
+              ) : (
+                <Text as="span" variant="body-medium">
+                  {titleText}
+                </Text>
+              )}
+            </h1>
           </div>
-          <h1 className={classes.toolbarName}>
-            {titleLink ? (
-              <Link href={titleLink} standalone variant="body-medium">
-                {titleText}
-              </Link>
-            ) : (
-              <Text as="span" variant="body-medium">
-                {titleText}
-              </Text>
-            )}
-          </h1>
-        </div>
-        <div className={classes.toolbarControls}>{actionChildren}</div>
-      </Box>
-      {tabs && (
-        <Box className={classes.tabs}>
-          <Tabs onSelectionChange={onTabSelectionChange}>
-            <TabList>
-              {tabs?.map(tab => (
-                <Tab
-                  key={tab.id}
-                  id={tab.id}
-                  href={tab.href}
-                  matchStrategy={tab.matchStrategy}
-                >
-                  {tab.label}
-                </Tab>
-              ))}
-            </TabList>
-          </Tabs>
+          <div className={classes.toolbarControls}>{actionChildren}</div>
         </Box>
-      )}
-    </header>
+        {tabs && (
+          <Box className={classes.tabs}>
+            <Tabs onSelectionChange={onTabSelectionChange}>
+              <TabList>
+                {tabs?.map(tab => (
+                  <Tab
+                    key={tab.id}
+                    id={tab.id}
+                    href={tab.href}
+                    matchStrategy={tab.matchStrategy}
+                  >
+                    {tab.label}
+                  </Tab>
+                ))}
+              </TabList>
+            </Tabs>
+          </Box>
+        )}
+      </header>
+    </BgReset>
   );
 };

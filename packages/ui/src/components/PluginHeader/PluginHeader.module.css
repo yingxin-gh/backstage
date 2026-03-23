@@ -25,7 +25,6 @@
     padding-inline: var(--bui-space-5);
     color: var(--bui-fg-primary);
     height: 52px;
-    background-color: var(--bui-bg-neutral-1);
     border-bottom: 1px solid var(--bui-border-1);
   }
 

@@ -17,7 +17,6 @@
 import type { PluginHeaderProps } from './types';
 import { Tabs, TabList, Tab } from '../Tabs';
 import { useDefinition } from '../../hooks/useDefinition';
-import { useBgProvider, BgProvider } from '../../hooks/useBg';
 import { PluginHeaderDefinition } from './definition';
 import { type NavigateOptions } from 'react-router-dom';
 import { Children, useMemo, useRef } from 'react';
@@ -52,7 +51,6 @@ export const PluginHeader = (props: PluginHeaderProps) => {
     onTabSelectionChange,
   } = ownProps;
 
-  const providerBg = useBgProvider('neutral');
   const hasTabs = tabs && tabs.length > 0;
   const headerRef = useRef<HTMLElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
@@ -125,9 +123,9 @@ export const PluginHeader = (props: PluginHeaderProps) => {
 
   const titleText = title || 'Your plugin';
 
-  const inner = (
-    <>
-      <div className={classes.toolbar} data-has-tabs={hasTabs}>
+  return (
+    <header ref={headerRef} className={classes.root}>
+      <Box bg="neutral" className={classes.toolbar} data-has-tabs={hasTabs}>
         <div className={classes.toolbarContent}>
           <div className={classes.toolbarIcon} aria-hidden="true">
             {icon || <RiShapesLine />}
@@ -145,7 +143,7 @@ export const PluginHeader = (props: PluginHeaderProps) => {
           </h1>
         </div>
         <div className={classes.toolbarControls}>{actionChildren}</div>
-      </div>
+      </Box>
       {tabs && (
         <Box className={classes.tabs}>
           <Tabs onSelectionChange={onTabSelectionChange}>
@@ -164,14 +162,6 @@ export const PluginHeader = (props: PluginHeaderProps) => {
           </Tabs>
         </Box>
       )}
-    </>
-  );
-
-  const { bg: surfaceBg } = providerBg;
-
-  return (
-    <header ref={headerRef} className={classes.root} data-bg={surfaceBg}>
-      {surfaceBg ? <BgProvider bg={surfaceBg}>{inner}</BgProvider> : inner}
     </header>
   );
 };

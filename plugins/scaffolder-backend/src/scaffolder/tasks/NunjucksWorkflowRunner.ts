@@ -739,7 +739,7 @@ function scaffoldingTracker(metrics: MetricsService) {
   });
 
   const stepDuration = metrics.createHistogram('scaffolder.step.duration', {
-    description: 'Duration of a step runs',
+    description: 'Duration of a step run',
     unit: 's',
   });
 

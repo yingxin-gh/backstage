@@ -23,8 +23,6 @@ import {
   CatalogIcon,
   Content,
   DocsIcon,
-  Header,
-  Page,
   useSidebarPinState,
 } from '@backstage/core-components';
 import {
@@ -39,6 +37,7 @@ import {
   createExtensionInput,
   PageBlueprint,
   NavItemBlueprint,
+  configApiRef,
 } from '@backstage/frontend-plugin-api';
 
 import {
@@ -139,113 +138,113 @@ export const searchPage = PageBlueprint.makeWithOverrides({
           const { isMobile } = useSidebarPinState();
           const { types } = useSearch();
           const catalogApi = useApi(catalogApiRef);
+          const configApi = useApi(configApiRef);
 
           return (
-            <Page themeId="home">
-              {!isMobile && <Header title="Search" />}
-              <Content>
-                <Grid container direction="row">
-                  <Grid item xs={12}>
-                    <SearchBar debounceTime={100} />
-                  </Grid>
-                  {!isMobile && (
-                    <Grid item xs={3}>
-                      <SearchType.Accordion
-                        name="Result Type"
-                        defaultValue="software-catalog"
-                        showCounts
-                        types={[
-                          {
-                            value: 'software-catalog',
-                            name: 'Software Catalog',
-                            icon: <CatalogIcon />,
-                          },
-                          {
-                            value: 'techdocs',
-                            name: 'Documentation',
-                            icon: <DocsIcon />,
-                          },
-                        ].concat(resultTypes)}
-                      />
-                      <Paper className={classes.filters}>
-                        {types.includes('techdocs') && (
-                          <SearchFilter.Select
-                            className={classes.filter}
-                            label="Entity"
-                            name="name"
-                            values={async () => {
-                              // Return a list of entities which are documented.
-                              const { items } = await catalogApi.getEntities({
-                                fields: ['metadata.name'],
-                                filter: {
-                                  'metadata.annotations.backstage.io/techdocs-ref':
-                                    CATALOG_FILTER_EXISTS,
-                                },
-                              });
-
-                              const names = items.map(
-                                entity => entity.metadata.name,
-                              );
-                              names.sort();
-                              return names;
-                            }}
-                          />
-                        )}
+            <Content>
+              <Grid container direction="row">
+                <Grid item xs={12}>
+                  <SearchBar debounceTime={100} />
+                </Grid>
+                {!isMobile && (
+                  <Grid item xs={3}>
+                    <SearchType.Accordion
+                      name="Result Type"
+                      defaultValue={configApi.getOptionalString(
+                        'search.defaultType',
+                      )}
+                      showCounts
+                      types={[
+                        {
+                          value: 'software-catalog',
+                          name: 'Software Catalog',
+                          icon: <CatalogIcon />,
+                        },
+                        {
+                          value: 'techdocs',
+                          name: 'Documentation',
+                          icon: <DocsIcon />,
+                        },
+                      ].concat(resultTypes)}
+                    />
+                    <Paper className={classes.filters}>
+                      {types.includes('techdocs') && (
                         <SearchFilter.Select
                           className={classes.filter}
-                          label="Kind"
-                          name="kind"
-                          values={[
-                            'API',
-                            'Component',
-                            'Domain',
-                            'Group',
-                            'Location',
-                            'Resource',
-                            'System',
-                            'Template',
-                            'User',
-                          ]}
-                        />
-                        <SearchFilter.Checkbox
-                          className={classes.filter}
-                          label="Lifecycle"
-                          name="lifecycle"
-                          values={['experimental', 'production']}
-                        />
-                        {additionalSearchFilters.map(SearchFilterComponent => (
-                          <SearchFilterComponent className={classes.filter} />
-                        ))}
-                      </Paper>
-                    </Grid>
-                  )}
-                  <Grid item xs>
-                    <SearchPagination />
-                    <SearchResults>
-                      {({ results }) => (
-                        <>
-                          {results.map((result, index) => {
-                            const { noTrack } = config;
-                            const { document, ...rest } = result;
-                            const SearchResultListItem =
-                              getResultItemComponent(result);
-                            return (
-                              <SearchResultListItem
-                                {...rest}
-                                key={index}
-                                result={document}
-                                noTrack={noTrack}
-                              />
+                          label="Entity"
+                          name="name"
+                          values={async () => {
+                            // Return a list of entities which are documented.
+                            const { items } = await catalogApi.getEntities({
+                              fields: ['metadata.name'],
+                              filter: {
+                                'metadata.annotations.backstage.io/techdocs-ref':
+                                  CATALOG_FILTER_EXISTS,
+                              },
+                            });
+
+                            const names = items.map(
+                              entity => entity.metadata.name,
                             );
-                          })}
-                        </>
+                            names.sort();
+                            return names;
+                          }}
+                        />
                       )}
-                    </SearchResults>
-                    <SearchResultPager />
+                      <SearchFilter.Select
+                        className={classes.filter}
+                        label="Kind"
+                        name="kind"
+                        values={[
+                          'API',
+                          'Component',
+                          'Domain',
+                          'Group',
+                          'Location',
+                          'Resource',
+                          'System',
+                          'Template',
+                          'User',
+                        ]}
+                      />
+                      <SearchFilter.Checkbox
+                        className={classes.filter}
+                        label="Lifecycle"
+                        name="lifecycle"
+                        values={['experimental', 'production']}
+                      />
+                      {additionalSearchFilters.map(SearchFilterComponent => (
+                        <SearchFilterComponent className={classes.filter} />
+                      ))}
+                    </Paper>
                   </Grid>
+                )}
+                <Grid item xs>
+                  <SearchPagination />
+                  <SearchResults>
+                    {({ results }) => (
+                      <>
+                        {results.map((result, index) => {
+                          const { noTrack } = config;
+                          const { document, ...rest } = result;
+                          const SearchResultListItem =
+                            getResultItemComponent(result);
+                          return (
+                            <SearchResultListItem
+                              {...rest}
+                              key={index}
+                              result={document}
+                              noTrack={noTrack}
+                            />
+                          );
+                        })}
+                      </>
+                    )}
+                  </SearchResults>
+                  <SearchResultPager />
                 </Grid>
-              </Content>
-            </Page>
+              </Grid>
+            </Content>
           );
         };
 
@@ -272,6 +271,8 @@ export const searchNavItem = NavItemBlueprint.make({
 /** @alpha */
 export default createFrontendPlugin({
   pluginId: 'search',
+  title: 'Search',
+  icon: <SearchIcon fontSize="inherit" />,
   info: { packageJson: () => import('../package.json') },
   extensions: [searchApi, searchPage, searchNavItem],
   routes: {
@@ -279,5 +280,10 @@ export default createFrontendPlugin({
   },
 });
 
-/** @alpha */
-export { searchTranslationRef } from './translation';
+import { searchTranslationRef as _searchTranslationRef } from './translation';
+
+/**
+ * @alpha
+ * @deprecated Import from `@backstage/plugin-search` instead.
+ */
+export const searchTranslationRef = _searchTranslationRef;

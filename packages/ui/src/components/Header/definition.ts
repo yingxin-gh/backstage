@@ -14,20 +14,34 @@
  * limitations under the License.
  */
 
-import type { ComponentDefinition } from '../../types';
+import { defineComponent } from '../../hooks/useDefinition';
+import type { HeaderOwnProps } from './types';
+import styles from './Header.module.css';
 
 /**
  * Component definition for Header
  * @public
  */
-export const HeaderDefinition = {
+export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
+  styles,
   classNames: {
-    toolbar: 'bui-HeaderToolbar',
-    toolbarWrapper: 'bui-HeaderToolbarWrapper',
-    toolbarContent: 'bui-HeaderToolbarContent',
-    toolbarControls: 'bui-HeaderToolbarControls',
-    toolbarIcon: 'bui-HeaderToolbarIcon',
-    toolbarName: 'bui-HeaderToolbarName',
+    root: 'bui-Header',
+    content: 'bui-HeaderContent',
+    breadcrumbs: 'bui-HeaderBreadcrumbs',
     tabsWrapper: 'bui-HeaderTabsWrapper',
+    controls: 'bui-HeaderControls',
   },
-} as const satisfies ComponentDefinition;
+  propDefs: {
+    title: {},
+    customActions: {},
+    tabs: {},
+    breadcrumbs: {},
+    className: {},
+  },
+});
+
+/**
+ * @public
+ * @deprecated Use {@link HeaderDefinition} instead.
+ */
+export const HeaderPageDefinition = HeaderDefinition;

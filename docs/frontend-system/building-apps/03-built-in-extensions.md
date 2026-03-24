@@ -18,7 +18,7 @@ extensions:
 ```
 
 :::warning
-Be careful when disabling built-in extensions, as there may be other extensions depending on their existence. For example, the built-in "alert display" extension displays messages retrieved via [AlertApi](https://backstage.io/docs/reference/core-plugin-api.alertapi) and disabling this extension will cause the application to no longer display these messages unless you install another extension that displays messages from `AlertApi`.
+Be careful when disabling built-in extensions, as there may be other extensions depending on their existence. For example, the built-in "alert display" extension displays messages retrieved via [AlertApi](https://backstage.io/api/stable/types/_backstage_core-plugin-api.index.AlertApi.html) and disabling this extension will cause the application to no longer display these messages unless you install another extension that displays messages from `AlertApi`.
 :::
 
 ## Override built-in extensions
@@ -99,7 +99,7 @@ This is the extension that creates the app root element, so it renders root leve
 | ---------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | router     | A React component that should manager the app routes context.                           | It must be one [router](https://reactrouter.com/en/main/routers/picking-a-router#web-projects) component or a custom component compatible with the 'react-router' library. | true     | [BrowserRouter](https://reactrouter.com/en/main/router-components/browser-router)                                                                                                            | [createRouterExtension](https://backstage.io/docs/reference/frontend-plugin-api.createrouterextension)                  |
 | signInPage | A React component that should render the app sign-in page.                              | Should call the `onSignInSuccess` prop when the user has been successfully authorized, otherwise the user will not be correctly redirected to the application home page.   | true     | The default `AppRoot` extension does not use a default component for this input, it bypasses the user authentication check and always renders all routes when a login page is not installed. | [createSignInPageExtension](https://backstage.io/docs/reference/frontend-plugin-api.createsigninpageextension/)         |
-| children   | A React component that renders the app sidebar and main content in a particular layout. | -                                                                                                                                                                          | false    | The [`App/Layout`](#app-layout) extension output.                                                                                                                                            | No creator available, configure or override the [`App/Layout`](#app-layout) extension.                                  |
+| children   | A React component that renders the app sidebar and main content in a particular layout. | -                                                                                                                                                                          | true     | The [`App/Layout`](#app-layout) extension output.                                                                                                                                            | No creator available, configure or override the [`App/Layout`](#app-layout) extension.                                  |
 | elements   | React elements to be rendered outside of the app layout, such as shared popups.         | -                                                                                                                                                                          | false    | See [default elements](#default-app-root-elements-extensions).                                                                                                                               | [createAppRootElementExtension](https://backstage.io/docs/reference/frontend-plugin-api.createapprootelementextension/) |
 | wrappers   | React components that should wrap the root element.                                     | -                                                                                                                                                                          | true     | -                                                                                                                                                                                            | [createAppRootWrapperExtension](https://backstage.io/docs/reference/frontend-plugin-api.createapprootwrapperextension/) |
 
@@ -107,7 +107,7 @@ This is the extension that creates the app root element, so it renders root leve
 
 ##### Alert Display
 
-An app root element extension that displays messages posted via the [`AlertApi`](https://backstage.io/docs/reference/core-plugin-api.alertapi).
+An app root element extension that displays messages posted via the [`AlertApi`](https://backstage.io/api/stable/types/_backstage_core-plugin-api.index.AlertApi.html).
 
 |       kind       | namespace |     name      |                  id                  |
 | :--------------: | :-------: | :-----------: | :----------------------------------: |
@@ -125,12 +125,12 @@ An app root element extension that displays messages posted via the [`AlertApi`]
 If you do not want to display alerts, disable this extension or if the available settings do not meet your needs, override this extension.
 
 :::warning
-The built-in "alert display" extension displays messages retrieved via [AlertApi](https://backstage.io/docs/reference/core-plugin-api.alertapi) and disabling this extension will cause the application to no longer display these messages unless you install another extension that displays messages from `AlertApi`.
+The built-in "alert display" extension displays messages retrieved via [AlertApi](https://backstage.io/api/stable/types/_backstage_core-plugin-api.index.AlertApi.html) and disabling this extension will cause the application to no longer display these messages unless you install another extension that displays messages from `AlertApi`.
 :::
 
 ##### OAuth Request Dialog
 
-An app root element extension that renders the oauth request dialog, it is based on the [oauthRequestApi](https://backstage.io/docs/reference/core-plugin-api.oauthrequestapi/).
+An app root element extension that renders the oauth request dialog, it is based on the [oauthRequestApi](https://backstage.io/api/stable/types/_backstage_core-plugin-api.index.OAuthRequestApi.html).
 
 |       kind       | namespace |         name         |                     id                      |
 | :--------------: | :-------: | :------------------: | :-----------------------------------------: |
@@ -146,10 +146,10 @@ Renders the app's sidebar and content in a specific layout.
 
 #### Inputs
 
-| Name    | Description                                   | Type                                                                                                        | Optional | Default | Extension creator                    |
-| ------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------- | ------- | ------------------------------------ |
-| nav     | A React element that renders the app sidebar. | [coreExtensionData.reactElement](https://backstage.io/docs/reference/frontend-plugin-api.coreextensiondata) | false    | -       | Override the `App/Nav` extension.    |
-| content | A React element that renders the app content. | [coreExtensionData.reactElement](https://backstage.io/docs/reference/frontend-plugin-api.coreextensiondata) | false    | -       | Override the `App/Routes` extension. |
+| Name    | Description                                   | Type                                                                                                                                    | Optional | Default | Extension creator                    |
+| ------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- | ------------------------------------ |
+| nav     | A React element that renders the app sidebar. | [coreExtensionData.reactElement](https://backstage.io/api/stable/variables/_backstage_frontend-plugin-api.index.coreExtensionData.html) | false    | -       | Override the `App/Nav` extension.    |
+| content | A React element that renders the app content. | [coreExtensionData.reactElement](https://backstage.io/api/stable/variables/_backstage_frontend-plugin-api.index.coreExtensionData.html) | false    | -       | Override the `App/Routes` extension. |
 
 ### App nav
 
@@ -161,10 +161,10 @@ Extension responsible for rendering the logo and items in the app's sidebar.
 
 #### Inputs
 
-| Name    | Description                                  | Type                                                                                                                                 | Optional | Default | Extension creator                                                                                        |
-| ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| content | Overrides the default content of the navbar. | [NavContentBlueprint.dataRefs.component](https://backstage.io/docs/reference/frontend-plugin-api.navcontentblueprint)                | true     | -       | [NavContentBlueprint](https://backstage.io/docs/reference/frontend-plugin-api.navcontentblueprint)       |
-| items   | Nav items target objects.                    | [createNavItemExtension.targetDataRef](https://backstage.io/docs/reference/frontend-plugin-api.createnavitemextension.targetdataref) | true     | -       | [createNavItemExtension](https://backstage.io/docs/reference/frontend-plugin-api.createnavitemextension) |
+| Name    | Description                                  | Type                                                                                                                                     | Optional | Default | Extension creator                                                                                                     |
+| ------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
+| content | Overrides the default content of the navbar. | [NavContentBlueprint.dataRefs.component](https://backstage.io/api/stable/variables/_backstage_plugin-app-react.NavContentBlueprint.html) | true     | -       | [NavContentBlueprint](https://backstage.io/api/stable/variables/_backstage_plugin-app-react.NavContentBlueprint.html) |
+| items   | Nav items target objects.                    | [createNavItemExtension.targetDataRef](https://backstage.io/docs/reference/frontend-plugin-api.createnavitemextension.targetdataref)     | true     | -       | [createNavItemExtension](https://backstage.io/docs/reference/frontend-plugin-api.createnavitemextension)              |
 
 ### App routes
 

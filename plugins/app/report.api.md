@@ -14,13 +14,15 @@ import { ExtensionBlueprintParams } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { ExtensionInput } from '@backstage/frontend-plugin-api';
 import { IconComponent } from '@backstage/frontend-plugin-api';
+import { IconElement } from '@backstage/frontend-plugin-api';
 import { JSX as JSX_2 } from 'react';
-import { NavContentComponent } from '@backstage/frontend-plugin-api';
+import { NavContentComponent } from '@backstage/plugin-app-react';
 import { OverridableExtensionDefinition } from '@backstage/frontend-plugin-api';
 import { OverridableFrontendPlugin } from '@backstage/frontend-plugin-api';
+import { PluginWrapperDefinition } from '@backstage/frontend-plugin-api';
 import { ReactNode } from 'react';
 import { RouteRef } from '@backstage/frontend-plugin-api';
-import { SignInPageProps } from '@backstage/frontend-plugin-api';
+import { SignInPageProps } from '@backstage/plugin-app-react';
 import { SwappableComponentRef } from '@backstage/frontend-plugin-api';
 import { TranslationMessages } from '@backstage/frontend-plugin-api';
 import { TranslationResource } from '@backstage/frontend-plugin-api';
@@ -40,6 +42,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: true;
             optional: false;
+            internal: false;
           }
         >;
       };
@@ -57,6 +60,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: true;
             optional: false;
+            internal: false;
           }
         >;
         content: ExtensionInput<
@@ -64,6 +68,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: true;
             optional: false;
+            internal: false;
           }
         >;
       };
@@ -89,6 +94,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: false;
           }
         >;
         content: ExtensionInput<
@@ -100,6 +106,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: true;
             optional: true;
+            internal: true;
           }
         >;
       };
@@ -121,6 +128,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: true;
             optional: true;
+            internal: true;
           }
         >;
         signInPage: ExtensionInput<
@@ -132,13 +140,15 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: true;
             optional: true;
+            internal: true;
           }
         >;
         children: ExtensionInput<
           ConfigurableExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>,
           {
             singleton: true;
-            optional: false;
+            optional: true;
+            internal: false;
           }
         >;
         elements: ExtensionInput<
@@ -146,6 +156,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: false;
           }
         >;
         wrappers: ExtensionInput<
@@ -157,6 +168,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: true;
           }
         >;
       };
@@ -182,6 +194,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: false;
           }
         >;
       };
@@ -218,6 +231,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: false;
           }
         >;
       };
@@ -262,6 +276,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: true;
           }
         >;
       };
@@ -463,7 +478,7 @@ const appPlugin: OverridableFrontendPlugin<
         icons: ExtensionInput<
           ConfigurableExtensionDataRef<
             {
-              [x: string]: IconComponent;
+              [x: string]: IconComponent | IconElement;
             },
             'core.icons',
             {}
@@ -471,6 +486,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: true;
           }
         >;
       };
@@ -574,6 +590,58 @@ const appPlugin: OverridableFrontendPlugin<
         params: ApiFactory<TApi, TImpl, TDeps>,
       ) => ExtensionBlueprintParams<AnyApiFactory>;
     }>;
+    'api:app/plugin-header-actions': OverridableExtensionDefinition<{
+      config: {};
+      configInput: {};
+      output: ExtensionDataRef<AnyApiFactory, 'core.api.factory', {}>;
+      inputs: {
+        actions: ExtensionInput<
+          ConfigurableExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>,
+          {
+            singleton: false;
+            optional: false;
+            internal: false;
+          }
+        >;
+      };
+      kind: 'api';
+      name: 'plugin-header-actions';
+      params: <
+        TApi,
+        TImpl extends TApi,
+        TDeps extends { [name in string]: unknown },
+      >(
+        params: ApiFactory<TApi, TImpl, TDeps>,
+      ) => ExtensionBlueprintParams<AnyApiFactory>;
+    }>;
+    'api:app/plugin-wrapper': OverridableExtensionDefinition<{
+      config: {};
+      configInput: {};
+      output: ExtensionDataRef<AnyApiFactory, 'core.api.factory', {}>;
+      inputs: {
+        wrappers: ExtensionInput<
+          ConfigurableExtensionDataRef<
+            () => Promise<PluginWrapperDefinition>,
+            'core.plugin-wrapper.loader',
+            {}
+          >,
+          {
+            singleton: false;
+            optional: false;
+            internal: false;
+          }
+        >;
+      };
+      kind: 'api';
+      name: 'plugin-wrapper';
+      params: <
+        TApi,
+        TImpl extends TApi,
+        TDeps extends { [name in string]: unknown },
+      >(
+        params: ApiFactory<TApi, TImpl, TDeps>,
+      ) => ExtensionBlueprintParams<AnyApiFactory>;
+    }>;
     'api:app/scm-auth': OverridableExtensionDefinition<{
       kind: 'api';
       name: 'scm-auth';
@@ -638,11 +706,42 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: true;
           }
         >;
       };
       kind: 'api';
       name: 'swappable-components';
+      params: <
+        TApi,
+        TImpl extends TApi,
+        TDeps extends { [name in string]: unknown },
+      >(
+        params: ApiFactory<TApi, TImpl, TDeps>,
+      ) => ExtensionBlueprintParams<AnyApiFactory>;
+    }>;
+    'api:app/toast': OverridableExtensionDefinition<{
+      kind: 'api';
+      name: 'toast';
+      config: {};
+      configInput: {};
+      output: ExtensionDataRef<AnyApiFactory, 'core.api.factory', {}>;
+      inputs: {};
+      params: <
+        TApi,
+        TImpl extends TApi,
+        TDeps extends { [name in string]: unknown },
+      >(
+        params: ApiFactory<TApi, TImpl, TDeps>,
+      ) => ExtensionBlueprintParams<AnyApiFactory>;
+    }>;
+    'api:app/toast-forwarder': OverridableExtensionDefinition<{
+      kind: 'api';
+      name: 'toast-forwarder';
+      config: {};
+      configInput: {};
+      output: ExtensionDataRef<AnyApiFactory, 'core.api.factory', {}>;
+      inputs: {};
       params: <
         TApi,
         TImpl extends TApi,
@@ -672,6 +771,7 @@ const appPlugin: OverridableFrontendPlugin<
           {
             singleton: false;
             optional: false;
+            internal: true;
           }
         >;
       };
@@ -806,6 +906,62 @@ const appPlugin: OverridableFrontendPlugin<
     'component:app/core-not-found-error-page': OverridableExtensionDefinition<{
       kind: 'component';
       name: 'core-not-found-error-page';
+      config: {};
+      configInput: {};
+      output: ExtensionDataRef<
+        {
+          ref: SwappableComponentRef;
+          loader:
+            | (() => (props: {}) => JSX.Element | null)
+            | (() => Promise<(props: {}) => JSX.Element | null>);
+        },
+        'core.swappableComponent',
+        {}
+      >;
+      inputs: {};
+      params: <Ref extends SwappableComponentRef<any>>(params: {
+        component: Ref extends SwappableComponentRef<
+          any,
+          infer IExternalComponentProps
+        >
+          ? {
+              ref: Ref;
+            } & ((props: IExternalComponentProps) => JSX.Element | null)
+          : never;
+        loader: Ref extends SwappableComponentRef<
+          infer IInnerComponentProps,
+          any
+        >
+          ?
+              | (() => (props: IInnerComponentProps) => JSX.Element | null)
+              | (() => Promise<
+                  (props: IInnerComponentProps) => JSX.Element | null
+                >)
+          : never;
+      }) => ExtensionBlueprintParams<{
+        component: Ref extends SwappableComponentRef<
+          any,
+          infer IExternalComponentProps
+        >
+          ? {
+              ref: Ref;
+            } & ((props: IExternalComponentProps) => JSX.Element | null)
+          : never;
+        loader: Ref extends SwappableComponentRef<
+          infer IInnerComponentProps,
+          any
+        >
+          ?
+              | (() => (props: IInnerComponentProps) => JSX.Element | null)
+              | (() => Promise<
+                  (props: IInnerComponentProps) => JSX.Element | null
+                >)
+          : never;
+      }>;
+    }>;
+    'component:app/core-page-layout': OverridableExtensionDefinition<{
+      kind: 'component';
+      name: 'core-page-layout';
       config: {};
       configInput: {};
       output: ExtensionDataRef<

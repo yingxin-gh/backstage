@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { readFile, writeFile, cp } from 'fs/promises';
+import { readFile, writeFile, cp } from 'node:fs/promises';
 import globby from 'globby';
-import { dirname, join as joinPath, relative } from 'path';
-import crypto from 'crypto';
+import { dirname, join as joinPath, relative } from 'node:path';
+import crypto from 'node:crypto';
 import { Lockfile } from '@backstage/cli-node';
 import { exists, rm, mkdirp } from 'fs-extra';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { CACHE_DIR, CACHE_FILE } from './constants';
 
 const version = '1';

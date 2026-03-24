@@ -5,11 +5,6 @@ on:
       - master
     paths:
       - '.patches/**'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - '.patches/**'
 
 concurrency:
   group: sync-patch-release
@@ -25,16 +20,22 @@ jobs:
       pull-requests: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@df199fb7be9f65074067a9eb93f12bb4c5547cf2 # v2.13.3
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
         with:
           egress-policy: audit
 
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 20000
           fetch-tags: true
           token: ${{ secrets.GH_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 22.x
+          registry-url: https://registry.npmjs.org/ # Needed for auth
 
       - name: Configure Git
         run: |

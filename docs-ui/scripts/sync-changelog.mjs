@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-restricted-syntax */
 
 import fs from 'fs';
 import path from 'path';
@@ -13,22 +12,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Compare two semantic versions.
+ * Compare two semantic versions for sorting.
  * Returns: 1 if versionA > versionB, -1 if versionA < versionB, 0 if equal
- * Handles pre-release versions (e.g., "0.9.0-next.2")
+ * Example: compareVersions("0.11.0", "0.10.0") => 1
  */
 function compareVersions(versionA, versionB) {
   // Strip 'v' prefix if present
   versionA = versionA.replace(/^v/, '');
   versionB = versionB.replace(/^v/, '');
 
-  // Split into [major.minor.patch, prerelease]
-  const [versionABase, versionAPre] = versionA.split('-');
-  const [versionBBase, versionBPre] = versionB.split('-');
-
-  // Compare base versions
-  const versionAParts = versionABase.split('.').map(Number);
-  const versionBParts = versionBBase.split('.').map(Number);
+  // Compare major.minor.patch versions
+  const versionAParts = versionA.split('.').map(Number);
+  const versionBParts = versionB.split('.').map(Number);
 
   for (
     let i = 0;
@@ -42,13 +37,7 @@ function compareVersions(versionA, versionB) {
     if (versionAPart < versionBPart) return -1;
   }
 
-  // If base versions equal, compare pre-release
-  if (!versionAPre && !versionBPre) return 0;
-  if (!versionAPre) return 1; // versionA is release, versionB is pre-release
-  if (!versionBPre) return -1; // versionA is pre-release, versionB is release
-
-  // Both have pre-release, compare them
-  return versionAPre.localeCompare(versionBPre);
+  return 0;
 }
 
 /**
@@ -56,15 +45,6 @@ function compareVersions(versionA, versionB) {
  */
 function isNewerVersion(versionA, versionB) {
   return compareVersions(versionA, versionB) > 0;
-}
-
-/**
- * Normalize version to base version (remove pre-release suffix)
- * "0.9.0-next.3" → "0.9.0"
- * "0.9.0" → "0.9.0"
- */
-function normalizeVersion(version) {
-  return version.split('-')[0];
 }
 
 /**
@@ -118,6 +98,7 @@ function pascalToKebab(str) {
     TextField: 'textfield',
     DataTable: 'datatable',
     ScrollArea: 'scrollarea',
+    'Grid.Item': 'grid-item',
   };
 
   if (specialCases[str]) {
@@ -169,6 +150,7 @@ function getValidComponents(changelogPath) {
 
 /**
  * Parse CHANGELOG.md and extract entries newer than sinceVersion
+ * Only processes main release versions (e.g., 0.11.0), skips pre-releases (e.g., 0.11.0-next.1)
  */
 async function parseChangelogMd(changelogPath, sinceVersion, validComponents) {
   const content = fs.readFileSync(changelogPath, 'utf-8');
@@ -181,13 +163,16 @@ async function parseChangelogMd(changelogPath, sinceVersion, validComponents) {
 
   // Walk through the markdown AST
   async function walk(node, depth = 0) {
-    // Version headers (## 0.9.0)
+    // Version headers (## 0.11.0)
     if (node.type === 'heading' && node.depth === 2) {
       const versionText = extractText(node).trim();
-      // Validate that this is actually a version number (X.Y.Z or X.Y.Z-pre.N)
-      // Skip headings that are just markdown content within changelog entries
-      if (/^\d+\.\d+\.\d+/.test(versionText)) {
+      // Only process main release versions (X.Y.Z format)
+      if (/^\d+\.\d+\.\d+$/.test(versionText)) {
         currentVersion = versionText;
+        currentSection = null;
+      } else {
+        // Skip pre-release versions (e.g., 0.11.0-next.1) and non-version headings
+        currentVersion = null;
         currentSection = null;
       }
       return;
@@ -301,65 +286,93 @@ async function parseListItem(
   // Remove the commit SHA prefix from markdown
   let description = fullMarkdown.replace(/^-?\s*[a-f0-9]+:\s*/, '').trim();
 
-  // Auto-detect components from "Affected components:" line
+  // Extract components from "Affected components" line
+  // Supports: **Affected components:** X, **Affected components**: X, Affected components: X
   let components = [];
-  const componentMatch = description.match(/Affected components?:\s*([^\n]+)/i);
+  const unknownNames = [];
+  const affectedComponentsRe = /\*{2}Affected components?:?\*{2}:?\s*([^\n]+)/i;
+  const affectedComponentsPlainRe = /Affected components?:\s*([^\n]+)/i;
+  const componentMatch =
+    description.match(affectedComponentsRe) ||
+    description.match(affectedComponentsPlainRe);
   if (componentMatch) {
     const componentNames = componentMatch[1]
       .split(',')
       .map(name => name.trim())
       .filter(Boolean);
 
-    components = componentNames
-      .map(name => mapComponentName(name, validComponents))
-      .filter(Boolean);
+    componentNames.forEach(name => {
+      const mapped = mapComponentName(name, validComponents);
+      if (mapped) {
+        components.push(mapped);
+      } else {
+        unknownNames.push(name);
+      }
+    });
 
-    // Optionally strip "Affected components:" line from description
+    // Deduplicate
+    components = [...new Set(components)];
+
+    // Strip "Affected components" line from description (all formats)
     description = description
-      .replace(/\n*Affected components?:[ \t]*[^\n]+/i, '')
+      .replace(/\n*\*{2}Affected components?:?\*{2}:?\s*[^\n]+/gi, '')
+      .replace(/\n*Affected components?:\s*[^\n]+/gi, '')
+      .trim();
+  }
+
+  // Extract migration notes using bold marker (standard format)
+  let migration = null;
+  const migrationMatch = description.match(
+    /\*\*Migration:\*\*\s*\n([\s\S]+?)(?=\n\s*$|$)/,
+  );
+  if (migrationMatch) {
+    // Clean up indentation from list format (remove leading 2 spaces from each line)
+    migration = migrationMatch[1]
+      .split('\n')
+      .map(line => line.replace(/^  /, ''))
+      .join('\n')
+      .trim();
+    // Strip migration section from description
+    description = description
+      .replace(/\n*\*\*Migration:\*\*[\s\S]+$/, '')
       .trim();
   }
 
   const prs = []; // Will be populated later by fetchPRNumbers()
 
-  // Infer type from section and description
-  const type = inferChangeType(section, description, version);
+  // Check if this is a breaking change
+  const breaking = isBreakingChange(section, description, version);
 
   return {
-    version: normalizeVersion(version),
+    version,
     section,
     commitSha,
     description,
     components,
+    unknownNames,
     prs,
-    type,
+    breaking,
+    migration,
   };
 }
 
 /**
- * Infer change type from section and description
+ * Determine if a change is breaking based on semver rules
+ * Breaking change rules (semver):
+ * - version >= 1.0.0: Major changes are breaking
+ * - version < 1.0.0: Major and Minor changes are breaking
  */
-function inferChangeType(section, description, version) {
-  const isPre1 = version.startsWith('0.');
+function isBreakingChange(section, description, version) {
+  // Parse version to determine breaking change rules based on semver
+  const [major] = version.split('.').map(Number);
 
-  // Check description keywords first
-  if (description.match(/^(New|Add(ed)?)\s/i)) {
-    return 'new';
-  }
-  if (description.includes('BREAKING')) {
-    return 'breaking';
+  // Version >= 1.0.0: Only Major Changes are breaking
+  if (major >= 1) {
+    return section === 'Major Changes';
   }
 
-  // Infer from section
-  if (section === 'Minor Changes') {
-    return isPre1 ? 'breaking' : undefined;
-  } else if (section === 'Major Changes') {
-    return 'breaking';
-  } else if (section === 'Patch Changes') {
-    return 'fix';
-  }
-
-  return undefined;
+  // Version < 1.0.0: Both Major and Minor Changes are breaking
+  return section === 'Major Changes' || section === 'Minor Changes';
 }
 
 /**
@@ -414,8 +427,13 @@ async function fetchPRNumbers(entries, dryRun = false) {
 /**
  * Generate per-version changelog files in changelogs/ directory
  */
-async function generateVersionFiles(entries, changelogsDir, dryRun = false) {
-  // Group entries by normalized version
+async function generateVersionFiles(
+  entries,
+  changelogsDir,
+  dryRun = false,
+  force = false,
+) {
+  // Group entries by version
   const byVersion = {};
   entries.forEach(entry => {
     const version = entry.version;
@@ -434,8 +452,8 @@ async function generateVersionFiles(entries, changelogsDir, dryRun = false) {
     const filePath = path.join(changelogsDir, fileName);
     const varName = `changelog_${version.replace(/\./g, '_')}`;
 
-    // Check if file already exists - skip if it does
-    if (fs.existsSync(filePath)) {
+    // Check if file already exists - skip if it does (unless force flag)
+    if (fs.existsSync(filePath) && !force) {
       skippedVersions.push(version);
       // Still add to versionFiles array so main changelog.ts can import it
       versionFiles.push({
@@ -456,7 +474,7 @@ async function generateVersionFiles(entries, changelogsDir, dryRun = false) {
           .map(c => `'${c}'`)
           .join(', ')}]`;
         const prsStr = `[${entry.prs.map(pr => `'${pr}'`).join(', ')}]`;
-        const typeStr = entry.type ? `type: '${entry.type}',` : '';
+        const breakingStr = entry.breaking ? `breaking: true,` : '';
         const shaStr = entry.commitSha
           ? `commitSha: '${entry.commitSha}',`
           : '';
@@ -467,12 +485,20 @@ async function generateVersionFiles(entries, changelogsDir, dryRun = false) {
           .replace(/`/g, '\\`')
           .replace(/\${/g, '\\${');
 
+        // Escape migration notes if present
+        const migrationStr = entry.migration
+          ? `migration: \`${entry.migration
+              .replace(/\\/g, '\\\\')
+              .replace(/`/g, '\\`')
+              .replace(/\${/g, '\\${')}\`,\n    `
+          : '';
+
         return `  {
     components: ${componentsStr},
     version: '${entry.version}',
     prs: ${prsStr},
     description: \`${descEscaped}\`,
-    ${typeStr}
+    ${migrationStr}${breakingStr}
     ${shaStr}
   }`;
       })
@@ -802,6 +828,8 @@ async function findPRNumber(commitSha) {
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const force = args.includes('--force');
+  const skipPrs = args.includes('--skip-prs');
 
   const changelogTsPath = path.join(__dirname, '../src/utils/changelog.ts');
   const changelogMdPath = path.join(
@@ -818,10 +846,15 @@ async function main() {
   }
 
   console.log('📋 Syncing UI component changelogs...\n');
+  if (force) {
+    console.log('⚠️  Force mode: Will overwrite existing version files\n');
+  }
 
-  // Get last synced version
-  const lastVersion = getLastSyncedVersion(changelogTsPath);
-  console.log(`Last synced version: ${lastVersion || '(none)'}`);
+  // Get last synced version (null if force mode to process all)
+  const lastVersion = force ? null : getLastSyncedVersion(changelogTsPath);
+  console.log(
+    `Last synced version: ${lastVersion || '(none - processing all versions)'}`,
+  );
 
   // Get valid components
   const validComponents = getValidComponents(changelogTsPath);
@@ -834,26 +867,26 @@ async function main() {
     lastVersion,
     validComponents,
   );
-  console.log(`Found ${allEntries.length} total entries since ${lastVersion}`);
+  console.log(
+    `Found ${allEntries.length} total entries${
+      force ? '' : ` since ${lastVersion}`
+    }`,
+  );
 
   // Read existing changelog content for duplicate detection
   const existingContent = fs.readFileSync(changelogTsPath, 'utf-8');
 
   // Filter to only new, non-duplicate entries
-  const relevantEntries = allEntries.filter(e => {
-    const hasComponents = e.components.length > 0 || e.components.length === 0;
-    const notDuplicate = !isDuplicate(e, existingContent);
-    return hasComponents && notDuplicate;
-  });
+  const relevantEntries = allEntries.filter(
+    e => !isDuplicate(e, existingContent),
+  );
 
   const duplicatesCount = allEntries.length - relevantEntries.length;
   if (duplicatesCount > 0) {
     console.log(`Skipped ${duplicatesCount} duplicate entries`);
   }
 
-  console.log(
-    `Relevant entries (with or without components): ${relevantEntries.length}`,
-  );
+  console.log(`Relevant entries: ${relevantEntries.length}`);
 
   if (relevantEntries.length === 0) {
     console.log('\n✅ No new entries to sync');
@@ -861,7 +894,9 @@ async function main() {
   }
 
   // Fetch PR numbers for new entries (lazy fetch - only for entries that will be written)
-  await fetchPRNumbers(relevantEntries, dryRun);
+  if (!skipPrs) {
+    await fetchPRNumbers(relevantEntries, dryRun);
+  }
 
   // Show summary
   console.log('\n📝 New entries by component:');
@@ -879,23 +914,8 @@ async function main() {
     console.log(`  - ${comp}: ${count} ${count === 1 ? 'entry' : 'entries'}`);
   });
 
-  // Warn about unknown components
-  const unknownComponents = [];
-  allEntries.forEach(entry => {
-    const fullText = entry.description;
-    const componentMatch = fullText.match(
-      /Affected components?:[ \t]*([^\n]+)/i,
-    );
-    if (componentMatch) {
-      const names = componentMatch[1].split(',').map(n => n.trim());
-      names.forEach(name => {
-        if (!mapComponentName(name, validComponents)) {
-          unknownComponents.push(name);
-        }
-      });
-    }
-  });
-
+  // Warn about unknown components (collected during extraction)
+  const unknownComponents = allEntries.flatMap(e => e.unknownNames || []);
   if (unknownComponents.length > 0) {
     console.log('\n⚠️  Unknown components (skipped):');
     [...new Set(unknownComponents)].forEach(name => {
@@ -920,6 +940,7 @@ async function main() {
     relevantEntries,
     changelogsDir,
     dryRun,
+    force,
   );
 
   // Generate main changelog.ts

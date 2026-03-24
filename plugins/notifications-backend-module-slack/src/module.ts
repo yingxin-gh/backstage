@@ -17,9 +17,14 @@ import {
   coreServices,
   createBackendModule,
 } from '@backstage/backend-plugin-api';
+import { metricsServiceRef } from '@backstage/backend-plugin-api/alpha';
 import { notificationsProcessingExtensionPoint } from '@backstage/plugin-notifications-node';
 import { SlackNotificationProcessor } from './lib/SlackNotificationProcessor';
 import { catalogServiceRef } from '@backstage/plugin-catalog-node';
+import {
+  notificationsSlackBlockKitExtensionPoint,
+  SlackBlockKitRenderer,
+} from './extensions';
 
 /**
  * The Slack notification processor for use with the notifications plugin.
@@ -31,6 +36,16 @@ export const notificationsModuleSlack = createBackendModule({
   pluginId: 'notifications',
   moduleId: 'slack',
   register(reg) {
+    let blockKitRenderer: SlackBlockKitRenderer | undefined;
+    reg.registerExtensionPoint(notificationsSlackBlockKitExtensionPoint, {
+      setBlockKitRenderer(renderer) {
+        if (blockKitRenderer) {
+          throw new Error(`Slack block kit renderer was already registered`);
+        }
+        blockKitRenderer = renderer;
+      },
+    });
+
     reg.registerInit({
       deps: {
         auth: coreServices.auth,
@@ -38,13 +53,16 @@ export const notificationsModuleSlack = createBackendModule({
         logger: coreServices.logger,
         catalog: catalogServiceRef,
         notifications: notificationsProcessingExtensionPoint,
+        metrics: metricsServiceRef,
       },
-      async init({ auth, config, logger, catalog, notifications }) {
+      async init({ auth, config, logger, catalog, notifications, metrics }) {
         notifications.addProcessor(
           SlackNotificationProcessor.fromConfig(config, {
             auth,
             logger,
             catalog,
+            metrics,
+            blockKitRenderer,
           }),
         );
       },

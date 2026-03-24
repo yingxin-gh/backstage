@@ -80,7 +80,6 @@ describe('DefaultEntitiesCatalog', () => {
       entity_ref: entityRef,
       final_entity: entityJson,
       hash: 'h',
-      stitch_ticket: '',
     });
 
     for (const parent of parents) {
@@ -118,7 +117,6 @@ describe('DefaultEntitiesCatalog', () => {
       entity_ref: entityRef,
       final_entity: entityJson,
       hash: 'h',
-      stitch_ticket: '',
     });
 
     for (const row of buildEntitySearch(id, entity)) {
@@ -1577,10 +1575,11 @@ describe('DefaultEntitiesCatalog', () => {
           totalItems: 0,
           items: {
             type: 'raw',
-            entities: expect.objectContaining({ length: 10 }),
+            entities: expect.any(Array),
           },
           pageInfo: { nextCursor: expect.anything() },
         });
+        expect(response.items.entities).toHaveLength(10);
         response = await catalog.queryEntities({
           ...request,
           cursor: response.pageInfo.nextCursor!,
@@ -1589,10 +1588,11 @@ describe('DefaultEntitiesCatalog', () => {
           totalItems: 0,
           items: {
             type: 'raw',
-            entities: expect.objectContaining({ length: 5 }),
+            entities: expect.any(Array),
           },
           pageInfo: { prevCursor: expect.anything() },
         });
+        expect(response.items.entities).toHaveLength(5);
       },
     );
 
@@ -2049,6 +2049,38 @@ describe('DefaultEntitiesCatalog', () => {
           'a-entity',
           'b-entity',
           'c-entity',
+        ]);
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'should apply both filter and query when both are given, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        // Add entities with different kinds and names
+        await addEntityToSearch(entityFrom('A', { kind: 'component' }));
+        await addEntityToSearch(entityFrom('B', { kind: 'component' }));
+        await addEntityToSearch(entityFrom('C', { kind: 'api' }));
+        await addEntityToSearch(entityFrom('D', { kind: 'api' }));
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        // Use filter to restrict to kind=component, and query to restrict to name=A
+        const response = await catalog.queryEntities({
+          filter: { key: 'kind', values: ['component'] },
+          query: { 'metadata.name': 'a' },
+          orderFields: [{ field: 'metadata.name', order: 'asc' }],
+          credentials: mockCredentials.none(),
+        });
+
+        const resultEntities = entitiesResponseToObjects(response.items);
+        expect(resultEntities).toEqual([
+          entityFrom('A', { kind: 'component' }),
         ]);
       },
     );

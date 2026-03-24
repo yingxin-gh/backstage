@@ -1,5 +1,260 @@
 # @backstage/plugin-app
 
+## 0.4.1
+
+### Patch Changes
+
+- 5f3f5d2: `NavContentBlueprint` nav item collections now keep previously collected `rest()` results in sync when additional items are taken later in the same render, making it easier to place items across multiple sidebar sections.
+- aa29b50: Pages created with `PageBlueprint` now render the plugin header by default in the new frontend system.
+- c0ab376: The app nav now falls back to `plugin.icon` for navigation items that don't have an explicit icon set.
+- 12d8afe: Added `BUIProvider` from `@backstage/ui` to the app root, enabling BUI components to fire analytics events through the Backstage analytics system.
+- 5fec07d: Updated the default app root to better support phased app preparation by allowing the app layout to be absent during bootstrap, routing bootstrap failures through the app root boundary, and avoiding installation of a guest identity in protected apps that do not provide a sign-in page.
+- 9508514: Updated the default `PluginWrapperApi` implementation to support the new `useWrapperValue` hook and root wrapper. The root wrapper is now rendered in the app root to manage shared hook state across plugin wrapper instances.
+- a49a40d: Updated dependency `zod` to `^3.25.76 || ^4.0.0` & migrated to `/v3` or `/v4` imports.
+- 42f8c9b: Moved `BUIProvider` inside the app router to enable automatic client-side routing for all BUI components.
+- 909c742: Switched translation API imports (`translationApiRef`, `appLanguageApiRef`) from the alpha `@backstage/core-plugin-api/alpha` path to the stable `@backstage/frontend-plugin-api` export. This has no effect on runtime behavior.
+- 7e743f4: Introduced a new `ToastApi` for displaying rich toast notifications in the new frontend system.
+
+  The new `ToastApi` provides enhanced notification capabilities compared to the existing `AlertApi`:
+
+  - **Title and Description**: Toasts support both a title and an optional description
+  - **Custom Timeouts**: Each toast can specify its own timeout duration
+  - **Links**: Toasts can include action links
+  - **Status Variants**: Support for neutral, info, success, warning, and danger statuses
+  - **Programmatic Dismiss**: Toasts can be dismissed programmatically using the `close()` handle returned from `post()`
+
+  **Usage:**
+
+  ```typescript
+  import { toastApiRef, useApi } from '@backstage/frontend-plugin-api';
+
+  const toastApi = useApi(toastApiRef);
+
+  // Full-featured toast
+  toastApi.post({
+    title: 'Entity saved',
+    description: 'Your changes have been saved successfully.',
+    status: 'success',
+    timeout: 5000,
+    links: [{ label: 'View entity', href: '/catalog/entity' }],
+  });
+
+  // Programmatic dismiss
+  const { close } = toastApi.post({ title: 'Uploading...', status: 'info' });
+  // Later...
+  close();
+  ```
+
+  The `ToastDisplay` component subscribes to both `ToastApi` and `AlertApi`, providing a migration path where both systems work side by side until `AlertApi` is fully deprecated.
+
+- Updated dependencies
+  - @backstage/ui@0.13.0
+  - @backstage/core-plugin-api@1.12.4
+  - @backstage/core-components@0.18.8
+  - @backstage/frontend-plugin-api@0.15.0
+  - @backstage/plugin-app-react@0.2.1
+  - @backstage/plugin-permission-react@0.4.41
+  - @backstage/filter-predicates@0.1.1
+  - @backstage/integration-react@1.2.16
+
+## 0.4.1-next.2
+
+### Patch Changes
+
+- 12d8afe: Added `BUIProvider` from `@backstage/ui` to the app root, enabling BUI components to fire analytics events through the Backstage analytics system.
+- Updated dependencies
+  - @backstage/ui@0.13.0-next.2
+  - @backstage/frontend-plugin-api@0.15.0-next.1
+  - @backstage/core-plugin-api@1.12.4-next.1
+  - @backstage/core-components@0.18.8-next.1
+  - @backstage/plugin-app-react@0.2.1-next.1
+
+## 0.4.1-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/ui@0.13.0-next.1
+  - @backstage/core-components@0.18.8-next.0
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/frontend-plugin-api@0.14.2-next.0
+  - @backstage/integration-react@1.2.16-next.1
+  - @backstage/theme@0.7.2
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.12
+  - @backstage/plugin-app-react@0.2.1-next.0
+  - @backstage/plugin-permission-react@0.4.41-next.0
+
+## 0.4.1-next.0
+
+### Patch Changes
+
+- 909c742: Switched translation API imports (`translationApiRef`, `appLanguageApiRef`) from the alpha `@backstage/core-plugin-api/alpha` path to the stable `@backstage/frontend-plugin-api` export. This has no effect on runtime behavior.
+- Updated dependencies
+  - @backstage/ui@0.12.1-next.0
+  - @backstage/frontend-plugin-api@0.14.2-next.0
+  - @backstage/core-components@0.18.8-next.0
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/integration-react@1.2.16-next.0
+  - @backstage/theme@0.7.2
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.12
+  - @backstage/plugin-app-react@0.2.1-next.0
+  - @backstage/plugin-permission-react@0.4.41-next.0
+
+## 0.4.0
+
+### Minor Changes
+
+- ef6916e: Added `SubPageBlueprint` for creating sub-page tabs, `PluginHeaderActionBlueprint` and `PluginHeaderActionsApi` for plugin-scoped header actions, and `PageLayout` as a swappable component. The `PageBlueprint` now supports sub-pages with tabbed navigation, page title, icon, and header actions. Plugins can now specify a `title` and `icon` in `createFrontendPlugin`.
+- 7edb810: **BREAKING**: Extensions created with the following blueprints must now be provided via an override or a module for the `app` plugin. Extensions from other plugins will now trigger a warning in the app and be ignored.
+
+  - `IconBundleBlueprint`
+  - `NavContentBlueprint`
+  - `RouterBlueprint`
+  - `SignInPageBlueprint`
+  - `SwappableComponentBlueprint`
+  - `ThemeBlueprint`
+  - `TranslationBlueprint`
+
+### Patch Changes
+
+- a2133be: Added new `NavContentNavItem`, `NavContentNavItems`, and `navItems` prop to `NavContentComponentProps` for auto-discovering navigation items from page extensions. The new `navItems` collection supports `take(id)` and `rest()` methods for placing specific items in custom sidebar positions, as well as `withComponent(Component)` which returns a `NavContentNavItemsWithComponent` for rendering items directly as elements. The existing `items` prop is now deprecated in favor of `navItems`.
+- a7e0d50: Updated `react-router-dom` peer dependency to `^6.30.2` and explicitly disabled v7 future flags to suppress deprecation warnings.
+- 69d880e: Bump to latest zod to ensure it has the latest features
+- Updated dependencies
+  - @backstage/ui@0.12.0
+  - @backstage/core-components@0.18.7
+  - @backstage/theme@0.7.2
+  - @backstage/frontend-plugin-api@0.14.0
+  - @backstage/plugin-app-react@0.2.0
+  - @backstage/core-plugin-api@1.12.3
+  - @backstage/integration-react@1.2.15
+  - @backstage/plugin-permission-react@0.4.40
+  - @backstage/version-bridge@1.0.12
+
+## 0.4.0-next.2
+
+### Patch Changes
+
+- a7e0d50: Prepare for React Router v7 migration by updating to v6.30.2 across all NFS packages and enabling v7 future flags. Convert routes from splat paths to parent/child structure with Outlet components.
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.14.0-next.2
+  - @backstage/integration-react@1.2.15-next.2
+  - @backstage/core-components@0.18.7-next.2
+  - @backstage/core-plugin-api@1.12.3-next.1
+  - @backstage/plugin-permission-react@0.4.40-next.1
+  - @backstage/version-bridge@1.0.12-next.0
+  - @backstage/theme@0.7.2-next.1
+  - @backstage/plugin-app-react@0.1.1-next.0
+
+## 0.4.0-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/theme@0.7.2-next.0
+  - @backstage/frontend-plugin-api@0.14.0-next.1
+  - @backstage/core-components@0.18.7-next.1
+  - @backstage/integration-react@1.2.15-next.1
+
+## 0.4.0-next.0
+
+### Minor Changes
+
+- 7edb810: **BREAKING**: Extensions created with the following blueprints must now be provided via an override or a module for the `app` plugin. Extensions from other plugins will now trigger a warning in the app and be ignored.
+
+  - `IconBundleBlueprint`
+  - `NavContentBlueprint`
+  - `RouterBlueprint`
+  - `SignInPageBlueprint`
+  - `SwappableComponentBlueprint`
+  - `ThemeBlueprint`
+  - `TranslationBlueprint`
+
+### Patch Changes
+
+- 69d880e: Bump to latest zod to ensure it has the latest features
+- Updated dependencies
+  - @backstage/core-components@0.18.6-next.0
+  - @backstage/frontend-plugin-api@0.14.0-next.0
+  - @backstage/core-plugin-api@1.12.2-next.0
+  - @backstage/plugin-app-react@0.1.1-next.0
+  - @backstage/integration-react@1.2.15-next.0
+  - @backstage/theme@0.7.1
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.11
+  - @backstage/plugin-permission-react@0.4.40-next.0
+
+## 0.3.4
+
+### Patch Changes
+
+- 4554a4e: Implemented support for the new `PluginWrapperBlueprint` from `@backstage/frontend-plugin-api/alpha`.
+- 9ccf84e: The following blueprints are being restricted to only be used in app plugin overrides and modules. They will now produce a deprecation warning when used outside of the app plugin:
+
+  - `AppRootWrapperBlueprint`
+  - `IconBundleBlueprint`
+  - `NavContentBlueprint`
+  - `RouterBlueprint`
+  - `SignInPageBlueprint`
+  - `SwappableComponentBlueprint`
+  - `ThemeBlueprint`
+  - `TranslationBlueprint`
+
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.13.3
+  - @backstage/plugin-app-react@0.1.0
+  - @backstage/core-components@0.18.5
+  - @backstage/integration-react@1.2.14
+
+## 0.3.4-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-components@0.18.5-next.0
+  - @backstage/integration-react@1.2.14-next.0
+
+## 0.3.4-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/integration-react@1.2.14-next.0
+  - @backstage/frontend-plugin-api@0.13.2
+
+## 0.3.3
+
+### Patch Changes
+
+- f3f84f1: Minor extension type updates after frontend API bump
+- f7bc228: Support to set `defaultLanguage` and `availableLanguages` for the app language API in the new frontend system
+- d02db50: Remove unnecessary use of `compatWrapper` and `convertLegacyRouteRef`(s) for the new frontend system.
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.13.2
+  - @backstage/core-components@0.18.4
+  - @backstage/core-plugin-api@1.12.1
+  - @backstage/theme@0.7.1
+  - @backstage/integration-react@1.2.13
+  - @backstage/plugin-permission-react@0.4.39
+
+## 0.3.3-next.1
+
+### Patch Changes
+
+- f3f84f1: Minor extension type updates after frontend API bump
+- f7bc228: Support to set `defaultLanguage` and `availableLanguages` for the app language API in the new frontend system
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.13.2-next.1
+  - @backstage/core-components@0.18.4-next.2
+  - @backstage/core-plugin-api@1.12.1-next.0
+  - @backstage/integration-react@1.2.13-next.0
+  - @backstage/theme@0.7.1-next.0
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.11
+  - @backstage/plugin-permission-react@0.4.39-next.0
+
 ## 0.3.3-next.0
 
 ### Patch Changes

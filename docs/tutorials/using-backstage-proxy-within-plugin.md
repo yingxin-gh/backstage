@@ -94,15 +94,15 @@ export const AwesomeUsersTable = () => {
 
 This section describes the steps to wrap your API client in a [Utility API](../api/utility-apis.md), which are:
 
-- use [`createApiRef`](../reference/frontend-plugin-api.createapiref.md) to create a
-  new [`ApiRef`](../reference/frontend-plugin-api.apiref.md)
-- register an [`ApiFactory`](../reference/frontend-plugin-api.apifactory.md) with
+- use [`createApiRef`](https://backstage.io/api/stable/functions/_backstage_frontend-plugin-api.index.createApiRef.html) to create a
+  new [`ApiRef`](https://backstage.io/api/stable/types/_backstage_frontend-plugin-api.index.ApiRef.html)
+- register an [`ApiFactory`](https://backstage.io/api/stable/types/_backstage_frontend-plugin-api.index.ApiFactory.html) with
   your plugin using
-  [`createApiFactory`](../reference/frontend-plugin-api.createapifactory.md). This
+  [`createApiFactory`](https://backstage.io/api/stable/functions/_backstage_frontend-plugin-api.index.createApiFactory.html). This
   will wrap your API implementation, associate your `ApiRef` with your
   implementation and tell backstage how to instantiate it
 - finally, you can use your API in your components by calling
-  [`useApi`](../reference/frontend-plugin-api.useapi.md)
+  [`useApi`](https://backstage.io/api/stable/functions/_backstage_frontend-plugin-api.index.useApi.html)
 
 ### Defining the API client interface
 
@@ -187,8 +187,8 @@ export class MyAwesomeApiClient implements MyAwesomeApi {
 ```
 
 > Check out the docs for more information on the
-> [DiscoveryApi](../reference/frontend-plugin-api.discoveryapi.md) or the
-> [FetchApi](../reference/frontend-plugin-api.fetchapi.md)
+> [DiscoveryApi](https://backstage.io/api/stable/types/_backstage_frontend-plugin-api.index.DiscoveryApi.html) or the
+> [FetchApi](https://backstage.io/api/stable/types/_backstage_frontend-plugin-api.index.FetchApi.html)
 
 ### Bundling your ApiRef with your plugin
 
@@ -233,7 +233,7 @@ export const myCustomPlugin = createPlugin({
 ### Using the API in your components
 
 Now you should be able to access your API using the backstage hook
-[`useApi`](../reference/frontend-plugin-api.useapi.md) from within your plugin code.
+[`useApi`](https://backstage.io/api/stable/functions/_backstage_frontend-plugin-api.index.useApi.html) from within your plugin code.
 
 ```ts title="plugins/my-awesome-plugin/src/components/AwesomeUsersTable.tsx"
 import { useApi } from '@backstage/core-plugin-api';

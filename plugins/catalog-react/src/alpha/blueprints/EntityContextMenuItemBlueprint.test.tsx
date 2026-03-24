@@ -48,7 +48,7 @@ describe('EntityContextMenuItemBlueprint', () => {
     },
   ];
 
-  it.each(data)('should return an extension with sane defaults', params => {
+  it.each(data)('should return an extension with sane defaults, %#', params => {
     const extension = EntityContextMenuItemBlueprint.make({
       name: 'test',
       params,
@@ -73,19 +73,86 @@ describe('EntityContextMenuItemBlueprint', () => {
                   {
                     "anyOf": [
                       {
-                        "type": [
-                          "string",
-                          "number",
-                          "boolean",
-                        ],
+                        "additionalProperties": {
+                          "anyOf": [
+                            {
+                              "type": [
+                                "string",
+                                "number",
+                                "boolean",
+                              ],
+                            },
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "$exists": {
+                                  "type": "boolean",
+                                },
+                              },
+                              "required": [
+                                "$exists",
+                              ],
+                              "type": "object",
+                            },
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "$in": {
+                                  "items": {
+                                    "$ref": "#/properties/filter/anyOf/0/anyOf/0/additionalProperties/anyOf/0",
+                                  },
+                                  "type": "array",
+                                },
+                              },
+                              "required": [
+                                "$in",
+                              ],
+                              "type": "object",
+                            },
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "$contains": {
+                                  "$ref": "#/properties/filter",
+                                },
+                              },
+                              "required": [
+                                "$contains",
+                              ],
+                              "type": "object",
+                            },
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "$hasPrefix": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "$hasPrefix",
+                              ],
+                              "type": "object",
+                            },
+                          ],
+                        },
+                        "propertyNames": {
+                          "pattern": "^(?!\\$).*$",
+                        },
+                        "type": "object",
                       },
                       {
-                        "items": {
-                          "$ref": "#/properties/filter/anyOf/0/anyOf/0",
+                        "additionalProperties": {
+                          "not": {},
                         },
-                        "type": "array",
+                        "propertyNames": {
+                          "pattern": "^\\$",
+                        },
+                        "type": "object",
                       },
                     ],
+                  },
+                  {
+                    "$ref": "#/properties/filter/anyOf/0/anyOf/0/additionalProperties/anyOf/0",
                   },
                   {
                     "additionalProperties": false,
@@ -129,58 +196,6 @@ describe('EntityContextMenuItemBlueprint', () => {
                     ],
                     "type": "object",
                   },
-                  {
-                    "additionalProperties": {
-                      "anyOf": [
-                        {
-                          "$ref": "#/properties/filter/anyOf/0",
-                        },
-                        {
-                          "additionalProperties": false,
-                          "properties": {
-                            "$exists": {
-                              "type": "boolean",
-                            },
-                          },
-                          "required": [
-                            "$exists",
-                          ],
-                          "type": "object",
-                        },
-                        {
-                          "additionalProperties": false,
-                          "properties": {
-                            "$in": {
-                              "items": {
-                                "$ref": "#/properties/filter/anyOf/0/anyOf/0",
-                              },
-                              "type": "array",
-                            },
-                          },
-                          "required": [
-                            "$in",
-                          ],
-                          "type": "object",
-                        },
-                        {
-                          "additionalProperties": false,
-                          "properties": {
-                            "$contains": {
-                              "$ref": "#/properties/filter",
-                            },
-                          },
-                          "required": [
-                            "$contains",
-                          ],
-                          "type": "object",
-                        },
-                      ],
-                    },
-                    "propertyNames": {
-                      "pattern": "^(?!\\$).*$",
-                    },
-                    "type": "object",
-                  },
                 ],
               },
             },
@@ -189,6 +204,7 @@ describe('EntityContextMenuItemBlueprint', () => {
         },
         "disabled": false,
         "factory": [Function],
+        "if": undefined,
         "inputs": {},
         "kind": "entity-context-menu-item",
         "name": "test",
@@ -243,7 +259,7 @@ describe('EntityContextMenuItemBlueprint', () => {
   it.each([
     { filter: { kind: 'Api' } },
     { filter: (e: Entity) => e.kind.toLowerCase() === 'api' },
-  ])('should return a filter function', async ({ filter }) => {
+  ])('should return a filter function, %#', async ({ filter }) => {
     const extension = EntityContextMenuItemBlueprint.make({
       name: 'test',
       params: {

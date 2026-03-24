@@ -64,6 +64,18 @@ export interface Config {
          * List of mkdocs plugins which should be added as default to all mkdocs.yml files.
          */
         defaultPlugins?: string[];
+
+        /**
+         * List of additional MkDocs configuration keys to allow beyond
+         * the default safe allowlist. This can introduce security vulnerabilities.
+         *
+         * WARNING: Some MkDocs configuration keys can execute arbitrary code. For example, the
+         * 'hooks' key allows running arbitrary Python code during documentation generation.
+         * Only use this in trusted environments where all mkdocs.yml files are audited.
+         *
+         * @see https://www.mkdocs.org/user-guide/configuration/#hooks
+         */
+        dangerouslyAllowAdditionalKeys?: string[];
       };
     };
 
@@ -100,7 +112,6 @@ export interface Config {
              * If account ID is not set and no credentials are set, environment variables or aws config file will be used to authenticate.
              * @see https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/loading-node-credentials-environment.html
              * @see https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/loading-node-credentials-shared.html
-             * @visibility secret
              */
             accountId?: string;
             /**
@@ -141,14 +152,12 @@ export interface Config {
              * (Optional) AWS Region.
              * If not set, AWS_REGION environment variable or aws config file will be used.
              * @see https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-region.html
-             * @visibility secret
              */
             region?: string;
             /**
              * (Optional) AWS Endpoint.
              * The endpoint URI to send requests to. The default endpoint is built from the configured region.
              * @see https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property
-             * @visibility secret
              */
             endpoint?: string;
             /**

@@ -1,5 +1,72 @@
 # @backstage/plugin-app-node
 
+## 0.1.43
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.8.0
+  - @backstage/config-loader@1.10.9
+
+## 0.1.43-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.8.0-next.1
+
+## 0.1.43-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/config-loader@1.10.9-next.0
+  - @backstage/backend-plugin-api@1.7.1-next.0
+
+## 0.1.42
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.7.0
+  - @backstage/config-loader@1.10.8
+
+## 0.1.42-next.0
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.7.0-next.0
+  - @backstage/config-loader@1.10.8-next.0
+
+## 0.1.41
+
+### Patch Changes
+
+- 9ccf84e: Updated plugin metadata.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.6.1
+
+## 0.1.40
+
+### Patch Changes
+
+- de96a60: chore(deps): bump `express` from 4.21.2 to 4.22.0
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.6.0
+  - @backstage/config-loader@1.10.7
+
+## 0.1.40-next.1
+
+### Patch Changes
+
+- de96a60: chore(deps): bump `express` from 4.21.2 to 4.22.0
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.6.0-next.1
+  - @backstage/config-loader@1.10.7-next.1
+
 ## 0.1.40-next.0
 
 ### Patch Changes

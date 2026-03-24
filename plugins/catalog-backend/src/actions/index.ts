@@ -17,6 +17,9 @@ import { ActionsRegistryService } from '@backstage/backend-plugin-api/alpha';
 import { CatalogService } from '@backstage/plugin-catalog-node';
 import { createGetCatalogEntityAction } from './createGetCatalogEntityAction.ts';
 import { createValidateEntityAction } from './createValidateEntityAction.ts';
+import { createRegisterCatalogEntitiesAction } from './createRegisterCatalogEntitiesAction.ts';
+import { createUnregisterCatalogEntitiesAction } from './createUnregisterCatalogEntitiesAction.ts';
+import { createQueryCatalogEntitiesAction } from './createQueryCatalogEntitiesAction.ts';
 
 export const createCatalogActions = (options: {
   actionsRegistry: ActionsRegistryService;
@@ -24,4 +27,7 @@ export const createCatalogActions = (options: {
 }) => {
   createGetCatalogEntityAction(options);
   createValidateEntityAction(options);
+  createRegisterCatalogEntitiesAction(options);
+  createUnregisterCatalogEntitiesAction(options);
+  createQueryCatalogEntitiesAction(options);
 };

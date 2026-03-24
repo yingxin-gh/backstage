@@ -192,6 +192,15 @@ export interface Config {
         };
 
     /**
+     * The strategy to use when there is a conflict with a location being registered.
+     *
+     * The default value is "reject".
+     *
+     * The "refresh" strategy will refresh the existing location instead of throwing a conflict error.
+     */
+    defaultLocationConflictStrategy?: 'refresh' | 'reject';
+
+    /**
      * The interval at which the catalog should process its entities.
      * @remarks
      *
@@ -257,5 +266,48 @@ export interface Config {
         priority?: number;
       };
     };
+
+    /**
+     * Settings that control what to do when receiving messages from the SCM
+     * events service.
+     *
+     * @defaultValue false
+     * @remarks
+     *
+     * This is primarily meant to affect builtin providers in the catalog
+     * backend such as the location handler, but other providers and processors
+     * may also read this configuration.
+     *
+     * If set to false, disable all handling of SCM events.
+     *
+     * If set to true, enable all default handling of SCM events. Note that the
+     * set of default handling can change over time.
+     *
+     * You can also configure individual handlers one by one.
+     */
+    scmEvents?:
+      | boolean
+      | {
+          /**
+           * Trigger refreshes (reprocessing) of entities that are affected by an
+           * SCM event. This may include source control file content changes,
+           * repository status changes, etc.
+           *
+           * @defaultValue true
+           */
+          refresh?: boolean;
+          /**
+           * Unregister entities that are deleted as a result of an SCM event.
+           *
+           * @defaultValue true
+           */
+          unregister?: boolean;
+          /**
+           * Move entities that are moved as a result of an SCM event.
+           *
+           * @defaultValue true
+           */
+          move?: boolean;
+        };
   };
 }

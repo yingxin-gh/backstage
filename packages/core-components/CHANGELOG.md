@@ -1,5 +1,130 @@
 # @backstage/core-components
 
+## 0.18.8
+
+### Patch Changes
+
+- e26e3de: The login request dialog now handles auth provider icons passed as `IconElement` in addition to `IconComponent`.
+- 8e09233: Fixed the shared `Progress` component to provide an accessible name for its loading indicator by default.
+- 8b1a847: Fixed Table component layout when both `filters` and `title` props are used together. The filter controls now use a dedicated CSS class (`filterControls`) instead of incorrectly reusing the root container class.
+- 3f36ce1: Clarified the `IconElement` sizing contract for the new frontend system and aligned legacy system icon rendering with the new icon API.
+- 0be2541: Promoted the plugin's translation ref to the stable package entry point. It was previously only available through the alpha entry point.
+- a49a40d: Updated dependency `zod` to `^3.25.76 || ^4.0.0` & migrated to `/v3` or `/v4` imports.
+- 470f72d: The `LogViewer` component from `@backstage/core-components` now supports downloading logs if a callback is passed to `onDownloadLogs`
+- Updated dependencies
+  - @backstage/core-plugin-api@1.12.4
+
+## 0.18.8-next.1
+
+### Patch Changes
+
+- 8b1a847: Fixed Table component layout when both `filters` and `title` props are used together. The filter controls now use a dedicated CSS class (`filterControls`) instead of incorrectly reusing the root container class.
+- 470f72d: The `LogViewer` component from `@backstage/core-components` now supports downloading logs if a callback is passed to `onDownloadLogs`
+- Updated dependencies
+  - @backstage/core-plugin-api@1.12.4-next.1
+
+## 0.18.8-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/config@1.3.6
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/errors@1.2.7
+  - @backstage/theme@0.7.2
+  - @backstage/version-bridge@1.0.12
+
+## 0.18.7
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+- a7e0d50: Updated `react-router-dom` peer dependency to `^6.30.2` and explicitly disabled v7 future flags to suppress deprecation warnings.
+- cebfea7: Removed link styles from LinkButton to avoid styling inconsistencies related to import order.
+- 69d880e: Bump to latest zod to ensure it has the latest features
+- Updated dependencies
+  - @backstage/theme@0.7.2
+  - @backstage/core-plugin-api@1.12.3
+  - @backstage/version-bridge@1.0.12
+
+## 0.18.7-next.2
+
+### Patch Changes
+
+- a7e0d50: Prepare for React Router v7 migration by updating to v6.30.2 across all NFS packages and enabling v7 future flags. Convert routes from splat paths to parent/child structure with Outlet components.
+- Updated dependencies
+  - @backstage/core-plugin-api@1.12.3-next.1
+  - @backstage/version-bridge@1.0.12-next.0
+  - @backstage/theme@0.7.2-next.1
+
+## 0.18.7-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/theme@0.7.2-next.0
+
+## 0.18.6-next.0
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+- cebfea7: Removed link styles from LinkButton to avoid styling inconsistencies related to import order.
+- 69d880e: Bump to latest zod to ensure it has the latest features
+- Updated dependencies
+  - @backstage/core-plugin-api@1.12.2-next.0
+  - @backstage/config@1.3.6
+  - @backstage/errors@1.2.7
+  - @backstage/theme@0.7.1
+  - @backstage/version-bridge@1.0.11
+
+## 0.18.5
+
+### Patch Changes
+
+- a723b8a: The MarkdownContent component now handles HTML content the same way as GitHub when rendering GitHub-flavored Markdown
+- c671db9: Fixed bug in Table component where the toolbar layout would break when both a title and filters were present.
+- 55a9dc2: Update colour token again in ItemCardHeader to respect theme definition.
+
+## 0.18.5-next.0
+
+### Patch Changes
+
+- a723b8a: The MarkdownContent component now handles HTML content the same way as GitHub when rendering GitHub-flavored Markdown
+
+## 0.18.4
+
+### Patch Changes
+
+- 9a942a4: Fixed bug in the `LogViewer` component where shift + click always opened a new window instead of just changing the selection.
+
+  In addition, improved the `LogViewer` component by a few usability enhancements:
+
+  - Added support for multiple selections using cmd/ctrl + click
+  - Improved the generated hash that is added to the URL to also support ranges & multiple selections
+  - Added an hover effect & info tooltip to the "Copy to clipboard" button to indicate its functionality
+  - Added some color and a separator to the line numbers to improve readability
+
+- 207c3c8: long words like urls now breaks to new line on warning panels instead of overflowing the container
+- 4c00303: Add `tooltipClasses` prop to `OverflowTooltip` component to allow customisation of the tooltip
+- 5d52dab: Add i18n support for LogViewer search control
+- f6b49ce: added support for wrapLongLines option in CodeSnippet
+- Updated dependencies
+  - @backstage/core-plugin-api@1.12.1
+  - @backstage/theme@0.7.1
+
+## 0.18.4-next.2
+
+### Patch Changes
+
+- 4c00303: Add `tooltipClasses` prop to `OverflowTooltip` component to allow customisation of the tooltip
+- Updated dependencies
+  - @backstage/config@1.3.6
+  - @backstage/core-plugin-api@1.12.1-next.0
+  - @backstage/errors@1.2.7
+  - @backstage/theme@0.7.1-next.0
+  - @backstage/version-bridge@1.0.11
+
 ## 0.18.4-next.1
 
 ### Patch Changes

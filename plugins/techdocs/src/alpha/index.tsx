@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import LibraryBooks from '@material-ui/icons/LibraryBooks';
+import { Suspense } from 'react';
+import { RiArticleLine } from '@remixicon/react';
 import {
   createFrontendPlugin,
   ApiBlueprint,
   PageBlueprint,
   NavItemBlueprint,
+  PluginHeaderActionBlueprint,
   createExtensionInput,
   coreExtensionData,
   createExtension,
@@ -34,15 +36,18 @@ import {
   EntityIconLinkBlueprint,
 } from '@backstage/plugin-catalog-react/alpha';
 import { SearchResultListItemBlueprint } from '@backstage/plugin-search-react/alpha';
-import { AddonBlueprint } from '@backstage/plugin-techdocs-react/alpha';
+import {
+  AddonBlueprint,
+  attachTechDocsAddonComponentData,
+} from '@backstage/plugin-techdocs-react/alpha';
+import { TechDocsAddonsApiExtension, techdocsAddonsApiRef } from './addonsApi';
 import { TechDocsClient, TechDocsStorageClient } from '../client';
 import {
   rootCatalogDocsRouteRef,
   rootDocsRouteRef,
   rootRouteRef,
 } from '../routes';
-import { TechDocsReaderLayout } from '../reader';
-import { attachTechDocsAddonComponentData } from '@backstage/plugin-techdocs-react/alpha';
+import { TechDocsReaderLayout } from './components/TechDocsReaderLayout';
 import {
   TechDocsAddons,
   techdocsApiRef,
@@ -50,7 +55,7 @@ import {
 } from '@backstage/plugin-techdocs-react';
 
 import { useTechdocsReaderIconLinkProps } from './hooks/useTechdocsReaderIconLinkProps';
-import { DocsIcon } from '@backstage/core-components';
+import { DocsIcon, SupportButton } from '@backstage/core-components';
 
 /** @alpha */
 const techdocsEntityIconLink = EntityIconLinkBlueprint.make({
@@ -136,8 +141,8 @@ const techDocsPage = PageBlueprint.make({
     path: '/docs',
     routeRef: rootRouteRef,
     loader: () =>
-      import('../home/components/TechDocsIndexPage').then(m => (
-        <m.TechDocsIndexPage />
+      import('./components/TechDocsIndexPageContent').then(m => (
+        <m.TechDocsIndexPageContent />
       )),
   },
 });
@@ -152,24 +157,46 @@ const techDocsReaderPage = PageBlueprint.makeWithOverrides({
   inputs: {
     addons: createExtensionInput([AddonBlueprint.dataRefs.addon]),
   },
-  factory(originalFactory, { inputs }) {
-    const addons = inputs.addons.map(output => {
-      const options = output.get(AddonBlueprint.dataRefs.addon);
-      const Addon = options.component;
-      attachTechDocsAddonComponentData(Addon, options);
-      return <Addon key={options.name} />;
-    });
+  config: {
+    schema: {
+      withoutSearch: z => z.boolean().default(false),
+      withoutHeader: z => z.boolean().default(false),
+    },
+  },
+  factory(originalFactory, { apis, inputs, config }) {
+    const addonsApi = apis.get(techdocsAddonsApiRef);
 
     return originalFactory({
       path: '/docs/:namespace/:kind/:name',
       routeRef: rootDocsRouteRef,
-      loader: async () =>
-        await import('../Router').then(({ TechDocsReaderRouter }) => (
+      loader: async () => {
+        // Merge addons from the API with old-style direct attachments
+        const apiAddons = addonsApi?.getAddons() ?? [];
+        const directAddons = inputs.addons.map(output =>
+          output.get(AddonBlueprint.dataRefs.addon),
+        );
+        const addonOptions = [...apiAddons, ...directAddons];
+
+        const addons = addonOptions.map(options => {
+          const Addon = options.component;
+          attachTechDocsAddonComponentData(Addon, options);
+          return (
+            <Suspense key={options.name} fallback={null}>
+              <Addon />
+            </Suspense>
+          );
+        });
+
+        return import('../Router').then(({ TechDocsReaderRouter }) => (
           <TechDocsReaderRouter>
-            <TechDocsReaderLayout />
+            <TechDocsReaderLayout
+              withSearch={!config.withoutSearch}
+              withHeader={!config.withoutHeader}
+            />
             <TechDocsAddons>{addons}</TechDocsAddons>
           </TechDocsReaderRouter>
-        )),
+        ));
+      },
     });
   },
 });
@@ -191,29 +218,42 @@ const techDocsEntityContent = EntityContentBlueprint.makeWithOverrides({
     ),
   },
   factory(originalFactory, context) {
+    const addonsApi = context.apis.get(techdocsAddonsApiRef);
+
     return originalFactory(
       {
         path: 'docs',
         title: 'TechDocs',
+        group: 'documentation',
         routeRef: rootCatalogDocsRouteRef,
-        loader: () =>
-          import('../Router').then(({ EmbeddedDocsRouter }) => {
-            const addons = context.inputs.addons.map(output => {
-              const options = output.get(AddonBlueprint.dataRefs.addon);
-              const Addon = options.component;
-              attachTechDocsAddonComponentData(Addon, options);
-              return <Addon key={options.name} />;
-            });
+        loader: () => {
+          // Merge addons from the API with old-style direct attachments
+          const apiAddons = addonsApi?.getAddons() ?? [];
+          const directAddons = context.inputs.addons.map(output =>
+            output.get(AddonBlueprint.dataRefs.addon),
+          );
+          const addonOptions = [...apiAddons, ...directAddons];
+
+          const addons = addonOptions.map(options => {
+            const Addon = options.component;
+            attachTechDocsAddonComponentData(Addon, options);
             return (
-              <EmbeddedDocsRouter
-                emptyState={context.inputs.emptyState?.get(
-                  coreExtensionData.reactElement,
-                )}
-              >
-                <TechDocsAddons>{addons}</TechDocsAddons>
-              </EmbeddedDocsRouter>
+              <Suspense key={options.name} fallback={null}>
+                <Addon />
+              </Suspense>
             );
-          }),
+          });
+
+          return import('../Router').then(({ EmbeddedDocsRouter }) => (
+            <EmbeddedDocsRouter
+              emptyState={context.inputs.emptyState?.get(
+                coreExtensionData.reactElement,
+              )}
+            >
+              <TechDocsAddons>{addons}</TechDocsAddons>
+            </EmbeddedDocsRouter>
+          ));
+        },
       },
       context,
     );
@@ -231,20 +271,33 @@ const techDocsEntityContentEmptyState = createExtension({
 /** @alpha */
 const techDocsNavItem = NavItemBlueprint.make({
   params: {
-    icon: LibraryBooks,
+    icon: () => <RiArticleLine />,
     title: 'Docs',
     routeRef: rootRouteRef,
   },
 });
 
+const techDocsSupportAction = PluginHeaderActionBlueprint.make({
+  params: defineParams =>
+    defineParams({
+      loader: async () => (
+        <SupportButton>Discover documentation in your ecosystem.</SupportButton>
+      ),
+    }),
+});
+
 /** @alpha */
 export default createFrontendPlugin({
   pluginId: 'techdocs',
+  title: 'Documentation',
+  icon: <RiArticleLine />,
   info: { packageJson: () => import('../../package.json') },
   extensions: [
     techDocsClientApi,
     techDocsStorageApi,
+    TechDocsAddonsApiExtension,
     techDocsNavItem,
+    techDocsSupportAction,
     techDocsPage,
     techDocsReaderPage,
     techdocsEntityIconLink,

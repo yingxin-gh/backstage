@@ -23,6 +23,7 @@ import { ReactNode } from 'react';
 import { RendererProps as RendererProps_2 } from '@backstage/plugin-home-react';
 import { RouteRef } from '@backstage/core-plugin-api';
 import { StorageApi } from '@backstage/core-plugin-api';
+import { TranslationRef } from '@backstage/frontend-plugin-api';
 import { Variant } from '@material-ui/core/styles/createTypography';
 
 // @public
@@ -177,6 +178,39 @@ export const homePlugin: BackstagePlugin<
 >;
 
 // @public
+export const homeTranslationRef: TranslationRef<
+  'home',
+  {
+    readonly 'starredEntities.noStarredEntitiesMessage': 'Click the star beside an entity name to add it to this list!';
+    readonly 'addWidgetDialog.title': 'Add new widget to dashboard';
+    readonly 'customHomepageButtons.cancel': 'Cancel';
+    readonly 'customHomepageButtons.clearAll': 'Clear all';
+    readonly 'customHomepageButtons.edit': 'Edit';
+    readonly 'customHomepageButtons.restoreDefaults': 'Restore defaults';
+    readonly 'customHomepageButtons.addWidget': 'Add widget';
+    readonly 'customHomepageButtons.save': 'Save';
+    readonly 'customHomepage.noWidgets': "No widgets added. Start by clicking the 'Add widget' button.";
+    readonly 'widgetSettingsOverlay.cancelButtonTitle': 'Cancel';
+    readonly 'widgetSettingsOverlay.editSettingsTooptip': 'Edit settings';
+    readonly 'widgetSettingsOverlay.deleteWidgetTooltip': 'Delete widget';
+    readonly 'widgetSettingsOverlay.submitButtonTitle': 'Submit';
+    readonly 'starredEntityListItem.removeFavoriteEntityTitle': 'Remove entity from favorites';
+    readonly 'visitList.empty.title': 'There are no visits to show yet.';
+    readonly 'visitList.empty.description': 'Once you start using Backstage, your visits will appear here as a quick link to carry on where you left off.';
+    readonly 'visitList.few.title': 'The more pages you visit, the more pages will appear here.';
+    readonly 'quickStart.title': 'Onboarding';
+    readonly 'quickStart.description': 'Get started with Backstage';
+    readonly 'quickStart.learnMoreLinkTitle': 'Learn more';
+    readonly 'visitedByType.action.viewMore': 'View more';
+    readonly 'visitedByType.action.viewLess': 'View less';
+    readonly 'featuredDocsCard.empty.title': 'No documents to show';
+    readonly 'featuredDocsCard.empty.description': 'Create your own document. Check out our Getting Started Information';
+    readonly 'featuredDocsCard.empty.learnMoreLinkTitle': 'DOCS';
+    readonly 'featuredDocsCard.learnMoreTitle': 'LEARN MORE';
+  }
+>;
+
+// @public
 export const isOperator: (s: string) => s is Operators;
 
 // @public
@@ -273,11 +307,9 @@ export interface VisitDisplayContextValue {
 }
 
 // @public
-export const VisitDisplayProvider: ({
-  children,
-  getChipColor,
-  getLabel,
-}: VisitDisplayProviderProps) => JSX_2.Element;
+export const VisitDisplayProvider: (
+  input: VisitDisplayProviderProps,
+) => JSX_2.Element;
 
 // @public
 export interface VisitDisplayProviderProps {
@@ -309,14 +341,10 @@ export type VisitInput = {
 };
 
 // @public
-export const VisitListener: ({
-  children,
-  toEntityRef,
-  visitName,
-}: {
+export const VisitListener: (input: {
   children?: ReactNode;
-  toEntityRef?: ({ pathname }: { pathname: string }) => string | undefined;
-  visitName?: ({ pathname }: { pathname: string }) => string;
+  toEntityRef?: (input: { pathname: string }) => string | undefined;
+  visitName?: (input: { pathname: string }) => string;
 }) => JSX.Element;
 
 // @public
@@ -344,7 +372,7 @@ export type VisitsApiQueryParams = {
   }>;
 };
 
-// @public (undocumented)
+// @public
 export const visitsApiRef: ApiRef<VisitsApi>;
 
 // @public
@@ -389,10 +417,7 @@ export type VisitsWebStorageApiOptions = {
 };
 
 // @public
-export const WelcomeTitle: ({
-  language,
-  variant,
-}: WelcomeTitleLanguageProps) => JSX_2.Element;
+export const WelcomeTitle: (input: WelcomeTitleLanguageProps) => JSX_2.Element;
 
 // @public (undocumented)
 export type WelcomeTitleLanguageProps = {

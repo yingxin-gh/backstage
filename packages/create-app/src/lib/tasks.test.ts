@@ -15,9 +15,9 @@
  */
 
 import fs from 'fs-extra';
-import child_process from 'child_process';
-import { resolve as resolvePath } from 'path';
-import os from 'os';
+import child_process from 'node:child_process';
+import { resolve as resolvePath } from 'node:path';
+import os from 'node:os';
 import {
   Task,
   buildAppTask,
@@ -50,6 +50,7 @@ jest.mock('./versions', () => ({
   packageVersions: {
     root: '1.2.3',
     '@backstage/cli': '1.0.0',
+    '@backstage/cli-defaults': '1.0.0',
     '@backstage/backend-defaults': '1.0.0',
     '@backstage/backend-tasks': '1.0.0',
     '@backstage/catalog-model': '1.0.0',

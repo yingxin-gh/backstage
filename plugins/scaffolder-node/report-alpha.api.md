@@ -8,14 +8,10 @@ import { JsonValue } from '@backstage/types';
 import { TaskBroker } from '@backstage/plugin-scaffolder-node';
 import { TemplateFilter as TemplateFilter_2 } from '@backstage/plugin-scaffolder-node';
 import { TemplateGlobal as TemplateGlobal_2 } from '@backstage/plugin-scaffolder-node';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 // @alpha
-export type AutocompleteHandler = ({
-  resource,
-  token,
-  context,
-}: {
+export type AutocompleteHandler = (input: {
   resource: string;
   token: string;
   context: Record<string, string>;
@@ -125,10 +121,7 @@ export const restoreWorkspace: (opts: {
 // @alpha
 export interface ScaffolderAutocompleteExtensionPoint {
   // (undocumented)
-  addAutocompleteProvider({
-    id,
-    handler,
-  }: {
+  addAutocompleteProvider(input: {
     id: string;
     handler: AutocompleteHandler;
   }): void;
@@ -217,13 +210,7 @@ export interface WorkspaceProvider {
     targetPath: string;
   }): Promise<void>;
   // (undocumented)
-  serializeWorkspace({
-    path,
-    taskId,
-  }: {
-    path: string;
-    taskId: string;
-  }): Promise<void>;
+  serializeWorkspace(input: { path: string; taskId: string }): Promise<void>;
 }
 
 // @alpha (undocumented)

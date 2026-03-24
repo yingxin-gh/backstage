@@ -6,35 +6,37 @@
 import { AnyRouteRefParams as AnyRouteRefParams_2 } from '@backstage/frontend-plugin-api';
 import { ApiRef as ApiRef_2 } from '@backstage/frontend-plugin-api';
 import { ComponentType } from 'react';
-import { Config } from '@backstage/config';
+import type { Config } from '@backstage/config';
 import { ConfigurableExtensionDataRef as ConfigurableExtensionDataRef_2 } from '@backstage/frontend-plugin-api';
 import { Expand } from '@backstage/types';
 import { ExpandRecursive } from '@backstage/types';
 import { ExtensionBlueprint as ExtensionBlueprint_2 } from '@backstage/frontend-plugin-api';
 import { ExtensionBlueprintParams as ExtensionBlueprintParams_2 } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef as ExtensionDataRef_2 } from '@backstage/frontend-plugin-api';
-import { IconComponent as IconComponent_2 } from '@backstage/frontend-plugin-api';
+import { ExtensionInput as ExtensionInput_2 } from '@backstage/frontend-plugin-api';
+import { FilterPredicate } from '@backstage/filter-predicates';
 import { JsonObject } from '@backstage/types';
 import { JsonValue } from '@backstage/types';
-import { JSX as JSX_2 } from 'react/jsx-runtime';
-import { JSX as JSX_3 } from 'react';
+import { JSX as JSX_2 } from 'react';
+import { JSX as JSX_3 } from 'react/jsx-runtime';
 import { Observable } from '@backstage/types';
 import { PropsWithChildren } from 'react';
 import { ReactNode } from 'react';
-import { RouteRef as RouteRef_2 } from '@backstage/frontend-plugin-api';
 import { SwappableComponentRef as SwappableComponentRef_2 } from '@backstage/frontend-plugin-api';
-import { z } from 'zod';
+import type { z } from 'zod/v3';
 
-// @public
+// @public @deprecated
 export type AlertApi = {
   post(alert: AlertMessage): void;
   alert$(): Observable<AlertMessage>;
 };
 
-// @public
-export const alertApiRef: ApiRef<AlertApi>;
+// @public @deprecated
+export const alertApiRef: ApiRef_2<AlertApi, 'core.alert'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
-// @public
+// @public @deprecated
 export type AlertMessage = {
   message: string;
   severity?: 'success' | 'info' | 'warning' | 'error';
@@ -47,13 +49,15 @@ export type AnalyticsApi = {
 };
 
 // @public
-export const analyticsApiRef: ApiRef<AnalyticsApi>;
+export const analyticsApiRef: ApiRef_2<AnalyticsApi, 'core.analytics'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export const AnalyticsContext: (options: {
   attributes: Partial<AnalyticsContextValue>;
   children: ReactNode;
-}) => JSX_2.Element;
+}) => JSX_3.Element;
 
 // @public
 export interface AnalyticsContextValue {
@@ -82,7 +86,7 @@ export type AnalyticsImplementation = {
   captureEvent(event: AnalyticsEvent): void;
 };
 
-// @public
+// @public @deprecated
 export const AnalyticsImplementationBlueprint: ExtensionBlueprint_2<{
   kind: 'analytics';
   params: <TDeps extends { [name in string]: unknown }>(
@@ -105,7 +109,7 @@ export const AnalyticsImplementationBlueprint: ExtensionBlueprint_2<{
   };
 }>;
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export type AnalyticsImplementationFactory<
   Deps extends {
     [name in string]: unknown;
@@ -138,9 +142,6 @@ export type AnyApiFactory = ApiFactory<
 
 // @public
 export type AnyApiRef = ApiRef<unknown>;
-
-// @public @deprecated (undocumented)
-export type AnyExtensionDataRef = ExtensionDataRef;
 
 // @public
 export type AnyRouteRefParams =
@@ -191,9 +192,10 @@ export type ApiHolder = {
 };
 
 // @public
-export type ApiRef<T> = {
-  id: string;
-  T: T;
+export type ApiRef<T, TId extends string = string> = {
+  readonly $$type?: '@backstage/ApiRef';
+  readonly id: TId;
+  readonly T: T;
 };
 
 // @public
@@ -216,7 +218,9 @@ export type AppLanguageApi = {
 };
 
 // @public (undocumented)
-export const appLanguageApiRef: ApiRef<AppLanguageApi>;
+export const appLanguageApiRef: ApiRef_2<AppLanguageApi, 'core.applanguage'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export interface AppNode {
@@ -255,6 +259,8 @@ export interface AppNodeSpec {
   // (undocumented)
   readonly id: string;
   // (undocumented)
+  readonly if?: FilterPredicate;
+  // (undocumented)
   readonly plugin: FrontendPlugin;
 }
 
@@ -264,35 +270,11 @@ export const AppRootElementBlueprint: ExtensionBlueprint_2<{
   params: {
     element: JSX.Element;
   };
-  output: ExtensionDataRef_2<JSX_3, 'core.reactElement', {}>;
+  output: ExtensionDataRef_2<JSX_2, 'core.reactElement', {}>;
   inputs: {};
   config: {};
   configInput: {};
   dataRefs: never;
-}>;
-
-// @public
-export const AppRootWrapperBlueprint: ExtensionBlueprint_2<{
-  kind: 'app-root-wrapper';
-  params: {
-    Component?: [error: 'Use the `component` parameter instead'];
-    component: (props: { children: ReactNode }) => JSX.Element | null;
-  };
-  output: ExtensionDataRef_2<
-    (props: { children: ReactNode }) => JSX.Element | null,
-    'app.root.wrapper',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    component: ConfigurableExtensionDataRef_2<
-      (props: { children: ReactNode }) => JSX.Element | null,
-      'app.root.wrapper',
-      {}
-    >;
-  };
 }>;
 
 // @public
@@ -313,7 +295,9 @@ export type AppThemeApi = {
 };
 
 // @public
-export const appThemeApiRef: ApiRef<AppThemeApi>;
+export const appThemeApiRef: ApiRef_2<AppThemeApi, 'core.apptheme'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export interface AppTree {
@@ -333,18 +317,23 @@ export interface AppTreeApi {
 }
 
 // @public
-export const appTreeApiRef: ApiRef_2<AppTreeApi>;
+export const appTreeApiRef: ApiRef_2<AppTreeApi, 'core.app-tree'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const atlassianAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const atlassianAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.atlassian'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type AuthProviderInfo = {
   id: string;
   title: string;
-  icon: IconComponent;
+  icon: IconComponent | IconElement;
   message?: string;
 };
 
@@ -376,20 +365,28 @@ export type BackstageUserIdentity = {
 };
 
 // @public
-export const bitbucketAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const bitbucketAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.bitbucket'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const bitbucketServerAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const bitbucketServerAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.bitbucket-server'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type ConfigApi = Config;
 
 // @public
-export const configApiRef: ApiRef<ConfigApi>;
+export const configApiRef: ApiRef_2<Config, 'core.config'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export interface ConfigurableExtensionDataRef<
@@ -414,8 +411,9 @@ export interface ConfigurableExtensionDataRef<
 // @public (undocumented)
 export const coreExtensionData: {
   title: ConfigurableExtensionDataRef_2<string, 'core.title', {}>;
+  icon: ConfigurableExtensionDataRef_2<IconElement, 'core.icon', {}>;
   reactElement: ConfigurableExtensionDataRef_2<
-    JSX_3.Element,
+    JSX_2.Element,
     'core.reactElement',
     {}
   >;
@@ -442,8 +440,22 @@ export function createApiFactory<Api, Impl extends Api>(
   instance: Impl,
 ): ApiFactory<Api, Impl, {}>;
 
+// @public @deprecated
+export function createApiRef<T>(config: ApiRefConfig): ApiRef<T> & {
+  readonly $$type: '@backstage/ApiRef';
+};
+
 // @public
-export function createApiRef<T>(config: ApiRefConfig): ApiRef<T>;
+export function createApiRef<T>(): {
+  with<const TId extends string>(
+    config: ApiRefConfig & {
+      id: TId;
+      pluginId?: string;
+    },
+  ): ApiRef<T, TId> & {
+    readonly $$type: '@backstage/ApiRef';
+  };
+};
 
 // @public
 export function createExtension<
@@ -568,6 +580,7 @@ export type CreateExtensionBlueprintOptions<
   attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
     VerifyExtensionAttachTo<UOutput, UParentInputs>;
   disabled?: boolean;
+  if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
   config?: {
@@ -604,7 +617,7 @@ export function createExtensionDataRef<TData>(): {
   }): ConfigurableExtensionDataRef<TData, TId>;
 };
 
-// @public (undocumented)
+// @public
 export function createExtensionInput<
   UExtensionData extends ExtensionDataRef<
     unknown,
@@ -616,6 +629,7 @@ export function createExtensionInput<
   TConfig extends {
     singleton?: boolean;
     optional?: boolean;
+    internal?: boolean;
   },
 >(
   extensionData: Array<UExtensionData>,
@@ -630,6 +644,7 @@ export function createExtensionInput<
   {
     singleton: TConfig['singleton'] extends true ? true : false;
     optional: TConfig['optional'] extends true ? true : false;
+    internal: TConfig['internal'] extends true ? true : false;
   }
 >;
 
@@ -652,6 +667,7 @@ export type CreateExtensionOptions<
   attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
     VerifyExtensionAttachTo<UOutput, UParentInputs>;
   disabled?: boolean;
+  if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
   config?: {
@@ -740,6 +756,8 @@ export interface CreateFrontendModuleOptions<
   // (undocumented)
   featureFlags?: FeatureFlagConfig[];
   // (undocumented)
+  if?: FilterPredicate;
+  // (undocumented)
   pluginId: TPluginId;
 }
 
@@ -754,12 +772,46 @@ export function createFrontendPlugin<
     [name in string]: ExternalRouteRef;
   } = {},
 >(
-  options: PluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>,
+  options: CreateFrontendPluginOptions<
+    TId,
+    TRoutes,
+    TExternalRoutes,
+    TExtensions
+  >,
 ): OverridableFrontendPlugin<
   TRoutes,
   TExternalRoutes,
   MakeSortedExtensionsMap<TExtensions[number], TId>
 >;
+
+// @public
+export interface CreateFrontendPluginOptions<
+  TId extends string,
+  TRoutes extends {
+    [name in string]: RouteRef | SubRouteRef;
+  },
+  TExternalRoutes extends {
+    [name in string]: ExternalRouteRef;
+  },
+  TExtensions extends readonly ExtensionDefinition[],
+> {
+  // (undocumented)
+  extensions?: TExtensions;
+  // (undocumented)
+  externalRoutes?: TExternalRoutes;
+  // (undocumented)
+  featureFlags?: FeatureFlagConfig[];
+  icon?: IconElement;
+  // (undocumented)
+  if?: FilterPredicate;
+  // (undocumented)
+  info?: FrontendPluginInfoOptions;
+  // (undocumented)
+  pluginId: TId;
+  // (undocumented)
+  routes?: TRoutes;
+  title?: string;
+}
 
 // @public
 export function createRouteRef<
@@ -888,13 +940,15 @@ export interface DialogApiDialog<TResult = void> {
   result(): Promise<TResult>;
   update(
     elementOrComponent:
-      | React.JSX.Element
+      | JSX.Element
       | ((props: { dialog: DialogApiDialog<TResult> }) => JSX.Element),
   ): void;
 }
 
 // @public
-export const dialogApiRef: ApiRef_2<DialogApi>;
+export const dialogApiRef: ApiRef_2<DialogApi, 'core.dialog'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type DiscoveryApi = {
@@ -902,7 +956,9 @@ export type DiscoveryApi = {
 };
 
 // @public
-export const discoveryApiRef: ApiRef<DiscoveryApi>;
+export const discoveryApiRef: ApiRef_2<DiscoveryApi, 'core.discovery'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type ErrorApi = {
@@ -926,7 +982,9 @@ export type ErrorApiErrorContext = {
 };
 
 // @public
-export const errorApiRef: ApiRef<ErrorApi>;
+export const errorApiRef: ApiRef_2<ErrorApi, 'core.error'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export const ErrorDisplay: {
@@ -946,7 +1004,7 @@ export interface Extension<TConfig, TConfigInput = TConfig> {
   // (undocumented)
   $$type: '@backstage/Extension';
   // (undocumented)
-  readonly attachTo: ExtensionAttachToSpec;
+  readonly attachTo: ExtensionAttachTo;
   // (undocumented)
   readonly configSchema?: PortableSchema<TConfig, TConfigInput>;
   // (undocumented)
@@ -956,18 +1014,10 @@ export interface Extension<TConfig, TConfigInput = TConfig> {
 }
 
 // @public (undocumented)
-export type ExtensionAttachTo =
-  | {
-      id: string;
-      input: string;
-    }
-  | Array<{
-      id: string;
-      input: string;
-    }>;
-
-// @public @deprecated (undocumented)
-export type ExtensionAttachToSpec = ExtensionAttachTo;
+export type ExtensionAttachTo = {
+  id: string;
+  input: string;
+};
 
 // @public (undocumented)
 export interface ExtensionBlueprint<
@@ -985,6 +1035,7 @@ export interface ExtensionBlueprint<
     attachTo?: ExtensionDefinitionAttachTo<UParentInputs> &
       VerifyExtensionAttachTo<NonNullable<T['output']>, UParentInputs>;
     disabled?: boolean;
+    if?: FilterPredicate;
     params: TParamsInput extends ExtensionBlueprintDefineParams
       ? TParamsInput
       : T['params'] extends ExtensionBlueprintDefineParams
@@ -1020,6 +1071,7 @@ export interface ExtensionBlueprint<
         UParentInputs
       >;
     disabled?: boolean;
+    if?: FilterPredicate;
     inputs?: TExtraInputs & {
       [KName in keyof T['inputs']]?: `Error: Input '${KName &
         string}' is already defined in parent definition`;
@@ -1125,7 +1177,7 @@ export type ExtensionBlueprintParams<T extends object = object> = {
 };
 
 // @public (undocumented)
-export function ExtensionBoundary(props: ExtensionBoundaryProps): JSX_2.Element;
+export function ExtensionBoundary(props: ExtensionBoundaryProps): JSX_3.Element;
 
 // @public (undocumented)
 export namespace ExtensionBoundary {
@@ -1190,12 +1242,6 @@ export type ExtensionDataRef<
 };
 
 // @public (undocumented)
-export type ExtensionDataRefToValue<TDataRef extends AnyExtensionDataRef> =
-  TDataRef extends ExtensionDataRef<infer IData, infer IId, any>
-    ? ExtensionDataValue<IData, IId>
-    : never;
-
-// @public (undocumented)
 export type ExtensionDataValue<TData, TId extends string> = {
   readonly $$type: '@backstage/ExtensionDataValue';
   readonly id: TId;
@@ -1229,23 +1275,7 @@ export type ExtensionDefinitionAttachTo<
       input: string;
       id?: never;
     }
-  | ExtensionInput<UParentInputs>
-  | Array<
-      | {
-          id: string;
-          input: string;
-          relative?: never;
-        }
-      | {
-          relative: {
-            kind?: string;
-            name?: string;
-          };
-          input: string;
-          id?: never;
-        }
-      | ExtensionInput<UParentInputs>
-    >;
+  | ExtensionInput<UParentInputs>;
 
 // @public (undocumented)
 export type ExtensionDefinitionParameters = {
@@ -1264,7 +1294,7 @@ export type ExtensionDefinitionParameters = {
   params?: object | ExtensionBlueprintDefineParams;
 };
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export type ExtensionFactoryMiddleware = (
   originalFactory: (contextOverrides?: {
     config?: JsonObject;
@@ -1288,9 +1318,11 @@ export interface ExtensionInput<
   TConfig extends {
     singleton: boolean;
     optional: boolean;
+    internal?: boolean;
   } = {
     singleton: boolean;
     optional: boolean;
+    internal?: boolean;
   },
 > {
   // (undocumented)
@@ -1326,6 +1358,7 @@ export type FeatureFlag = {
 // @public
 export type FeatureFlagConfig = {
   name: string;
+  description?: string;
 };
 
 // @public
@@ -1337,7 +1370,12 @@ export interface FeatureFlagsApi {
 }
 
 // @public
-export const featureFlagsApiRef: ApiRef<FeatureFlagsApi>;
+export const featureFlagsApiRef: ApiRef_2<
+  FeatureFlagsApi,
+  'core.featureflags'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type FeatureFlagsSaveOptions = {
@@ -1369,10 +1407,16 @@ export type FetchApi = {
 };
 
 // @public
-export const fetchApiRef: ApiRef<FetchApi>;
+export const fetchApiRef: ApiRef_2<FetchApi, 'core.fetch'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
-export type FrontendFeature = FrontendPlugin | FrontendModule;
+export type FrontendFeature =
+  | (Omit<FrontendPlugin, 'pluginId'> & {
+      pluginId?: string;
+    })
+  | FrontendModule;
 
 // @public (undocumented)
 export interface FrontendFeatureLoader {
@@ -1405,11 +1449,14 @@ export interface FrontendPlugin<
   readonly $$type: '@backstage/FrontendPlugin';
   // (undocumented)
   readonly externalRoutes: TExternalRoutes;
-  // (undocumented)
+  readonly icon?: IconElement;
+  // @deprecated
   readonly id: string;
   info(): Promise<FrontendPluginInfo>;
+  readonly pluginId: string;
   // (undocumented)
   readonly routes: TRoutes;
+  readonly title?: string;
 }
 
 // @public
@@ -1435,70 +1482,58 @@ export type FrontendPluginInfoOptions = {
 };
 
 // @public
-export const githubAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const githubAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.github'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const gitlabAuthApiRef: ApiRef<
+export const gitlabAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.gitlab'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const googleAuthApiRef: ApiRef<
+export const googleAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.google'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
-// @public (undocumented)
-export const IconBundleBlueprint: ExtensionBlueprint_2<{
-  kind: 'icon-bundle';
-  params: {
-    icons: { [key in string]: IconComponent };
-  };
-  output: ExtensionDataRef_2<
-    {
-      [x: string]: IconComponent;
-    },
-    'core.icons',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    icons: ConfigurableExtensionDataRef_2<
-      {
-        [x: string]: IconComponent;
-      },
-      'core.icons',
-      {}
-    >;
-  };
-}>;
-
-// @public
+// @public @deprecated
 export type IconComponent = ComponentType<{
   fontSize?: 'medium' | 'large' | 'small' | 'inherit';
 }>;
 
 // @public
+export type IconElement = JSX_2.Element | null;
+
+// @public
 export interface IconsApi {
-  // (undocumented)
+  // @deprecated (undocumented)
   getIcon(key: string): IconComponent | undefined;
+  icon(key: string): IconElement | undefined;
   // (undocumented)
   listIconKeys(): string[];
 }
 
 // @public
-export const iconsApiRef: ApiRef_2<IconsApi>;
+export const iconsApiRef: ApiRef_2<IconsApi, 'core.icons'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type IdentityApi = {
@@ -1511,57 +1546,23 @@ export type IdentityApi = {
 };
 
 // @public
-export const identityApiRef: ApiRef<IdentityApi>;
+export const identityApiRef: ApiRef_2<IdentityApi, 'core.identity'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const microsoftAuthApiRef: ApiRef<
+export const microsoftAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.microsoft'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
-// @public
-export const NavContentBlueprint: ExtensionBlueprint_2<{
-  kind: 'nav-content';
-  params: {
-    component: NavContentComponent;
-  };
-  output: ExtensionDataRef_2<
-    NavContentComponent,
-    'core.nav-content.component',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    component: ConfigurableExtensionDataRef_2<
-      NavContentComponent,
-      'core.nav-content.component',
-      {}
-    >;
-  };
-}>;
-
-// @public
-export type NavContentComponent = (
-  props: NavContentComponentProps,
-) => JSX.Element | null;
-
-// @public
-export interface NavContentComponentProps {
-  items: Array<{
-    icon: IconComponent_2;
-    title: string;
-    routeRef: RouteRef_2<undefined>;
-    to: string;
-    text: string;
-  }>;
-}
-
-// @public
+// @public @deprecated
 export const NavItemBlueprint: ExtensionBlueprint_2<{
   kind: 'nav-item';
   params: {
@@ -1622,7 +1623,12 @@ export type OAuthRequestApi = {
 };
 
 // @public
-export const oauthRequestApiRef: ApiRef<OAuthRequestApi>;
+export const oauthRequestApiRef: ApiRef_2<
+  OAuthRequestApi,
+  'core.oauthrequest'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type OAuthRequester<TAuthResponse> = (
@@ -1639,22 +1645,28 @@ export type OAuthRequesterOptions<TOAuthResponse> = {
 export type OAuthScope = string | string[];
 
 // @public
-export const oktaAuthApiRef: ApiRef<
+export const oktaAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.okta'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const oneloginAuthApiRef: ApiRef<
+export const oneloginAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.onelogin'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type OpenIdConnectApi = {
@@ -1662,9 +1674,12 @@ export type OpenIdConnectApi = {
 };
 
 // @public
-export const openshiftAuthApiRef: ApiRef<
-  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->;
+export const openshiftAuthApiRef: ApiRef_2<
+  OAuthApi & ProfileInfoApi & BackstageIdentityApi & SessionApi,
+  'core.auth.openshift'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export interface OverridableExtensionDefinition<
@@ -1698,6 +1713,7 @@ export interface OverridableExtensionDefinition<
             UParentInputs
           >;
         disabled?: boolean;
+        if?: FilterPredicate;
         inputs?: TExtraInputs & {
           [KName in keyof T['inputs']]?: `Error: Input '${KName &
             string}' is already defined in parent definition`;
@@ -1802,7 +1818,10 @@ export interface OverridableFrontendPlugin<
   ): OverridableExtensionDefinition<TExtensionMap[TId]['T']>;
   // (undocumented)
   withOverrides(options: {
-    extensions: Array<ExtensionDefinition>;
+    extensions?: Array<ExtensionDefinition>;
+    if?: FilterPredicate;
+    title?: string;
+    icon?: IconElement;
     info?: FrontendPluginInfoOptions;
   }): OverridableFrontendPlugin<TRoutes, TExternalRoutes, TExtensionMap>;
 }
@@ -1811,30 +1830,118 @@ export interface OverridableFrontendPlugin<
 export const PageBlueprint: ExtensionBlueprint_2<{
   kind: 'page';
   params: {
-    defaultPath?: [Error: `Use the 'path' param instead`];
     path: string;
-    loader: () => Promise<JSX.Element>;
+    title?: string;
+    icon?: IconElement;
+    loader?: () => Promise<JSX_2.Element>;
     routeRef?: RouteRef;
+    noHeader?: boolean;
   };
   output:
     | ExtensionDataRef_2<string, 'core.routing.path', {}>
-    | ExtensionDataRef_2<JSX_3, 'core.reactElement', {}>
     | ExtensionDataRef_2<
         RouteRef<AnyRouteRefParams_2>,
         'core.routing.ref',
         {
           optional: true;
         }
+      >
+    | ExtensionDataRef_2<JSX_2.Element, 'core.reactElement', {}>
+    | ExtensionDataRef_2<
+        string,
+        'core.title',
+        {
+          optional: true;
+        }
+      >
+    | ExtensionDataRef_2<
+        IconElement,
+        'core.icon',
+        {
+          optional: true;
+        }
       >;
-  inputs: {};
+  inputs: {
+    pages: ExtensionInput_2<
+      | ConfigurableExtensionDataRef_2<JSX_2.Element, 'core.reactElement', {}>
+      | ConfigurableExtensionDataRef_2<string, 'core.routing.path', {}>
+      | ConfigurableExtensionDataRef_2<
+          RouteRef<AnyRouteRefParams_2>,
+          'core.routing.ref',
+          {
+            optional: true;
+          }
+        >
+      | ConfigurableExtensionDataRef_2<
+          string,
+          'core.title',
+          {
+            optional: true;
+          }
+        >
+      | ConfigurableExtensionDataRef_2<
+          IconElement,
+          'core.icon',
+          {
+            optional: true;
+          }
+        >,
+      {
+        singleton: false;
+        optional: false;
+        internal: false;
+      }
+    >;
+  };
   config: {
     path: string | undefined;
+    title: string | undefined;
   };
   configInput: {
+    title?: string | undefined;
     path?: string | undefined;
   };
   dataRefs: never;
 }>;
+
+// @public
+export const PageLayout: {
+  (props: PageLayoutProps): JSX.Element | null;
+  ref: SwappableComponentRef_2<PageLayoutProps, PageLayoutProps>;
+};
+
+// @public
+export interface PageLayoutProps {
+  // (undocumented)
+  children?: ReactNode;
+  // (undocumented)
+  headerActions?: Array<JSX.Element | null>;
+  // (undocumented)
+  icon?: IconElement;
+  // (undocumented)
+  noHeader?: boolean;
+  // (undocumented)
+  tabs?: PageLayoutTab[];
+  // (undocumented)
+  title?: string;
+  // (undocumented)
+  titleLink?: string;
+}
+
+// @public
+export interface PageLayoutTab {
+  // (undocumented)
+  href: string;
+  // (undocumented)
+  icon?: IconElement;
+  // (undocumented)
+  id: string;
+  // (undocumented)
+  label: string;
+}
+
+// @public @deprecated (undocumented)
+export type PageTab = PageLayoutTab;
 
 // @public
 export type PendingOAuthRequest = {
@@ -1843,8 +1950,34 @@ export type PendingOAuthRequest = {
   trigger(): Promise<void>;
 };
 
-// @public (undocumented)
-export interface PluginOptions<
+// @public
+export const PluginHeaderActionBlueprint: ExtensionBlueprint_2<{
+  kind: 'plugin-header-action';
+  params: {
+    loader: () => Promise<JSX.Element>;
+  };
+  output: ExtensionDataRef_2<JSX_2, 'core.reactElement', {}>;
+  inputs: {};
+  config: {};
+  configInput: {};
+  dataRefs: never;
+}>;
+
+// @public
+export type PluginHeaderActionsApi = {
+  getPluginHeaderActions(pluginId: string): Array<JSX_2.Element | null>;
+};
+
+// @public
+export const pluginHeaderActionsApiRef: ApiRef_2<
+  PluginHeaderActionsApi,
+  'core.plugin-header-actions'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
+
+// @public @deprecated (undocumented)
+export type PluginOptions<
   TId extends string,
   TRoutes extends {
     [name in string]: RouteRef | SubRouteRef;
@@ -1853,20 +1986,61 @@ export interface PluginOptions<
     [name in string]: ExternalRouteRef;
   },
   TExtensions extends readonly ExtensionDefinition[],
-> {
-  // (undocumented)
-  extensions?: TExtensions;
-  // (undocumented)
-  externalRoutes?: TExternalRoutes;
-  // (undocumented)
-  featureFlags?: FeatureFlagConfig[];
-  // (undocumented)
-  info?: FrontendPluginInfoOptions;
-  // (undocumented)
-  pluginId: TId;
-  // (undocumented)
-  routes?: TRoutes;
-}
+> = CreateFrontendPluginOptions<TId, TRoutes, TExternalRoutes, TExtensions>;
+
+// @public
+export type PluginWrapperApi = {
+  getRootWrapper(): ComponentType<{
+    children: ReactNode;
+  }>;
+  getPluginWrapper(pluginId: string):
+    | ComponentType<{
+        children: ReactNode;
+      }>
+    | undefined;
+};
+
+// @public
+export const pluginWrapperApiRef: ApiRef_2<
+  PluginWrapperApi,
+  'core.plugin-wrapper'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
+
+// @public
+export const PluginWrapperBlueprint: ExtensionBlueprint_2<{
+  kind: 'plugin-wrapper';
+  params: <TValue = never>(params: {
+    loader: () => Promise<PluginWrapperDefinition<TValue>>;
+  }) => ExtensionBlueprintParams_2<{
+    loader: () => Promise<PluginWrapperDefinition>;
+  }>;
+  output: ExtensionDataRef_2<
+    () => Promise<PluginWrapperDefinition>,
+    'core.plugin-wrapper.loader',
+    {}
+  >;
+  inputs: {};
+  config: {};
+  configInput: {};
+  dataRefs: {
+    wrapper: ConfigurableExtensionDataRef_2<
+      () => Promise<PluginWrapperDefinition>,
+      'core.plugin-wrapper.loader',
+      {}
+    >;
+  };
+}>;
+
+// @public
+export type PluginWrapperDefinition<TValue = unknown | never> = {
+  useWrapperValue?: () => TValue;
+  component: ComponentType<{
+    children: ReactNode;
+    value: TValue;
+  }>;
+};
 
 // @public (undocumented)
 export type PortableSchema<TOutput, TInput = TOutput> = {
@@ -1896,56 +2070,9 @@ export const Progress: {
 export type ProgressProps = {};
 
 // @public
-export type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
-  TExtensionInput['extensionData'] extends Array<ExtensionDataRef>
-    ? {
-        node: AppNode;
-      } & ExtensionDataContainer<TExtensionInput['extensionData'][number]>
-    : never;
-
-// @public
-export type ResolvedExtensionInputs<
-  TInputs extends {
-    [name in string]: ExtensionInput;
-  },
-> = {
-  [InputName in keyof TInputs]: false extends TInputs[InputName]['config']['singleton']
-    ? Array<Expand<ResolvedExtensionInput<TInputs[InputName]>>>
-    : false extends TInputs[InputName]['config']['optional']
-    ? Expand<ResolvedExtensionInput<TInputs[InputName]>>
-    : Expand<ResolvedExtensionInput<TInputs[InputName]> | undefined>;
-};
-
-// @public
 export type RouteFunc<TParams extends AnyRouteRefParams> = (
-  ...[params]: TParams extends undefined
-    ? readonly []
-    : readonly [params: TParams]
+  ...input: TParams extends undefined ? readonly [] : readonly [params: TParams]
 ) => string;
-
-// @public (undocumented)
-export const RouterBlueprint: ExtensionBlueprint_2<{
-  kind: 'app-router-component';
-  params: {
-    Component?: [error: 'Use the `component` parameter instead'];
-    component: (props: { children: ReactNode }) => JSX.Element | null;
-  };
-  output: ExtensionDataRef_2<
-    (props: { children: ReactNode }) => JSX.Element | null,
-    'app.router.wrapper',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    component: ConfigurableExtensionDataRef_2<
-      (props: { children: ReactNode }) => JSX.Element | null,
-      'app.router.wrapper',
-      {}
-    >;
-  };
-}>;
 
 // @public
 export interface RouteRef<
@@ -1972,7 +2099,12 @@ export interface RouteResolutionApi {
 }
 
 // @public
-export const routeResolutionApiRef: ApiRef_2<RouteResolutionApi>;
+export const routeResolutionApiRef: ApiRef_2<
+  RouteResolutionApi,
+  'core.route-resolution'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type SessionApi = {
@@ -1999,35 +2131,6 @@ export namespace SessionState {
 }
 
 // @public
-export const SignInPageBlueprint: ExtensionBlueprint_2<{
-  kind: 'sign-in-page';
-  params: {
-    loader: () => Promise<ComponentType<SignInPageProps>>;
-  };
-  output: ExtensionDataRef_2<
-    ComponentType<SignInPageProps>,
-    'core.sign-in-page.component',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    component: ConfigurableExtensionDataRef_2<
-      ComponentType<SignInPageProps>,
-      'core.sign-in-page.component',
-      {}
-    >;
-  };
-}>;
-
-// @public
-export type SignInPageProps = {
-  onSignInSuccess(identityApi: IdentityApi): void;
-  children?: ReactNode;
-};
-
-// @public
 export interface StorageApi {
   forBucket(name: string): StorageApi;
   observe$<T extends JsonValue>(
@@ -2039,7 +2142,9 @@ export interface StorageApi {
 }
 
 // @public
-export const storageApiRef: ApiRef<StorageApi>;
+export const storageApiRef: ApiRef_2<StorageApi, 'core.storage'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
 export type StorageValueSnapshot<TValue extends JsonValue> =
@@ -2055,6 +2160,46 @@ export type StorageValueSnapshot<TValue extends JsonValue> =
     };
 
 // @public
+export const SubPageBlueprint: ExtensionBlueprint_2<{
+  kind: 'sub-page';
+  params: {
+    path: string;
+    title: string;
+    icon?: IconElement;
+    loader: () => Promise<JSX.Element>;
+    routeRef?: RouteRef;
+  };
+  output:
+    | ExtensionDataRef_2<string, 'core.routing.path', {}>
+    | ExtensionDataRef_2<
+        RouteRef<AnyRouteRefParams_2>,
+        'core.routing.ref',
+        {
+          optional: true;
+        }
+      >
+    | ExtensionDataRef_2<JSX_2, 'core.reactElement', {}>
+    | ExtensionDataRef_2<string, 'core.title', {}>
+    | ExtensionDataRef_2<
+        IconElement,
+        'core.icon',
+        {
+          optional: true;
+        }
+      >;
+  inputs: {};
+  config: {
+    path: string | undefined;
+    title: string | undefined;
+  };
+  configInput: {
+    title?: string | undefined;
+    path?: string | undefined;
+  };
+  dataRefs: never;
+}>;
+
+// @public
 export interface SubRouteRef<
   TParams extends AnyRouteRefParams = AnyRouteRefParams,
 > {
@@ -2065,65 +2210,6 @@ export interface SubRouteRef<
   // (undocumented)
   readonly T: TParams;
 }
-
-// @public
-export const SwappableComponentBlueprint: ExtensionBlueprint_2<{
-  kind: 'component';
-  params: <Ref extends SwappableComponentRef<any>>(params: {
-    component: Ref extends SwappableComponentRef<
-      any,
-      infer IExternalComponentProps
-    >
-      ? {
-          ref: Ref;
-        } & ((props: IExternalComponentProps) => JSX.Element | null)
-      : never;
-    loader: Ref extends SwappableComponentRef<infer IInnerComponentProps, any>
-      ?
-          | (() => (props: IInnerComponentProps) => JSX.Element | null)
-          | (() => Promise<(props: IInnerComponentProps) => JSX.Element | null>)
-      : never;
-  }) => ExtensionBlueprintParams_2<{
-    component: Ref extends SwappableComponentRef<
-      any,
-      infer IExternalComponentProps
-    >
-      ? {
-          ref: Ref;
-        } & ((props: IExternalComponentProps) => JSX.Element | null)
-      : never;
-    loader: Ref extends SwappableComponentRef<infer IInnerComponentProps, any>
-      ?
-          | (() => (props: IInnerComponentProps) => JSX.Element | null)
-          | (() => Promise<(props: IInnerComponentProps) => JSX.Element | null>)
-      : never;
-  }>;
-  output: ExtensionDataRef_2<
-    {
-      ref: SwappableComponentRef;
-      loader:
-        | (() => (props: {}) => JSX.Element | null)
-        | (() => Promise<(props: {}) => JSX.Element | null>);
-    },
-    'core.swappableComponent',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    component: ConfigurableExtensionDataRef_2<
-      {
-        ref: SwappableComponentRef;
-        loader:
-          | (() => (props: {}) => JSX.Element | null)
-          | (() => Promise<(props: {}) => JSX.Element | null>);
-      },
-      'core.swappableComponent',
-      {}
-    >;
-  };
-}>;
 
 // @public (undocumented)
 export type SwappableComponentRef<
@@ -2148,22 +2234,40 @@ export interface SwappableComponentsApi {
 }
 
 // @public
-export const swappableComponentsApiRef: ApiRef_2<SwappableComponentsApi>;
+export const swappableComponentsApiRef: ApiRef_2<
+  SwappableComponentsApi,
+  'core.swappable-components'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public
-export const ThemeBlueprint: ExtensionBlueprint_2<{
-  kind: 'theme';
-  params: {
-    theme: AppTheme;
-  };
-  output: ExtensionDataRef_2<AppTheme, 'core.theme.theme', {}>;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    theme: ConfigurableExtensionDataRef_2<AppTheme, 'core.theme.theme', {}>;
-  };
-}>;
+export type ToastApi = {
+  post(toast: ToastApiMessage): ToastApiPostResult;
+};
+
+// @public
+export type ToastApiMessage = {
+  title: ReactNode;
+  description?: ReactNode;
+  status?: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+  links?: ToastApiMessageLink[];
+  timeout?: number;
+};
+
+// @public
+export type ToastApiMessageLink = {
+  label: string;
+  href: string;
+};
+
+// @public
+export type ToastApiPostResult = {
+  close(): void;
+};
+
+// @public
+export const toastApiRef: ApiRef<ToastApi>;
 
 // @public (undocumented)
 export type TranslationApi = {
@@ -2184,44 +2288,9 @@ export type TranslationApi = {
 };
 
 // @public (undocumented)
-export const translationApiRef: ApiRef<TranslationApi>;
-
-// @public
-export const TranslationBlueprint: ExtensionBlueprint_2<{
-  kind: 'translation';
-  params: {
-    resource: TranslationResource | TranslationMessages;
-  };
-  output: ExtensionDataRef_2<
-    | TranslationResource<string>
-    | TranslationMessages<
-        string,
-        {
-          [x: string]: string;
-        },
-        boolean
-      >,
-    'core.translation.translation',
-    {}
-  >;
-  inputs: {};
-  config: {};
-  configInput: {};
-  dataRefs: {
-    translation: ConfigurableExtensionDataRef_2<
-      | TranslationResource<string>
-      | TranslationMessages<
-          string,
-          {
-            [x: string]: string;
-          },
-          boolean
-        >,
-      'core.translation.translation',
-      {}
-    >;
-  };
-}>;
+export const translationApiRef: ApiRef_2<TranslationApi, 'core.translation'> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
 // @public (undocumented)
 export type TranslationFunction<
@@ -2234,7 +2303,7 @@ export type TranslationFunction<
   ? {
       <TKey extends keyof IMessages>(
         key: TKey,
-        ...[args]: TranslationFunctionOptions<
+        ...input: TranslationFunctionOptions<
           NestedMessageKeys<TKey, IMessages>,
           PluralKeys<TMessages>,
           IMessages,
@@ -2243,13 +2312,13 @@ export type TranslationFunction<
       ): IMessages[TKey];
       <TKey extends keyof IMessages>(
         key: TKey,
-        ...[args]: TranslationFunctionOptions<
+        ...input: TranslationFunctionOptions<
           NestedMessageKeys<TKey, IMessages>,
           PluralKeys<TMessages>,
           IMessages,
-          string | JSX_3.Element
+          string | JSX_2.Element
         >
-      ): JSX_3.Element;
+      ): JSX_2.Element;
     }
   : never;
 
@@ -2411,21 +2480,24 @@ export const useTranslationRef: <TMessages extends { [key in string]: string }>(
 };
 
 // @public
-export const vmwareCloudAuthApiRef: ApiRef<
+export const vmwareCloudAuthApiRef: ApiRef_2<
   OAuthApi &
     OpenIdConnectApi &
     ProfileInfoApi &
     BackstageIdentityApi &
-    SessionApi
->;
+    SessionApi,
+  'core.auth.vmware-cloud'
+> & {
+  readonly $$type: '@backstage/ApiRef';
+};
 
-// @public
+// @public @deprecated
 export function withApis<T extends {}>(
   apis: TypesToApiRefs<T>,
 ): <TProps extends T>(
   WrappedComponent: ComponentType<TProps>,
 ) => {
-  (props: PropsWithChildren<Omit<TProps, keyof T>>): JSX_2.Element;
+  (props: PropsWithChildren<Omit<TProps, keyof T>>): JSX_3.Element;
   displayName: string;
 };
 ```

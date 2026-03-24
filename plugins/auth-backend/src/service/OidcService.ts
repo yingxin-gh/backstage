@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AuthService, RootConfigService } from '@backstage/backend-plugin-api';
+import {
+  AuthService,
+  LoggerService,
+  RootConfigService,
+} from '@backstage/backend-plugin-api';
 import { TokenIssuer } from '../identity/types';
 import { UserInfoDatabase } from '../database/UserInfoDatabase';
 import {
@@ -22,10 +26,57 @@ import {
   NotFoundError,
 } from '@backstage/errors';
 import { decodeJwt } from 'jose';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { OidcDatabase } from '../database/OidcDatabase';
 import { DateTime } from 'luxon';
 import matcher from 'matcher';
+import { OfflineAccessService } from './OfflineAccessService';
+import { validateCimdUrl, fetchCimdMetadata } from './CimdClient';
+
+function validateRedirectUri(
+  redirectUri: string,
+  allowedPatterns: string[],
+): void {
+  const parsed = new URL(redirectUri);
+  const normalized = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
+
+  if (!allowedPatterns.some(pattern => matcher.isMatch(normalized, pattern))) {
+    throw new InputError('Invalid redirect_uri');
+  }
+}
+
+const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
+
+/**
+ * RFC 8252 Section 7.3: For loopback redirect URIs, the authorization server
+ * MUST allow any port to be specified at the time of the request. This matches
+ * redirect URIs by scheme, hostname, and path only, ignoring the port.
+ */
+function matchesRedirectUri(
+  requestUri: string,
+  registeredUris: string[],
+): boolean {
+  const requested = new URL(requestUri);
+
+  if (!LOOPBACK_HOSTS.includes(requested.hostname)) {
+    return registeredUris.includes(requestUri);
+  }
+
+  return registeredUris.some(registered => {
+    let reg: URL;
+    try {
+      reg = new URL(registered);
+    } catch {
+      return false;
+    }
+    return (
+      LOOPBACK_HOSTS.includes(reg.hostname) &&
+      reg.protocol === requested.protocol &&
+      reg.hostname === requested.hostname &&
+      reg.pathname === requested.pathname
+    );
+  });
+}
 
 export class OidcService {
   private readonly auth: AuthService;
@@ -34,6 +85,8 @@ export class OidcService {
   private readonly userInfo: UserInfoDatabase;
   private readonly oidc: OidcDatabase;
   private readonly config: RootConfigService;
+  private readonly logger: LoggerService;
+  private readonly offlineAccess?: OfflineAccessService;
 
   private constructor(
     auth: AuthService,
@@ -42,6 +95,8 @@ export class OidcService {
     userInfo: UserInfoDatabase,
     oidc: OidcDatabase,
     config: RootConfigService,
+    logger: LoggerService,
+    offlineAccess?: OfflineAccessService,
   ) {
     this.auth = auth;
     this.tokenIssuer = tokenIssuer;
@@ -49,6 +104,8 @@ export class OidcService {
     this.userInfo = userInfo;
     this.oidc = oidc;
     this.config = config;
+    this.logger = logger;
+    this.offlineAccess = offlineAccess;
   }
 
   static create(options: {
@@ -58,6 +115,8 @@ export class OidcService {
     userInfo: UserInfoDatabase;
     oidc: OidcDatabase;
     config: RootConfigService;
+    logger: LoggerService;
+    offlineAccess?: OfflineAccessService;
   }) {
     return new OidcService(
       options.auth,
@@ -66,10 +125,17 @@ export class OidcService {
       options.userInfo,
       options.oidc,
       options.config,
+      options.logger,
+      options.offlineAccess,
     );
   }
 
   public getConfiguration() {
+    const dcrEnabled = this.config.getOptionalBoolean(
+      'auth.experimentalDynamicClientRegistration.enabled',
+    );
+    const { enabled: cimdEnabled } = this.getCimdConfig();
+
     return {
       issuer: this.baseUrl,
       token_endpoint: `${this.baseUrl}/v1/token`,
@@ -89,16 +155,27 @@ export class OidcService {
         'PS512',
         'EdDSA',
       ],
-      scopes_supported: ['openid'],
+      scopes_supported: [
+        'openid',
+        ...(this.offlineAccess ? ['offline_access'] : []),
+      ],
       token_endpoint_auth_methods_supported: [
         'client_secret_basic',
         'client_secret_post',
+        ...(cimdEnabled ? ['none'] : []),
       ],
       claims_supported: ['sub', 'ent'],
-      grant_types_supported: ['authorization_code'],
+      grant_types_supported: [
+        'authorization_code',
+        ...(this.offlineAccess ? ['refresh_token'] : []),
+      ],
       authorization_endpoint: `${this.baseUrl}/v1/authorize`,
-      registration_endpoint: `${this.baseUrl}/v1/register`,
       code_challenge_methods_supported: ['S256', 'plain'],
+      ...(dcrEnabled && {
+        registration_endpoint: `${this.baseUrl}/v1/register`,
+        revocation_endpoint: `${this.baseUrl}/v1/revoke`,
+      }),
+      ...(cimdEnabled && { client_id_metadata_document_supported: true }),
     };
   }
 
@@ -139,13 +216,7 @@ export class OidcService {
     ) ?? ['*'];
 
     for (const redirectUri of opts.redirectUris ?? []) {
-      if (
-        !allowedRedirectUriPatterns.some(pattern =>
-          matcher.isMatch(redirectUri, pattern),
-        )
-      ) {
-        throw new InputError('Invalid redirect_uri');
-      }
+      validateRedirectUri(redirectUri, allowedRedirectUriPatterns);
     }
 
     return await this.oidc.createClient({
@@ -184,13 +255,12 @@ export class OidcService {
       throw new InputError('Only authorization code flow is supported');
     }
 
-    const client = await this.oidc.getClient({ clientId });
-    if (!client) {
-      throw new InputError('Invalid client_id');
-    }
+    const client = await this.resolveClient({ clientId, redirectUri });
 
-    if (!client.redirectUris.includes(redirectUri)) {
-      throw new InputError('Invalid redirect_uri');
+    if (client.requiresPkce && !codeChallenge) {
+      throw new InputError(
+        'PKCE is required for public clients. Provide a code_challenge parameter.',
+      );
     }
 
     if (codeChallenge) {
@@ -226,15 +296,99 @@ export class OidcService {
     };
   }
 
-  public async approveAuthorizationSession(opts: {
-    sessionId: string;
-    userEntityRef: string;
-  }) {
-    const { sessionId, userEntityRef } = opts;
+  private getCimdConfig() {
+    return {
+      enabled:
+        this.config.getOptionalBoolean(
+          'auth.experimentalClientIdMetadataDocuments.enabled',
+        ) ?? false,
+      allowedClientIdPatterns: this.config.getOptionalStringArray(
+        'auth.experimentalClientIdMetadataDocuments.allowedClientIdPatterns',
+      ) ?? ['*'],
+      allowedRedirectUriPatterns: this.config.getOptionalStringArray(
+        'auth.experimentalClientIdMetadataDocuments.allowedRedirectUriPatterns',
+      ) ?? ['*'],
+    };
+  }
 
-    const session = await this.oidc.getAuthorizationSession({
-      id: sessionId,
+  private async resolveClient(opts: {
+    clientId: string;
+    redirectUri?: string;
+  }) {
+    let cimdUrl: URL | undefined;
+    try {
+      cimdUrl = validateCimdUrl(opts.clientId);
+    } catch {
+      // Not a valid CIMD URL, fall through to DCR
+    }
+
+    if (cimdUrl) {
+      return this.resolveCimdClient({ ...opts, cimdUrl });
+    }
+    return this.resolveDcrClient(opts);
+  }
+
+  private async resolveCimdClient(opts: {
+    clientId: string;
+    cimdUrl: URL;
+    redirectUri?: string;
+  }) {
+    const cimd = this.getCimdConfig();
+
+    if (!cimd.enabled) {
+      throw new InputError('Client ID metadata documents not enabled');
+    }
+
+    if (
+      !cimd.allowedClientIdPatterns.some(pattern =>
+        matcher.isMatch(opts.clientId, pattern),
+      )
+    ) {
+      throw new InputError('Invalid client_id');
+    }
+
+    const cimdClient = await fetchCimdMetadata({
+      clientId: opts.clientId,
+      validatedUrl: opts.cimdUrl,
     });
+
+    if (opts.redirectUri) {
+      validateRedirectUri(opts.redirectUri, cimd.allowedRedirectUriPatterns);
+
+      if (!matchesRedirectUri(opts.redirectUri, cimdClient.redirectUris)) {
+        throw new InputError('Redirect URI not registered');
+      }
+    }
+
+    return {
+      clientName: cimdClient.clientName,
+      redirectUris: cimdClient.redirectUris,
+      requiresPkce: true,
+    };
+  }
+
+  private async resolveDcrClient(opts: {
+    clientId: string;
+    redirectUri?: string;
+  }) {
+    const client = await this.oidc.getClient({ clientId: opts.clientId });
+    if (!client) {
+      throw new InputError('Invalid client_id');
+    }
+
+    if (opts.redirectUri && !client.redirectUris.includes(opts.redirectUri)) {
+      throw new InputError('Invalid redirect_uri');
+    }
+
+    return {
+      clientName: client.clientName,
+      redirectUris: client.redirectUris,
+      requiresPkce: false,
+    };
+  }
+
+  private async getValidPendingSession(sessionId: string) {
+    const session = await this.oidc.getAuthorizationSession({ id: sessionId });
 
     if (!session) {
       throw new NotFoundError('Invalid authorization session');
@@ -247,6 +401,16 @@ export class OidcService {
     if (session.status !== 'pending') {
       throw new NotFoundError('Authorization session not found or expired');
     }
+
+    return session;
+  }
+
+  public async approveAuthorizationSession(opts: {
+    sessionId: string;
+    userEntityRef: string;
+  }) {
+    const { sessionId, userEntityRef } = opts;
+    const session = await this.getValidPendingSession(sessionId);
 
     await this.oidc.updateAuthorizationSession({
       id: session.id,
@@ -276,31 +440,15 @@ export class OidcService {
   }
 
   public async getAuthorizationSession(opts: { sessionId: string }) {
-    const session = await this.oidc.getAuthorizationSession({
-      id: opts.sessionId,
+    const session = await this.getValidPendingSession(opts.sessionId);
+    const { clientName } = await this.resolveClient({
+      clientId: session.clientId,
     });
-
-    if (!session) {
-      throw new NotFoundError('Invalid authorization session');
-    }
-
-    if (DateTime.fromJSDate(session.expiresAt) < DateTime.now()) {
-      throw new InputError('Authorization session expired');
-    }
-
-    if (session.status !== 'pending') {
-      throw new NotFoundError('Authorization session not found or expired');
-    }
-
-    const client = await this.oidc.getClient({ clientId: session.clientId });
-    if (!client) {
-      throw new InputError('Invalid client_id');
-    }
 
     return {
       id: session.id,
       clientId: session.clientId,
-      clientName: client.clientName,
+      clientName,
       redirectUri: session.redirectUri,
       scope: session.scope,
       state: session.state,
@@ -318,22 +466,7 @@ export class OidcService {
     userEntityRef: string;
   }) {
     const { sessionId, userEntityRef } = opts;
-
-    const session = await this.oidc.getAuthorizationSession({
-      id: sessionId,
-    });
-
-    if (!session) {
-      throw new NotFoundError('Invalid authorization session');
-    }
-
-    if (DateTime.fromJSDate(session.expiresAt) < DateTime.now()) {
-      throw new InputError('Authorization session expired');
-    }
-
-    if (session.status !== 'pending') {
-      throw new NotFoundError('Authorization session not found or expired');
-    }
+    const session = await this.getValidPendingSession(sessionId);
 
     await this.oidc.updateAuthorizationSession({
       id: session.id,
@@ -347,9 +480,8 @@ export class OidcService {
     redirectUri: string;
     codeVerifier?: string;
     grantType: string;
-    expiresIn: number;
   }) {
-    const { code, redirectUri, codeVerifier, grantType, expiresIn } = params;
+    const { code, redirectUri, codeVerifier, grantType } = params;
 
     if (grantType !== 'authorization_code') {
       throw new InputError('Unsupported grant type');
@@ -394,11 +526,11 @@ export class OidcService {
       }
 
       if (
-        !this.verifyPkce(
-          session.codeChallenge,
+        !this.verifyPkce({
+          codeChallenge: session.codeChallenge,
           codeVerifier,
-          session.codeChallengeMethod,
-        )
+          method: session.codeChallengeMethod,
+        })
       ) {
         throw new AuthenticationError('Invalid code verifier');
       }
@@ -415,28 +547,107 @@ export class OidcService {
       },
     });
 
+    // Check if offline_access scope is requested
+    let refreshToken: string | undefined;
+    const scopes = session.scope?.split(' ') ?? [];
+    if (scopes.includes('offline_access') && this.offlineAccess) {
+      try {
+        refreshToken = await this.offlineAccess.issueRefreshToken({
+          userEntityRef: session.userEntityRef,
+          oidcClientId: session.clientId,
+        });
+      } catch (err) {
+        // Don't fail the entire token exchange if refresh token issuance fails.
+        // The access token is still valid and should be returned.
+        this.logger.warn(
+          `Failed to issue refresh token for user ${session.userEntityRef}, offline_access will not be available: ${err}`,
+        );
+      }
+    }
+
     return {
       accessToken: token,
       tokenType: 'Bearer',
-      expiresIn: expiresIn,
+      expiresIn: 3600,
       idToken: token,
       scope: session.scope || 'openid',
+      refreshToken,
     };
   }
 
-  private verifyPkce(
-    codeChallenge: string,
-    codeVerifier: string,
-    method?: string,
-  ): boolean {
-    if (!method || method === 'plain') {
-      return codeChallenge === codeVerifier;
+  public async refreshAccessToken(params: {
+    refreshToken: string;
+    clientId?: string;
+  }): Promise<{
+    accessToken: string;
+    tokenType: string;
+    expiresIn: number;
+    refreshToken: string;
+  }> {
+    if (!this.offlineAccess) {
+      throw new InputError('Refresh tokens are not enabled');
     }
 
-    if (method === 'S256') {
-      const hash = crypto.createHash('sha256').update(codeVerifier).digest();
-      const base64urlHash = hash.toString('base64url');
-      return codeChallenge === base64urlHash;
+    const { accessToken, refreshToken } =
+      await this.offlineAccess.refreshAccessToken({
+        refreshToken: params.refreshToken,
+        tokenIssuer: this.tokenIssuer,
+        clientId: params.clientId,
+      });
+
+    return {
+      accessToken,
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      refreshToken,
+    };
+  }
+
+  /**
+   * Verifies client credentials against the registered OIDC clients
+   */
+  public async verifyClientCredentials(options: {
+    clientId: string;
+    clientSecret: string;
+  }): Promise<boolean> {
+    const { clientId, clientSecret } = options;
+    const client = await this.oidc.getClient({ clientId });
+    if (!client?.clientSecret) {
+      return false;
+    }
+    const expected = Buffer.from(client.clientSecret, 'utf8');
+    const provided = Buffer.from(clientSecret, 'utf8');
+    if (expected.length !== provided.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(expected, provided);
+  }
+
+  /**
+   * Revoke a refresh token if offline access is enabled
+   */
+  public async revokeRefreshToken(token: string): Promise<void> {
+    if (!this.offlineAccess) {
+      return;
+    }
+    await this.offlineAccess.revokeRefreshToken(token);
+  }
+
+  private verifyPkce(opts: {
+    codeChallenge: string;
+    codeVerifier: string;
+    method?: string;
+  }): boolean {
+    if (!opts.method || opts.method === 'plain') {
+      return opts.codeChallenge === opts.codeVerifier;
+    }
+
+    if (opts.method === 'S256') {
+      const hash = crypto
+        .createHash('sha256')
+        .update(opts.codeVerifier)
+        .digest('base64url');
+      return opts.codeChallenge === hash;
     }
 
     return false;

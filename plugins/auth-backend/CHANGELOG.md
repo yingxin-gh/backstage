@@ -1,5 +1,194 @@
 # @backstage/plugin-auth-backend
 
+## 0.27.2
+
+### Patch Changes
+
+- 1ccad86: Added `who-am-i` action to the auth backend actions registry. Returns the catalog entity and user info for the currently authenticated user.
+- d0f4cd2: Added optional client metadata document endpoint at `/.well-known/oauth-client/cli.json` relative to the auth backend base URL for CLI authentication. Enabled when `auth.experimentalClientIdMetadataDocuments.enabled` is set to `true`.
+- 6738cf0: build(deps): bump `minimatch` from 9.0.5 to 10.2.1
+- e9b6e97: Fixed a security vulnerability where the CIMD metadata fetch could follow HTTP redirects to internal hosts, bypassing SSRF protections.
+- 0f9d673: Improved redirect URI validation in the experimental OIDC provider to match against normalized URLs rather than raw strings.
+- a49a40d: Updated dependency `zod` to `^3.25.76 || ^4.0.0` & migrated to `/v3` or `/v4` imports.
+- 634eded: Fixed a foreign key constraint violation when issuing refresh tokens for CIMD clients, and
+  prevented a failed refresh token issuance from failing the entire token exchange.
+  Fixed AWS ALB auth provider incorrectly returning HTTP 500 instead of 401 for JWT validation failures,
+  which caused retry loops and memory pressure under load.
+- 619be54: Update migrations to be reversible
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.8.0
+  - @backstage/plugin-catalog-node@2.1.0
+  - @backstage/catalog-model@1.7.7
+  - @backstage/plugin-auth-node@0.6.14
+
+## 0.27.1-next.2
+
+### Patch Changes
+
+- d0f4cd2: Added optional client metadata document endpoint at `/.well-known/oauth-client/cli.json` relative to the auth backend base URL for CLI authentication. Enabled when `auth.experimentalClientIdMetadataDocuments.enabled` is set to `true`.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.8.0-next.1
+  - @backstage/plugin-auth-node@0.6.14-next.2
+  - @backstage/plugin-catalog-node@2.1.0-next.2
+
+## 0.27.1-next.1
+
+### Patch Changes
+
+- 1ccad86: Added `who-am-i` action to the auth backend actions registry. Returns the catalog entity and user info for the currently authenticated user.
+- Updated dependencies
+  - @backstage/plugin-auth-node@0.6.14-next.1
+  - @backstage/plugin-catalog-node@2.1.0-next.1
+  - @backstage/backend-plugin-api@1.7.1-next.0
+  - @backstage/catalog-model@1.7.6
+  - @backstage/config@1.3.6
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+
+## 0.27.1-next.0
+
+### Patch Changes
+
+- 6738cf0: build(deps): bump `minimatch` from 9.0.5 to 10.2.1
+- 619be54: Update migrations to be reversible
+- Updated dependencies
+  - @backstage/plugin-catalog-node@2.1.0-next.0
+  - @backstage/backend-plugin-api@1.7.1-next.0
+  - @backstage/catalog-model@1.7.6
+  - @backstage/config@1.3.6
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+  - @backstage/plugin-auth-node@0.6.14-next.0
+
+## 0.27.0
+
+### Minor Changes
+
+- 31de2c9: Added experimental support for Client ID Metadata Documents (CIMD).
+
+  This allows Backstage to act as an OAuth 2.0 authorization server that supports the [IETF Client ID Metadata Document draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/). External OAuth clients can use HTTPS URLs as their `client_id`, and Backstage will fetch metadata from those URLs to validate the client.
+
+  **Configuration example:**
+
+  ```yaml
+  auth:
+    experimentalClientIdMetadataDocuments:
+      enabled: true
+      # Optional: restrict which `client_id` URLs are allowed (defaults to ['*'])
+      allowedClientIdPatterns:
+        - 'https://example.com/*'
+        - 'https://*.trusted-domain.com/*'
+      # Optional: restrict which redirect URIs are allowed (defaults to ['*'])
+      allowedRedirectUriPatterns:
+        - 'http://localhost:*'
+        - 'https://*.example.com/*'
+  ```
+
+  Clients using CIMD must host a JSON metadata document at their `client_id` URL containing at minimum:
+
+  ```json
+  {
+    "client_id": "https://example.com/.well-known/oauth-client/my-app",
+    "client_name": "My Application",
+    "redirect_uris": ["http://localhost:8080/callback"],
+    "token_endpoint_auth_method": "none"
+  }
+  ```
+
+- d0786b9: Added experimental support for refresh tokens via the `auth.experimentalRefreshToken.enabled` configuration option. When enabled, clients can request the `offline_access` scope to receive refresh tokens that can be used to obtain new access tokens without re-authentication.
+
+### Patch Changes
+
+- 7dc3dfe: Removed the `auth.experimentalDynamicClientRegistration.tokenExpiration` config option. DCR tokens now use the default 1 hour expiration.
+
+  If you need longer-lived access, use refresh tokens via the `offline_access` scope instead. DCR clients should already have the `offline_access` scope available. Enable refresh tokens by setting:
+
+  ```yaml
+  auth:
+    experimentalRefreshToken:
+      enabled: true
+  ```
+
+- 7455dae: Use node prefix on native imports
+- Updated dependencies
+  - @backstage/plugin-catalog-node@2.0.0
+  - @backstage/backend-plugin-api@1.7.0
+  - @backstage/plugin-auth-node@0.6.13
+
+## 0.27.0-next.1
+
+### Minor Changes
+
+- d0786b9: Added experimental support for refresh tokens via the `auth.experimentalRefreshToken.enabled` configuration option. When enabled, clients can request the `offline_access` scope to receive refresh tokens that can be used to obtain new access tokens without re-authentication.
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-catalog-node@2.0.0-next.1
+  - @backstage/backend-plugin-api@1.7.0-next.1
+  - @backstage/plugin-auth-node@0.6.13-next.1
+
+## 0.26.1-next.0
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+- Updated dependencies
+  - @backstage/plugin-catalog-node@1.21.0-next.0
+  - @backstage/backend-plugin-api@1.7.0-next.0
+  - @backstage/plugin-auth-node@0.6.12-next.0
+  - @backstage/catalog-model@1.7.6
+  - @backstage/config@1.3.6
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+
+## 0.26.0
+
+### Minor Changes
+
+- 7ffc873: Fix `user_created_at` migration causing `SQLiteError` regarding use of non-constants for defaults
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.6.1
+  - @backstage/plugin-auth-node@0.6.11
+
+## 0.26.0-next.0
+
+### Minor Changes
+
+- 7ffc873: Fix `user_created_at` migration causing `SQLiteError` regarding use of non-constants for defaults
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-auth-node@0.6.10
+
+## 0.25.7
+
+### Patch Changes
+
+- de96a60: chore(deps): bump `express` from 4.21.2 to 4.22.0
+- Updated dependencies
+  - @backstage/plugin-auth-node@0.6.10
+  - @backstage/backend-plugin-api@1.6.0
+  - @backstage/plugin-catalog-node@1.20.1
+
+## 0.25.7-next.1
+
+### Patch Changes
+
+- de96a60: chore(deps): bump `express` from 4.21.2 to 4.22.0
+- Updated dependencies
+  - @backstage/plugin-auth-node@0.6.10-next.1
+  - @backstage/backend-plugin-api@1.6.0-next.1
+  - @backstage/catalog-model@1.7.6
+  - @backstage/config@1.3.6
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+  - @backstage/plugin-catalog-node@1.20.1-next.1
+
 ## 0.25.7-next.0
 
 ### Patch Changes

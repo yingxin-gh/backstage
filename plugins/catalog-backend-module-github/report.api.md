@@ -25,16 +25,22 @@ import { SchedulerService } from '@backstage/backend-plugin-api';
 import { SchedulerServiceTaskRunner } from '@backstage/backend-plugin-api';
 import { ScmIntegrationRegistry } from '@backstage/integration';
 import { ScmLocationAnalyzer } from '@backstage/plugin-catalog-node';
-import { UserEntity } from '@backstage/catalog-model';
+
+// @public
+export function buildDefaultUserTransformer(
+  options?: DefaultUserTransformerOptions,
+): UserTransformer;
 
 // @public
 export const defaultOrganizationTeamTransformer: TeamTransformer;
 
 // @public
-export const defaultUserTransformer: (
-  item: GithubUser,
-  _ctx: TransformerContext,
-) => Promise<UserEntity | undefined>;
+export const defaultUserTransformer: UserTransformer;
+
+// @public
+export interface DefaultUserTransformerOptions {
+  useVerifiedEmails?: boolean;
+}
 
 // @public
 const githubCatalogModule: BackendFeature;
@@ -229,6 +235,7 @@ export class GithubOrgEntityProvider implements EntityProvider {
     githubCredentialsProvider?: GithubCredentialsProvider;
     userTransformer?: UserTransformer;
     teamTransformer?: TeamTransformer;
+    pageSizes?: Partial<GithubPageSizes>;
     excludeSuspendedUsers?: boolean;
   });
   connect(connection: EntityProviderConnection): Promise<void>;
@@ -252,6 +259,7 @@ export interface GithubOrgEntityProviderOptions {
   id: string;
   logger: LoggerService;
   orgUrl: string;
+  pageSizes?: Partial<GithubPageSizes>;
   schedule?: 'manual' | SchedulerServiceTaskRunner;
   teamTransformer?: TeamTransformer;
   userTransformer?: UserTransformer;
@@ -305,6 +313,7 @@ export type GithubTeam = {
 // @public
 export type GithubUser = {
   login: string;
+  id?: string;
   bio?: string;
   avatarUrl?: string;
   email?: string;

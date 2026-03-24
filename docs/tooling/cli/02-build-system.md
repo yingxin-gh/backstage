@@ -270,6 +270,12 @@ that are exported from the package, leaving a much cleaner type definition file
 and making sure that the type definitions are in sync with the generated
 JavaScript.
 
+### Building Module Federation Remotes
+
+Frontend plugin packages can be built as module federation remotes, which allows them to be loaded dynamically at runtime by a module federation host (typically your main frontend app). To build a package as a module federation remote, use the `--module-federation` option with the `package build` command.
+
+More details are given in the [Module Federation](../../frontend-system/building-apps/07-module-federation.md#building-module-federation-remotes) documentation.
+
 ## Bundling
 
 The goal of the bundling process is to combine multiple packages together into a
@@ -287,6 +293,20 @@ When running the start command, a development server
 will be set up that listens to the protocol, host and port set by `app.baseUrl`
 in the configuration. If needed it is also possible to override the listening
 options through the `app.listen` configuration.
+
+For frontend plugin packages using the new frontend system, the recommended way to
+set up the `dev/index` entry point is to use the `createDevApp` helper from
+`@backstage/frontend-dev-utils`. It creates and renders a minimal Backstage app
+with your plugin loaded:
+
+```tsx title="in dev/index.ts"
+import { createDevApp } from '@backstage/frontend-dev-utils';
+import myPlugin from '../src';
+
+createDevApp({ features: [myPlugin] });
+```
+
+For the legacy frontend system, the `@backstage/dev-utils` package provides equivalent helpers.
 
 The frontend development bundling is currently based on
 [Webpack](https://webpack.js.org/) and
@@ -417,7 +437,7 @@ The following is an example of a `Dockerfile` that can be used to package the
 output of building a package with role `'backend'` into an image:
 
 ```Dockerfile
-FROM node:20-bookworm-slim
+FROM node:24-trixie-slim
 WORKDIR /app
 
 COPY yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
@@ -610,7 +630,7 @@ With that in mind, here are some IDEs configurations to run backstage components
     1.  Click on "Edit Configurations" on top panel
     2.  In the modal dialog click on link "Edit configuration templates..." located in the bottom left corner.
     3.  "Configuration file": leave empty (`backstage-cli` adds the config)
-    4.  "Node options": `--no-node-snapshot --experimental-vm-modules`
+    4.  "Node options": ` --experimental-vm-modules`
     5.  "Jest package": `~/workspace/backstage/node_modules/@backstage/cli` - the location of the backstage cli package.
     6.  "Working directory": `~/workspace/backstage`
     7.  "Jest Options": `repo test --runInBand --watch=false`
@@ -621,20 +641,21 @@ With that in mind, here are some IDEs configurations to run backstage components
 
 #### VS Code
 
+1. Install the [Jest extension](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) for VS Code.
+2. Update `settings.json` in the `.vscode` folder with:
+
 ```jsonc
 {
   "jest.jestCommandLine": "yarn test",
   // In a large repo like the Backstage main repo you likely want to disable
   // watch mode and the initial test run too, leaving just manual and perhaps
   // on-save test runs in place.
-  "jest.autoRun": {
-    "watch": false,
-    "onSave": "test-src-file"
-  }
+  "jest.runMode": "on-save"
 }
 ```
 
-A complete launch configuration for VS Code debugging may look like this:
+3. Add a launch configuration for VS Code in `launch.json` in the `.vscode` folder.  
+   A complete configuration for debugging may look like this:
 
 ```jsonc
 {
@@ -653,10 +674,12 @@ A complete launch configuration for VS Code debugging may look like this:
   ],
   "console": "integratedTerminal",
   "internalConsoleOptions": "neverOpen",
-  "disableOptimisticBPs": true,
-  "program": "${workspaceFolder}/node_modules/.bin/backstage-cli"
+  "program": "${workspaceFolder}/node_modules/@backstage/cli/bin/backstage-cli"
 }
 ```
+
+4. The configuration is not for manual runs from the "Run and Debug" view.
+   Instead use the Jest test explorer or the [test's gutter menu](https://github.com/jest-community/vscode-jest#how-to-trigger-a-test-run).
 
 ## Publishing
 

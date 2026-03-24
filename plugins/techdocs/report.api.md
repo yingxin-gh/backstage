@@ -107,11 +107,7 @@ export type ContentStateTypes =
   | 'CONTENT_FRESH';
 
 // @public
-export const CustomDocsPanel: ({
-  config,
-  entities,
-  index,
-}: {
+export const CustomDocsPanel: (input: {
   config: PanelConfig;
   entities: Entity[];
   index: number;
@@ -173,12 +169,11 @@ export interface DocsTableType {
 }
 
 // @public
-export const EmbeddedDocsRouter: ({
-  children,
-  withSearch,
-}: PropsWithChildren<{
-  withSearch?: boolean;
-}>) => JSX_2.Element;
+export const EmbeddedDocsRouter: (
+  input: PropsWithChildren<{
+    withSearch?: boolean;
+  }>,
+) => JSX_2.Element;
 
 // @public
 export const EntityListDocsGrid: (
@@ -211,12 +206,11 @@ export interface EntityListDocsTableType {
 }
 
 // @public
-export const EntityTechdocsContent: ({
-  children,
-  withSearch,
-}: PropsWithChildren<{
-  withSearch?: boolean;
-}>) => JSX_2.Element;
+export const EntityTechdocsContent: (
+  input: PropsWithChildren<{
+    withSearch?: boolean;
+  }>,
+) => JSX_2.Element;
 
 // @public
 export const InfoCardGrid: (props: InfoCardGridProps) => JSX_2.Element | null;

@@ -16,7 +16,6 @@
 
 import { AppNode } from '../apis';
 import { Expand } from '@backstage/types';
-import { ResolvedExtensionInput } from './createExtension';
 import { createExtensionDataContainer } from '@internal/frontend';
 import {
   ExtensionDataRefToValue,
@@ -37,6 +36,7 @@ export type ResolvedInputValueOverrides<
       {
         optional: infer IOptional extends boolean;
         singleton: boolean;
+        internal?: boolean;
       }
     >
       ? IOptional extends true
@@ -44,7 +44,11 @@ export type ResolvedInputValueOverrides<
         : KName
       : never]: TInputs[KName] extends ExtensionInput<
       infer IDataRefs,
-      { optional: boolean; singleton: infer ISingleton extends boolean }
+      {
+        optional: boolean;
+        singleton: infer ISingleton extends boolean;
+        internal?: boolean;
+      }
     >
       ? ISingleton extends true
         ? Iterable<ExtensionDataRefToValue<IDataRefs>>
@@ -56,6 +60,7 @@ export type ResolvedInputValueOverrides<
       {
         optional: infer IOptional extends boolean;
         singleton: boolean;
+        internal?: boolean;
       }
     >
       ? IOptional extends true
@@ -63,7 +68,11 @@ export type ResolvedInputValueOverrides<
         : never
       : never]?: TInputs[KName] extends ExtensionInput<
       infer IDataRefs,
-      { optional: boolean; singleton: infer ISingleton extends boolean }
+      {
+        optional: boolean;
+        singleton: infer ISingleton extends boolean;
+        internal?: boolean;
+      }
     >
       ? ISingleton extends true
         ? Iterable<ExtensionDataRefToValue<IDataRefs>>
@@ -114,7 +123,7 @@ export function resolveInputOverrides(
           );
         }
         newInputs[name] = Object.assign(providedContainer, {
-          node: (originalInput as ResolvedExtensionInput<any>).node,
+          node: (originalInput as { node: AppNode }).node,
         }) as any;
       }
     } else {
@@ -148,7 +157,7 @@ export function resolveInputOverrides(
               declaredInput.extensionData,
             );
             return Object.assign(providedContainer, {
-              node: (originalInput[i] as ResolvedExtensionInput<any>).node,
+              node: (originalInput[i] as { node: AppNode }).node,
             }) as any;
           });
         } else if (withNodesCount === providedData.length) {

@@ -15,55 +15,47 @@
  */
 
 import { forwardRef } from 'react';
-import clsx from 'clsx';
 import type { GridItemProps, GridProps } from './types';
-import { useStyles } from '../../hooks/useStyles';
+import { useDefinition } from '../../hooks/useDefinition';
 import { GridDefinition, GridItemDefinition } from './definition';
-import styles from './Grid.module.css';
 
 const GridRoot = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
-  const { classNames, utilityClasses, style, cleanedProps } = useStyles(
+  const { ownProps, dataAttributes, utilityStyle, restProps } = useDefinition(
     GridDefinition,
     { columns: 'auto', gap: '4', ...props },
   );
-
-  const { className, ...rest } = cleanedProps;
+  const { classes, childrenWithBgProvider } = ownProps;
 
   return (
     <div
       ref={ref}
-      className={clsx(
-        classNames.root,
-        utilityClasses,
-        styles[classNames.root],
-        className,
-      )}
-      style={style}
-      {...rest}
-    />
+      className={classes.root}
+      style={{ ...utilityStyle, ...ownProps.style }}
+      {...dataAttributes}
+      {...restProps}
+    >
+      {childrenWithBgProvider}
+    </div>
   );
 });
 
 const GridItem = forwardRef<HTMLDivElement, GridItemProps>((props, ref) => {
-  const { classNames, utilityClasses, style, cleanedProps } = useStyles(
+  const { ownProps, dataAttributes, utilityStyle, restProps } = useDefinition(
     GridItemDefinition,
     props,
   );
-
-  const { className, ...rest } = cleanedProps;
+  const { classes, childrenWithBgProvider } = ownProps;
 
   return (
     <div
       ref={ref}
-      className={clsx(
-        classNames.root,
-        utilityClasses,
-        styles[classNames.root],
-        className,
-      )}
-      style={style}
-      {...rest}
-    />
+      className={classes.root}
+      style={{ ...utilityStyle, ...ownProps.style }}
+      {...dataAttributes}
+      {...restProps}
+    >
+      {childrenWithBgProvider}
+    </div>
   );
 });
 

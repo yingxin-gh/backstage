@@ -38,6 +38,7 @@ import { version as backendDefaults } from '../../../backend-defaults/package.js
 import { version as catalogClient } from '../../../catalog-client/package.json';
 import { version as catalogModel } from '../../../catalog-model/package.json';
 import { version as cli } from '../../../cli/package.json';
+import { version as cliDefaults } from '../../../cli-defaults/package.json';
 import { version as config } from '../../../config/package.json';
 import { version as coreAppApi } from '../../../core-app-api/package.json';
 import { version as coreCompatApi } from '../../../core-compat-api/package.json';
@@ -55,6 +56,7 @@ import { version as ui } from '../../../ui/package.json';
 import { version as pluginApiDocs } from '../../../../plugins/api-docs/package.json';
 import { version as pluginAppVisualizer } from '../../../../plugins/app-visualizer/package.json';
 import { version as pluginAppBackend } from '../../../../plugins/app-backend/package.json';
+import { version as pluginAppReact } from '../../../../plugins/app-react/package.json';
 import { version as pluginAuthBackend } from '../../../../plugins/auth-backend/package.json';
 import { version as pluginAuthBackendModuleGithubProvider } from '../../../../plugins/auth-backend-module-github-provider/package.json';
 import { version as pluginAuthBackendModuleGuestProvider } from '../../../../plugins/auth-backend-module-guest-provider/package.json';
@@ -106,6 +108,7 @@ export const packageVersions = {
   '@backstage/catalog-client': catalogClient,
   '@backstage/catalog-model': catalogModel,
   '@backstage/cli': cli,
+  '@backstage/cli-defaults': cliDefaults,
   '@backstage/config': config,
   '@backstage/core-app-api': coreAppApi,
   '@backstage/core-compat-api': coreCompatApi,
@@ -118,6 +121,7 @@ export const packageVersions = {
   '@backstage/repo-tools': repoTools,
   '@backstage/plugin-api-docs': pluginApiDocs,
   '@backstage/plugin-app-backend': pluginAppBackend,
+  '@backstage/plugin-app-react': pluginAppReact,
   '@backstage/plugin-app-visualizer': pluginAppVisualizer,
   '@backstage/plugin-auth-backend': pluginAuthBackend,
   '@backstage/plugin-auth-backend-module-github-provider':

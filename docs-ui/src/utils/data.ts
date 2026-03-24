@@ -4,33 +4,22 @@ interface Page {
   status?: 'alpha' | 'beta' | 'stable' | 'deprecated' | 'inProgress' | 'new';
 }
 
-export const layoutComponents: Page[] = [
-  {
-    title: 'Box',
-    slug: 'box',
-  },
-  {
-    title: 'Container',
-    slug: 'container',
-  },
-  {
-    title: 'Grid',
-    slug: 'grid',
-  },
-  {
-    title: 'Flex',
-    slug: 'flex',
-  },
-];
-
 export const components: Page[] = [
   {
     title: 'Accordion',
     slug: 'accordion',
   },
   {
+    title: 'Alert',
+    slug: 'alert',
+  },
+  {
     title: 'Avatar',
     slug: 'avatar',
+  },
+  {
+    title: 'Box',
+    slug: 'box',
   },
   {
     title: 'Button',
@@ -53,20 +42,36 @@ export const components: Page[] = [
     slug: 'checkbox',
   },
   {
+    title: 'Container',
+    slug: 'container',
+  },
+  {
     title: 'Dialog',
     slug: 'dialog',
+  },
+  {
+    title: 'Flex',
+    slug: 'flex',
+  },
+  {
+    title: 'Grid',
+    slug: 'grid',
+  },
+  {
+    title: 'PluginHeader',
+    slug: 'plugin-header',
   },
   {
     title: 'Header',
     slug: 'header',
   },
   {
-    title: 'HeaderPage',
-    slug: 'header-page',
-  },
-  {
     title: 'Link',
     slug: 'link',
+  },
+  {
+    title: 'List',
+    slug: 'list',
   },
   {
     title: 'Menu',
@@ -77,8 +82,16 @@ export const components: Page[] = [
     slug: 'password-field',
   },
   {
+    title: 'Popover',
+    slug: 'popover',
+  },
+  {
     title: 'RadioGroup',
     slug: 'radio-group',
+  },
+  {
+    title: 'SearchAutocomplete',
+    slug: 'search-autocomplete',
   },
   {
     title: 'SearchField',
@@ -117,11 +130,26 @@ export const components: Page[] = [
     slug: 'text-field',
   },
   {
+    title: 'ToggleButton',
+    slug: 'toggle-button',
+  },
+  {
+    title: 'ToggleButtonGroup',
+    slug: 'toggle-button-group',
+  },
+  {
     title: 'Tooltip',
     slug: 'tooltip',
   },
   {
     title: 'VisuallyHidden',
     slug: 'visually-hidden',
+  },
+];
+
+export const hooks: Page[] = [
+  {
+    title: 'useBreakpoint',
+    slug: 'use-breakpoint',
   },
 ];

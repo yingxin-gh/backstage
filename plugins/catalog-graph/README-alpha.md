@@ -1,8 +1,6 @@
-# Catalog Graph
+# Catalog Graph - Extension Reference
 
-> [!WARNING]
-> This documentation is made for those using the experimental new Frontend system.
-> If you are not using the new frontend system, please go [here](./README.md).
+This page contains detailed documentation for all extensions provided by the `@backstage/plugin-catalog-graph` plugin. For general information about the plugin, see the [README](./README.md).
 
 The Catalog graph plugin helps you to visualize the relations between entities, like ownership, grouping or API relationships.
 It comes with these features:
@@ -132,7 +130,7 @@ An [entity card](https://backstage.io/docs/frontend-system/building-plugins/exte
 
 ##### Output
 
-A React component defined by the [coreExtensionData.reactElement](https://backstage.io/docs/reference/frontend-plugin-api.coreextensiondata/) type.
+A React component defined by the [coreExtensionData.reactElement](https://backstage.io/api/stable/variables/_backstage_frontend-plugin-api.index.coreExtensionData.html) type.
 
 ##### Inputs
 
@@ -196,25 +194,26 @@ Overriding the card extension allows you to modify how it is implemented.
 Here is an example overriding the card extension with a custom component:
 
 ```tsx
-import {
-  createFrontendModule,
-  createSchemaFromZod,
-} from '@backstage/backstage-plugin-api';
-import { createEntityCardExtension } from '@backstage/plugin-catalog-react/alpha';
+import { createFrontendModule } from '@backstage/backstage-plugin-api';
+import { EntityCardBlueprint } from '@backstage/plugin-catalog-react/alpha';
 
 export default createFrontendModule({
   pluginId: 'catalog-graph',
   extensions: [
-    createEntityCardExtension({
+    EntityCardBlueprint.makeWithOverrides({
       name: 'entity-relations',
-      configSchema: createSchemaFromZod(z =>
-        z.object({
-          filter: z.string().optional(),
+      config: {
+        schema: {
+          filter: z => z.string().optional(),
           // Omitting the rest of default configs for simplicity in this example
-        }),
-      ),
-      loader: () =>
-        import('./components').then(m => <m.MyEntityRelationsCard />),
+        },
+      },
+      factory(originalFactory, { config }) {
+        return originalFactory({
+          loader: () =>
+            import('./components').then(m => <m.MyEntityRelationsCard />),
+        });
+      },
     }),
   ],
 });
@@ -232,7 +231,7 @@ A [page](https://backstage.io/docs/reference/frontend-plugin-api.createapiextens
 
 ##### Output
 
-A React component defined by the [coreExtensionData.reactElement](https://backstage.io/docs/reference/frontend-plugin-api.coreextensiondata/) type.
+A React component defined by the [coreExtensionData.reactElement](https://backstage.io/api/stable/variables/_backstage_frontend-plugin-api.index.coreExtensionData.html) type.
 
 ##### Inputs
 

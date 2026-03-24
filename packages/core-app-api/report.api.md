@@ -70,7 +70,7 @@ import { StorageValueSnapshot } from '@backstage/core-plugin-api';
 import { SubRouteRef } from '@backstage/core-plugin-api';
 import { vmwareCloudAuthApiRef } from '@backstage/core-plugin-api';
 
-// @public
+// @public @deprecated
 export class AlertApiForwarder implements AlertApi {
   // (undocumented)
   alert$(): Observable<AlertMessage>;
@@ -276,6 +276,7 @@ export class AppThemeSelector implements AppThemeApi {
   activeThemeId$(): Observable<string | undefined>;
   // (undocumented)
   static createWithStorage(themes: AppTheme[]): AppThemeSelector;
+  dispose(): void;
   // (undocumented)
   getActiveThemeId(): string | undefined;
   // (undocumented)

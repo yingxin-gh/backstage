@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import preview from '../../../../../.storybook/preview';
+import { useState } from 'react';
 import { SearchField } from './SearchField';
 import { Form } from 'react-aria-components';
 import { Flex } from '../Flex';
+import { Box } from '../Box';
+import { Text } from '../Text';
 import { FieldLabel } from '../FieldLabel';
 import { ButtonIcon } from '../ButtonIcon';
 import { RiCactusLine, RiEBike2Line } from '@remixicon/react';
 import { Button } from '../Button';
-import { Header } from '../Header';
+import { PluginHeader } from '../PluginHeader';
 import { MemoryRouter } from 'react-router-dom';
+import { BUIProvider } from '../../provider';
 
-const meta = {
+const meta = preview.meta({
   title: 'Backstage UI/SearchField',
   component: SearchField,
   argTypes: {
@@ -39,12 +43,9 @@ const meta = {
       control: 'text',
     },
   },
-} satisfies Meta<typeof SearchField>;
+});
 
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
+export const Default = meta.story({
   args: {
     name: 'url',
     style: {
@@ -52,11 +53,11 @@ export const Default: Story = {
     },
     'aria-label': 'Search',
   },
-};
+});
 
-export const Sizes: Story = {
+export const Sizes = meta.story({
   args: {
-    ...Default.args,
+    ...Default.input.args,
   },
   render: args => (
     <Flex direction="row" gap="4" style={{ width: '100%', maxWidth: '600px' }}>
@@ -64,46 +65,46 @@ export const Sizes: Story = {
       <SearchField {...args} size="medium" />
     </Flex>
   ),
-};
+});
 
-export const DefaultValue: Story = {
+export const DefaultValue = meta.story({
   args: {
-    ...Default.args,
+    ...Default.input.args,
     defaultValue: 'https://example.com',
   },
-};
+});
 
-export const WithLabel: Story = {
+export const WithLabel = meta.story({
   args: {
-    ...Default.args,
+    ...Default.input.args,
     label: 'Label',
   },
-};
+});
 
-export const WithDescription: Story = {
+export const WithDescription = meta.story({
   args: {
-    ...WithLabel.args,
+    ...WithLabel.input.args,
     description: 'Description',
   },
-};
+});
 
-export const Required: Story = {
+export const Required = meta.story({
   args: {
-    ...WithLabel.args,
+    ...WithLabel.input.args,
     isRequired: true,
   },
-};
+});
 
-export const Disabled: Story = {
+export const Disabled = meta.story({
   args: {
-    ...Default.args,
+    ...Default.input.args,
     isDisabled: true,
   },
-};
+});
 
-export const WithIcon: Story = {
+export const WithIcon = meta.story({
   args: {
-    ...Default.args,
+    ...Default.input.args,
   },
   render: args => (
     <SearchField
@@ -113,34 +114,34 @@ export const WithIcon: Story = {
       icon={<RiEBike2Line />}
     />
   ),
-};
+});
 
-export const DisabledWithIcon: Story = {
+export const DisabledWithIcon = meta.story({
   args: {
-    ...WithIcon.args,
+    ...WithIcon.input.args,
     isDisabled: true,
   },
-};
+});
 
-export const ShowError: Story = {
+export const ShowError = meta.story({
   args: {
-    ...WithLabel.args,
+    ...WithLabel.input.args,
   },
   render: args => (
     <Form validationErrors={{ url: 'Invalid URL' }}>
       <SearchField {...args} />
     </Form>
   ),
-};
+});
 
-export const Validation: Story = {
+export const Validation = meta.story({
   args: {
-    ...WithLabel.args,
+    ...WithLabel.input.args,
     validate: value => (value === 'admin' ? 'Nice try!' : null),
   },
-};
+});
 
-export const CustomField: Story = {
+export const CustomField = meta.story({
   render: () => (
     <>
       <FieldLabel
@@ -156,33 +157,47 @@ export const CustomField: Story = {
       />
     </>
   ),
-};
+});
 
-export const StartCollapsed: Story = {
+export const StartCollapsed = meta.story({
   args: {
-    ...Default.args,
+    ...Default.input.args,
     startCollapsed: true,
   },
 
   render: args => (
-    <Flex direction="row" gap="4">
+    <Flex direction="column" gap="4">
+      <Flex direction="row" gap="4">
+        <SearchField {...args} size="small" />
+        <SearchField {...args} size="medium" />
+      </Flex>
       <SearchField {...args} size="small" />
-      <SearchField {...args} size="medium" />
     </Flex>
   ),
-};
+});
 
-export const InHeader: Story = {
+export const StartCollapsedWithValue = meta.story({
+  args: {
+    ...StartCollapsed.input.args,
+    defaultValue: 'https://example.com',
+  },
+
+  render: args => <SearchField {...args} size="small" />,
+});
+
+export const InHeader = meta.story({
   decorators: [
     Story => (
       <MemoryRouter>
-        <Story />
+        <BUIProvider>
+          <Story />
+        </BUIProvider>
       </MemoryRouter>
     ),
   ],
   render: args => (
     <>
-      <Header
+      <PluginHeader
         title="Title"
         customActions={
           <>
@@ -204,22 +219,24 @@ export const InHeader: Story = {
       />
     </>
   ),
-};
+});
 
-export const StartCollapsedInHeader: Story = {
+export const StartCollapsedInHeader = meta.story({
   args: {
-    ...StartCollapsed.args,
+    ...StartCollapsed.input.args,
   },
   decorators: [
     Story => (
       <MemoryRouter>
-        <Story />
+        <BUIProvider>
+          <Story />
+        </BUIProvider>
       </MemoryRouter>
     ),
   ],
   render: args => (
     <>
-      <Header
+      <PluginHeader
         title="Title"
         customActions={
           <>
@@ -241,11 +258,11 @@ export const StartCollapsedInHeader: Story = {
       />
     </>
   ),
-};
+});
 
-export const StartCollapsedWithButtons: Story = {
+export const StartCollapsedWithButtons = meta.story({
   args: {
-    ...StartCollapsed.args,
+    ...StartCollapsed.input.args,
   },
   render: args => (
     <Flex direction="row" gap="2" style={{ width: '100%', maxWidth: '600px' }}>
@@ -271,11 +288,11 @@ export const StartCollapsedWithButtons: Story = {
       </Button>
     </Flex>
   ),
-};
+});
 
-export const StartCollapsedWithOnChange: Story = {
+export const StartCollapsedWithOnChange = meta.story({
   args: {
-    ...StartCollapsed.args,
+    ...StartCollapsed.input.args,
   },
   render: args => {
     const handleChange = (value: string) => {
@@ -292,4 +309,77 @@ export const StartCollapsedWithOnChange: Story = {
       </Flex>
     );
   },
-};
+});
+
+export const StartCollapsedControlledEmpty = meta.story({
+  args: {
+    ...StartCollapsed.input.args,
+  },
+  render: function Render(args) {
+    const [value, setValue] = useState('');
+
+    return (
+      <Flex
+        direction="row"
+        gap="2"
+        style={{ width: '100%', maxWidth: '600px' }}
+      >
+        <SearchField {...args} size="small" value={value} onChange={setValue} />
+      </Flex>
+    );
+  },
+});
+
+export const StartCollapsedControlledWithValue = meta.story({
+  args: {
+    ...StartCollapsed.input.args,
+  },
+  render: function Render(args) {
+    const [value, setValue] = useState('Component');
+
+    return (
+      <Flex
+        direction="row"
+        gap="2"
+        style={{ width: '100%', maxWidth: '600px' }}
+      >
+        <SearchField {...args} size="small" value={value} onChange={setValue} />
+      </Flex>
+    );
+  },
+});
+
+export const AutoBg = meta.story({
+  render: () => (
+    <Flex direction="column" gap="4">
+      <div style={{ maxWidth: '600px' }}>
+        SearchField automatically detects its parent bg context and increments
+        the neutral level by 1. No prop is needed — it's fully automatic.
+      </div>
+      <Box bg="neutral" p="4">
+        <Text>Neutral 1 container</Text>
+        <Flex mt="2" style={{ maxWidth: '300px' }}>
+          <SearchField aria-label="Search" size="small" />
+        </Flex>
+      </Box>
+      <Box bg="neutral">
+        <Box bg="neutral" p="4">
+          <Text>Neutral 2 container</Text>
+          <Flex mt="2" style={{ maxWidth: '300px' }}>
+            <SearchField aria-label="Search" size="small" />
+          </Flex>
+        </Box>
+      </Box>
+      <Box bg="neutral">
+        <Box bg="neutral">
+          <Box bg="neutral" p="4">
+            <Text>Neutral 3 container</Text>
+            <Flex mt="2" style={{ maxWidth: '300px' }}>
+              <SearchField aria-label="Search" size="small" />
+            </Flex>
+          </Box>
+        </Box>
+      </Box>
+    </Flex>
+  ),
+});

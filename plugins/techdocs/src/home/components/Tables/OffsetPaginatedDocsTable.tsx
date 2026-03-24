@@ -29,7 +29,7 @@ import {
  * @internal
  */
 export function OffsetPaginatedDocsTable(props: TableProps<DocsTableRow>) {
-  const { actions, columns, data, isLoading, options } = props;
+  const { actions, columns, data, isLoading, options, title } = props;
   const { updateFilters, setLimit, setOffset, limit, totalItems, offset } =
     useEntityList();
   const { t } = useTranslationRef(techdocsTranslationRef);
@@ -47,6 +47,7 @@ export function OffsetPaginatedDocsTable(props: TableProps<DocsTableRow>) {
 
   return (
     <Table<DocsTableRow>
+      title={title}
       columns={columns}
       data={data}
       options={{

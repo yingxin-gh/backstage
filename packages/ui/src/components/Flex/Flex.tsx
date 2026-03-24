@@ -15,32 +15,29 @@
  */
 
 import { forwardRef } from 'react';
-import { FlexProps } from './types';
-import clsx from 'clsx';
-import { useStyles } from '../../hooks/useStyles';
+import type { FlexProps } from './types';
+import { useDefinition } from '../../hooks/useDefinition';
 import { FlexDefinition } from './definition';
-import styles from './Flex.module.css';
 
 /** @public */
 export const Flex = forwardRef<HTMLDivElement, FlexProps>((props, ref) => {
-  const { classNames, utilityClasses, style, cleanedProps } = useStyles(
+  const { ownProps, dataAttributes, utilityStyle, restProps } = useDefinition(
     FlexDefinition,
     { gap: '4', ...props },
   );
-
-  const { className, ...rest } = cleanedProps;
+  const { classes, childrenWithBgProvider } = ownProps;
 
   return (
     <div
       ref={ref}
-      className={clsx(
-        classNames.root,
-        utilityClasses,
-        styles[classNames.root],
-        className,
-      )}
-      style={style}
-      {...rest}
-    />
+      className={classes.root}
+      style={{ ...utilityStyle, ...ownProps.style }}
+      {...dataAttributes}
+      {...restProps}
+    >
+      {childrenWithBgProvider}
+    </div>
   );
 });
+
+Flex.displayName = 'Flex';

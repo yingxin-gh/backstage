@@ -1,5 +1,144 @@
 # @backstage/plugin-techdocs-module-addons-contrib
 
+## 1.1.34
+
+### Patch Changes
+
+- 895563a: Avoid enabling the TechDocs LightBox addon for images wrapped in links, so image links keep working.
+- Updated dependencies
+  - @backstage/core-plugin-api@1.12.4
+  - @backstage/core-components@0.18.8
+  - @backstage/frontend-plugin-api@0.15.0
+  - @backstage/integration@2.0.0
+  - @backstage/integration-react@1.2.16
+  - @backstage/plugin-techdocs-react@1.3.9
+
+## 1.1.34-next.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.15.0-next.1
+  - @backstage/core-plugin-api@1.12.4-next.1
+  - @backstage/integration@2.0.0-next.2
+  - @backstage/core-components@0.18.8-next.1
+  - @backstage/plugin-techdocs-react@1.3.9-next.1
+
+## 1.1.34-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/integration@2.0.0-next.1
+  - @backstage/core-components@0.18.8-next.0
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/frontend-plugin-api@0.14.2-next.0
+  - @backstage/integration-react@1.2.16-next.1
+  - @backstage/plugin-techdocs-react@1.3.9-next.0
+
+## 1.1.34-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.14.2-next.0
+  - @backstage/integration@1.21.0-next.0
+  - @backstage/core-components@0.18.8-next.0
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/integration-react@1.2.16-next.0
+  - @backstage/plugin-techdocs-react@1.3.9-next.0
+
+## 1.1.33
+
+### Patch Changes
+
+- a7e0d50: Updated `react-router-dom` peer dependency to `^6.30.2` and explicitly disabled v7 future flags to suppress deprecation warnings.
+- Updated dependencies
+  - @backstage/integration@1.20.0
+  - @backstage/core-components@0.18.7
+  - @backstage/frontend-plugin-api@0.14.0
+  - @backstage/core-plugin-api@1.12.3
+  - @backstage/plugin-techdocs-react@1.3.8
+  - @backstage/integration-react@1.2.15
+
+## 1.1.33-next.2
+
+### Patch Changes
+
+- a7e0d50: Prepare for React Router v7 migration by updating to v6.30.2 across all NFS packages and enabling v7 future flags. Convert routes from splat paths to parent/child structure with Outlet components.
+- Updated dependencies
+  - @backstage/integration@1.20.0-next.2
+  - @backstage/frontend-plugin-api@0.14.0-next.2
+  - @backstage/integration-react@1.2.15-next.2
+  - @backstage/core-components@0.18.7-next.2
+  - @backstage/core-plugin-api@1.12.3-next.1
+  - @backstage/plugin-techdocs-react@1.3.8-next.1
+
+## 1.1.33-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/integration@1.20.0-next.1
+  - @backstage/frontend-plugin-api@0.14.0-next.1
+  - @backstage/core-components@0.18.7-next.1
+  - @backstage/plugin-techdocs-react@1.3.8-next.0
+  - @backstage/integration-react@1.2.15-next.1
+
+## 1.1.33-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-components@0.18.6-next.0
+  - @backstage/integration@1.19.3-next.0
+  - @backstage/frontend-plugin-api@0.14.0-next.0
+  - @backstage/core-plugin-api@1.12.2-next.0
+  - @backstage/plugin-techdocs-react@1.3.8-next.0
+  - @backstage/integration-react@1.2.15-next.0
+
+## 1.1.32
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.13.3
+  - @backstage/core-components@0.18.5
+  - @backstage/integration@1.19.2
+  - @backstage/integration-react@1.2.14
+  - @backstage/plugin-techdocs-react@1.3.7
+
+## 1.1.32-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-components@0.18.5-next.0
+  - @backstage/integration-react@1.2.14-next.0
+  - @backstage/plugin-techdocs-react@1.3.7-next.0
+
+## 1.1.32-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/integration@1.19.2-next.0
+  - @backstage/integration-react@1.2.14-next.0
+  - @backstage/frontend-plugin-api@0.13.2
+
+## 1.1.31
+
+### Patch Changes
+
+- 8d6709e: Updated tests to match test-utils change
+- Updated dependencies
+  - @backstage/integration@1.19.0
+  - @backstage/frontend-plugin-api@0.13.2
+  - @backstage/core-components@0.18.4
+  - @backstage/core-plugin-api@1.12.1
+  - @backstage/integration-react@1.2.13
+  - @backstage/plugin-techdocs-react@1.3.6
+
 ## 1.1.31-next.1
 
 ### Patch Changes

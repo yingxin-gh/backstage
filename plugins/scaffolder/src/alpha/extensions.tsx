@@ -22,10 +22,14 @@ import {
   identityApiRef,
   NavItemBlueprint,
   PageBlueprint,
+  SubPageBlueprint,
 } from '@backstage/frontend-plugin-api';
 import { rootRouteRef } from '../routes';
 import CreateComponentIcon from '@material-ui/icons/AddCircleOutline';
-import { FormFieldBlueprint } from '@backstage/plugin-scaffolder-react/alpha';
+import {
+  FormFieldBlueprint,
+  formFieldsApiRef,
+} from '@backstage/plugin-scaffolder-react/alpha';
 import { scmIntegrationsApiRef } from '@backstage/integration-react';
 import { scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
 import { ScaffolderClient } from '../api';
@@ -36,18 +40,85 @@ export const scaffolderPage = PageBlueprint.makeWithOverrides({
       FormFieldBlueprint.dataRefs.formFieldLoader,
     ]),
   },
-  factory(originalFactory, { inputs }) {
-    const formFieldLoaders = inputs.formFields.map(i =>
-      i.get(FormFieldBlueprint.dataRefs.formFieldLoader),
-    );
+  factory(originalFactory) {
     return originalFactory({
       routeRef: rootRouteRef,
       path: '/create',
-      loader: () =>
-        import('../components/Router/Router').then(m => (
-          <m.InternalRouter formFieldLoaders={formFieldLoaders} />
-        )),
+      title: 'Create',
     });
+  },
+});
+
+export const scaffolderTemplatesSubPage = SubPageBlueprint.makeWithOverrides({
+  name: 'templates',
+  factory(originalFactory, { apis }) {
+    const formFieldsApi = apis.get(formFieldsApiRef);
+
+    return originalFactory({
+      path: 'templates',
+      title: 'Templates',
+      loader: async () => {
+        const formFields = (await formFieldsApi?.loadFormFields()) ?? [];
+
+        return import('./components/TemplatesSubPage').then(m => (
+          <m.TemplatesSubPage formFields={formFields} />
+        ));
+      },
+    });
+  },
+});
+
+export const scaffolderTasksSubPage = SubPageBlueprint.make({
+  name: 'tasks',
+  params: {
+    path: 'tasks',
+    title: 'Tasks',
+    loader: () =>
+      import('./components/TasksSubPage').then(m => <m.TasksSubPage />),
+  },
+});
+
+export const scaffolderActionsSubPage = SubPageBlueprint.make({
+  name: 'actions',
+  params: {
+    path: 'actions',
+    title: 'Actions',
+    loader: () =>
+      Promise.all([
+        import('../components/ActionsPage'),
+        import('@backstage/core-components'),
+      ]).then(([m, { Content }]) => (
+        <Content>
+          <m.ActionPageContent />
+        </Content>
+      )),
+  },
+});
+
+export const scaffolderEditorSubPage = SubPageBlueprint.make({
+  name: 'editor',
+  params: {
+    path: 'edit',
+    title: 'Template Editor',
+    loader: () =>
+      import('./components/EditorSubPage').then(m => <m.EditorSubPage />),
+  },
+});
+
+export const scaffolderTemplatingExtensionsSubPage = SubPageBlueprint.make({
+  name: 'templating-extensions',
+  params: {
+    path: 'templating-extensions',
+    title: 'Templating Extensions',
+    loader: () =>
+      Promise.all([
+        import('../components/TemplatingExtensionsPage'),
+        import('@backstage/core-components'),
+      ]).then(([m, { Content }]) => (
+        <Content>
+          <m.TemplatingExtensionsPageContent linkLocal />
+        </Content>
+      )),
   },
 });
 
@@ -124,6 +195,14 @@ export const repoBranchPickerFormField = FormFieldBlueprint.make({
   params: {
     field: () =>
       import('./fields/RepoBranchPicker').then(m => m.RepoBranchPicker),
+  },
+});
+
+export const repoOwnerPickerFormField = FormFieldBlueprint.make({
+  name: 'repo-owner-picker',
+  params: {
+    field: () =>
+      import('./fields/RepoOwnerPicker').then(m => m.RepoOwnerPicker),
   },
 });
 

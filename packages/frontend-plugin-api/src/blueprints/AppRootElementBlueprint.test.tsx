@@ -15,11 +15,7 @@
  */
 
 import { screen, waitFor } from '@testing-library/react';
-import {
-  MockErrorApi,
-  TestApiProvider,
-  withLogCollector,
-} from '@backstage/test-utils';
+import { MockErrorApi, withLogCollector } from '@backstage/test-utils';
 import { errorApiRef } from '../apis';
 import {
   createExtensionTester,
@@ -46,6 +42,7 @@ describe('AppRootElementBlueprint', () => {
         "configSchema": undefined,
         "disabled": false,
         "factory": [Function],
+        "if": undefined,
         "inputs": {},
         "kind": "app-root-element",
         "name": undefined,
@@ -74,11 +71,9 @@ describe('AppRootElementBlueprint', () => {
       });
 
       const tester = createExtensionTester(extension);
-      renderInTestApp(
-        <TestApiProvider apis={[[errorApiRef, errorApi]]}>
-          {tester.reactElement()}
-        </TestApiProvider>,
-      );
+      renderInTestApp(tester.reactElement(), {
+        apis: [[errorApiRef, errorApi]],
+      });
 
       await waitFor(() => {
         const errors = errorApi.getErrors();

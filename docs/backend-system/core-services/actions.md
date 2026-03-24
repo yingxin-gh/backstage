@@ -30,7 +30,9 @@ This naming convention ensures that action names are globally unique across all 
 
 ## Configuration
 
-The Actions Service can be configured to control which plugins' actions are available:
+### Restricting action sources by plugin
+
+The `pluginSources` configuration limits which plugins are allowed to register actions.
 
 ```yaml
 backend:
@@ -38,6 +40,34 @@ backend:
     pluginSources:
       - catalog
 ```
+
+### Filtering actions
+
+In addition to plugin-level restrictions, the Actions Service supports filtering actions using include and exclude rules. This allows fine-grained control over which actions are exposed or runnable in a Backstage instance.
+
+#### Include specific actions
+
+```yaml
+backend:
+  actions:
+    filter:
+      include:
+        - 'catalog.*'
+```
+
+#### Exclude specific actions
+
+```yaml
+backend:
+  actions:
+    filter:
+      exclude:
+        - 'scaffolder.internal.*'
+```
+
+### Permissions
+
+Actions registered with a `visibilityPermission` field are automatically checked against the permissions framework. When listing actions, any actions denied by the active permission policy are filtered out of the results. When invoking a denied action, a `404 Not Found` error is returned. See the [Actions Registry Permissions](./actions-registry.md#permissions) documentation for how to configure permissions on actions.
 
 ## Using the Service
 

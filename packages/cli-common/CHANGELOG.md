@@ -1,5 +1,123 @@
 # @backstage/cli-common
 
+## 0.2.0
+
+### Minor Changes
+
+- 56bd494: Added `targetPaths` and `findOwnPaths` as replacements for `findPaths`, with a cleaner separation between target project paths and package-relative paths.
+
+  To migrate existing `findPaths` usage:
+
+  ```ts
+  // Before
+  import { findPaths } from '@backstage/cli-common';
+  const paths = findPaths(__dirname);
+
+  // After — for target project paths (cwd-based):
+  import { targetPaths } from '@backstage/cli-common';
+  // paths.targetDir    → targetPaths.dir
+  // paths.targetRoot   → targetPaths.rootDir
+  // paths.resolveTarget('src')      → targetPaths.resolve('src')
+  // paths.resolveTargetRoot('yarn.lock') → targetPaths.resolveRoot('yarn.lock')
+
+  // After — for package-relative paths:
+  import { findOwnPaths } from '@backstage/cli-common';
+  const own = findOwnPaths(__dirname);
+  // paths.ownDir       → own.dir
+  // paths.ownRoot      → own.rootDir
+  // paths.resolveOwn('config/jest.js')    → own.resolve('config/jest.js')
+  // paths.resolveOwnRoot('tsconfig.json') → own.resolveRoot('tsconfig.json')
+  ```
+
+### Patch Changes
+
+- e44b6a9: The `findOwnRootDir` utility now searches for the monorepo root by traversing up the directory tree looking for a `package.json` with `workspaces`, instead of assuming a fixed `../..` relative path. If no workspaces root is found during this traversal, `findOwnRootDir` now throws to enforce stricter validation of the repository layout.
+- 9361965: Fixed `runCheck` to ignore stdio of the spawned process, preventing unwanted output from leaking to the terminal.
+
+## 0.2.0-next.2
+
+### Patch Changes
+
+- 9361965: Fixed `runCheck` to ignore stdio of the spawned process, preventing unwanted output from leaking to the terminal.
+
+## 0.2.0-next.1
+
+### Patch Changes
+
+- e44b6a9: The `findOwnRootDir` utility now searches for the monorepo root by traversing up the directory tree looking for a `package.json` with `workspaces`, instead of assuming a fixed `../..` relative path. If no workspaces root is found during this traversal, `findOwnRootDir` now throws to enforce stricter validation of the repository layout.
+- Updated dependencies
+  - @backstage/errors@1.2.7
+
+## 0.2.0-next.0
+
+### Minor Changes
+
+- 56bd494: Added `targetPaths` and `findOwnPaths` as replacements for `findPaths`, with a cleaner separation between target project paths and package-relative paths.
+
+  To migrate existing `findPaths` usage:
+
+  ```ts
+  // Before
+  import { findPaths } from '@backstage/cli-common';
+  const paths = findPaths(__dirname);
+
+  // After — for target project paths (cwd-based):
+  import { targetPaths } from '@backstage/cli-common';
+  // paths.targetDir    → targetPaths.dir
+  // paths.targetRoot   → targetPaths.rootDir
+  // paths.resolveTarget('src')      → targetPaths.resolve('src')
+  // paths.resolveTargetRoot('yarn.lock') → targetPaths.resolveRoot('yarn.lock')
+
+  // After — for package-relative paths:
+  import { findOwnPaths } from '@backstage/cli-common';
+  const own = findOwnPaths(__dirname);
+  // paths.ownDir       → own.dir
+  // paths.ownRoot      → own.rootDir
+  // paths.resolveOwn('config/jest.js')    → own.resolve('config/jest.js')
+  // paths.resolveOwnRoot('tsconfig.json') → own.resolveRoot('tsconfig.json')
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/errors@1.2.7
+
+## 0.1.18
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+
+## 0.1.18-next.0
+
+### Patch Changes
+
+- 7455dae: Use node prefix on native imports
+- Updated dependencies
+  - @backstage/errors@1.2.7
+
+## 0.1.17
+
+### Patch Changes
+
+- ae4dd5d: Move some of the symlink resolution to `isChildPath`
+
+## 0.1.16
+
+### Patch Changes
+
+- 5cfb2a4: Added new `run`, `runOutput`, and `runCheck` utilities to help run child processes in a safe and portable way.
+- c8c2329: Add proxy configuration from env-vars to create-app tasks
+- 2bae83a: Bumped dev dependencies `@types/node`
+
+## 0.1.16-next.2
+
+### Patch Changes
+
+- 2bae83a: Bumped dev dependencies `@types/node`
+- Updated dependencies
+  - @backstage/errors@1.2.7
+
 ## 0.1.16-next.1
 
 ### Patch Changes

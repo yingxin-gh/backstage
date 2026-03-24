@@ -30,6 +30,7 @@ backend's
 backported
 backporting
 BEPs
+bg
 bigint
 Bigtable
 Billett
@@ -42,6 +43,7 @@ breakpoint
 Brex
 broadcasted
 bugfixes
+BUIProvider
 builtins
 bundler
 bundlers
@@ -53,7 +55,6 @@ Chai
 Chainguard
 changeset
 changesets
-Changesets
 chanwit
 Chanwit
 CI/CD
@@ -68,12 +69,10 @@ Cobertura
 codeblocks
 Codecov
 codehilite
-Codehilite
 codemod
 codemods
 codeowners
 codescene
-CodeScene
 composability
 composable
 config
@@ -99,6 +98,7 @@ dataflow
 dataloader
 dayjs
 debounce
+debounced
 debounces
 debuggability
 declaratively
@@ -124,7 +124,6 @@ devs
 dialogs
 disambiguator
 discoverability
-Discoverability
 dls
 Dockerfile
 dockerfiles
@@ -135,7 +134,6 @@ Dominik
 DOMPurify
 don'ts
 dynatrace
-Dynatrace
 dyno
 ecco
 elasticsearch
@@ -156,12 +154,10 @@ faqs
 featureful
 Figma
 firehydrant
-FireHydrant
 Firekube
 Firestore
 Fiverr
 flightcontrol
-Flightcontrol
 Francesco
 Frontside
 Gaurav
@@ -187,7 +183,6 @@ haproxy
 hardcoded
 hardcoding
 harness
-Harness
 Helidon
 Henneke
 Heroku
@@ -252,6 +247,7 @@ Levenshtein
 lightbox
 Lightsail
 limitranges
+liveness
 LocalStack
 lockdown
 lockfile
@@ -268,6 +264,7 @@ maintainer's
 maintainership
 makefile
 Matomo
+matchers
 md
 memcache
 memoization
@@ -279,7 +276,6 @@ microsite
 microtasks
 middleware
 minikube
-Minikube
 Minio
 misattributed
 misconfiguration
@@ -288,7 +284,6 @@ mkdocs
 Mkdocs
 modularization
 monorepo
-Monorepo
 monorepos
 monospace
 morgan
@@ -325,15 +320,14 @@ Olausson
 Oldsberg
 onboarded
 onboarding
-Onboarding
 onelogin
 openapi
 OpenSearch
 OpenShift
 openssl
+opentelemetry
 orgs
 overridable
-Overridable
 padding
 paddings
 pagerduty
@@ -343,12 +337,13 @@ parallelization
 param
 params
 parseable
+passthrough
+passwordless
 Patrik
 pattison
 Peloton
 PEP
 performant
-Performant
 periskop
 Periskop
 permissioned
@@ -431,7 +426,9 @@ SCM
 SCMs
 scrollable
 scrollbar
+scrollbars
 sdks
+SearchField
 seb
 semlas
 semver
@@ -501,6 +498,7 @@ templater
 Templater
 templaters
 Templaters
+TextField
 TFRecord
 theia
 Themer
@@ -522,20 +520,26 @@ transpile
 transpiled
 transpiler
 transpilers
+trixie
 truthy
 tsconfig
+TTLs
+Turbopack
 TSDoc
 typeahead
 ui
+unassign
 unbreak
 Unconference
 undici
+ungrouped
 unicode
 unmanaged
 unmount
 unregister
 unregistering
 unregistration
+unreviewed
 unstarred
 untemplated
 untracked
@@ -551,6 +555,8 @@ validator
 validators
 Valkey
 varchar
+viewport
+virtualized
 vite
 VMware
 Vodafone
@@ -576,3 +582,5 @@ zoomable
 zsh
 resizable
 enums
+LLMs
+cleye

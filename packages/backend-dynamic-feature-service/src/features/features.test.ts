@@ -21,7 +21,7 @@ import {
 } from '@backstage/backend-test-utils';
 import { dynamicPluginsFeatureLoader } from './features';
 import { DynamicPlugin, dynamicPluginsServiceRef } from '../manager';
-import path, { resolve as resolvePath } from 'path';
+import path, { resolve as resolvePath } from 'node:path';
 import {
   BackendFeature,
   createBackendPlugin,
@@ -31,7 +31,7 @@ import {
   CommonJSModuleLoaderOptions,
 } from '../loader/CommonJSModuleLoader';
 import * as winston from 'winston';
-import * as url from 'url';
+import * as url from 'node:url';
 import { MESSAGE } from 'triple-beam';
 import { overridePackagePathResolution } from '@backstage/backend-plugin-api/testUtils';
 import { ScannedPluginPackage } from '../scanner';
@@ -463,6 +463,45 @@ Require stack:
         main: '../dist/alpha.cjs.js',
       },
     });
+  });
+
+  it('should load a backend plugin that bundles its own @backstage/backend-plugin-api', async () => {
+    const dynamicPluginsLister = new DynamicPluginLister();
+    const dynamicPluginsRootForBundled = resolvePath(
+      __dirname,
+      '__fixtures__/dynamic-plugins-root-for-bundled',
+    );
+    await startTestBackend({
+      features: [
+        mockServices.rootConfig.factory({
+          data: {
+            dynamicPlugins: {
+              rootDirectory: dynamicPluginsRootForBundled,
+            },
+            backend: {
+              baseUrl: `http://localhost:0`,
+            },
+          },
+        }),
+        dynamicPluginsFeatureLoader({
+          moduleLoader: logger =>
+            jestFreeTypescriptAwareModuleLoader({ logger }),
+        }),
+        dynamicPluginsLister.feature(),
+      ],
+    });
+
+    expect(dynamicPluginsLister.loadedPlugins).toMatchObject([
+      {
+        installer: {
+          kind: 'new',
+        },
+        name: 'plugin-test-backend-bundled-dynamic',
+        platform: 'node',
+        role: 'backend-plugin',
+        version: '0.0.0',
+      },
+    ]);
   });
 
   describe('module federation support', () => {

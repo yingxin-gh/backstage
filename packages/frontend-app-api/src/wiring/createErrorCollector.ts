@@ -38,6 +38,14 @@ export type AppErrorTypes = {
   EXTENSION_INPUT_DATA_MISSING: {
     context: { node: AppNode; inputName: string };
   };
+  EXTENSION_INPUT_INTERNAL_IGNORED: {
+    context: {
+      node: AppNode;
+      inputName: string;
+      extensionId: string;
+      plugin: FrontendPlugin;
+    };
+  };
   EXTENSION_ATTACHMENT_CONFLICT: {
     context: { node: AppNode; inputName: string };
   };
@@ -65,6 +73,29 @@ export type AppErrorTypes = {
   // createSpecializedApp
   API_EXTENSION_INVALID: {
     context: { node: AppNode };
+  };
+  API_FACTORY_CONFLICT: {
+    context: {
+      node: AppNode;
+      apiRefId: string;
+      pluginId: string;
+      existingPluginId: string;
+    };
+  };
+  EXTENSION_BOOTSTRAP_PREDICATE_IGNORED: {
+    context: { node: AppNode };
+  };
+  EXTENSION_BOOTSTRAP_API_UNAVAILABLE: {
+    context: { node: AppNode; apiRefId: string };
+  };
+  EXTENSION_BOOTSTRAP_API_OVERRIDE_IGNORED: {
+    context: {
+      node: AppNode;
+      apiRefId: string;
+      bootstrapNode: AppNode;
+      pluginId: string;
+      bootstrapPluginId: string;
+    };
   };
   // routing
   ROUTE_DUPLICATE: {

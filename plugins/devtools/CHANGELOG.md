@@ -1,5 +1,149 @@
 # @backstage/plugin-devtools
 
+## 0.1.37
+
+### Patch Changes
+
+- afabb37: Fixed URL encoding of task IDs for the trigger feature (tasks that contained a "/" in their ID were not triggered)
+- f80195e: Added `cancelScheduledTask` to the DevTools API and a cancel button to the scheduled tasks UI.
+- 538c985: Updated installation documentation to use feature discovery as the default.
+- aa29b50: New frontend system pages now use the default plugin header together with `HeaderPage` instead of the legacy core page header pattern.
+- 3f36ce1: Updated alpha plugin icons to follow the new frontend icon sizing rules when rendered in plugin and navigation surfaces.
+- f4a1edd: Removed the deprecated `DevToolsContentBlueprint` from `@backstage/plugin-devtools-react`. DevTools pages in the new frontend system now use `SubPageBlueprint` tabs instead, and the catalog unprocessed entities alpha extension now attaches to DevTools as a subpage.
+- Updated dependencies
+  - @backstage/ui@0.13.0
+  - @backstage/core-compat-api@0.5.9
+  - @backstage/core-plugin-api@1.12.4
+  - @backstage/core-components@0.18.8
+  - @backstage/frontend-plugin-api@0.15.0
+  - @backstage/plugin-devtools-common@0.1.23
+  - @backstage/plugin-permission-react@0.4.41
+
+## 0.1.37-next.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-compat-api@0.5.9-next.2
+  - @backstage/frontend-plugin-api@0.15.0-next.1
+  - @backstage/core-plugin-api@1.12.4-next.1
+  - @backstage/core-components@0.18.8-next.1
+  - @backstage/plugin-devtools-react@0.1.2-next.1
+
+## 0.1.37-next.1
+
+### Patch Changes
+
+- afabb37: Fixed URL encoding of task IDs for the trigger feature (tasks that contained a "/" in their ID were not triggered)
+- Updated dependencies
+  - @backstage/core-compat-api@0.5.9-next.1
+  - @backstage/core-components@0.18.8-next.0
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/errors@1.2.7
+  - @backstage/frontend-plugin-api@0.14.2-next.0
+  - @backstage/plugin-devtools-common@0.1.22
+  - @backstage/plugin-devtools-react@0.1.2-next.0
+  - @backstage/plugin-permission-react@0.4.41-next.0
+
+## 0.1.37-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.14.2-next.0
+  - @backstage/core-compat-api@0.5.9-next.0
+  - @backstage/core-components@0.18.8-next.0
+  - @backstage/core-plugin-api@1.12.4-next.0
+  - @backstage/errors@1.2.7
+  - @backstage/plugin-devtools-common@0.1.22
+  - @backstage/plugin-devtools-react@0.1.2-next.0
+  - @backstage/plugin-permission-react@0.4.41-next.0
+
+## 0.1.36
+
+### Patch Changes
+
+- 018ca87: Added `title` and `icon` to the plugin definition for the new frontend system.
+- f2612c2: Fixes an issue where a user lacking permission to schedule tasks can now easily see the issue through a custom icon + tooltip.
+- a7e0d50: Updated `react-router-dom` peer dependency to `^6.30.2` and explicitly disabled v7 future flags to suppress deprecation warnings.
+- Updated dependencies
+  - @backstage/core-components@0.18.7
+  - @backstage/core-compat-api@0.5.8
+  - @backstage/frontend-plugin-api@0.14.0
+  - @backstage/plugin-devtools-react@0.1.1
+  - @backstage/core-plugin-api@1.12.3
+  - @backstage/plugin-permission-react@0.4.40
+  - @backstage/plugin-devtools-common@0.1.22
+
+## 0.1.36-next.1
+
+### Patch Changes
+
+- a7e0d50: Prepare for React Router v7 migration by updating to v6.30.2 across all NFS packages and enabling v7 future flags. Convert routes from splat paths to parent/child structure with Outlet components.
+- Updated dependencies
+  - @backstage/plugin-devtools-react@0.1.1-next.1
+  - @backstage/frontend-plugin-api@0.14.0-next.2
+  - @backstage/core-compat-api@0.5.8-next.2
+  - @backstage/core-components@0.18.7-next.2
+  - @backstage/core-plugin-api@1.12.3-next.1
+  - @backstage/plugin-permission-react@0.4.40-next.1
+
+## 0.1.36-next.0
+
+### Patch Changes
+
+- f2612c2: Fixes an issue where a user lacking permission to schedule tasks can now easily see the issue through a custom icon + tooltip.
+- Updated dependencies
+  - @backstage/core-components@0.18.6-next.0
+  - @backstage/core-compat-api@0.5.7-next.0
+  - @backstage/frontend-plugin-api@0.14.0-next.0
+  - @backstage/core-plugin-api@1.12.2-next.0
+  - @backstage/errors@1.2.7
+  - @backstage/plugin-devtools-common@0.1.22-next.0
+  - @backstage/plugin-devtools-react@0.1.1-next.0
+  - @backstage/plugin-permission-react@0.4.40-next.0
+
+## 0.1.35
+
+### Patch Changes
+
+- be6cef5: Add support for adding `unprocessed-entities` and other tabs to `devtools` when using the New Frontend system
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.13.3
+  - @backstage/core-components@0.18.5
+  - @backstage/plugin-devtools-react@0.1.0
+  - @backstage/plugin-devtools-common@0.1.21
+  - @backstage/core-compat-api@0.5.6
+
+## 0.1.35-next.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-components@0.18.5-next.0
+
+## 0.1.35-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-compat-api@0.5.6-next.0
+  - @backstage/frontend-plugin-api@0.13.2
+
+## 0.1.34
+
+### Patch Changes
+
+- d02db50: Remove unnecessary use of `compatWrapper` and `convertLegacyRouteRef`(s) for the new frontend system.
+- 291bf9d: Added scheduled tasks UI feature for the DevTools plugin
+- Updated dependencies
+  - @backstage/frontend-plugin-api@0.13.2
+  - @backstage/core-components@0.18.4
+  - @backstage/core-plugin-api@1.12.1
+  - @backstage/plugin-devtools-common@0.1.20
+  - @backstage/core-compat-api@0.5.5
+  - @backstage/plugin-permission-react@0.4.39
+
 ## 0.1.34-next.0
 
 ### Patch Changes

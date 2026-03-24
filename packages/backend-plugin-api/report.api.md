@@ -22,7 +22,7 @@ import { PermissionRule } from '@backstage/plugin-permission-node';
 import { PermissionRuleset } from '@backstage/plugin-permission-node';
 import { QueryPermissionRequest } from '@backstage/plugin-permission-common';
 import { QueryPermissionResponse } from '@backstage/plugin-permission-common';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import type { Request as Request_2 } from 'express';
 import type { Response as Response_2 } from 'express';
 
@@ -102,6 +102,11 @@ export interface BackendModuleRegistrationPoints {
     impl: TExtensionPoint,
   ): void;
   // (undocumented)
+  registerExtensionPoint<TExtensionPoint>(options: {
+    extensionPoint: ExtensionPoint<TExtensionPoint>;
+    factory: (context: ExtensionPointFactoryContext) => TExtensionPoint;
+  }): void;
+  // (undocumented)
   registerInit<
     TDeps extends {
       [name in string]: ServiceRef<unknown> | ExtensionPoint<unknown>;
@@ -114,11 +119,14 @@ export interface BackendModuleRegistrationPoints {
 
 // @public
 export interface BackendPluginRegistrationPoints {
-  // (undocumented)
   registerExtensionPoint<TExtensionPoint>(
     ref: ExtensionPoint<TExtensionPoint>,
     impl: TExtensionPoint,
   ): void;
+  registerExtensionPoint<TExtensionPoint>(options: {
+    extensionPoint: ExtensionPoint<TExtensionPoint>;
+    factory: (context: ExtensionPointFactoryContext) => TExtensionPoint;
+  }): void;
   // (undocumented)
   registerInit<
     TDeps extends {
@@ -389,6 +397,11 @@ export type ExtensionPoint<T> = {
 };
 
 // @public
+export interface ExtensionPointFactoryContext {
+  reportModuleStartupFailure(options: { error: Error }): void;
+}
+
+// @public
 export interface HttpAuthService {
   credentials<TAllowed extends keyof BackstagePrincipalTypes = 'unknown'>(
     req: Request_2<any, any, any, any, any>,
@@ -630,6 +643,7 @@ export interface RootServiceFactoryOptions<
 
 // @public
 export interface SchedulerService {
+  cancelTask(id: string): Promise<void>;
   createScheduledTaskRunner(
     schedule: SchedulerServiceTaskScheduleDefinition,
   ): SchedulerServiceTaskRunner;

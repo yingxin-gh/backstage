@@ -1,5 +1,290 @@
 # @backstage/frontend-plugin-api
 
+## 0.15.0
+
+### Minor Changes
+
+- 5fd78ba: Renamed `PluginOptions` to `CreateFrontendPluginOptions` and deprecated the old name. Removed `ResolvedExtensionInputs` from the main entry point; it is still available as an inline type in extension factory signatures.
+- 72991a5: Removed the `ResolvedExtensionInput` and `ExtensionDataRefToValue` helper types from the public API surface to reduce top-level API clutter. These types were internal plumbing that are not needed by plugin authors. If you were relying on `ResolvedExtensionInput`, use the `ResolvedExtensionInputs` type instead, which maps a full set of inputs. If you were using `ExtensionDataRefToValue`, replace it with `ExtensionDataValue` combined with inferred types from your `ExtensionDataRef`.
+- 9508514: **BREAKING**: Promoted `PluginWrapperApi`, `pluginWrapperApiRef`, `PluginWrapperBlueprint`, and the new `PluginWrapperDefinition` type from `@alpha` to `@public`. These are now available from the main package entry point rather than only through `/alpha`.
+
+  The `PluginWrapperApi` type now has a required `getRootWrapper()` method that returns a root wrapper component. The `pluginWrapperApiRef` ID changed from `core.plugin-wrapper.alpha` to `core.plugin-wrapper`.
+
+  The `PluginWrapperBlueprint` now accepts `PluginWrapperDefinition` as the loader return type, which supports an optional `useWrapperValue` hook that allows sharing state between wrapper instances.
+
+- 6573901: **BREAKING**: Removed the deprecated `AnyExtensionDataRef` type. Use `ExtensionDataRef` without type parameters instead.
+- a9440f0: **BREAKING**: Simplified the `ExtensionAttachTo` type to only support a single attachment target. The array form for attaching to multiple extension points has been removed. Also removed the deprecated `ExtensionAttachToSpec` type alias.
+
+### Patch Changes
+
+- e26e3de: The `icon` field on `AuthProviderInfo` now accepts `IconElement` in addition to `IconComponent`, letting you pass `<MyIcon />` instead of `MyIcon`.
+- eea95b8: Deprecated `AlertApi` in favor of the new `ToastApi`.
+
+  `AlertApi` is now deprecated and will be removed in a future release. Please migrate to `ToastApi` which provides richer notification features.
+
+  **Why migrate?**
+
+  `ToastApi` offers enhanced capabilities over `AlertApi`:
+
+  - **Title and Description**: Display a prominent title with optional description text
+  - **Action Links**: Include clickable links within notifications
+  - **Status Variants**: Support for neutral, info, success, warning, and danger statuses
+  - **Per-toast Timeout**: Control auto-dismiss timing for each notification individually
+  - **Programmatic Dismiss**: Close notifications via the `close()` handle returned from `post()`
+
+  **Migration Guide**
+
+  | AlertApi                                     | ToastApi                                   |
+  | -------------------------------------------- | ------------------------------------------ |
+  | `message: string`                            | `title: ReactNode`                         |
+  | `severity: 'error'`                          | `status: 'danger'`                         |
+  | `severity: 'success' \| 'info' \| 'warning'` | `status: 'success' \| 'info' \| 'warning'` |
+  | `display: 'transient'`                       | `timeout: 5000` (or custom ms)             |
+  | `display: 'permanent'`                       | omit `timeout`                             |
+  | `post()` returns `void`                      | `post()` returns `{ close(): void }`       |
+
+  **Example Migration**
+
+  ```typescript
+  // Before (AlertApi)
+  import { alertApiRef, useApi } from '@backstage/core-plugin-api';
+
+  const alertApi = useApi(alertApiRef);
+  alertApi.post({
+    message: 'Entity saved successfully',
+    severity: 'success',
+    display: 'transient',
+  });
+
+  // After (ToastApi)
+  import { toastApiRef, useApi } from '@backstage/frontend-plugin-api';
+
+  const toastApi = useApi(toastApiRef);
+  const toast = toastApi.post({
+    title: 'Entity saved successfully',
+    status: 'success',
+    timeout: 5000,
+  });
+  // Later: toast.close() to dismiss programmatically
+  ```
+
+  **Note**: During the migration period, both APIs work simultaneously. The `ToastDisplay` component subscribes to both `AlertApi` and `ToastApi`, so existing code continues to work while you migrate incrementally.
+
+- 8a3a906: Deprecated `NavItemBlueprint`. Nav items are now automatically inferred from `PageBlueprint` extensions based on their `title` and `icon` params.
+- b15a685: Deprecated `withApis`, use the `withApis` export from `@backstage/core-compat-api` instead.
+- 0452d02: Add optional `description` field to plugin-level feature flags.
+- 1bec049: Fixed inconsistent `JSX.Element` type reference in the `DialogApiDialog.update` method signature.
+- 9c81af9: Made the `pluginId` property optional in the `FrontendFeature` type, allowing plugins published against older versions of the framework to be used without type errors.
+- 2c383b5: Deprecated `AnalyticsImplementationBlueprint` and `AnalyticsImplementationFactory` in favor of the exports from `@backstage/plugin-app-react`.
+- dab6c46: Deprecated the `ExtensionFactoryMiddleware` type, which has been moved to `@backstage/frontend-app-api`.
+- aa29b50: Pages created with `PageBlueprint` now render the plugin header by default in the new frontend system.
+- 3f36ce1: Clarified the `IconElement` sizing contract for the new frontend system and aligned legacy system icon rendering with the new icon API.
+- cc459f7: Added a builder form for `createApiRef` in the new frontend system and deprecated the direct `createApiRef({ ... })` call in favor of `createApiRef().with({ ... })`. The builder form now also preserves literal API ref IDs in the resulting `ApiRef` type.
+
+  The `createApiRef().with({ ... })` form can also use an explicit `pluginId` to declare API ownership without encoding the plugin ID into the API ref ID, while keeping that metadata internal to runtime handling.
+
+- 5b160f9: Added support for `if` predicates on `createFrontendPlugin` and `createFrontendModule`, applying shared conditions to every extension in the feature. Plugin and extension overrides can now also replace or remove existing `if` predicates.
+- d0206c4: Removed the deprecated `defaultPath` migration helper from `PageBlueprint` params.
+- edb872c: Renamed the `PageTab` type to `PageLayoutTab`. The old `PageTab` name is now a deprecated type alias.
+- a49a40d: Updated dependency `zod` to `^3.25.76 || ^4.0.0` & migrated to `/v3` or `/v4` imports.
+- 7e743f4: Introduced a new `ToastApi` for displaying rich toast notifications in the new frontend system.
+
+  The new `ToastApi` provides enhanced notification capabilities compared to the existing `AlertApi`:
+
+  - **Title and Description**: Toasts support both a title and an optional description
+  - **Custom Timeouts**: Each toast can specify its own timeout duration
+  - **Links**: Toasts can include action links
+  - **Status Variants**: Support for neutral, info, success, warning, and danger statuses
+  - **Programmatic Dismiss**: Toasts can be dismissed programmatically using the `close()` handle returned from `post()`
+
+  **Usage:**
+
+  ```typescript
+  import { toastApiRef, useApi } from '@backstage/frontend-plugin-api';
+
+  const toastApi = useApi(toastApiRef);
+
+  // Full-featured toast
+  toastApi.post({
+    title: 'Entity saved',
+    description: 'Your changes have been saved successfully.',
+    status: 'success',
+    timeout: 5000,
+    links: [{ label: 'View entity', href: '/catalog/entity' }],
+  });
+
+  // Programmatic dismiss
+  const { close } = toastApi.post({ title: 'Uploading...', status: 'info' });
+  // Later...
+  close();
+  ```
+
+  The `ToastDisplay` component subscribes to both `ToastApi` and `AlertApi`, providing a migration path where both systems work side by side until `AlertApi` is fully deprecated.
+
+- fe848e0: Changed `useApiHolder` to return an empty `ApiHolder` instead of throwing when used outside of an API context.
+- Updated dependencies
+  - @backstage/filter-predicates@0.1.1
+
+## 0.15.0-next.1
+
+### Minor Changes
+
+- 6573901: **BREAKING**: Removed the deprecated `AnyExtensionDataRef` type. Use `ExtensionDataRef` without type parameters instead.
+- a9440f0: **BREAKING**: Simplified the `ExtensionAttachTo` type to only support a single attachment target. The array form for attaching to multiple extension points has been removed. Also removed the deprecated `ExtensionAttachToSpec` type alias.
+
+### Patch Changes
+
+- 8a3a906: Deprecated `NavItemBlueprint`. Nav items are now automatically inferred from `PageBlueprint` extensions based on their `title` and `icon` params.
+- b15a685: Deprecated `withApis`, use the `withApis` export from `@backstage/core-compat-api` instead.
+- 0452d02: Add optional `description` field to plugin-level feature flags.
+- 1bec049: Fixed inconsistent `JSX.Element` type reference in the `DialogApiDialog.update` method signature.
+- 2c383b5: Deprecated `AnalyticsImplementationBlueprint` and `AnalyticsImplementationFactory` in favor of the exports from `@backstage/plugin-app-react`.
+- dab6c46: Deprecated the `ExtensionFactoryMiddleware` type, which has been moved to `@backstage/frontend-app-api`.
+- d0206c4: Removed the deprecated `defaultPath` migration helper from `PageBlueprint` params.
+- edb872c: Renamed the `PageTab` type to `PageLayoutTab`. The old `PageTab` name is now a deprecated type alias.
+- fe848e0: Changed `useApiHolder` to return an empty `ApiHolder` instead of throwing when used outside of an API context.
+
+## 0.14.2-next.0
+
+### Patch Changes
+
+- 9c81af9: Made the `pluginId` property optional in the `FrontendFeature` type, allowing plugins published against older versions of the framework to be used without type errors.
+- Updated dependencies
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.12
+
+## 0.14.0
+
+### Minor Changes
+
+- ef6916e: Added `IconElement` type as a replacement for the deprecated `IconComponent`. The `IconsApi` now has a new `icon()` method that returns `IconElement`, while the existing `getIcon()` method is deprecated. The `IconBundleBlueprint` now accepts both `IconComponent` and `IconElement` values.
+- bb9b471: Plugin IDs that do not match the standard format are deprecated (letters, digits, and dashes only, starting with a letter). Plugin IDs that do no match this format will be rejected in a future release.
+- ef6916e: Added `SubPageBlueprint` for creating sub-page tabs, `PluginHeaderActionBlueprint` and `PluginHeaderActionsApi` for plugin-scoped header actions, and `PageLayout` as a swappable component. The `PageBlueprint` now supports sub-pages with tabbed navigation, page title, icon, and header actions. Plugins can now specify a `title` and `icon` in `createFrontendPlugin`.
+- c38b74d: **BREAKING**: The following blueprints have been removed and are now only available from `@backstage/plugin-app-react`:
+
+  - `IconBundleBlueprint`
+  - `NavContentBlueprint`
+  - `RouterBlueprint`
+  - `SignInPageBlueprint`
+  - `SwappableComponentBlueprint`
+  - `ThemeBlueprint`
+  - `TranslationBlueprint`
+
+- 10ebed4: **BREAKING**: Removed type support for multiple attachment points in the `ExtensionDefinitionAttachTo` type. Extensions can no longer specify an array of attachment points in the `attachTo` property.
+
+  The runtime still supports multiple attachment points for backward compatibility with existing compiled code, but new code will receive type errors if attempting to use this pattern.
+
+  Extensions that previously used multiple attachment points should migrate to using a Utility API pattern instead. See the [Sharing Extensions Across Multiple Locations](https://backstage.io/docs/frontend-system/architecture/27-sharing-extensions) guide for the recommended approach.
+
+### Patch Changes
+
+- 7edb810: Added a new `internal` option to `createExtensionInput` that marks the input as only allowing attachments from the same plugin.
+- 9554c36: **DEPRECATED**: Multiple attachment points for extensions have been deprecated. The functionality continues to work for backward compatibility, but will log a deprecation warning and be removed in a future release.
+
+  Extensions using array attachment points should migrate to using Utility APIs instead. See the [Sharing Extensions Across Multiple Locations](https://backstage.io/docs/frontend-system/architecture/27-sharing-extensions) guide for the recommended pattern.
+
+- 53b6549: Plugins in the new frontend system now have a `pluginId` field rather than `id` to better align with naming conventions used throughout the frontend and backend systems. The old field is still present but marked as deprecated. All internal code has been updated to prefer `pluginId` while maintaining backward compatibility by falling back to `id` when needed.
+- a7e0d50: Updated `react-router-dom` peer dependency to `^6.30.2` and explicitly disabled v7 future flags to suppress deprecation warnings.
+- 69d880e: Bump to latest zod to ensure it has the latest features
+- Updated dependencies
+  - @backstage/version-bridge@1.0.12
+
+## 0.14.0-next.2
+
+### Patch Changes
+
+- a7e0d50: Prepare for React Router v7 migration by updating to v6.30.2 across all NFS packages and enabling v7 future flags. Convert routes from splat paths to parent/child structure with Outlet components.
+- Updated dependencies
+  - @backstage/version-bridge@1.0.12-next.0
+
+## 0.14.0-next.1
+
+### Minor Changes
+
+- bb9b471: Plugin IDs that do not match the standard format are deprecated (letters, digits, and dashes only, starting with a letter). Plugin IDs that do no match this format will be rejected in a future release.
+- 10ebed4: **BREAKING**: Removed type support for multiple attachment points in the `ExtensionDefinitionAttachTo` type. Extensions can no longer specify an array of attachment points in the `attachTo` property.
+
+  The runtime still supports multiple attachment points for backward compatibility with existing compiled code, but new code will receive type errors if attempting to use this pattern.
+
+  Extensions that previously used multiple attachment points should migrate to using a Utility API pattern instead. See the [Sharing Extensions Across Multiple Locations](https://backstage.io/docs/frontend-system/architecture/27-sharing-extensions) guide for the recommended approach.
+
+## 0.14.0-next.0
+
+### Minor Changes
+
+- c38b74d: **BREAKING**: The following blueprints have been removed and are now only available from `@backstage/plugin-app-react`:
+
+  - `IconBundleBlueprint`
+  - `NavContentBlueprint`
+  - `RouterBlueprint`
+  - `SignInPageBlueprint`
+  - `SwappableComponentBlueprint`
+  - `ThemeBlueprint`
+  - `TranslationBlueprint`
+
+### Patch Changes
+
+- 7edb810: Added a new `internal` option to `createExtensionInput` that marks the input as only allowing attachments from the same plugin.
+- 9554c36: **DEPRECATED**: Multiple attachment points for extensions have been deprecated. The functionality continues to work for backward compatibility, but will log a deprecation warning and be removed in a future release.
+
+  Extensions using array attachment points should migrate to using Utility APIs instead. See the [Sharing Extensions Across Multiple Locations](https://backstage.io/docs/frontend-system/architecture/27-sharing-extensions) guide for the recommended pattern.
+
+- 53b6549: Plugins in the new frontend system now have a `pluginId` field rather than `id` to better align with naming conventions used throughout the frontend and backend systems. The old field is still present but marked as deprecated. All internal code has been updated to prefer `pluginId` while maintaining backward compatibility by falling back to `id` when needed.
+- 69d880e: Bump to latest zod to ensure it has the latest features
+- Updated dependencies
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.11
+
+## 0.13.3
+
+### Patch Changes
+
+- 3bd2a1a: Updated documentation for `createApiRef` to clarify the role of the ID in specifying the owning plugin of an API.
+- 9ccf84e: The following blueprints are being restricted to only be used in app plugin overrides and modules. They are being moved to the `@backstage/plugin-app-react` package and have been deprecated:
+
+  - `AppRootWrapperBlueprint`
+  - `IconBundleBlueprint`
+  - `NavContentBlueprint`
+  - `RouterBlueprint`
+  - `SignInPageBlueprint`
+  - `SwappableComponentBlueprint`
+  - `ThemeBlueprint`
+  - `TranslationBlueprint`
+
+- 4554a4e: Added an alpha `PluginWrapperBlueprint` exported from `@backstage/frontend-plugin-api/alpha`, which can install components that will wrap all plugin elements.
+- 872eb91: Upgrade `zod-to-json-schema` to latest version
+
+## 0.13.2
+
+### Patch Changes
+
+- 75683ed: Added a new `errorPresentation` prop to `ExtensionBoundary` to control how errors are presented to the user. The default is `'error-display'`, which is the current behavior of showing the error in the `ErrorDisplay` component. The new option is `'error-api'`, posts errors to the `ErrorApi` and does not allow retries.
+
+  The `AppRootElementBlueprint` now wraps its element in an `ErrorBoundary` using the new `'error-api'` presentation mode.
+
+- 0bc1ce9: Fixed a versioning conflict that could result in a `.withContext` is not a function error.
+- f3f84f1: Made the return type of `.withOverrides` to be simplified.
+- 97cd16f: Reversed the relationship between the old `@backstage/core-plugin-api` and the new `@backstage/frontend-plugin-api`. Previously, the a lot of API definitions and utilities where defined in the old and re-exported from the old, but this change flips that around so that they now reside in the new package and are re-exported from the old. The external API of both packages remain the same, but this is a step towards being able to add further compatibility with the new frontend system built into the old.
+- 9b8bde4: Removed unnecessary dependencies on `@backstage/core-components`, `@backstage/config`, `@material-ui/core`, and `lodash`.
+
+## 0.13.2-next.1
+
+### Patch Changes
+
+- 75683ed: Added a new `errorPresentation` prop to `ExtensionBoundary` to control how errors are presented to the user. The default is `'error-display'`, which is the current behavior of showing the error in the `ErrorDisplay` component. The new option is `'error-api'`, posts errors to the `ErrorApi` and does not allow retries.
+
+  The `AppRootElementBlueprint` now wraps its element in an `ErrorBoundary` using the new `'error-api'` presentation mode.
+
+- f3f84f1: Made the return type of `.withOverrides` to be simplified.
+- Updated dependencies
+  - @backstage/core-components@0.18.4-next.2
+  - @backstage/config@1.3.6
+  - @backstage/errors@1.2.7
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.11
+
 ## 0.13.2-next.0
 
 ### Patch Changes

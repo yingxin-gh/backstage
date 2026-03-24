@@ -30,7 +30,7 @@ const page = PageBlueprint.make({
     routeRef: rootRouteRef,
     loader: () =>
       import('./components/NotificationsPage').then(m => (
-        <m.NotificationsPage />
+        <m.NfsNotificationsPage />
       )),
   },
 });
@@ -55,3 +55,11 @@ export default createFrontendPlugin({
   // TODO(Rugvip): Nav item (i.e. NotificationsSidebarItem) currently needs to be installed manually
   extensions: [page, api],
 });
+
+import { notificationsTranslationRef as _notificationsTranslationRef } from './translation';
+
+/**
+ * @alpha
+ * @deprecated Import from `@backstage/plugin-notifications` instead.
+ */
+export const notificationsTranslationRef = _notificationsTranslationRef;

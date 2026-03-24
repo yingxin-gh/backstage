@@ -26,7 +26,7 @@ import {
 } from '@internal/frontend';
 import { ExtensionDataRef, ExtensionDataValue } from './createExtensionDataRef';
 import { ExtensionInput } from './createExtensionInput';
-import { z } from 'zod';
+import type { z } from 'zod/v3';
 import { createSchemaFromZod } from '../schema/createSchemaFromZod';
 import { OpaqueExtensionDefinition } from '@internal/frontend';
 import { ExtensionDataContainer } from './types';
@@ -36,6 +36,7 @@ import {
 } from './createExtensionBlueprint';
 import { FrontendPlugin } from './createFrontendPlugin';
 import { FrontendModule } from './createFrontendModule';
+import { FilterPredicate } from '@backstage/filter-predicates';
 
 /**
  * This symbol is used to pass parameter overrides from the extension override to the blueprint factory
@@ -43,11 +44,8 @@ import { FrontendModule } from './createFrontendModule';
  */
 export const ctxParamsSymbol = Symbol('params');
 
-/**
- * Convert a single extension input into a matching resolved input.
- * @public
- */
-export type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
+/** @ignore */
+type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
   TExtensionInput['extensionData'] extends Array<ExtensionDataRef>
     ? {
         node: AppNode;
@@ -56,7 +54,8 @@ export type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
 
 /**
  * Converts an extension input map into a matching collection of resolved inputs.
- * @public
+ *
+ * @ignore
  */
 export type ResolvedExtensionInputs<
   TInputs extends {
@@ -134,11 +133,10 @@ export type VerifyExtensionAttachTo<
  *
  * A standard attachment point declaration will specify the ID of the parent extension, as well as the name of the input to attach to.
  *
- * There are three more advanced forms that are available for more complex use-cases:
+ * There are two more advanced forms that are available for more complex use-cases:
  *
  * 1. Relative attachment points: using the `relative` property instead of `id`, the attachment point is resolved relative to the current plugin.
  * 2. Extension input references: using a reference in code to another extension's input in the same plugin. These references are always relative.
- * 3. Array of attachment points: an array of attachment points can be used to clone and attach to multiple extensions at once.
  *
  * @example
  * ```ts
@@ -151,12 +149,6 @@ export type VerifyExtensionAttachTo<
  * // Attach to a specific input of another extension
  * const page = ParentBlueprint.make({ ... });
  * const child = ChildBlueprint.make({ attachTo: page.inputs.children });
- *
- * // Attach to multiple parents at once
- * [
- *   { id: 'page/home', input: 'widgets' },
- *   { relative: { kind: 'page' }, input: 'widgets' },
- * ]
  * ```
  *
  * @public
@@ -166,16 +158,7 @@ export type ExtensionDefinitionAttachTo<
 > =
   | { id: string; input: string; relative?: never }
   | { relative: { kind?: string; name?: string }; input: string; id?: never }
-  | ExtensionInput<UParentInputs>
-  | Array<
-      | { id: string; input: string; relative?: never }
-      | {
-          relative: { kind?: string; name?: string };
-          input: string;
-          id?: never;
-        }
-      | ExtensionInput<UParentInputs>
-    >;
+  | ExtensionInput<UParentInputs>;
 
 /** @public */
 export type CreateExtensionOptions<
@@ -192,6 +175,7 @@ export type CreateExtensionOptions<
   attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
     VerifyExtensionAttachTo<UOutput, UParentInputs>;
   disabled?: boolean;
+  if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
   config?: {
@@ -273,6 +257,7 @@ export interface OverridableExtensionDefinition<
             UParentInputs
           >;
         disabled?: boolean;
+        if?: FilterPredicate;
         inputs?: TExtraInputs & {
           [KName in keyof T['inputs']]?: `Error: Input '${KName &
             string}' is already defined in parent definition`;
@@ -492,6 +477,7 @@ export function createExtension<
     name: options.name,
     attachTo: options.attachTo,
     disabled: options.disabled ?? false,
+    if: options.if,
     inputs: bindInputs(options.inputs, options.kind, options.name),
     output: options.output,
     configSchema,
@@ -563,12 +549,18 @@ export function createExtension<
         );
       }
 
+      let ifPredicate = options.if;
+      if ('if' in overrideOptions) {
+        ifPredicate = overrideOptions.if;
+      }
+
       return createExtension({
         kind: options.kind,
         name: options.name,
         attachTo: (overrideOptions.attachTo ??
           options.attachTo) as ExtensionDefinitionAttachTo,
         disabled: overrideOptions.disabled ?? options.disabled,
+        if: ifPredicate,
         inputs: bindInputs(
           {
             ...(options.inputs ?? {}),

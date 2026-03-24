@@ -45,10 +45,16 @@ export interface Config {
 
     /**
      * Whether to omit the entity ownership references (`ent`) claim from the
-     * identity token. If this is enabled the `ent` claim will only be available
-     * via the user info endpoint and the `UserInfoService`.
+     * identity token.
      *
-     * Defaults to `false`.
+     * If this is disabled an `ent` claim will be included in the token
+     * containing all of the user's ownership refs as returned by the sign in
+     * resolver. This can in extreme cases lead to tokens that risk hitting HTTP
+     * header size limits. Setting it to `false` is therefore discouraged, and
+     * is only provided for backward compatibility reasons.
+     *
+     * Defaults to `true`, which means that the `ent` claim instead is available
+     * via the user info endpoint and the `UserInfoService`.
      */
     omitIdentityTokenOwnershipClaim?: boolean;
 
@@ -95,9 +101,39 @@ export interface Config {
 
     /**
      * The backstage token expiration.
-     * Defaults to 1 hour (3600s). Maximum allowed is 24 hours.
      */
     backstageTokenExpiration?: HumanDuration | string;
+
+    /**
+     * Configuration for refresh tokens (offline access)
+     * @visibility backend
+     */
+    experimentalRefreshToken?: {
+      /**
+       * Whether to enable refresh tokens
+       * @default false
+       * @visibility backend
+       */
+      enabled?: boolean;
+      /**
+       * Token lifetime before rotation required
+       * @default '30 days'
+       * @visibility backend
+       */
+      tokenLifetime?: HumanDuration | string;
+      /**
+       * Maximum session lifetime across all rotations
+       * @default '1 year'
+       * @visibility backend
+       */
+      maxRotationLifetime?: HumanDuration | string;
+      /**
+       * Maximum number of refresh tokens per user
+       * @default 20
+       * @visibility backend
+       */
+      maxTokensPerUser?: number;
+    };
 
     /**
      * Additional app origins to allow for authenticating
@@ -119,12 +155,37 @@ export interface Config {
        * dynamic client registration. Defaults to '[*]' which allows any redirect URI.
        */
       allowedRedirectUriPatterns?: string[];
+    };
+
+    /**
+     * Configuration for Client ID Metadata Documents (CIMD)
+     *
+     * @see https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/
+     */
+    experimentalClientIdMetadataDocuments?: {
+      /**
+       * Whether to enable Client ID Metadata Documents support
+       * Defaults to false
+       */
+      enabled?: boolean;
 
       /**
-       * The expiration time for the client registration access tokens.
-       * Defaults to 1 hour (3600s). Maximum allowed is 24 hours.
+       * A list of allowed URI patterns for client_id URLs.
+       * Uses glob-style pattern matching where `*` matches any characters.
+       * Defaults to ['*'] which allows any client_id URL.
+       *
+       * @example ['https://example.com/*', 'https://*.trusted-domain.com/*']
        */
-      tokenExpiration?: HumanDuration | string;
+      allowedClientIdPatterns?: string[];
+
+      /**
+       * A list of allowed URI patterns for redirect URIs.
+       * Uses glob-style pattern matching where `*` matches any characters.
+       * Defaults to ['*'] which allows any redirect URI.
+       *
+       * @example ['http://localhost:*', 'http://127.0.0.1:*\/callback']
+       */
+      allowedRedirectUriPatterns?: string[];
     };
   };
 }

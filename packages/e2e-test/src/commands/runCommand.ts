@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-import os from 'os';
+import os from 'node:os';
 import fs from 'fs-extra';
 import fetch from 'cross-fetch';
 import handlebars from 'handlebars';
 import killTree from 'tree-kill';
-import { resolve as resolvePath, join as joinPath } from 'path';
-import path from 'path';
+import { resolve as resolvePath, join as joinPath } from 'node:path';
+import path from 'node:path';
 
 import { waitFor, print } from '../lib/helpers';
 
 import mysql from 'mysql2/promise';
 import pgtools from 'pgtools';
 
-import { findPaths, runOutput, run } from '@backstage/cli-common';
 import { OptionValues } from 'commander';
+import { findOwnPaths, runOutput, run } from '@backstage/cli-common';
 
-// eslint-disable-next-line no-restricted-syntax
-const paths = findPaths(__dirname);
+/* eslint-disable-next-line no-restricted-syntax */
+const ownPaths = findOwnPaths(__dirname);
 
 const templatePackagePaths = [
-  'packages/cli/templates/frontend-plugin/package.json.hbs',
-  'packages/create-app/templates/default-app/package.json.hbs',
-  'packages/create-app/templates/default-app/packages/app/package.json.hbs',
-  'packages/create-app/templates/default-app/packages/backend/package.json.hbs',
+  'packages/cli-module-new/templates/frontend-plugin/package.json.hbs',
+  'packages/create-app/templates/next-app/package.json.hbs',
+  'packages/create-app/templates/next-app/packages/app/package.json.hbs',
+  'packages/create-app/templates/next-app/packages/backend/package.json.hbs',
 ];
 
 export async function runCommand(opts: OptionValues) {
@@ -61,20 +61,6 @@ export async function runCommand(opts: OptionValues) {
   await createPlugin({ appDir, pluginId, select: 'backend-plugin' });
 
   print(`Running 'yarn test:e2e' in newly created app with new plugin`);
-  await runOutput(['yarn', 'test:e2e'], {
-    cwd: appDir,
-    env: { ...process.env, CI: undefined },
-  });
-
-  await switchToReact17(appDir);
-
-  print(`Running 'yarn install' to install React 17`);
-  await runOutput(['yarn', 'install'], { cwd: appDir });
-
-  print(`Running 'yarn tsc' with React 17`);
-  await runOutput(['yarn', 'tsc'], { cwd: appDir });
-
-  print(`Running 'yarn test:e2e' with React 17`);
   await runOutput(['yarn', 'test:e2e'], {
     cwd: appDir,
     env: { ...process.env, CI: undefined },
@@ -138,7 +124,7 @@ async function buildDistWorkspace(workspaceName: string, rootDir: string) {
   }
 
   for (const pkgJsonPath of templatePackagePaths) {
-    const jsonPath = paths.resolveOwnRoot(pkgJsonPath);
+    const jsonPath = ownPaths.resolveRoot(pkgJsonPath);
     const pkgTemplate = await fs.readFile(jsonPath, 'utf8');
     const pkg = JSON.parse(
       handlebars.compile(pkgTemplate)(
@@ -196,7 +182,7 @@ async function buildDistWorkspace(workspaceName: string, rootDir: string) {
   print('Pinning yarn version in workspace');
   await pinYarnVersion(workspaceDir);
 
-  const yarnPatchesPath = paths.resolveOwnRoot('.yarn/patches');
+  const yarnPatchesPath = ownPaths.resolveRoot('.yarn/patches');
   if (await fs.pathExists(yarnPatchesPath)) {
     print('Copying yarn patches');
     await fs.copy(yarnPatchesPath, resolvePath(workspaceDir, '.yarn/patches'));
@@ -214,7 +200,7 @@ async function buildDistWorkspace(workspaceName: string, rootDir: string) {
  * Pin the yarn version in a directory to the one we're using in the Backstage repo
  */
 async function pinYarnVersion(dir: string) {
-  const yarnRc = await fs.readFile(paths.resolveOwnRoot('.yarnrc.yml'), 'utf8');
+  const yarnRc = await fs.readFile(ownPaths.resolveRoot('.yarnrc.yml'), 'utf8');
   const yarnRcLines = yarnRc.split(/\r?\n/);
   const yarnPathLine = yarnRcLines.find(line => line.startsWith('yarnPath:'));
   if (!yarnPathLine) {
@@ -225,8 +211,8 @@ async function pinYarnVersion(dir: string) {
     throw new Error(`Invalid 'yarnPath' in ${yarnRc}`);
   }
   const [, localYarnPath] = match;
-  const yarnPath = paths.resolveOwnRoot(localYarnPath);
-  const yarnPluginPath = paths.resolveOwnRoot(
+  const yarnPath = ownPaths.resolveRoot(localYarnPath);
+  const yarnPluginPath = ownPaths.resolveRoot(
     localYarnPath,
     '../../plugins/@yarnpkg/plugin-workspace-tools.cjs',
   );
@@ -328,7 +314,7 @@ async function createApp(
  */
 async function overrideYarnLockSeed(appDir: string) {
   const content = await fs.readFile(
-    paths.resolveOwnRoot('packages/create-app/seed-yarn.lock'),
+    ownPaths.resolveRoot('packages/create-app/seed-yarn.lock'),
     'utf8',
   );
   const trimmedContent = content
@@ -383,8 +369,12 @@ async function createPlugin(options: {
 
   try {
     let stdout = '';
+    let stderr = '';
     child.stdout?.on('data', (data: Buffer) => {
       stdout = stdout + data.toString('utf8');
+    });
+    child.stderr?.on('data', (data: Buffer) => {
+      stderr = stderr + data.toString('utf8');
     });
 
     print('Waiting for plugin create script to be done');
@@ -406,37 +396,6 @@ async function createPlugin(options: {
   } finally {
     child.kill();
   }
-}
-
-/**
- * Switch the entire project to use React 17
- */
-async function switchToReact17(appDir: string) {
-  const rootPkg = await fs.readJson(resolvePath(appDir, 'package.json'));
-  rootPkg.resolutions = {
-    ...(rootPkg.resolutions || {}),
-    react: '^17.0.0',
-    'react-dom': '^17.0.0',
-    '@types/react': '^17.0.0',
-    '@types/react-dom': '^17.0.0',
-    'swagger-ui-react/react': '17.0.2',
-    'swagger-ui-react/react-dom': '17.0.2',
-    'swagger-ui-react/react-redux': '^8',
-  };
-  await fs.writeJson(resolvePath(appDir, 'package.json'), rootPkg, {
-    spaces: 2,
-  });
-
-  await fs.writeFile(
-    resolvePath(appDir, 'packages/app/src/index.tsx'),
-    `import '@backstage/cli/asset-types';
-import ReactDOM from 'react-dom';
-import App from './App';
-
-ReactDOM.render(<App />, document.getElementById('root'));
-`,
-    'utf8',
-  );
 }
 
 /** Drops PG databases */

@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-import type { ComponentDefinition } from '../../types';
+import { defineComponent } from '../../hooks/useDefinition';
+import type { GridOwnProps, GridItemOwnProps } from './types';
+import styles from './Grid.module.css';
 
 /**
  * Component definition for Grid
  * @public
  */
-export const GridDefinition = {
+export const GridDefinition = defineComponent<GridOwnProps>()({
+  styles,
   classNames: {
     root: 'bui-Grid',
+  },
+  bg: 'provider',
+  propDefs: {
+    bg: { dataAttribute: true },
+    children: {},
+    className: {},
+    style: {},
   },
   utilityProps: [
     'columns',
@@ -42,15 +52,23 @@ export const GridDefinition = {
     'px',
     'py',
   ],
-} as const satisfies ComponentDefinition;
+});
 
 /**
  * Component definition for GridItem
  * @public
  */
-export const GridItemDefinition = {
+export const GridItemDefinition = defineComponent<GridItemOwnProps>()({
+  styles,
   classNames: {
     root: 'bui-GridItem',
   },
+  bg: 'provider',
+  propDefs: {
+    bg: { dataAttribute: true },
+    children: {},
+    className: {},
+    style: {},
+  },
   utilityProps: ['colSpan', 'colEnd', 'colStart', 'rowSpan'],
-} as const satisfies ComponentDefinition;
+});

@@ -60,7 +60,7 @@ type FlattenedMessages<TMessages extends AnyNestedMessages> =
                 string}`]: TNested[TNestedKey];
             }
           : never
-        : { [_ in TKey]: TMessages[TKey] }, // Other primitive values are passed through with the same key,
+        : never, // Unreachable: TMessages[TKey] is always string or AnyNestedMessages
     ) => void;
     // The `[keyof TMessages]` extracts the object values union from our flattened structure, still wrapped up in function parameters.
     // The `extends (_: infer TIntersection) => void` flips the union to an intersection, at which point we have the correct type.

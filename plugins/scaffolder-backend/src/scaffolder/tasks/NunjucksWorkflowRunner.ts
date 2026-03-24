@@ -726,20 +726,20 @@ function scaffoldingTracker(metrics: MetricsService) {
   });
 
   const taskCount = metrics.createCounter('scaffolder.task.count', {
-    description: 'Count of task runs',
+    description: 'Total number of scaffolder tasks executed',
   });
 
   const taskDuration = metrics.createHistogram('scaffolder.task.duration', {
-    description: 'Duration of a task run',
+    description: 'Time taken to complete a scaffolder task end-to-end',
     unit: 's',
   });
 
   const stepCount = metrics.createCounter('scaffolder.step.count', {
-    description: 'Count of step runs',
+    description: 'Total number of individual scaffolder action steps executed',
   });
 
   const stepDuration = metrics.createHistogram('scaffolder.step.duration', {
-    description: 'Duration of a step run',
+    description: 'Time taken to complete a single scaffolder action step',
     unit: 's',
   });
 

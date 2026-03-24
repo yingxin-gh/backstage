@@ -92,11 +92,20 @@ const LoginRequestListItem = ({ request, busy, setBusy }: RowProps) => {
             secondary={
               <>
                 {message && (
-                  <Typography variant="subtitle2" color="textSecondary">
+                  <Typography
+                    variant="subtitle2"
+                    component="span"
+                    display="block"
+                    color="textSecondary"
+                  >
                     {message}
                   </Typography>
                 )}
-                {error && <Typography color="error">{error}</Typography>}
+                {error && (
+                  <Typography component="span" display="block" color="error">
+                    {error}
+                  </Typography>
+                )}
               </>
             }
           />

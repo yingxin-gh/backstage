@@ -73,11 +73,12 @@ describe('<CopyTextButton />', () => {
     );
     const button = rendered.getByLabelText('Copy text');
     fireEvent.click(button);
+    expect(copy).toHaveBeenCalledWith('mockText');
+    rendered.getByText('mockTooltip');
     act(() => {
       jest.runAllTimers();
     });
-    expect(copy).toHaveBeenCalledWith('mockText');
-    rendered.getByText('mockTooltip');
+    expect(rendered.queryByText('mockTooltip')).not.toBeInTheDocument();
     jest.useRealTimers();
   });
 

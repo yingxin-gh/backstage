@@ -13,9 +13,9 @@ The [Backstage permissions framework](../../../permissions/overview.md) gives yo
 
 There are two kinds of permissions:
 
-**Basic permissions** apply to actions that don't relate to a specific resource. Creating a todo is a good example: the action either is or isn't allowed, regardless of which todo you're creating. The policy returns a definitive ALLOW or DENY.
+_Basic permissions_ apply to actions that don't relate to a specific resource. Creating a todo is a good example: the action either is or isn't allowed, regardless of which todo you're creating. The policy returns a definitive ALLOW or DENY.
 
-**Resource permissions** apply to actions on a specific resource. Reading a particular todo is a good example: whether you're allowed might depend on whether you created it. The policy can return a CONDITIONAL decision, meaning the framework evaluates the condition against the actual resource before deciding.
+_Resource permissions_ apply to actions on a specific resource. Reading a particular todo is a good example: whether you're allowed might depend on whether you created it. The policy can return a CONDITIONAL decision, meaning the framework evaluates the condition against the actual resource before deciding.
 
 The framework sits between your route handlers and your business logic. Your handler asks "is this allowed?", the framework consults the active policy, and your handler either proceeds or throws a `NotAllowedError`.
 
@@ -25,7 +25,7 @@ Most plugins integrate at two levels:
 
 **The backend plugin** is where you define your permissions, register them with the framework, and enforce them inside your route handlers.
 
-**A common package** (e.g. `@internal/plugin-todo-common`) is where you export the permission definitions so they can be referenced from anywhere: your backend, your frontend, and any policy that an adopter writes.
+**A common package** (for example, `@internal/plugin-todo-common`) is where you export the permission definitions so they can be referenced from anywhere: your backend, your frontend, and any policy that an adopter writes.
 
 The split matters because policy authors need to reference your permission objects when writing their own policies. If those definitions live inside your backend package, you're forcing a dependency on backend code where it doesn't belong.
 

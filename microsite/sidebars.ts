@@ -732,6 +732,7 @@ export default {
         'contribute/index',
         'contribute/getting-involved',
         'contribute/project-structure',
+        'contribute/doc-style-guide',
       ],
     ),
     sidebarElementWithIndex(

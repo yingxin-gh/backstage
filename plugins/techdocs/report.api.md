@@ -42,7 +42,7 @@ export interface ActionFactories {
   // (undocumented)
   createCopyDocsUrlAction(
     copyToClipboard: Function,
-    t: Function,
+    t?: Function,
   ): (row: DocsTableRow) => {
     icon: () => JSX_3.Element;
     tooltip: string;
@@ -52,7 +52,7 @@ export interface ActionFactories {
   createStarEntityAction(
     isStarredEntity: Function,
     toggleStarredEntity: Function,
-    t: Function,
+    t?: Function,
   ): (row: DocsTableRow) => {
     cellStyle: {
       paddingLeft: string;

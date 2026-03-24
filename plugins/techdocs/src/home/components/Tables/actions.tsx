@@ -32,12 +32,14 @@ type InternalTranslationFunctionType = TranslationFunction<
 export const actionFactories = {
   createCopyDocsUrlAction(
     copyToClipboard: Function,
-    t: InternalTranslationFunctionType,
+    t?: InternalTranslationFunctionType,
   ) {
     return (row: DocsTableRow) => {
       return {
         icon: () => <ShareIcon fontSize="small" />,
-        tooltip: t('table.actions.copyDocsUrl', {}),
+        tooltip:
+          t?.('table.actions.copyDocsUrl', {}) ??
+          'Click to copy documentation link to clipboard',
         onClick: () =>
           copyToClipboard(`${window.location.origin}${row.resolved.docsUrl}`),
       };
@@ -46,14 +48,15 @@ export const actionFactories = {
   createStarEntityAction(
     isStarredEntity: Function,
     toggleStarredEntity: Function,
-    t: InternalTranslationFunctionType,
+    t?: InternalTranslationFunctionType,
   ) {
     return (row: DocsTableRow) => {
       const entity = row.entity;
       const isStarred = isStarredEntity(entity);
       const tooltip = isStarred
-        ? t('table.actions.removeFromFavorites', {})
-        : t('table.actions.addToFavorites', {});
+        ? t?.('table.actions.removeFromFavorites', {}) ??
+          'Remove from favorites'
+        : t?.('table.actions.addToFavorites', {}) ?? 'Add to favorites';
       return {
         cellStyle: { paddingLeft: '1em' },
         icon: () => <FavoriteToggleIcon isFavorite={isStarred} />,

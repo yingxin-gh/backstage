@@ -51,7 +51,7 @@ export interface ColumnFactories {
 export interface ActionFactories {
   createCopyDocsUrlAction(
     copyToClipboard: Function,
-    t: Function,
+    t?: Function,
   ): (row: DocsTableRow) => {
     icon: () => JSX.Element;
     tooltip: string;
@@ -60,7 +60,7 @@ export interface ActionFactories {
   createStarEntityAction(
     isStarredEntity: Function,
     toggleStarredEntity: Function,
-    t: Function,
+    t?: Function,
   ): (row: DocsTableRow) => {
     cellStyle: { paddingLeft: string };
     icon: () => JSX.Element;

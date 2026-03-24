@@ -56,8 +56,8 @@ const TechDocsSearchBar = (props: TechDocsSearchProps) => {
   } = props;
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-const { t } = useTranslationRef(techdocsTranslationRef);
-const { results, term, loading } = useTechDocsSearch(entityId);
+  const { t } = useTranslationRef(techdocsTranslationRef);
+  const { results, term, loading } = useTechDocsSearch(entityId);
 
   const handleSelection = (
     _: any,

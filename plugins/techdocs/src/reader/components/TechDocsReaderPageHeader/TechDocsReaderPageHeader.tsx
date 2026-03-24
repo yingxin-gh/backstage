@@ -65,7 +65,7 @@ export const TechDocsReaderPageHeader = (
   props: TechDocsReaderPageHeaderProps,
 ) => {
   const { children } = props;
-const { t } = useTranslationRef(techdocsTranslationRef);
+  const { t } = useTranslationRef(techdocsTranslationRef);
   const {
     title,
     subtitle,

@@ -189,7 +189,7 @@ export class NunjucksWorkflowRunner implements WorkflowRunner {
     secrets?: Record<string, string>;
   } = { parameters: {}, secrets: {} };
 
-  private readonly tracker;
+  private readonly tracker: ReturnType<typeof scaffoldingTracker>;
 
   constructor(options: NunjucksWorkflowRunnerOptions) {
     this.options = options;

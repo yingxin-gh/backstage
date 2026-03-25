@@ -86,6 +86,14 @@ export default {
     ...(process.env.GOLDEN_PATH
       ? [
           sidebarElementWithIndex({ label: 'Golden Paths' }, [
+            sidebarElementWithIndex({ label: '000 - Adoption' }, [
+              'golden-path/adoption/getting-started',
+              'golden-path/adoption/leadership-buy-in',
+              'golden-path/adoption/setting-up-a-poc',
+              'golden-path/adoption/first-stakeholder-feedback',
+              'golden-path/adoption/customizing-your-instance',
+              'golden-path/adoption/preparing-for-ga',
+            ]),
             sidebarElementWithIndex({ label: '001 - Create an App' }, [
               'golden-path/create-app/index',
               'golden-path/create-app/npx-create-app',

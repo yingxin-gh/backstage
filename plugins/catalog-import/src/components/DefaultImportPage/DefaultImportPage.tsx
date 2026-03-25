@@ -23,6 +23,7 @@ import {
 } from '@backstage/core-components';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { useTranslationRef } from '@backstage/frontend-plugin-api';
+import { Header as BuiHeader } from '@backstage/ui';
 import Grid from '@material-ui/core/Grid';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -31,17 +32,9 @@ import { catalogImportTranslationRef } from '../../translation';
 import { ImportInfoCard } from '../ImportInfoCard';
 import { ImportStepper } from '../ImportStepper';
 
-/**
- * The default catalog import page.
- *
- * @public
- */
-export const DefaultImportPage = () => {
-  const { t } = useTranslationRef(catalogImportTranslationRef);
+const DefaultImportPageGrid = () => {
   const theme = useTheme();
-  const configApi = useApi(configApiRef);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const appTitle = configApi.getOptionalString('app.title') || 'Backstage';
 
   const contentItems = [
     <Grid key={0} item xs={12} md={4} lg={6} xl={8}>
@@ -52,6 +45,23 @@ export const DefaultImportPage = () => {
       <ImportStepper />
     </Grid>,
   ];
+
+  return (
+    <Grid container spacing={2}>
+      {isMobile ? contentItems : [...contentItems].reverse()}
+    </Grid>
+  );
+};
+
+/**
+ * The default catalog import page.
+ *
+ * @public
+ */
+export const DefaultImportPage = () => {
+  const { t } = useTranslationRef(catalogImportTranslationRef);
+  const configApi = useApi(configApiRef);
+  const appTitle = configApi.getOptionalString('app.title') || 'Backstage';
 
   return (
     <Page themeId="home">
@@ -65,10 +75,33 @@ export const DefaultImportPage = () => {
           </SupportButton>
         </ContentHeader>
 
-        <Grid container spacing={2}>
-          {isMobile ? contentItems : contentItems.reverse()}
-        </Grid>
+        <DefaultImportPageGrid />
       </Content>
     </Page>
+  );
+};
+
+/**
+ * @public
+ */
+export const NfsDefaultImportPage = () => {
+  const { t } = useTranslationRef(catalogImportTranslationRef);
+  const configApi = useApi(configApiRef);
+  const appTitle = configApi.getOptionalString('app.title') || 'Backstage';
+
+  return (
+    <>
+      <BuiHeader
+        title={t('defaultImportPage.contentHeaderTitle', { appTitle })}
+        customActions={
+          <SupportButton>
+            {t('defaultImportPage.supportTitle', { appTitle })}
+          </SupportButton>
+        }
+      />
+      <Content>
+        <DefaultImportPageGrid />
+      </Content>
+    </>
   );
 };

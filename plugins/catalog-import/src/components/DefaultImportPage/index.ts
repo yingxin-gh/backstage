@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { DefaultImportPage } from './DefaultImportPage';
+export { DefaultImportPage, NfsDefaultImportPage } from './DefaultImportPage';

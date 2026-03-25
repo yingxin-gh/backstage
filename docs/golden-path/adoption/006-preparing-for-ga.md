@@ -13,7 +13,7 @@ Getting the word out is one of the most important parts of a successful general
 availability (GA) launch. A good announcement does two things: it tells
 developers that Backstage is available, and it tells them why they should care.
 
-### Use your internal comms channels
+### Use your internal communication channels
 
 Start with the channels your developers already use. Post in Slack or Teams
 channels that reach engineering broadly, share a short write-up in your company
@@ -35,7 +35,7 @@ impression of how Backstage fits into their day-to-day work.
 Keep the demo short and focused. Walk through one or two high-value workflows,
 ideally ones that address the pain points you identified during your stakeholder
 feedback sessions. Leave time for questions. If the session is recorded, share
-the recording in your comms channels so developers who couldn't attend can catch
+the recording in your communication channels so developers who couldn't attend can catch
 up.
 
 Consider running multiple sessions to reach different time zones or teams.

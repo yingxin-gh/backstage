@@ -226,19 +226,19 @@ The `MyPage` component should **not** include `Page`, `Header`, or `PageWithHead
 
 The `title` and `icon` params on `PageBlueprint` are only needed if they should differ from the plugin's own `title` and `icon` (set in `createFrontendPlugin`). If omitted, the plugin-level values are used.
 
-### Page with `HeaderPage` for Custom Actions
+### Page with `Header` for Custom Actions
 
-If your page needs a subtitle or action buttons below the framework header, use `HeaderPage` from `@backstage/ui`:
+If your page needs a subtitle or action buttons below the framework header, use `Header` from `@backstage/ui`:
 
 ```tsx
 // src/components/MyPage/MyPage.tsx
-import { HeaderPage } from '@backstage/ui';
+import { Header } from '@backstage/ui';
 import { Content } from '@backstage/core-components';
 
 export function MyPage() {
   return (
     <>
-      <HeaderPage
+      <Header
         title="Subtitle or description"
         customActions={
           <>
@@ -443,9 +443,9 @@ With the full migration, page components should use `@backstage/ui` components a
 Key page-level changes:
 
 - Replace `PageWithHeader` / `Page` + `Header` with framework-provided `PluginHeader` (automatic via `PageLayout`)
-- Use `HeaderPage` from `@backstage/ui` for optional subtitle/custom actions
+- Use `Header` from `@backstage/ui` for optional subtitle/custom actions
 - Use `Content` from `@backstage/core-components` for page body padding (this is still used even in NFS pages)
-- Replace `ContentHeader` with `HeaderPage`'s `customActions` prop
+- Replace `ContentHeader` with `Header`'s `customActions` prop
 - Replace `HeaderTabs` with `SubPageBlueprint` (tabs are rendered by the framework)
 
 ## Real Example: Auth Plugin (Fully Migrated)
@@ -523,7 +523,7 @@ export const tasksSubPage = SubPageBlueprint.make({
 4. [ ] Convert pages to `PageBlueprint`
 5. [ ] Replace internal tab routing with `SubPageBlueprint` where appropriate
 6. [ ] Remove `Page`/`Header`/`PageWithHeader` from page components
-7. [ ] Add `HeaderPage` from `@backstage/ui` where subtitle/custom actions are needed
+7. [ ] Add `Header` from `@backstage/ui` where subtitle/custom actions are needed
 8. [ ] Replace `HeaderTabs` with `SubPageBlueprint` tabs
 9. [ ] Update all `@backstage/core-plugin-api` imports to `@backstage/frontend-plugin-api`
 10. [ ] Handle `useRouteRef` possibly returning `undefined`

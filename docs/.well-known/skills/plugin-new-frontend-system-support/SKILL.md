@@ -22,7 +22,10 @@ Create `src/alpha.tsx` (or `src/alpha/index.ts` for larger plugins) with a `crea
 
 ```tsx
 // src/alpha.tsx
-import { createFrontendPlugin } from '@backstage/frontend-plugin-api';
+import {
+  createFrontendPlugin,
+  PageBlueprint,
+} from '@backstage/frontend-plugin-api';
 import { RiToolsLine } from '@remixicon/react';
 import { rootRouteRef } from './routes';
 
@@ -96,7 +99,7 @@ import {
   ContentHeader,
   SupportButton,
 } from '@backstage/core-components';
-import { HeaderPage } from '@backstage/ui';
+import { Header } from '@backstage/ui';
 
 // Used by the OLD system — includes the full page shell
 export function MyPage() {
@@ -117,7 +120,7 @@ export function MyPage() {
 export function NfsMyPage() {
   return (
     <>
-      <HeaderPage
+      <Header
         title="My Plugin Subtitle"
         customActions={<SupportButton>Some help text</SupportButton>}
       />
@@ -132,8 +135,8 @@ export function NfsMyPage() {
 Key differences in the NFS variant:
 
 - **No `Page`/`PageWithHeader`** — the framework provides the outer page shell
-- **`HeaderPage` from `@backstage/ui`** is optional — use it only if you need a subtitle or custom actions below the framework header
-- **No `ContentHeader`** — actions move to `HeaderPage`'s `customActions` prop
+- **`Header` from `@backstage/ui`** is optional — use it only if you need a subtitle or custom actions below the framework header
+- **No `ContentHeader`** — actions move to `Header`'s `customActions` prop
 - The shared `<MyPageContent />` component contains the actual page body
 
 ### Forwarding Customization Props
@@ -376,7 +379,7 @@ The same applies to other refs like API refs and route refs: keep them exported 
 - New: `plugins/catalog/src/alpha/plugin.tsx` — `createFrontendPlugin` with `PageBlueprint`
 - Header split: `plugins/catalog/src/components/CatalogPage/DefaultCatalogPage.tsx`
   - `BaseCatalogPage` (old) uses `PageWithHeader` + `ContentHeader`
-  - `NfsBaseCatalogPage` (new) uses `HeaderPage` from `@backstage/ui` + `Content`
+  - `NfsBaseCatalogPage` (new) uses `Header` from `@backstage/ui` + `Content`
 
 ### Scaffolder Plugin (Sub-Pages)
 
@@ -395,7 +398,7 @@ The same applies to other refs like API refs and route refs: keep them exported 
 
 - `plugins/api-docs/src/components/ApiExplorerPage/DefaultApiExplorerPage.tsx`
 - `DefaultApiExplorerPage` (old) uses `PageWithHeader` + `ContentHeader`
-- `NfsApiExplorerPage` (new) uses `HeaderPage` + `Content`
+- `NfsApiExplorerPage` (new) uses `Header` + `Content`
 
 ## Migration Checklist
 
@@ -405,11 +408,11 @@ The same applies to other refs like API refs and route refs: keep them exported 
 4. [ ] Create `SubPageBlueprint` for tabbed sub-pages (if applicable)
 5. [ ] Convert API factories to `ApiBlueprint` extensions
 6. [ ] Implement NFS page variants without page shell (`Page`/`Header`/`PageWithHeader`)
-7. [ ] Use `HeaderPage` from `@backstage/ui` for subtitle/custom actions in NFS pages
+7. [ ] Use `Header` from `@backstage/ui` for subtitle/custom actions in NFS pages
 8. [ ] Wire route refs (existing `@backstage/core-plugin-api` refs work directly, no conversion needed)
 9. [ ] Ensure translation refs and API refs are exported from the main entry point (not duplicated in `./alpha`)
 10. [ ] Add `@backstage/frontend-plugin-api` to `package.json` dependencies
-11. [ ] Add `@backstage/ui` to dependencies (if using `HeaderPage`)
+11. [ ] Add `@backstage/ui` to dependencies (if using `Header`)
 12. [ ] Run `yarn tsc` to check for type errors
 13. [ ] Run `yarn lint` to check for missing dependencies
 14. [ ] Test in both old app (`packages/app-legacy`) and new app (`packages/app`)

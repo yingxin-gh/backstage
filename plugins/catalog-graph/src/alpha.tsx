@@ -19,6 +19,7 @@ import {
   createFrontendPlugin,
   PageBlueprint,
 } from '@backstage/frontend-plugin-api';
+import { RiMindMap } from '@remixicon/react';
 import { EntityCardBlueprint } from '@backstage/plugin-catalog-react/alpha';
 import { catalogGraphRouteRef, catalogEntityRouteRef } from './routes';
 import {
@@ -80,7 +81,7 @@ const CatalogGraphPage = PageBlueprint.makeWithOverrides({
       routeRef: catalogGraphRouteRef,
       loader: () =>
         import('./components/CatalogGraphPage').then(m => (
-          <m.CatalogGraphPage {...config} />
+          <m.NfsCatalogGraphPage {...config} />
         )),
     });
   },
@@ -97,6 +98,8 @@ const CatalogGraphApi = ApiBlueprint.make({
 
 export default createFrontendPlugin({
   pluginId: 'catalog-graph',
+  title: 'Catalog Graph',
+  icon: <RiMindMap />,
   info: { packageJson: () => import('../package.json') },
   routes: {
     catalogGraph: catalogGraphRouteRef,

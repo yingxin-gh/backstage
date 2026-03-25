@@ -15,6 +15,7 @@
  */
 
 import { createFrontendPlugin } from '@backstage/frontend-plugin-api';
+import { RiShipLine } from '@remixicon/react';
 import { kubernetesPage } from './pages';
 import { entityKubernetesContent } from './entityContents';
 import { rootCatalogKubernetesRouteRef } from '../plugin';
@@ -27,6 +28,8 @@ import {
 
 export default createFrontendPlugin({
   pluginId: 'kubernetes',
+  title: 'Kubernetes',
+  icon: <RiShipLine />,
   info: { packageJson: () => import('../../package.json') },
   extensions: [
     kubernetesPage,

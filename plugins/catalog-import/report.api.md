@@ -298,6 +298,9 @@ export interface ImportStepperProps {
   variant?: InfoCardVariants;
 }
 
+// @public (undocumented)
+export const NfsDefaultImportPage: () => JSX_2.Element;
+
 // @public
 export const PreparePullRequestForm: <TFieldValues extends Record<string, any>>(
   props: PreparePullRequestFormProps<TFieldValues>,

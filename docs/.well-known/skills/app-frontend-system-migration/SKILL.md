@@ -1,6 +1,6 @@
 ---
 name: app-frontend-system-migration
-description: Migrate a Backstage app from the old frontend system to the new extension-based frontend system. Use this skill when migrating packages/app from app-defaults to frontend-defaults, converting routes, sidebar, plugins, and other app-level configuration.
+description: Migrate a Backstage app from the old frontend system to the new one. Use this skill when converting an app to use the new extension-based frontend system, including the hybrid migration phase and the full migration of routes, sidebar, plugins, APIs, themes, and other app-level concerns.
 ---
 
 # App Frontend System Migration Skill

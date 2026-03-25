@@ -1,6 +1,6 @@
 ---
 name: plugin-new-frontend-system-support
-description: Add new frontend system support to an existing Backstage plugin while maintaining backward compatibility with the old system. Use this skill when adding an alpha entry point, creating PageBlueprint/SubPageBlueprint extensions, and implementing the dual-header pattern (old Header vs new HeaderPage/PluginHeader).
+description: Add new frontend system support to an existing Backstage plugin while keeping the old system working. Use this skill for published or shared plugins that need to work in both old and new frontend system apps.
 ---
 
 # Adding New Frontend System Support to an Existing Plugin

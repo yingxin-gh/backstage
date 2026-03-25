@@ -1,6 +1,6 @@
 ---
 name: plugin-full-frontend-system-migration
-description: Fully migrate an existing Backstage plugin to the new frontend system, removing all old system dependencies. Use this skill when converting a plugin to exclusively use @backstage/frontend-plugin-api, replacing internal routing with PageBlueprint/SubPageBlueprint, adopting Backstage UI headers and page layout, and removing @backstage/core-plugin-api usage.
+description: Fully migrate a Backstage plugin to the new frontend system, dropping all old system support. Use this skill for internal plugins that only need to run in a single app, or when you are ready to remove backward compatibility entirely.
 ---
 
 # Full Plugin Migration to the New Frontend System

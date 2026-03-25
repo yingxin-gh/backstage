@@ -43,7 +43,7 @@ Before starting migration:
 - `Checkbox` - Checkbox input
 - `Dialog` - Modal dialogs (`DialogTrigger`, `Dialog`, `DialogHeader`, `DialogBody`, `DialogFooter`)
 - `Header` - Page headers
-- `HeaderPage` - Full page header component
+- `Header` - Full page header component
 - `Link` - Navigation links
 - `Menu` - Dropdown menus (`MenuTrigger`, `Menu`, `MenuItem`)
 - `PasswordField` - Password input field

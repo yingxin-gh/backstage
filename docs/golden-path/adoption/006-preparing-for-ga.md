@@ -70,7 +70,7 @@ missing integrations that are blocking adoption.
 ### Use analytics to guide your decisions
 
 Backstage does not ship with usage analytics by default, but you can integrate
-an analytics provider through the plugin ecosystem. Tracking which parts of
+an analytics provider through the plugin ecosystem, you can find more information on this in the [Analytics](../../plugins/analytics.md) section of the Backstage documentation. Tracking which parts of
 Backstage developers actually use helps you make informed decisions about where
 to invest your time.
 

@@ -61,6 +61,7 @@ export const SearchAutocompleteDefinition =
 export const SearchAutocompleteItemDefinition =
   defineComponent<SearchAutocompleteItemOwnProps>()({
     styles,
+    resolveHref: true,
     classNames: {
       root: 'bui-SearchAutocompleteItem',
       itemContent: 'bui-SearchAutocompleteItemContent',

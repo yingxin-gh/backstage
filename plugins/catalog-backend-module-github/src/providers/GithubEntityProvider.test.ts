@@ -411,7 +411,7 @@ describe('GithubEntityProvider', () => {
               organization: 'test-org',
               catalogPath: 'catalog-custom.yaml',
               filters: {
-                branch: 'main',
+                branch: 'backstage',
               },
               validateLocationsExist: true,
             },
@@ -480,7 +480,15 @@ describe('GithubEntityProvider', () => {
     expect(taskDef.id).toEqual('github-provider:myProvider:refresh');
     await (taskDef.fn as () => Promise<void>)();
 
-    const url = `https://github.com/test-org/another-repo/blob/main/catalog-custom.yaml`;
+    expect(mockGetOrganizationRepositories).toHaveBeenCalledWith(
+      expect.anything(),
+      'test-org',
+      'catalog-custom.yaml',
+      expect.any(Object),
+      'backstage',
+    );
+
+    const url = `https://github.com/test-org/another-repo/blob/backstage/catalog-custom.yaml`;
     const expectedEntities = createExpectedEntitiesForUrl(url);
 
     expect(entityProviderConnection.applyMutation).toHaveBeenCalledTimes(1);

@@ -224,13 +224,21 @@ export class McpService {
           tools.push(parsed.data);
         }
 
-        await auditorEvent.success({ meta: { toolCount: actions.length } });
+        try {
+          await auditorEvent.success({ meta: { toolCount: actions.length } });
+        } catch {
+          // best-effort
+        }
         return { tools };
       } catch (err) {
         errorType = err instanceof Error ? err.name : 'Error';
-        await auditorEvent.fail({
-          error: err instanceof Error ? err : new Error(String(err)),
-        });
+        try {
+          await auditorEvent.fail({
+            error: err instanceof Error ? err : new Error(String(err)),
+          });
+        } catch {
+          // best-effort
+        }
         throw err;
       } finally {
         const durationSeconds = (performance.now() - startTime) / 1000;

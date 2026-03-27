@@ -22,7 +22,8 @@
   "types": "src/index.ts",
   "files": [
     "dist",
-    "config.d.ts"
+    "config.d.ts",
+    "migrations"
   ],
   "scripts": {
     "build": "backstage-cli package build",
@@ -46,6 +47,7 @@
     "@slack/types": "^2.14.0",
     "@slack/web-api": "^7.5.0",
     "dataloader": "^2.0.0",
+    "knex": "^3.0.0",
     "p-throttle": "^4.1.1"
   },
   "devDependencies": {

@@ -75,8 +75,10 @@ export function parseUrl(
 
   // Treat Amazon hosted separately because it has special region logic
   if (
-    config.host.endsWith('amazonaws.com') ||
-    config.host.endsWith('amazonaws.com.cn')
+    config.host === 'amazonaws.com' ||
+    config.host === 'amazonaws.com.cn' ||
+    config.host.endsWith('.amazonaws.com') ||
+    config.host.endsWith('.amazonaws.com.cn')
   ) {
     const match = host.match(
       /^(?:([a-z0-9.-]+)\.)?s3(?:[.-]([a-z0-9-]+))?\.amazonaws\.com(\.cn)?$/,

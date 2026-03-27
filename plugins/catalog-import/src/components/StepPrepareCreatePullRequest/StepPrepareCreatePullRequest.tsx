@@ -20,7 +20,7 @@ import { assertError } from '@backstage/errors';
 import { useTranslationRef } from '@backstage/frontend-plugin-api';
 import {
   catalogApiRef,
-  defaultEntityPresentation,
+  entityPresentationApiRef,
 } from '@backstage/plugin-catalog-react';
 import Box from '@material-ui/core/Box';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -133,6 +133,7 @@ export const StepPrepareCreatePullRequest = (
   const { t } = useTranslationRef(catalogImportTranslationRef);
   const classes = useStyles();
   const catalogApi = useApi(catalogApiRef);
+  const entityPresentationApi = useApi(entityPresentationApiRef);
   const catalogImportApi = useApi(catalogImportApiRef);
   const errorApi = useApi(errorApiRef);
 
@@ -161,12 +162,13 @@ export const StepPrepareCreatePullRequest = (
       filter: { kind: 'group' },
     });
 
-    return groupEntities.items
-      .map(
+    const presentations = await Promise.all(
+      groupEntities.items.map(
         e =>
-          defaultEntityPresentation(e, { defaultKind: 'group' }).primaryTitle,
-      )
-      .sort();
+          entityPresentationApi.forEntity(e, { defaultKind: 'group' }).promise,
+      ),
+    );
+    return presentations.map(p => p.primaryTitle).sort();
   });
 
   const handleResult = useCallback(

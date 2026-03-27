@@ -24,7 +24,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { alertApiRef, useApi, useRouteRef } from '@backstage/core-plugin-api';
 import {
   catalogApiRef,
-  defaultEntityPresentation,
+  entityPresentationApiRef,
 } from '@backstage/plugin-catalog-react';
 import {
   LayoutOptions,
@@ -139,6 +139,7 @@ export const TemplateFormPreviewer = ({
   const classes = useStyles();
   const alertApi = useApi(alertApiRef);
   const catalogApi = useApi(catalogApiRef);
+  const entityPresentationApi = useApi(entityPresentationApiRef);
   const navigate = useNavigate();
   const editLink = useRouteRef(editRouteRef);
 
@@ -166,16 +167,19 @@ export const TemplateFormPreviewer = ({
             'spec.output',
           ],
         })
-        .then(({ items }) =>
-          setTemplateOptions(
-            items.map(template => ({
-              label: defaultEntityPresentation(template, {
-                defaultKind: 'template',
-              }).primaryTitle,
+        .then(async ({ items }) => {
+          const options = await Promise.all(
+            items.map(async template => ({
+              label: (
+                await entityPresentationApi.forEntity(template, {
+                  defaultKind: 'template',
+                }).promise
+              ).primaryTitle,
               value: template,
             })),
-          ),
-        )
+          );
+          setTemplateOptions(options);
+        })
         .catch(e =>
           alertApi.post({
             message: `Error loading existing templates: ${e.message}`,

@@ -43,7 +43,7 @@ import { useUpdatingObservable } from './useUpdatingObservable';
  * component instead, which wraps this hook with icon and tooltip support.
  *
  * For non-React contexts such as sort comparators or data mappers, use
- * {@link defaultEntityPresentation} directly.
+ * the {@link EntityPresentationApi} directly via `forEntity().snapshot`.
  *
  * @public
  * @param entityOrRef - The entity to represent, or an entity ref to it. If you

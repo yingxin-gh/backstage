@@ -16,6 +16,7 @@
 import {
   ANNOTATION_EDIT_URL,
   ANNOTATION_VIEW_URL,
+  CompoundEntityRef,
   Entity,
   RELATION_OWNED_BY,
   RELATION_PART_OF,
@@ -30,9 +31,11 @@ import {
 } from '@backstage/core-components';
 import {
   defaultEntityPresentation,
+  entityPresentationApiRef,
   getEntityRelations,
   useEntityList,
   useStarredEntities,
+  type EntityPresentationApi,
 } from '@backstage/plugin-catalog-react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
@@ -47,6 +50,7 @@ import { CatalogTableColumnsFunc, CatalogTableRow } from './types';
 import { OffsetPaginatedCatalogTable } from './OffsetPaginatedCatalogTable';
 import { CursorPaginatedCatalogTable } from './CursorPaginatedCatalogTable';
 import { defaultCatalogTableColumnsFunc } from './defaultCatalogTableColumnsFunc';
+import { useApiHolder } from '@backstage/core-plugin-api';
 import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 import { catalogTranslationRef } from '../../alpha';
 import { FavoriteToggleIcon } from '@backstage/core-components';
@@ -69,12 +73,23 @@ export interface CatalogTableProps {
   subtitle?: string;
 }
 
-const refCompare = (a: Entity, b: Entity) => {
-  const toRef = (entity: Entity) =>
-    defaultEntityPresentation(entity, { defaultKind: 'Component' })
-      .primaryTitle;
+function getTitle(
+  entityOrRef: Entity | CompoundEntityRef,
+  context: { defaultKind?: string },
+  api?: EntityPresentationApi,
+): string {
+  if (api) {
+    const ref =
+      'metadata' in entityOrRef ? entityOrRef : stringifyEntityRef(entityOrRef);
+    return api.forEntity(ref, context).snapshot.primaryTitle;
+  }
+  return defaultEntityPresentation(entityOrRef, context).primaryTitle;
+}
 
-  return toRef(a).localeCompare(toRef(b));
+const refCompare = (a: Entity, b: Entity, api?: EntityPresentationApi) => {
+  return getTitle(a, { defaultKind: 'Component' }, api).localeCompare(
+    getTitle(b, { defaultKind: 'Component' }, api),
+  );
 };
 
 /**
@@ -95,6 +110,8 @@ export const CatalogTable = (props: CatalogTableProps) => {
     emptyContent,
   } = props;
   const { isStarredEntity, toggleStarredEntity } = useStarredEntities();
+  const apis = useApiHolder();
+  const entityPresentationApi = apis.get(entityPresentationApiRef);
   const entityListContext = useEntityList();
 
   const {
@@ -232,7 +249,7 @@ export const CatalogTable = (props: CatalogTableProps) => {
         actions={actions}
         subtitle={subtitle}
         options={options}
-        data={entities.map(toEntityRow)}
+        data={entities.map(e => toEntityRow(e, entityPresentationApi))}
         next={pageInfo?.next}
         prev={pageInfo?.prev}
       />
@@ -247,12 +264,14 @@ export const CatalogTable = (props: CatalogTableProps) => {
         actions={actions}
         subtitle={subtitle}
         options={options}
-        data={entities.map(toEntityRow)}
+        data={entities.map(e => toEntityRow(e, entityPresentationApi))}
       />
     );
   }
 
-  const rows = entities.sort(refCompare).map(toEntityRow);
+  const rows = entities
+    .sort((a, b) => refCompare(a, b, entityPresentationApi))
+    .map(e => toEntityRow(e, entityPresentationApi));
   const pageSize = 20;
   const showPagination = rows.length > pageSize;
 
@@ -278,7 +297,7 @@ export const CatalogTable = (props: CatalogTableProps) => {
 CatalogTable.columns = columnFactories;
 CatalogTable.defaultColumnsFunc = defaultCatalogTableColumnsFunc;
 
-function toEntityRow(entity: Entity) {
+function toEntityRow(entity: Entity, api?: EntityPresentationApi) {
   const partOfSystemRelations = getEntityRelations(entity, RELATION_PART_OF, {
     kind: 'system',
   });
@@ -290,22 +309,14 @@ function toEntityRow(entity: Entity) {
       // This name is here for backwards compatibility mostly; the
       // presentation of refs in the table should in general be handled with
       // EntityRefLink / EntityName components
-      name: defaultEntityPresentation(entity, { defaultKind: 'Component' })
-        .primaryTitle,
+      name: getTitle(entity, { defaultKind: 'Component' }, api),
       entityRef: stringifyEntityRef(entity),
       ownedByRelationsTitle: ownedByRelations
-        .map(
-          r =>
-            defaultEntityPresentation(r, { defaultKind: 'group' }).primaryTitle,
-        )
+        .map(r => getTitle(r, { defaultKind: 'group' }, api))
         .join(', '),
       ownedByRelations,
       partOfSystemRelationTitle: partOfSystemRelations
-        .map(
-          r =>
-            defaultEntityPresentation(r, { defaultKind: 'system' })
-              .primaryTitle,
-        )
+        .map(r => getTitle(r, { defaultKind: 'system' }, api))
         .join(', '),
       partOfSystemRelations,
     },

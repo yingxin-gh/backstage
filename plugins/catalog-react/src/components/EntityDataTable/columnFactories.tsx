@@ -21,7 +21,7 @@ import {
 } from '@backstage/catalog-model';
 import { Cell, CellText, Column, ColumnConfig, TableItem } from '@backstage/ui';
 import { EntityRefLink, EntityRefLinks } from '../EntityRefLink';
-import { defaultEntityPresentation } from '../../apis';
+import { defaultEntityPresentation, EntityPresentationApi } from '../../apis';
 import { EntityTableColumnTitle } from '../EntityTable/TitleColumn';
 import { getEntityRelations } from '../../utils';
 
@@ -33,11 +33,24 @@ export interface EntityColumnConfig extends ColumnConfig<EntityRow> {
   sortValue?: (entity: EntityRow) => string;
 }
 
+function getEntityTitle(
+  entityOrRef: Entity | { kind: string; namespace?: string; name: string },
+  context: { defaultKind?: string },
+  entityPresentation?: EntityPresentationApi,
+): string {
+  if (entityPresentation) {
+    return entityPresentation.forEntity(entityOrRef as Entity, context).snapshot
+      .primaryTitle;
+  }
+  return defaultEntityPresentation(entityOrRef as Entity, context).primaryTitle;
+}
+
 /** @public */
 export const columnFactories = Object.freeze({
   createEntityRefColumn(options: {
     defaultKind?: string;
     isRowHeader?: boolean;
+    entityPresentation?: EntityPresentationApi;
   }): EntityColumnConfig {
     const isRowHeader = options.isRowHeader ?? true;
     return {
@@ -60,8 +73,11 @@ export const columnFactories = Object.freeze({
         </Cell>
       ),
       sortValue: entity =>
-        defaultEntityPresentation(entity, { defaultKind: options.defaultKind })
-          .primaryTitle,
+        getEntityTitle(
+          entity,
+          { defaultKind: options.defaultKind },
+          options.entityPresentation,
+        ),
     };
   },
 
@@ -71,6 +87,7 @@ export const columnFactories = Object.freeze({
     relation: string;
     defaultKind?: string;
     filter?: { kind: string };
+    entityPresentation?: EntityPresentationApi;
   }): EntityColumnConfig {
     return {
       id: options.id,
@@ -95,11 +112,12 @@ export const columnFactories = Object.freeze({
       ),
       sortValue: entity =>
         getEntityRelations(entity, options.relation, options.filter)
-          .map(
-            r =>
-              defaultEntityPresentation(r, {
-                defaultKind: options.defaultKind,
-              }).primaryTitle,
+          .map(r =>
+            getEntityTitle(
+              r,
+              { defaultKind: options.defaultKind },
+              options.entityPresentation,
+            ),
           )
           .join(', '),
     };

@@ -33,11 +33,12 @@ import { EntityRefPresentationSnapshot } from './EntityPresentationApi';
  * first available value among `spec.profile.displayName`, `metadata.title`,
  * and a shortened entity ref string.
  *
- * Use this in non-React contexts where hooks are not available, such as sort
- * comparators, filter functions, table column factories, and data mappers.
- * In React components, prefer the {@link useEntityPresentation} hook or the
- * {@link EntityDisplayName} component, which support async enrichment via
- * the {@link EntityPresentationApi}.
+ * This function is primarily used as the internal fallback within the
+ * {@link EntityPresentationApi} when no custom implementation is registered.
+ * Prefer using the API directly via `forEntity().snapshot` or
+ * `forEntity().promise`, which respects custom presentation overrides.
+ * In React components, use the {@link useEntityPresentation} hook or the
+ * {@link EntityDisplayName} component.
  *
  * @public
  * @param entityOrRef - Either an entity, or a ref to it.

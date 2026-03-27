@@ -23,17 +23,30 @@ import {
 import { OverflowTooltip, TableColumn } from '@backstage/core-components';
 import { getEntityRelations } from '../../utils';
 import { EntityRefLink, EntityRefLinks } from '../EntityRefLink';
-import { defaultEntityPresentation } from '../../apis';
+import { defaultEntityPresentation, EntityPresentationApi } from '../../apis';
 import { EntityTableColumnTitle } from './TitleColumn';
+
+function getEntityTitle(
+  entityOrRef: Entity | CompoundEntityRef,
+  context: { defaultKind?: string },
+  entityPresentation?: EntityPresentationApi,
+): string {
+  if (entityPresentation) {
+    return entityPresentation.forEntity(entityOrRef as Entity, context).snapshot
+      .primaryTitle;
+  }
+  return defaultEntityPresentation(entityOrRef, context).primaryTitle;
+}
 
 /** @public */
 export const columnFactories = Object.freeze({
   createEntityRefColumn<T extends Entity>(options: {
     defaultKind?: string;
+    entityPresentation?: EntityPresentationApi;
   }): TableColumn<T> {
-    const { defaultKind } = options;
+    const { defaultKind, entityPresentation } = options;
     function formatContent(entity: T): string {
-      return defaultEntityPresentation(entity, { defaultKind }).primaryTitle;
+      return getEntityTitle(entity, { defaultKind }, entityPresentation);
     }
 
     return {
@@ -67,8 +80,15 @@ export const columnFactories = Object.freeze({
     relation: string;
     defaultKind?: string;
     filter?: { kind: string };
+    entityPresentation?: EntityPresentationApi;
   }): TableColumn<T> {
-    const { title, relation, defaultKind, filter: entityFilter } = options;
+    const {
+      title,
+      relation,
+      defaultKind,
+      filter: entityFilter,
+      entityPresentation,
+    } = options;
 
     function getRelations(entity: T): CompoundEntityRef[] {
       return getEntityRelations(entity, relation, entityFilter);
@@ -76,7 +96,7 @@ export const columnFactories = Object.freeze({
 
     function formatContent(entity: T): string {
       return getRelations(entity)
-        .map(r => defaultEntityPresentation(r, { defaultKind }).primaryTitle)
+        .map(r => getEntityTitle(r, { defaultKind }, entityPresentation))
         .join(', ');
     }
 

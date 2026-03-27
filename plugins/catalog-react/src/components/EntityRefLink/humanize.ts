@@ -25,9 +25,9 @@ import get from 'lodash/get';
  * @param defaultNamespace - if set to false then namespace is never omitted,
  * if set to string which matches namespace of entity then omitted
  *
- * @deprecated Use {@link defaultEntityPresentation} for non-React contexts,
- * or {@link useEntityPresentation} / {@link EntityDisplayName} in React
- * components. These provide richer display names using `metadata.title` and
+ * @deprecated Use {@link useEntityPresentation} or {@link EntityDisplayName}
+ * in React components, or access the {@link entityPresentationApiRef} directly.
+ * These provide richer display names using `metadata.title` and
  * `spec.profile.displayName` in addition to the entity ref.
  *
  * @public
@@ -81,8 +81,8 @@ export function humanizeEntityRef(
  *
  * If neither of those are found or populated, fallback to `defaultName`.
  *
- * @deprecated Use {@link defaultEntityPresentation} instead, which provides
- * the same resolution logic via `primaryTitle`.
+ * @deprecated Use {@link useEntityPresentation} or {@link EntityDisplayName}
+ * in React components, or access the {@link entityPresentationApiRef} directly.
  *
  * @param entity - Entity to convert.
  * @param defaultName - If entity readable name is not available, `defaultName` will be returned.

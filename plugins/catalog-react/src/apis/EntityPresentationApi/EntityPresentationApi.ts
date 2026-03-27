@@ -36,9 +36,9 @@ import { Observable } from '@backstage/types';
  *   which wraps the hook and renders a styled entity name with optional icon
  *   and tooltip.
  *
- * - In non-React contexts such as sort comparators, filter functions, or data
- *   mappers, use the {@link defaultEntityPresentation} function which
- *   synchronously extracts a display name from an already-loaded entity.
+ * - In non-React contexts such as sort comparators or data mappers, use the
+ *   API directly via `forEntity().snapshot` for synchronous access, or
+ *   `forEntity().promise` in async loaders.
  *
  * @public
  */
@@ -143,8 +143,9 @@ export interface EntityRefPresentation {
  * - {@link EntityDisplayName} — React component that renders an entity name
  *   with optional icon and tooltip.
  *
- * - {@link defaultEntityPresentation} — synchronous helper for non-React
- *   contexts where you already have the entity object.
+ * For non-React contexts, you can use the API directly via
+ * `forEntity().snapshot` for synchronous access, or `forEntity().promise`
+ * for async contexts.
  *
  * Implement this interface to customize how entities are displayed throughout
  * the Backstage interface.

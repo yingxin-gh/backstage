@@ -26,5 +26,13 @@ export const catalogReactTranslationRef = _catalogReactTranslationRef;
 export { isOwnerOf } from '../utils/isOwnerOf';
 export { useEntityPermission } from '../hooks/useEntityPermission';
 export * from '../components/EntityTable/TitleColumn';
+export type {
+  EntityPresentationApi,
+  EntityRefPresentation,
+  EntityRefPresentationSnapshot,
+} from '../apis';
+export { useEntityPresentation, defaultEntityPresentation } from '../apis';
+export { EntityDisplayName } from '../components/EntityDisplayName';
+export type { EntityDisplayNameProps } from '../components/EntityDisplayName';
 export * from '../components/EntityDataTable';
 export * from '../components/EntityRelationCard';

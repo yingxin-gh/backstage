@@ -2,4 +2,4 @@
 '@backstage/plugin-catalog-react': patch
 ---
 
-Replaced `humanizeEntityRef` with `defaultEntityPresentation` and `useEntityPresentation` from the Catalog Presentation API in `EntityOwnerPicker`, `EntityTable`, `EntityDataTable`, and `AncestryPage` components.
+Deprecated `humanizeEntityRef` and `humanizeEntity` in favor of the Catalog Presentation API. Use `useEntityPresentation`, `EntityDisplayName`, or `entityPresentationApiRef` instead.

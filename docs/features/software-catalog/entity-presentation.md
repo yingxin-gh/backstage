@@ -11,7 +11,7 @@ name from fields such as `metadata.title` and `spec.profile.displayName`.
 
 ## Displaying entity names
 
-There are three ways to display entity names, depending on context:
+There are several ways to display entity names, depending on context:
 
 ### `EntityDisplayName` component
 
@@ -51,25 +51,36 @@ function MyComponent({ entityRef }: { entityRef: string }) {
 
 The hook subscribes to the `EntityPresentationApi` and returns a snapshot
 that may update over time as additional data is fetched in the background.
-If no presentation API is registered, it falls back to
-`defaultEntityPresentation`.
 
-### `defaultEntityPresentation` function
+### Using the API directly
 
-A synchronous helper for non-React contexts where hooks are not available.
-Use it in sort comparators, filter functions, table column factories, and
-data mappers:
+In contexts where hooks are not available, you can use the
+`entityPresentationApiRef` API directly. The API provides two access
+patterns:
+
+- **`.snapshot`** for synchronous access (for example in sort comparators or
+  filter callbacks):
 
 ```ts
-import { defaultEntityPresentation } from '@backstage/plugin-catalog-react';
+import { entityPresentationApiRef } from '@backstage/plugin-catalog-react';
 
-const title = defaultEntityPresentation(entity, {
+const title = entityPresentationApi.forEntity(entity, {
   defaultKind: 'Component',
-}).primaryTitle;
+}).snapshot.primaryTitle;
 ```
 
-This resolves `primaryTitle` as the first available value among
-`spec.profile.displayName`, `metadata.title`, and a shortened entity ref.
+- **`.promise`** for async contexts (for example inside data loaders):
+
+```ts
+const presentation = await entityPresentationApi.forEntity(entity, {
+  defaultKind: 'group',
+}).promise;
+const title = presentation.primaryTitle;
+```
+
+The `.snapshot` path uses cached data when available, so it performs well
+even in tight loops like sorting. The `.promise` path resolves to a richer
+presentation that may include data fetched from the catalog.
 
 ## Customizing entity presentation
 
@@ -109,9 +120,10 @@ from `metadata.title` or `spec.profile.displayName`.
 
 Replace them as follows:
 
-| Old code                                                            | Replacement                                                       |
-| :------------------------------------------------------------------ | :---------------------------------------------------------------- |
-| `humanizeEntityRef(entity)` in JSX                                  | `<EntityDisplayName entityRef={entity} />`                        |
-| `humanizeEntityRef(entity)` in a hook-accessible context            | `useEntityPresentation(entity).primaryTitle`                      |
-| `humanizeEntityRef(entity, { defaultKind })` in a sort/filter/label | `defaultEntityPresentation(entity, { defaultKind }).primaryTitle` |
-| `humanizeEntity(entity, fallback)`                                  | `defaultEntityPresentation(entity).primaryTitle`                  |
+| Old code                                              | Replacement                                                            |
+| :---------------------------------------------------- | :--------------------------------------------------------------------- |
+| `humanizeEntityRef(entity)` in JSX                    | `<EntityDisplayName entityRef={entity} />`                             |
+| `humanizeEntityRef(entity)` in a React component      | `useEntityPresentation(entity).primaryTitle`                           |
+| `humanizeEntityRef(entity)` in a sort/filter callback | `entityPresentationApi.forEntity(entity).snapshot.primaryTitle`        |
+| `humanizeEntityRef(entity)` in an async loader        | `(await entityPresentationApi.forEntity(entity).promise).primaryTitle` |
+| `humanizeEntity(entity, fallback)`                    | `useEntityPresentation(entity).primaryTitle`                           |

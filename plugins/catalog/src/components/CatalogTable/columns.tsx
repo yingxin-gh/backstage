@@ -17,6 +17,7 @@ import {
   defaultEntityPresentation,
   EntityRefLink,
   EntityRefLinks,
+  type EntityPresentationApi,
 } from '@backstage/plugin-catalog-react';
 import Chip from '@material-ui/core/Chip';
 import { CatalogTableRow } from './types';
@@ -31,8 +32,14 @@ import { EntityTableColumnTitle } from '@backstage/plugin-catalog-react/alpha';
 export const columnFactories = Object.freeze({
   createNameColumn(options?: {
     defaultKind?: string;
+    entityPresentation?: EntityPresentationApi;
   }): TableColumn<CatalogTableRow> {
     function formatContent(entity: Entity): string {
+      if (options?.entityPresentation) {
+        return options.entityPresentation.forEntity(entity, {
+          defaultKind: options?.defaultKind,
+        }).snapshot.primaryTitle;
+      }
       return defaultEntityPresentation(entity, {
         defaultKind: options?.defaultKind,
       }).primaryTitle;

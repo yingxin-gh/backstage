@@ -128,16 +128,39 @@ describe('JSON schema UI rendering', () => {
     },
   };
   type qt = typeof queries;
+
+  const getRowById = (container: HTMLElement, rowId: string): HTMLElement => {
+    const el = container.querySelector(`[data-key="${rowId}"]`);
+    if (!el) {
+      throw new Error(`Could not find row with data-key="${rowId}"`);
+    }
+    return el as HTMLElement;
+  };
+
+  const queryRowById = (
+    container: HTMLElement,
+    rowId: string,
+  ): HTMLElement | null => {
+    return container.querySelector(`[data-key="${rowId}"]`);
+  };
+
+  const findRowById = (
+    container: HTMLElement,
+    rowId: string,
+  ): Promise<HTMLElement> => {
+    return waitFor(() => getRowById(container, rowId));
+  };
+
   const assertBasicSchemaProperties = (
     q: {
       [P in keyof qt]: BoundFunction<qt[P]>;
-    },
+    } & { container: HTMLElement },
     id: string,
   ) => {
-    const { getByTestId, queryByTestId } = q;
+    const { container, queryByTestId } = q;
 
     for (const p of Object.keys(basic.properties!)) {
-      const tr = getByTestId(`properties-row_${id}.${p}`);
+      const tr = getRowById(container, `properties-row_${id}.${p}`);
       expect(tr).toBeInTheDocument();
 
       const pt = (basic.properties![p] as JSONSchema7).type;
@@ -197,17 +220,17 @@ describe('JSON schema UI rendering', () => {
   const assertDeepSchemaProperties = async (
     q: {
       [P in keyof qt]: BoundFunction<qt[P]>;
-    },
+    } & { container: HTMLElement },
     id: string,
   ) => {
-    const { findByTestId, getByTestId, queryByTestId } = q;
+    const { container, findByTestId, getByTestId, queryByTestId } = q;
 
     const xp: (k: string) => Promise<{
       expander: HTMLElement;
       expansionId: string;
       expansion: HTMLElement;
     }> = async (k: string) => {
-      const r = getByTestId(`properties-row_${id}.${k}`);
+      const r = getRowById(container, `properties-row_${id}.${k}`);
       expect(r).toBeInTheDocument();
 
       const expansionId = `expansion_${id}.${k}`;
@@ -226,7 +249,10 @@ describe('JSON schema UI rendering', () => {
     const b = await xp('basic');
     const m = await xp('msvs');
 
-    assertBasicSchemaProperties(within(b.expansion), `${id}.basic`);
+    assertBasicSchemaProperties(
+      { ...within(b.expansion), container: b.expansion },
+      `${id}.basic`,
+    );
     assertMsv(within(m.expansion), `${id}.msvs`);
 
     await userEvent.click(b.expander);
@@ -276,7 +302,10 @@ describe('JSON schema UI rendering', () => {
       const expanded = await findByTestId('expansion_test');
       expect(expanded).toBeInTheDocument();
 
-      assertBasicSchemaProperties(within(expanded), 'test');
+      assertBasicSchemaProperties(
+        { ...within(expanded), container: expanded },
+        'test',
+      );
 
       await userEvent.click(expand);
 
@@ -325,7 +354,10 @@ describe('JSON schema UI rendering', () => {
       const expansion = await findByTestId('expansion_test');
       expect(expansion).toBeInTheDocument();
 
-      await assertDeepSchemaProperties(within(expansion), 'test');
+      await assertDeepSchemaProperties(
+        { ...within(expansion), container: expansion },
+        'test',
+      );
 
       await userEvent.click(expand);
 
@@ -387,22 +419,25 @@ describe('JSON schema UI rendering', () => {
       const rendered = await renderInTestApp(
         <LocalRenderSchema strategy="properties" {...{ schema }} />,
       );
-      const { findByTestId, getByTestId, queryByTestId } = rendered;
+      const { container, getByTestId } = rendered;
 
       for (const k of Object.keys(schema.properties!)) {
-        const tr = getByTestId(`properties-row_test.${k}`);
+        const tr = getRowById(container, `properties-row_test.${k}`);
         expect(tr).toBeInTheDocument();
       }
 
       expect(
-        queryByTestId('properties-row_test_oneOf0.foo'),
+        queryRowById(container, 'properties-row_test_oneOf0.foo'),
       ).not.toBeInTheDocument();
 
       const expandOneOf = getByTestId('expand_test_oneOf');
       await userEvent.click(expandOneOf);
 
       for (const [i, k] of Object.keys(schema.properties!).entries()) {
-        const sub = await findByTestId(`properties-row_test_oneOf${i}.${k}`);
+        const sub = await findRowById(
+          container,
+          `properties-row_test_oneOf${i}.${k}`,
+        );
         expect(sub).toBeInTheDocument();
 
         const nameCell =
@@ -411,7 +446,7 @@ describe('JSON schema UI rendering', () => {
         expect(nameCell.textContent).toContain('*');
 
         expect(
-          getByTestId(`properties-row_test_oneOf${i}.${k}Flag`),
+          getRowById(container, `properties-row_test_oneOf${i}.${k}Flag`),
         ).toBeInTheDocument();
       }
 
@@ -419,7 +454,7 @@ describe('JSON schema UI rendering', () => {
 
       await waitFor(() => {
         expect(
-          queryByTestId('properties-row_test_oneOf0.foo'),
+          queryRowById(container, 'properties-row_test_oneOf0.foo'),
         ).not.toBeInTheDocument();
       });
     });
@@ -466,7 +501,10 @@ describe('JSON schema UI rendering', () => {
       for (const i of subs.keys()) {
         for (const k of Object.keys(subs[i].properties!)) {
           expect(
-            await rendered.findByTestId(`properties-row_test_oneOf${i}.${k}`),
+            await findRowById(
+              rendered.container,
+              `properties-row_test_oneOf${i}.${k}`,
+            ),
           ).toBeInTheDocument();
         }
       }
@@ -491,17 +529,17 @@ describe('JSON schema UI rendering', () => {
       );
 
       expect(
-        rendered.queryByTestId('root-row_test.bs_anyOf0'),
+        queryRowById(rendered.container, 'root-row_test.bs_anyOf0'),
       ).not.toBeInTheDocument();
 
       const expandAnyOf = rendered.getByTestId('expand_test.bs_anyOf');
       await userEvent.click(expandAnyOf);
 
       expect(
-        await rendered.findByTestId('root-row_test.bs_anyOf0'),
+        await findRowById(rendered.container, 'root-row_test.bs_anyOf0'),
       ).toBeInTheDocument();
       expect(
-        rendered.getByTestId('root-row_test.bs_anyOf1'),
+        getRowById(rendered.container, 'root-row_test.bs_anyOf1'),
       ).toBeInTheDocument();
     });
   });

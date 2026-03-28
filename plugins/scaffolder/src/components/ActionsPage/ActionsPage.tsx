@@ -25,17 +25,7 @@ import {
   Header,
   Page,
 } from '@backstage/core-components';
-import {
-  Accordion,
-  AccordionGroup,
-  AccordionPanel,
-  AccordionTrigger,
-  Flex,
-  List,
-  ListRow,
-  SearchField,
-  Text,
-} from '@backstage/ui';
+import { Box, Flex, List, ListRow, SearchField, Text } from '@backstage/ui';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -66,46 +56,46 @@ function ActionDetail({ action }: { action: Action }) {
   }
 
   return (
-    <AccordionGroup allowsMultiple defaultExpandedKeys={['input']}>
+    <Flex direction="column" gap="6">
       {hasInput && (
-        <Accordion id="input">
-          <AccordionTrigger title={t('actionsPage.action.input')} />
-          <AccordionPanel>
-            <RenderSchema
-              strategy="properties"
-              context={{
-                parentId: `${action.id}.input`,
-                ...partialSchemaRenderContext,
-              }}
-              schema={action?.schema?.input}
-            />
-          </AccordionPanel>
-        </Accordion>
+        <Flex direction="column" gap="2">
+          <Text as="h3" variant="title-small" weight="bold">
+            {t('actionsPage.action.input')}
+          </Text>
+          <RenderSchema
+            strategy="properties"
+            context={{
+              parentId: `${action.id}.input`,
+              ...partialSchemaRenderContext,
+            }}
+            schema={action?.schema?.input}
+          />
+        </Flex>
       )}
       {hasOutput && (
-        <Accordion id="output">
-          <AccordionTrigger title={t('actionsPage.action.output')} />
-          <AccordionPanel>
-            <RenderSchema
-              strategy="properties"
-              context={{
-                parentId: `${action.id}.output`,
-                ...partialSchemaRenderContext,
-              }}
-              schema={action?.schema?.output}
-            />
-          </AccordionPanel>
-        </Accordion>
+        <Flex direction="column" gap="2">
+          <Text as="h3" variant="title-small" weight="bold">
+            {t('actionsPage.action.output')}
+          </Text>
+          <RenderSchema
+            strategy="properties"
+            context={{
+              parentId: `${action.id}.output`,
+              ...partialSchemaRenderContext,
+            }}
+            schema={action?.schema?.output}
+          />
+        </Flex>
       )}
       {hasExamples && (
-        <Accordion id="examples">
-          <AccordionTrigger title={t('actionsPage.action.examples')} />
-          <AccordionPanel>
-            <ScaffolderUsageExamplesTable examples={action.examples!} />
-          </AccordionPanel>
-        </Accordion>
+        <Flex direction="column" gap="2">
+          <Text as="h3" variant="title-small" weight="bold">
+            {t('actionsPage.action.examples')}
+          </Text>
+          <ScaffolderUsageExamplesTable examples={action.examples!} />
+        </Flex>
       )}
-    </AccordionGroup>
+    </Flex>
   );
 }
 
@@ -176,57 +166,75 @@ export const ActionPageContent = () => {
     );
   }
 
-  return (
-    <Flex direction="column" gap="4">
-      <SearchField
-        aria-label={t('actionsPage.content.searchFieldPlaceholder')}
-        placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-        value={searchQuery}
-        onChange={setSearchQuery}
-      />
-      <List
-        aria-label={t('actionsPage.title')}
-        selectionMode="single"
-        selectionBehavior="toggle"
-        selectedKeys={selectedActionId ? [selectedActionId] : []}
-        onSelectionChange={selection => {
-          if (selection === 'all') {
-            return;
+  const listElement = (
+    <List
+      aria-label={t('actionsPage.title')}
+      selectionMode="single"
+      selectionBehavior="toggle"
+      selectedKeys={selectedActionId ? [selectedActionId] : []}
+      onSelectionChange={selection => {
+        if (selection === 'all') {
+          return;
+        }
+        const selected = [...selection][0] as string | undefined;
+        setSelectedActionId(prev => (prev === selected ? undefined : selected));
+      }}
+    >
+      {filteredActions.map(action => (
+        <ListRow
+          key={action.id}
+          id={action.id}
+          textValue={action.id}
+          description={
+            selectedAction ? undefined : action.description ?? undefined
           }
-          const selected = [...selection][0] as string | undefined;
-          setSelectedActionId(prev =>
-            prev === selected ? undefined : selected,
-          );
-        }}
-      >
-        {filteredActions.map(action => (
-          <ListRow
-            key={action.id}
-            id={action.id}
-            textValue={action.id}
-            description={
-              selectedAction ? undefined : action.description ?? undefined
-            }
-          >
-            {action.id}
-          </ListRow>
-        ))}
-      </List>
-      {selectedAction && (
-        <Flex direction="column" gap="3">
-          <Flex direction="column" gap="1">
-            <Text as="h2" variant="title-medium" weight="bold">
-              {selectedAction.id}
-            </Text>
-            {selectedAction.description && (
-              <Text as="p" variant="body-medium" color="secondary">
-                {selectedAction.description}
-              </Text>
-            )}
-          </Flex>
-          <ActionDetail action={selectedAction} />
+        >
+          {action.id}
+        </ListRow>
+      ))}
+    </List>
+  );
+
+  if (!selectedAction) {
+    return (
+      <Flex direction="column" gap="4">
+        <SearchField
+          aria-label={t('actionsPage.content.searchFieldPlaceholder')}
+          placeholder={t('actionsPage.content.searchFieldPlaceholder')}
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+        {listElement}
+      </Flex>
+    );
+  }
+
+  return (
+    <Flex gap="6">
+      <Box minWidth="320px" maxWidth="320px">
+        <Flex direction="column" gap="4">
+          <SearchField
+            aria-label={t('actionsPage.content.searchFieldPlaceholder')}
+            placeholder={t('actionsPage.content.searchFieldPlaceholder')}
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
+          {listElement}
         </Flex>
-      )}
+      </Box>
+      <Flex direction="column" gap="3" style={{ flex: 1, minWidth: 0 }}>
+        <Flex direction="column" gap="1">
+          <Text as="h2" variant="title-medium" weight="bold">
+            {selectedAction.id}
+          </Text>
+          {selectedAction.description && (
+            <Text as="p" variant="body-medium" color="secondary">
+              {selectedAction.description}
+            </Text>
+          )}
+        </Flex>
+        <ActionDetail action={selectedAction} />
+      </Flex>
     </Flex>
   );
 };

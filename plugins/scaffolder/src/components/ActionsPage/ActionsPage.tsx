@@ -195,7 +195,7 @@ export const ActionPageContent = () => {
   );
 
   return (
-    <Flex gap="6">
+    <Flex gap="6" alignItems="start">
       <Flex
         direction="column"
         gap="4"

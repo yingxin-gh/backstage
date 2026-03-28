@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { CatalogGraphPage, NfsCatalogGraphPage } from './CatalogGraphPage';
+export { CatalogGraphPage } from './CatalogGraphPage';
 export type { CatalogGraphPageClassKey } from './CatalogGraphPage';
 export type { MaxDepthFilterClassKey } from './MaxDepthFilter';
 export type { SelectedKindsFilterClassKey } from './SelectedKindsFilter';

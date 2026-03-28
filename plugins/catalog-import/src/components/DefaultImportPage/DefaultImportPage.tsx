@@ -81,9 +81,6 @@ export const DefaultImportPage = () => {
   );
 };
 
-/**
- * @alpha
- */
 export const NfsDefaultImportPage = () => {
   const { t } = useTranslationRef(catalogImportTranslationRef);
   const configApi = useApi(configApiRef);

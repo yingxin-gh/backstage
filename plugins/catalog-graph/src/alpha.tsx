@@ -80,7 +80,7 @@ const CatalogGraphPage = PageBlueprint.makeWithOverrides({
       path: '/catalog-graph',
       routeRef: catalogGraphRouteRef,
       loader: () =>
-        import('./components/CatalogGraphPage').then(m => (
+        import('./components/CatalogGraphPage/CatalogGraphPage').then(m => (
           <m.NfsCatalogGraphPage {...config} />
         )),
     });

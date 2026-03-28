@@ -18,7 +18,7 @@ import { FetchMiddleware } from './types';
 
 /**
  * Replaces the generic "TypeError: Failed to fetch" error with a more
- * informative message that includes the target URL.
+ * informative message that includes the HTTP method and target URL.
  */
 export class ClarifyFailuresFetchMiddleware implements FetchMiddleware {
   apply(next: typeof fetch): typeof fetch {

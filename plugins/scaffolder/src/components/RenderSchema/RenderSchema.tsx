@@ -241,6 +241,7 @@ export const RenderSchema = ({
           {
             id: 'value',
             label: t('renderSchema.tableCell.value'),
+            isRowHeader: true,
             defaultWidth: '3fr' as any,
             cell: item => <ValueCell item={item} context={context} />,
           },
@@ -250,10 +251,20 @@ export const RenderSchema = ({
             id: 'name',
             label: t('renderSchema.tableCell.name'),
             isRowHeader: true,
-            defaultWidth: 200,
+            defaultWidth: 220,
             cell: item => {
               const name = item.propKey ?? '';
-              return <CellText title={item.required ? `${name} *` : name} />;
+              return (
+                <Cell>
+                  <Text
+                    as="span"
+                    variant="body-medium"
+                    style={{ fontFamily: 'monospace' }}
+                  >
+                    {item.required ? `${name} *` : name}
+                  </Text>
+                </Cell>
+              );
             },
           },
           {
@@ -428,7 +439,13 @@ function ValueCell({
                 key={type}
                 as="span"
                 variant="body-small"
-                style={{ fontFamily: 'monospace' }}
+                color="secondary"
+                style={{
+                  fontFamily: 'monospace',
+                  background: 'var(--bui-bg-neutral-2)',
+                  padding: '1px 6px',
+                  borderRadius: 4,
+                }}
               >
                 {type}
               </Text>

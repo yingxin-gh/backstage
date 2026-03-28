@@ -46,17 +46,17 @@ const apis = TestApiRegistry.from(
   [permissionApiRef, mockPermissionApi],
 );
 
-async function expandAction(actionId: string) {
-  const button = await screen.findByRole('button', {
+async function selectAction(actionId: string) {
+  const row = await screen.findByRole('row', {
     name: new RegExp(actionId),
   });
-  await userEvent.click(button);
+  await userEvent.click(row);
 }
 
 describe('ActionsPage', () => {
   beforeEach(() => jest.resetAllMocks());
 
-  it('renders actions as accordions and shows detail on expand', async () => {
+  it('renders actions in a table and shows detail on row click', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -87,25 +87,18 @@ describe('ActionsPage', () => {
     );
 
     expect(
-      await screen.findByRole('button', { name: /test/ }),
+      await screen.findByRole('row', { name: /test/ }),
     ).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: /test/ })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    );
+    expect(screen.queryByText('Test title')).not.toBeInTheDocument();
 
-    await expandAction('test');
+    await selectAction('test');
 
-    expect(screen.getByRole('button', { name: /test/ })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
     expect(screen.getByText('Test title')).toBeVisible();
     expect(screen.getByText('foobar')).toBeVisible();
   });
 
-  it('renders action with input and output on expand', async () => {
+  it('renders action with input and output on row click', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -144,14 +137,14 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('Test title')).toBeInTheDocument();
     expect(screen.getByText('foobar')).toBeInTheDocument();
     expect(screen.getByText('Test output')).toBeInTheDocument();
   });
 
-  it('renders action with oneOf output on expand', async () => {
+  it('renders action with oneOf output on row click', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -203,7 +196,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('oneOf')).toBeInTheDocument();
     expect(screen.getByText('Test title')).toBeInTheDocument();
@@ -211,7 +204,7 @@ describe('ActionsPage', () => {
     expect(screen.getByText('Test output2')).toBeInTheDocument();
   });
 
-  it('renders action with multiple input types on expand', async () => {
+  it('renders action with multiple input types on row click', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -250,13 +243,13 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('array')).toBeInTheDocument();
     expect(screen.getByText('number')).toBeInTheDocument();
   });
 
-  it('renders action with oneOf input on expand', async () => {
+  it('renders action with oneOf input on row click', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -302,7 +295,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('oneOf')).toBeInTheDocument();
     expect(screen.getByText('Foo title')).toBeInTheDocument();
@@ -351,7 +344,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('Test object')).toBeInTheDocument();
     const objectChip = screen.getByText('object');
@@ -416,7 +409,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('Test object')).toBeInTheDocument();
     const objectChip = screen.getByText('object');
@@ -471,7 +464,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('Test object')).toBeInTheDocument();
     const objectChip = screen.getByText('object');
@@ -516,7 +509,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('Test array')).toBeInTheDocument();
     expect(screen.getByText('array(string)')).toBeInTheDocument();
@@ -571,7 +564,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('Test array')).toBeInTheDocument();
     const objectChip = screen.getByText('array(object)');
@@ -614,7 +607,7 @@ describe('ActionsPage', () => {
       },
     );
 
-    await expandAction('test');
+    await selectAction('test');
 
     expect(await screen.findByText('array(unknown)')).toBeInTheDocument();
   });
@@ -667,10 +660,10 @@ describe('ActionsPage', () => {
     );
 
     expect(
-      await screen.findByRole('button', { name: /github:repo:create/ }),
+      await screen.findByRole('row', { name: /github:repo:create/ }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /github:repo:push/ }),
+      screen.getByRole('row', { name: /github:repo:push/ }),
     ).toBeInTheDocument();
 
     await userEvent.type(
@@ -679,19 +672,19 @@ describe('ActionsPage', () => {
     );
 
     expect(
-      await screen.findByRole('button', { name: /github:repo:create/ }),
+      await screen.findByRole('row', { name: /github:repo:create/ }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /github:repo:push/ }),
+      screen.queryByRole('row', { name: /github:repo:push/ }),
     ).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByLabelText('Clear search'));
 
     expect(
-      await screen.findByRole('button', { name: /github:repo:create/ }),
+      await screen.findByRole('row', { name: /github:repo:create/ }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /github:repo:push/ }),
+      screen.getByRole('row', { name: /github:repo:push/ }),
     ).toBeInTheDocument();
   });
 });

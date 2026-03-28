@@ -30,14 +30,14 @@ import {
   Link,
   MarkdownContent,
   Page,
-  Progress,
 } from '@backstage/core-components';
 import {
-  Accordion,
-  AccordionGroup,
-  AccordionPanel,
-  AccordionTrigger,
+  CellText,
   SearchField,
+  Table,
+  useTable,
+  type ColumnConfig,
+  type TableItem,
 } from '@backstage/ui';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
@@ -80,6 +80,10 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1),
   },
 }));
+
+interface ActionTableItem extends TableItem {
+  action: Action;
+}
 
 function ActionDetail({ action }: { action: Action }) {
   const classes = useStyles();
@@ -153,38 +157,62 @@ function ActionDetail({ action }: { action: Action }) {
   );
 }
 
+const columnConfig: ColumnConfig<ActionTableItem>[] = [
+  {
+    id: 'name',
+    label: 'Name',
+    isRowHeader: true,
+    defaultWidth: '1fr',
+    cell: item => <CellText title={item.action.id} />,
+  },
+  {
+    id: 'description',
+    label: 'Description',
+    defaultWidth: '2fr',
+    cell: item => <CellText title={item.action.description ?? ''} />,
+  },
+];
+
 export const ActionPageContent = () => {
   const api = useApi(scaffolderApiRef);
   const { t } = useTranslationRef(scaffolderTranslationRef);
 
   const {
     loading,
-    value: actions = [],
+    value: actions,
     error,
   } = useAsync(async () => {
     return api.listActions();
   }, [api]);
 
-  const [search, setSearch] = useState('');
+  const [selectedAction, setSelectedAction] = useState<Action | undefined>();
 
-  const filteredActions = useMemo(() => {
-    const nonLegacy = actions.filter(
-      action => !action.id.startsWith('legacy:'),
-    );
-    if (!search) {
-      return nonLegacy;
-    }
-    const lowerQuery = search.toLowerCase();
-    return nonLegacy.filter(
-      action =>
-        action.id.toLowerCase().includes(lowerQuery) ||
-        action.description?.toLowerCase().includes(lowerQuery),
-    );
-  }, [actions, search]);
+  const tableData = useMemo(
+    () =>
+      actions
+        ?.filter(action => !action.id.startsWith('legacy:'))
+        .map(
+          (action): ActionTableItem => ({
+            id: action.id,
+            action,
+          }),
+        ),
+    [actions],
+  );
 
-  if (loading) {
-    return <Progress />;
-  }
+  const { tableProps, search } = useTable({
+    mode: 'complete',
+    data: tableData,
+    paginationOptions: { type: 'none' },
+    searchFn: (items, query) => {
+      const lowerQuery = query.toLowerCase();
+      return items.filter(
+        item =>
+          item.action.id.toLowerCase().includes(lowerQuery) ||
+          item.action.description?.toLowerCase().includes(lowerQuery),
+      );
+    },
+  });
 
   if (error) {
     return (
@@ -205,29 +233,31 @@ export const ActionPageContent = () => {
         aria-label={t('actionsPage.content.searchFieldPlaceholder')}
         placeholder={t('actionsPage.content.searchFieldPlaceholder')}
         style={{ marginBottom: 24 }}
-        value={search}
-        onChange={setSearch}
+        {...search}
       />
-      {filteredActions.length === 0 ? (
-        <EmptyState
-          missing="info"
-          title={t('actionsPage.content.emptyState.title')}
-          description={t('actionsPage.content.emptyState.description')}
-        />
-      ) : (
-        <AccordionGroup allowsMultiple>
-          {filteredActions.map(action => (
-            <Accordion key={action.id} id={action.id.replaceAll(':', '-')}>
-              <AccordionTrigger
-                title={action.id}
-                subtitle={action.description}
-              />
-              <AccordionPanel>
-                <ActionDetail action={action} />
-              </AccordionPanel>
-            </Accordion>
-          ))}
-        </AccordionGroup>
+      <Table
+        columnConfig={columnConfig}
+        {...tableProps}
+        loading={loading}
+        emptyState={
+          <EmptyState
+            missing="info"
+            title={t('actionsPage.content.emptyState.title')}
+            description={t('actionsPage.content.emptyState.description')}
+          />
+        }
+        rowConfig={{
+          onClick: item => {
+            setSelectedAction(prev =>
+              prev?.id === item.action.id ? undefined : item.action,
+            );
+          },
+        }}
+      />
+      {selectedAction && (
+        <Box mt={2}>
+          <ActionDetail action={selectedAction} />
+        </Box>
       )}
     </>
   );

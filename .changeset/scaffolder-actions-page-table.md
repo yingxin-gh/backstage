@@ -2,4 +2,4 @@
 '@backstage/plugin-scaffolder': patch
 ---
 
-Migrated the actions page to use `@backstage/ui` accordion and search components, replacing the previous layout where all actions were rendered at once. Actions are now listed as expandable accordions with built-in search filtering.
+Migrated the actions page to use `@backstage/ui` table and search components. Actions are now listed in a table with aligned name and description columns, with click-to-expand detail view and built-in search filtering.

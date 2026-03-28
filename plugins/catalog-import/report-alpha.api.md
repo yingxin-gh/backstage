@@ -11,7 +11,8 @@ import { ExtensionBlueprintParams } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { ExtensionInput } from '@backstage/frontend-plugin-api';
 import { IconElement } from '@backstage/frontend-plugin-api';
-import { JSX as JSX_2 } from 'react';
+import { JSX as JSX_2 } from 'react/jsx-runtime';
+import { JSX as JSX_3 } from 'react';
 import { OverridableExtensionDefinition } from '@backstage/frontend-plugin-api';
 import { OverridableFrontendPlugin } from '@backstage/frontend-plugin-api';
 import { RouteRef } from '@backstage/core-plugin-api';
@@ -133,7 +134,7 @@ const _default: OverridableFrontendPlugin<
               optional: true;
             }
           >
-        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
+        | ExtensionDataRef<JSX_3.Element, 'core.reactElement', {}>
         | ExtensionDataRef<
             string,
             'core.title',
@@ -150,7 +151,7 @@ const _default: OverridableFrontendPlugin<
           >;
       inputs: {
         pages: ExtensionInput<
-          | ConfigurableExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
+          | ConfigurableExtensionDataRef<JSX_3.Element, 'core.reactElement', {}>
           | ConfigurableExtensionDataRef<string, 'core.routing.path', {}>
           | ConfigurableExtensionDataRef<
               RouteRef_2<AnyRouteRefParams>,
@@ -184,7 +185,7 @@ const _default: OverridableFrontendPlugin<
         path: string;
         title?: string;
         icon?: IconElement;
-        loader?: () => Promise<JSX_2.Element>;
+        loader?: () => Promise<JSX_3.Element>;
         routeRef?: RouteRef_2;
         noHeader?: boolean;
       };
@@ -192,6 +193,9 @@ const _default: OverridableFrontendPlugin<
   }
 >;
 export default _default;
+
+// @alpha (undocumented)
+export const DefaultImportPage: () => JSX_2.Element;
 
 // (No @packageDocumentation comment for this package)
 ```

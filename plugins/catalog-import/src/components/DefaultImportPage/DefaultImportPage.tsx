@@ -82,7 +82,7 @@ export const DefaultImportPage = () => {
 };
 
 /**
- * @public
+ * @alpha
  */
 export const NfsDefaultImportPage = () => {
   const { t } = useTranslationRef(catalogImportTranslationRef);

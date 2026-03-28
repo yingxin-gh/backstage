@@ -44,6 +44,8 @@ import { catalogImportTranslationRef as _catalogImportTranslationRef } from './t
  */
 export const catalogImportTranslationRef = _catalogImportTranslationRef;
 
+export { NfsDefaultImportPage as DefaultImportPage } from './components/DefaultImportPage/DefaultImportPage';
+
 // TODO: It's currently possible to override the import page with a custom one. We need to decide
 //       whether this type of override is typically done with an input or by overriding the entire extension.
 const catalogImportPage = PageBlueprint.make({
@@ -51,7 +53,7 @@ const catalogImportPage = PageBlueprint.make({
     path: '/catalog-import',
     routeRef: rootRouteRef,
     loader: () =>
-      import('./components/DefaultImportPage').then(m => (
+      import('./components/DefaultImportPage/DefaultImportPage').then(m => (
         <RequirePermission permission={catalogEntityCreatePermission}>
           <m.NfsDefaultImportPage />
         </RequirePermission>

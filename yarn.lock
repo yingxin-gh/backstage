@@ -6755,7 +6755,6 @@ __metadata:
     "@types/node": "npm:^22.13.14"
     command-exists: "npm:^1.2.9"
     fs-extra: "npm:^11.0.0"
-    jest-when: "npm:^3.1.0"
     yaml: "npm:^2.0.0"
   languageName: unknown
   linkType: soft
@@ -35661,15 +35660,6 @@ __metadata:
     jest-diff: "npm:^29.2.0"
     mock-socket: "npm:^9.3.0"
   checksum: 10/99585445503ef5ab391052243643dc1afa1abf9dfa65a39f4bd55b9b0918cc6c486847c9d059fdefb337370eb06fef269c1ca0e76fd755abcfd3e73bf4c2bd87
-  languageName: node
-  linkType: hard
-
-"jest-when@npm:^3.1.0":
-  version: 3.7.0
-  resolution: "jest-when@npm:3.7.0"
-  peerDependencies:
-    jest: ">= 25"
-  checksum: 10/b5b88d077ed467aab220c71c885dbc5f448604f06e68f761ce9f479c99bb74e0dbf553d1cc980751d88401b034a578e1c44eec5e4095743b7586f02bb7c6313d
   languageName: node
   linkType: hard
 

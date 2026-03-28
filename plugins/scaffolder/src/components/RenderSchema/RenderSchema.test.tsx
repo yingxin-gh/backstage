@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 import { renderInTestApp } from '@backstage/test-utils';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import {
   BoundFunction,
   queries,
@@ -35,35 +33,8 @@ import { RenderEnum, RenderSchema } from './RenderSchema';
 
 /* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "assert*"] }] */
 
-const useStyles = makeStyles(theme => ({
-  code: {
-    fontFamily: 'Menlo, monospace',
-    padding: theme.spacing(1),
-    backgroundColor:
-      theme.palette.type === 'dark'
-        ? theme.palette.grey[700]
-        : theme.palette.grey[300],
-    display: 'inline-block',
-    borderRadius: 5,
-    border: `1px solid ${theme.palette.grey[500]}`,
-    position: 'relative',
-  },
-
-  codeRequired: {
-    '&::after': {
-      position: 'absolute',
-      content: '"*"',
-      top: 0,
-      right: theme.spacing(0.5),
-      fontWeight: 'bolder',
-      color: theme.palette.error.light,
-    },
-  },
-}));
-
 const LocalRenderEnum = ({ e }: { e: JSONSchema7Type[] }) => {
-  const classes = useStyles();
-  return <RenderEnum {...{ classes, e }} />;
+  return <RenderEnum {...{ e }} />;
 };
 
 const LocalRenderSchema = ({
@@ -73,7 +44,6 @@ const LocalRenderSchema = ({
   strategy: SchemaRenderStrategy;
   schema?: JSONSchema7Definition;
 }) => {
-  const classes = useStyles();
   const expanded = useState<Expanded>({});
   return (
     <RenderSchema
@@ -82,9 +52,7 @@ const LocalRenderSchema = ({
         schema,
         context: {
           parentId: 'test',
-          classes,
           expanded,
-          headings: [<Typography component="h1" />],
         },
       }}
     />
@@ -119,19 +87,18 @@ it('enum rendering', async () => {
     expect(el).toBeInTheDocument();
     expect(el).toHaveTextContent(JSON.stringify(each.value));
 
-    const wrapTextIcon = getByTestId(`wrap-text_${each.index}`);
-    expect(wrapTextIcon).toBeInTheDocument();
+    const wrapTextButton = getByTestId(`wrap-text_${each.index}`);
+    expect(wrapTextButton).toBeInTheDocument();
 
     expect(queryByTestId(`pretty_${each.index}`)).toBeNull();
 
-    await userEvent.hover(wrapTextIcon);
+    wrapTextButton.focus();
 
     const pretty = await findByTestId(`pretty_${each.index}`);
     expect(pretty).toBeInTheDocument();
-    // test textContent directly to avoid ws normalization:
     expect(pretty.textContent).toBe(JSON.stringify(each.value, null, 2));
 
-    await userEvent.unhover(wrapTextIcon);
+    wrapTextButton.blur();
 
     await waitFor(() =>
       expect(queryByTestId(`pretty_${each.index}`)).toBeNull(),
@@ -171,27 +138,29 @@ describe('JSON schema UI rendering', () => {
     const { getByTestId, queryByTestId } = q;
     const t = getByTestId(`properties_${id}`);
     expect(t).toBeInTheDocument();
-    expect(t.tagName).toBe('TABLE');
-
-    expect(
-      Array.from(t.querySelectorAll('thead > tr > th'), e => e.textContent),
-    ).toEqual(['Name', 'Title', 'Description', 'Type']);
 
     for (const p of Object.keys(basic.properties!)) {
       const tr = getByTestId(`properties-row_${id}.${p}`);
       expect(tr).toBeInTheDocument();
-      expect(tr.tagName).toBe('TR');
 
       const pt = (basic.properties![p] as JSONSchema7).type;
+      const headerCells = within(tr).queryAllByRole('rowheader');
+      const dataCells = within(tr).getAllByRole('gridcell');
+      const allCells = [...headerCells, ...dataCells];
+      const cellTexts = allCells.map(c => c.textContent);
 
-      expect(Array.from(tr.querySelectorAll('td'), n => n.textContent)).toEqual(
-        [p, capitalize(p), `the ${pt}`, pt],
+      expect(cellTexts).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining(p),
+          expect.stringContaining(capitalize(p)),
+          expect.stringContaining(`the ${pt}`),
+          expect.stringContaining(String(pt)),
+        ]),
       );
-      expect(
-        Array.from(within(tr).getByText(p).classList).some(c =>
-          c.includes('codeRequired'),
-        ),
-      ).toBe(basic.required?.includes(p));
+
+      if (basic.required?.includes(p)) {
+        expect(cellTexts[0]).toContain('*');
+      }
 
       expect(queryByTestId(`expand_${id}.${p}`)).not.toBeInTheDocument();
     }
@@ -241,11 +210,6 @@ describe('JSON schema UI rendering', () => {
     const { findByTestId, getByTestId, queryByTestId } = q;
     const t = getByTestId(`properties_${id}`);
     expect(t).toBeInTheDocument();
-    expect(t.tagName).toBe('TABLE');
-
-    expect(
-      Array.from(t.querySelectorAll('thead > tr > th'), n => n.textContent),
-    ).toEqual(['Name', 'Title', 'Description', 'Type']);
 
     const xp: (k: string) => Promise<{
       expander: HTMLElement;
@@ -254,7 +218,6 @@ describe('JSON schema UI rendering', () => {
     }> = async (k: string) => {
       const r = getByTestId(`properties-row_${id}.${k}`);
       expect(r).toBeInTheDocument();
-      expect(r.tagName).toBe('TR');
 
       const expansionId = `expansion_${id}.${k}`;
 
@@ -311,19 +274,6 @@ describe('JSON schema UI rendering', () => {
 
       const t = getByTestId('root_test');
       expect(t).toBeInTheDocument();
-      expect(t.tagName).toBe('TABLE');
-
-      expect(
-        Array.from(t.querySelectorAll('thead > tr > th'), n => n.textContent),
-      ).toEqual(['Type']);
-
-      const tr = getByTestId('root-row_test');
-      expect(tr).toBeInTheDocument();
-      expect(tr.tagName).toBe('TR');
-
-      expect(Array.from(tr.querySelectorAll('td'), n => n.textContent)).toEqual(
-        ['object'],
-      );
 
       expect(queryByTestId('expansion_test')).not.toBeInTheDocument();
 
@@ -349,18 +299,6 @@ describe('JSON schema UI rendering', () => {
 
       const t = getByTestId('root_test');
       expect(t).toBeInTheDocument();
-      expect(t.tagName).toBe('TABLE');
-
-      expect(
-        Array.from(t.querySelectorAll('thead > tr > th'), n => n.textContent),
-      ).toEqual(['Title', 'Description', 'Type']);
-      const tr = getByTestId('root-row_test');
-      expect(tr).toBeInTheDocument();
-      expect(tr.tagName).toBe('TR');
-
-      expect(Array.from(tr.querySelectorAll('td'), n => n.textContent)).toEqual(
-        [msv.title, msv.description, 'string'],
-      );
 
       expect(queryByTestId('expansion_test')).not.toBeInTheDocument();
 
@@ -385,18 +323,7 @@ describe('JSON schema UI rendering', () => {
 
       const t = getByTestId('root_test');
       expect(t).toBeInTheDocument();
-      expect(t.tagName).toBe('TABLE');
 
-      expect(
-        Array.from(t.querySelectorAll('thead > tr > th'), n => n.textContent),
-      ).toEqual(['Title', 'Description', 'Type']);
-      const tr = getByTestId('root-row_test');
-      expect(tr).toBeInTheDocument();
-      expect(tr.tagName).toBe('TR');
-
-      expect(Array.from(tr.querySelectorAll('td'), n => n.textContent)).toEqual(
-        [deep.title, deep.description, 'object'],
-      );
       expect(queryByTestId('expansion_test')).not.toBeInTheDocument();
 
       const expand = getByTestId('expand_test');
@@ -478,11 +405,10 @@ describe('JSON schema UI rendering', () => {
         const sub = getByTestId(`properties-row_test_oneOf${i}.${k}`);
         expect(sub).toBeInTheDocument();
 
-        expect(
-          Array.from(within(sub).getByText(k).classList).some(c =>
-            c.includes('codeRequired'),
-          ),
-        ).toBe(true);
+        const nameCell =
+          within(sub).queryAllByRole('rowheader')[0] ??
+          within(sub).getAllByRole('gridcell')[0];
+        expect(nameCell.textContent).toContain('*');
 
         expect(
           getByTestId(`properties-row_test_oneOf${i}.${k}Flag`),

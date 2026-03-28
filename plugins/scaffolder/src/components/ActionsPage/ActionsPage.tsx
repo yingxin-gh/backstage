@@ -16,8 +16,6 @@
 import { useMemo, useState } from 'react';
 import useAsync from 'react-use/esm/useAsync';
 import { Action, scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 
 import { useApi, useRouteRef } from '@backstage/core-plugin-api';
 import {
@@ -32,17 +30,11 @@ import {
   AccordionGroup,
   AccordionPanel,
   AccordionTrigger,
-  Card,
-  CardBody,
-  CardHeader,
-  CellText,
   Flex,
+  List,
+  ListRow,
   SearchField,
-  Table,
   Text,
-  useTable,
-  type ColumnConfig,
-  type TableItem,
 } from '@backstage/ui';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
@@ -57,127 +49,65 @@ import { scaffolderTranslationRef } from '../../translation';
 import { Expanded, RenderSchema, SchemaRenderContext } from '../RenderSchema';
 import { ScaffolderUsageExamplesTable } from '../ScaffolderUsageExamplesTable';
 
-const useStyles = makeStyles(theme => ({
-  code: {
-    fontFamily: 'Menlo, monospace',
-    padding: theme.spacing(1),
-    backgroundColor:
-      theme.palette.type === 'dark'
-        ? theme.palette.grey[700]
-        : theme.palette.grey[300],
-    display: 'inline-block',
-    borderRadius: 5,
-    border: `1px solid ${theme.palette.grey[500]}`,
-    position: 'relative',
-  },
-
-  codeRequired: {
-    '&::after': {
-      position: 'absolute',
-      content: '"*"',
-      top: 0,
-      right: theme.spacing(0.5),
-      fontWeight: 'bolder',
-      color: theme.palette.error.light,
-    },
-  },
-}));
-
-interface ActionTableItem extends TableItem {
-  action: Action;
-}
-
 function ActionDetail({ action }: { action: Action }) {
-  const classes = useStyles();
   const { t } = useTranslationRef(scaffolderTranslationRef);
   const expanded = useState<Expanded>({});
 
   const partialSchemaRenderContext: Omit<SchemaRenderContext, 'parentId'> = {
-    classes,
     expanded,
-    headings: [<Typography variant="h6" component="h4" />],
   };
 
   const hasInput = !!action.schema?.input;
   const hasOutput = !!action.schema?.output;
   const hasExamples = !!action.examples;
 
+  if (!hasInput && !hasOutput && !hasExamples) {
+    return null;
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <Flex direction="column" gap="1">
-          <Text as="h2" variant="title-medium" weight="bold">
-            {action.id}
-          </Text>
-          {action.description && (
-            <Text as="p" variant="body-medium" color="secondary">
-              {action.description}
-            </Text>
-          )}
-        </Flex>
-      </CardHeader>
-      {(hasInput || hasOutput || hasExamples) && (
-        <CardBody>
-          <AccordionGroup allowsMultiple>
-            {hasInput && (
-              <Accordion defaultExpanded>
-                <AccordionTrigger title={t('actionsPage.action.input')} />
-                <AccordionPanel>
-                  <RenderSchema
-                    strategy="properties"
-                    context={{
-                      parentId: `${action.id}.input`,
-                      ...partialSchemaRenderContext,
-                    }}
-                    schema={action?.schema?.input}
-                  />
-                </AccordionPanel>
-              </Accordion>
-            )}
-            {hasOutput && (
-              <Accordion>
-                <AccordionTrigger title={t('actionsPage.action.output')} />
-                <AccordionPanel>
-                  <RenderSchema
-                    strategy="properties"
-                    context={{
-                      parentId: `${action.id}.output`,
-                      ...partialSchemaRenderContext,
-                    }}
-                    schema={action?.schema?.output}
-                  />
-                </AccordionPanel>
-              </Accordion>
-            )}
-            {hasExamples && (
-              <Accordion>
-                <AccordionTrigger title={t('actionsPage.action.examples')} />
-                <AccordionPanel>
-                  <ScaffolderUsageExamplesTable examples={action.examples!} />
-                </AccordionPanel>
-              </Accordion>
-            )}
-          </AccordionGroup>
-        </CardBody>
+    <AccordionGroup allowsMultiple defaultExpandedKeys={['input']}>
+      {hasInput && (
+        <Accordion id="input">
+          <AccordionTrigger title={t('actionsPage.action.input')} />
+          <AccordionPanel>
+            <RenderSchema
+              strategy="properties"
+              context={{
+                parentId: `${action.id}.input`,
+                ...partialSchemaRenderContext,
+              }}
+              schema={action?.schema?.input}
+            />
+          </AccordionPanel>
+        </Accordion>
       )}
-    </Card>
+      {hasOutput && (
+        <Accordion id="output">
+          <AccordionTrigger title={t('actionsPage.action.output')} />
+          <AccordionPanel>
+            <RenderSchema
+              strategy="properties"
+              context={{
+                parentId: `${action.id}.output`,
+                ...partialSchemaRenderContext,
+              }}
+              schema={action?.schema?.output}
+            />
+          </AccordionPanel>
+        </Accordion>
+      )}
+      {hasExamples && (
+        <Accordion id="examples">
+          <AccordionTrigger title={t('actionsPage.action.examples')} />
+          <AccordionPanel>
+            <ScaffolderUsageExamplesTable examples={action.examples!} />
+          </AccordionPanel>
+        </Accordion>
+      )}
+    </AccordionGroup>
   );
 }
-
-const columnConfig: ColumnConfig<ActionTableItem>[] = [
-  {
-    id: 'name',
-    label: 'Name',
-    isRowHeader: true,
-    defaultWidth: '1fr',
-    cell: item => (
-      <CellText
-        title={item.action.id}
-        description={item.action.description ?? undefined}
-      />
-    ),
-  },
-];
 
 export const ActionPageContent = () => {
   const api = useApi(scaffolderApiRef);
@@ -191,34 +121,29 @@ export const ActionPageContent = () => {
     return api.listActions();
   }, [api]);
 
-  const [selectedAction, setSelectedAction] = useState<Action | undefined>();
+  const [selectedActionId, setSelectedActionId] = useState<
+    string | undefined
+  >();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const tableData = useMemo(
-    () =>
-      actions
-        ?.filter(action => !action.id.startsWith('legacy:'))
-        .map(
-          (action): ActionTableItem => ({
-            id: action.id,
-            action,
-          }),
-        ),
-    [actions],
+  const filteredActions = useMemo(() => {
+    const nonLegacy =
+      actions?.filter(action => !action.id.startsWith('legacy:')) ?? [];
+    if (!searchQuery) {
+      return nonLegacy;
+    }
+    const lowerQuery = searchQuery.toLowerCase();
+    return nonLegacy.filter(
+      action =>
+        action.id.toLowerCase().includes(lowerQuery) ||
+        action.description?.toLowerCase().includes(lowerQuery),
+    );
+  }, [actions, searchQuery]);
+
+  const selectedAction = useMemo(
+    () => filteredActions.find(a => a.id === selectedActionId),
+    [filteredActions, selectedActionId],
   );
-
-  const { tableProps, search } = useTable({
-    mode: 'complete',
-    data: tableData,
-    paginationOptions: { pageSize: 20 },
-    searchFn: (items, query) => {
-      const lowerQuery = query.toLowerCase();
-      return items.filter(
-        item =>
-          item.action.id.toLowerCase().includes(lowerQuery) ||
-          item.action.description?.toLowerCase().includes(lowerQuery),
-      );
-    },
-  });
 
   if (error) {
     return (
@@ -233,33 +158,75 @@ export const ActionPageContent = () => {
     );
   }
 
+  if (!loading && !filteredActions.length) {
+    return (
+      <Flex direction="column" gap="4">
+        <SearchField
+          aria-label={t('actionsPage.content.searchFieldPlaceholder')}
+          placeholder={t('actionsPage.content.searchFieldPlaceholder')}
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+        <EmptyState
+          missing="info"
+          title={t('actionsPage.content.emptyState.title')}
+          description={t('actionsPage.content.emptyState.description')}
+        />
+      </Flex>
+    );
+  }
+
   return (
     <Flex direction="column" gap="4">
       <SearchField
         aria-label={t('actionsPage.content.searchFieldPlaceholder')}
         placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-        {...search}
+        value={searchQuery}
+        onChange={setSearchQuery}
       />
-      <Table
-        columnConfig={columnConfig}
-        {...tableProps}
-        loading={loading}
-        emptyState={
-          <EmptyState
-            missing="info"
-            title={t('actionsPage.content.emptyState.title')}
-            description={t('actionsPage.content.emptyState.description')}
-          />
-        }
-        rowConfig={{
-          onClick: item => {
-            setSelectedAction(prev =>
-              prev?.id === item.action.id ? undefined : item.action,
-            );
-          },
+      <List
+        aria-label={t('actionsPage.title')}
+        selectionMode="single"
+        selectionBehavior="toggle"
+        selectedKeys={selectedActionId ? [selectedActionId] : []}
+        onSelectionChange={selection => {
+          if (selection === 'all') {
+            return;
+          }
+          const selected = [...selection][0] as string | undefined;
+          setSelectedActionId(prev =>
+            prev === selected ? undefined : selected,
+          );
         }}
-      />
-      {selectedAction && <ActionDetail action={selectedAction} />}
+      >
+        {filteredActions.map(action => (
+          <ListRow
+            key={action.id}
+            id={action.id}
+            textValue={action.id}
+            description={
+              selectedAction ? undefined : action.description ?? undefined
+            }
+          >
+            {action.id}
+          </ListRow>
+        ))}
+      </List>
+      {selectedAction && (
+        <Flex direction="column" gap="3">
+          <Flex direction="column" gap="1">
+            <Text as="h2" variant="title-medium" weight="bold">
+              {selectedAction.id}
+            </Text>
+            {selectedAction.description && (
+              <Text as="p" variant="body-medium" color="secondary">
+                {selectedAction.description}
+              </Text>
+            )}
+          </Flex>
+          <ActionDetail action={selectedAction} />
+        </Flex>
+      )}
     </Flex>
   );
 };

@@ -95,7 +95,7 @@ describe('ActionsPage', () => {
     await selectAction('test');
 
     expect(await screen.findByText('Test title')).toBeInTheDocument();
-    expect(screen.getByText('foobar')).toBeInTheDocument();
+    expect(screen.getByText('foobar *')).toBeInTheDocument();
   });
 
   it('renders action with input and output on row click', async () => {
@@ -140,7 +140,7 @@ describe('ActionsPage', () => {
     await selectAction('test');
 
     expect(await screen.findByText('Test title')).toBeInTheDocument();
-    expect(screen.getByText('foobar')).toBeInTheDocument();
+    expect(screen.getByText('foobar *')).toBeInTheDocument();
     expect(screen.getByText('Test output')).toBeInTheDocument();
   });
 
@@ -347,20 +347,20 @@ describe('ActionsPage', () => {
     await selectAction('test');
 
     expect(await screen.findByText('Test object')).toBeInTheDocument();
-    const objectChip = screen.getByText('object');
-    expect(objectChip).toBeInTheDocument();
+    const objectButton = screen.getByRole('button', { name: /object/ });
+    expect(objectButton).toBeInTheDocument();
 
     expect(screen.queryByText('nested prop a')).not.toBeInTheDocument();
-    expect(screen.queryByText('string')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^string$/)).not.toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
-    expect(screen.queryByText('number')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^number$/)).not.toBeInTheDocument();
 
-    await userEvent.click(objectChip);
+    await userEvent.click(objectButton);
 
     expect(screen.queryByText('nested prop a')).toBeInTheDocument();
-    expect(screen.queryByText('string')).toBeInTheDocument();
+    expect(screen.queryByText(/^string$/)).toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).toBeInTheDocument();
-    expect(screen.queryByText('number')).toBeInTheDocument();
+    expect(screen.queryByText(/^number$/)).toBeInTheDocument();
   });
 
   it('renders action with nested object input type', async () => {
@@ -412,22 +412,22 @@ describe('ActionsPage', () => {
     await selectAction('test');
 
     expect(await screen.findByText('Test object')).toBeInTheDocument();
-    const objectChip = screen.getByText('object');
-    expect(objectChip).toBeInTheDocument();
+    const objectButton = screen.getByRole('button', { name: /object/ });
+    expect(objectButton).toBeInTheDocument();
 
     expect(screen.queryByText('nested object a')).not.toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
     expect(screen.queryByText('nested object c')).not.toBeInTheDocument();
 
-    await userEvent.click(objectChip);
+    await userEvent.click(objectButton);
 
     expect(screen.queryByText('nested object a')).toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).toBeInTheDocument();
     expect(screen.queryByText('nested object c')).not.toBeInTheDocument();
 
-    const allObjectChips = screen.getAllByText('object');
-    expect(allObjectChips.length).toBe(2);
-    await userEvent.click(allObjectChips[1]);
+    const allObjectButtons = screen.getAllByRole('button', { name: /object/ });
+    expect(allObjectButtons.length).toBe(2);
+    await userEvent.click(allObjectButtons[1]);
 
     expect(screen.queryByText('nested object a')).toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).toBeInTheDocument();
@@ -467,12 +467,12 @@ describe('ActionsPage', () => {
     await selectAction('test');
 
     expect(await screen.findByText('Test object')).toBeInTheDocument();
-    const objectChip = screen.getByText('object');
-    expect(objectChip).toBeInTheDocument();
+    const objectButton = screen.getByRole('button', { name: /object/ });
+    expect(objectButton).toBeInTheDocument();
 
     expect(screen.queryByText('No schema defined')).not.toBeInTheDocument();
 
-    await userEvent.click(objectChip);
+    await userEvent.click(objectButton);
 
     expect(screen.queryByText('No schema defined')).toBeInTheDocument();
   });
@@ -567,13 +567,15 @@ describe('ActionsPage', () => {
     await selectAction('test');
 
     expect(await screen.findByText('Test array')).toBeInTheDocument();
-    const objectChip = screen.getByText('array(object)');
-    expect(objectChip).toBeInTheDocument();
+    const arrayButton = screen.getByRole('button', {
+      name: /array\(object\)/,
+    });
+    expect(arrayButton).toBeInTheDocument();
 
     expect(screen.queryByText('nested object a')).not.toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
 
-    await userEvent.click(objectChip);
+    await userEvent.click(arrayButton);
 
     expect(screen.queryByText('nested object a')).toBeInTheDocument();
     expect(screen.queryByText('nested prop b')).toBeInTheDocument();

@@ -36,6 +36,18 @@ describe('ClarifyFailuresFetchMiddleware', () => {
     );
   });
 
+  it('handles Request object input without constructing a new Request', async () => {
+    const inner = jest.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    const middleware = new ClarifyFailuresFetchMiddleware();
+    const request = new Request('https://example.com/api/data', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'value' }),
+    });
+    await expect(middleware.apply(inner)(request)).rejects.toThrow(
+      new TypeError('Failed to fetch: POST https://example.com/api/data'),
+    );
+  });
+
   it('does not modify other TypeErrors', async () => {
     const error = new TypeError('some other error');
     const inner = jest.fn().mockRejectedValue(error);

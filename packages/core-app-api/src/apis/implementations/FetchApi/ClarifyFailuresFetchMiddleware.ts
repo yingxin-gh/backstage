@@ -27,8 +27,18 @@ export class ClarifyFailuresFetchMiddleware implements FetchMiddleware {
         return await next(input as any, init);
       } catch (e) {
         if (e instanceof TypeError && e.message === 'Failed to fetch') {
-          const request = new Request(input as any, init);
-          e.message = `Failed to fetch: ${request.method} ${request.url}`;
+          let method: string;
+          let url: string;
+
+          if (input instanceof Request) {
+            method = input.method;
+            url = input.url;
+          } else {
+            method = init?.method || 'GET';
+            url = String(input);
+          }
+
+          e.message = `Failed to fetch: ${method} ${url}`;
           throw e;
         }
         throw e;

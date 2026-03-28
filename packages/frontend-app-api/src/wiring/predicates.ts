@@ -24,7 +24,7 @@ import type {
   EvaluatePermissionRequest,
   EvaluatePermissionResponse,
 } from '@backstage/plugin-permission-common';
-import { assertError, ForwardedError } from '@backstage/errors';
+import { ForwardedError } from '@backstage/errors';
 
 export type ExtensionPredicateContext = {
   featureFlags: string[];
@@ -98,7 +98,6 @@ export function createPredicateContextLoader(options: {
           (_, i) => responses[i].result === 'ALLOW',
         );
       } catch (error) {
-        assertError(error);
         throw new ForwardedError(
           'Failed to authorize extension permissions',
           error,

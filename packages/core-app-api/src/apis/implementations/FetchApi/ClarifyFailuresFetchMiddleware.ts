@@ -24,6 +24,8 @@ export class ClarifyFailuresFetchMiddleware implements FetchMiddleware {
   apply(next: typeof fetch): typeof fetch {
     return async (input, init) => {
       try {
+        // NOTE: The "as any" cast is because of subtle undici type differences
+        // that happened in a node types bump. Immaterial at runtime.
         return await next(input as any, init);
       } catch (e) {
         if (e instanceof TypeError && e.message === 'Failed to fetch') {

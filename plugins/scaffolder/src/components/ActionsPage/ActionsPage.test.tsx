@@ -689,4 +689,42 @@ describe('ActionsPage', () => {
       screen.getByRole('row', { name: /github:repo:push/ }),
     ).toBeInTheDocument();
   });
+
+  it('should keep search field focused when filtering causes empty then non-empty results', async () => {
+    scaffolderApiMock.listActions.mockResolvedValue([
+      {
+        id: 'github:repo:create',
+        description: 'Create a new Github repository',
+        schema: {},
+      },
+    ]);
+
+    await renderInTestApp(
+      <ApiProvider apis={apis}>
+        <ActionsPage />
+      </ApiProvider>,
+      {
+        mountedRoutes: {
+          '/create/actions': rootRouteRef,
+        },
+      },
+    );
+
+    const searchField = screen.getByPlaceholderText('Search for an action');
+    await userEvent.click(searchField);
+    expect(searchField).toHaveFocus();
+
+    await userEvent.type(searchField, 'zzz-no-match');
+    expect(searchField).toHaveFocus();
+    expect(
+      screen.queryByRole('row', { name: /github:repo:create/ }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.clear(searchField);
+    await userEvent.type(searchField, 'create');
+    expect(searchField).toHaveFocus();
+    expect(
+      await screen.findByRole('row', { name: /github:repo:create/ }),
+    ).toBeInTheDocument();
+  });
 });

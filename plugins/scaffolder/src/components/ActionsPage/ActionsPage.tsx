@@ -149,68 +149,61 @@ export const ActionPageContent = () => {
     );
   }
 
-  if (!loading && !filteredActions.length) {
-    return (
-      <Flex direction="column" gap="4">
-        <SearchField
-          aria-label={t('actionsPage.content.searchFieldPlaceholder')}
-          placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-          value={searchQuery}
-          onChange={setSearchQuery}
-        />
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: selectedAction ? '320px 1fr' : '1fr',
+        gridTemplateRows: 'auto 1fr',
+        gap: 24,
+      }}
+    >
+      <SearchField
+        aria-label={t('actionsPage.content.searchFieldPlaceholder')}
+        placeholder={t('actionsPage.content.searchFieldPlaceholder')}
+        value={searchQuery}
+        onChange={setSearchQuery}
+      />
+      {!loading && !filteredActions.length ? (
         <EmptyState
           missing="info"
           title={t('actionsPage.content.emptyState.title')}
           description={t('actionsPage.content.emptyState.description')}
         />
-      </Flex>
-    );
-  }
-
-  const listElement = (
-    <List
-      aria-label={t('actionsPage.title')}
-      selectionMode="single"
-      selectionBehavior="toggle"
-      selectedKeys={selectedActionId ? [selectedActionId] : []}
-      onSelectionChange={selection => {
-        if (selection === 'all') {
-          return;
-        }
-        const selected = [...selection][0] as string | undefined;
-        setSelectedActionId(prev => (prev === selected ? undefined : selected));
-      }}
-    >
-      {filteredActions.map(action => (
-        <ListRow
-          key={action.id}
-          id={action.id}
-          textValue={action.id}
-          description={action.description ?? undefined}
+      ) : (
+        <List
+          aria-label={t('actionsPage.title')}
+          selectionMode="single"
+          selectionBehavior="toggle"
+          selectedKeys={selectedActionId ? [selectedActionId] : []}
+          onSelectionChange={selection => {
+            if (selection === 'all') {
+              return;
+            }
+            const selected = [...selection][0] as string | undefined;
+            setSelectedActionId(prev =>
+              prev === selected ? undefined : selected,
+            );
+          }}
         >
-          {action.id}
-        </ListRow>
-      ))}
-    </List>
-  );
-
-  return (
-    <Flex gap="6" alignItems="start">
-      <Flex
-        direction="column"
-        gap="4"
-        style={selectedAction ? { minWidth: 320, maxWidth: 320 } : undefined}
-      >
-        <SearchField
-          aria-label={t('actionsPage.content.searchFieldPlaceholder')}
-          placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-          value={searchQuery}
-          onChange={setSearchQuery}
-        />
-        {listElement}
-      </Flex>
+          {filteredActions.map(action => (
+            <ListRow
+              key={action.id}
+              id={action.id}
+              textValue={action.id}
+              description={action.description ?? undefined}
+            >
+              {action.id}
+            </ListRow>
+          ))}
+        </List>
+      )}
       {selectedAction && (
-        <Flex direction="column" gap="3" style={{ flex: 1, minWidth: 0 }}>
+        <Flex
+          direction="column"
+          gap="3"
+          style={{ gridRow: '1 / -1', minWidth: 0 }}
+        >
           <Flex direction="column" gap="1">
             <Text as="h2" variant="title-medium" weight="bold">
               {selectedAction.id}
@@ -222,7 +215,7 @@ export const ActionPageContent = () => {
           <ActionDetail action={selectedAction} />
         </Flex>
       )}
-    </Flex>
+    </div>
   );
 };
 

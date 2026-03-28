@@ -138,7 +138,7 @@ type ColumnDef = {
   key: string;
   title: string;
   render: RenderColumn;
-  width?: `${number}fr`;
+  width?: number | `${number}fr`;
 };
 
 const generateId = (
@@ -270,13 +270,13 @@ export const RenderSchema = ({
             key: 'name',
             title: t('renderSchema.tableCell.name'),
             render: renderNameCell,
-            width: '1fr',
+            width: 200,
           },
           {
             key: 'value',
             title: t('renderSchema.tableCell.value'),
             render: renderValueCell,
-            width: '4fr',
+            width: '1fr',
           },
         ];
         elements = Object.entries(schema.properties!).map(([key, v]) => ({

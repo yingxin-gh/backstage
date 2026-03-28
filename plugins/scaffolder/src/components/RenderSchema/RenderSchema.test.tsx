@@ -26,7 +26,6 @@ import {
   JSONSchema7Definition,
   JSONSchema7Type,
 } from 'json-schema';
-import { capitalize } from 'lodash';
 import { useState } from 'react';
 import { Expanded, SchemaRenderStrategy } from '.';
 import { RenderEnum, RenderSchema } from './RenderSchema';
@@ -136,8 +135,6 @@ describe('JSON schema UI rendering', () => {
     id: string,
   ) => {
     const { getByTestId, queryByTestId } = q;
-    const t = getByTestId(`properties_${id}`);
-    expect(t).toBeInTheDocument();
 
     for (const p of Object.keys(basic.properties!)) {
       const tr = getByTestId(`properties-row_${id}.${p}`);
@@ -152,7 +149,6 @@ describe('JSON schema UI rendering', () => {
       expect(cellTexts).toEqual(
         expect.arrayContaining([
           expect.stringContaining(p),
-          expect.stringContaining(capitalize(p)),
           expect.stringContaining(`the ${pt}`),
           expect.stringContaining(String(pt)),
         ]),
@@ -208,8 +204,6 @@ describe('JSON schema UI rendering', () => {
     id: string,
   ) => {
     const { findByTestId, getByTestId, queryByTestId } = q;
-    const t = getByTestId(`properties_${id}`);
-    expect(t).toBeInTheDocument();
 
     const xp: (k: string) => Promise<{
       expander: HTMLElement;
@@ -396,13 +390,22 @@ describe('JSON schema UI rendering', () => {
       const rendered = await renderInTestApp(
         <LocalRenderSchema strategy="properties" {...{ schema }} />,
       );
-      const { getByTestId } = rendered;
+      const { findByTestId, getByTestId, queryByTestId } = rendered;
 
-      for (const [i, k] of Object.keys(schema.properties!).entries()) {
+      for (const k of Object.keys(schema.properties!)) {
         const tr = getByTestId(`properties-row_test.${k}`);
         expect(tr).toBeInTheDocument();
+      }
 
-        const sub = getByTestId(`properties-row_test_oneOf${i}.${k}`);
+      expect(
+        queryByTestId('properties-row_test_oneOf0.foo'),
+      ).not.toBeInTheDocument();
+
+      const expandOneOf = getByTestId('expand_test_oneOf');
+      await userEvent.click(expandOneOf);
+
+      for (const [i, k] of Object.keys(schema.properties!).entries()) {
+        const sub = await findByTestId(`properties-row_test_oneOf${i}.${k}`);
         expect(sub).toBeInTheDocument();
 
         const nameCell =
@@ -414,6 +417,14 @@ describe('JSON schema UI rendering', () => {
           getByTestId(`properties-row_test_oneOf${i}.${k}Flag`),
         ).toBeInTheDocument();
       }
+
+      await userEvent.click(expandOneOf);
+
+      await waitFor(() => {
+        expect(
+          queryByTestId('properties-row_test_oneOf0.foo'),
+        ).not.toBeInTheDocument();
+      });
     });
     it('full oneOf', async () => {
       const schema: JSONSchema7 = {
@@ -450,11 +461,15 @@ describe('JSON schema UI rendering', () => {
       const rendered = await renderInTestApp(
         <LocalRenderSchema strategy="properties" {...{ schema }} />,
       );
+
+      const expandOneOf = rendered.getByTestId('expand_test_oneOf');
+      await userEvent.click(expandOneOf);
+
       const subs = schema.oneOf as JSONSchema7[];
       for (const i of subs.keys()) {
         for (const k of Object.keys(subs[i].properties!)) {
           expect(
-            rendered.getByTestId(`properties-row_test_oneOf${i}.${k}`),
+            await rendered.findByTestId(`properties-row_test_oneOf${i}.${k}`),
           ).toBeInTheDocument();
         }
       }
@@ -477,11 +492,19 @@ describe('JSON schema UI rendering', () => {
       const rendered = await renderInTestApp(
         <LocalRenderSchema strategy="properties" {...{ schema }} />,
       );
+
       expect(
-        rendered.getByTestId(`root-row_test.bs_anyOf0`),
+        rendered.queryByTestId('root-row_test.bs_anyOf0'),
+      ).not.toBeInTheDocument();
+
+      const expandAnyOf = rendered.getByTestId('expand_test.bs_anyOf');
+      await userEvent.click(expandAnyOf);
+
+      expect(
+        await rendered.findByTestId('root-row_test.bs_anyOf0'),
       ).toBeInTheDocument();
       expect(
-        rendered.getByTestId(`root-row_test.bs_anyOf1`),
+        rendered.getByTestId('root-row_test.bs_anyOf1'),
       ).toBeInTheDocument();
     });
   });

@@ -270,13 +270,6 @@ export const RenderSchema = ({
               width: '1fr',
             });
           }
-          if (schema.title) {
-            columns.unshift({
-              key: 'title',
-              title: t('renderSchema.tableCell.title'),
-              render: renderTitleCell,
-            });
-          }
         }
       } else if (schema.properties) {
         columns = [
@@ -284,11 +277,6 @@ export const RenderSchema = ({
             key: 'name',
             title: t('renderSchema.tableCell.name'),
             render: renderNameCell,
-          },
-          {
-            key: 'title',
-            title: t('renderSchema.tableCell.title'),
-            render: renderTitleCell,
           },
           {
             key: 'description',
@@ -310,117 +298,129 @@ export const RenderSchema = ({
       } else if (!Object.keys(subschemas).length) {
         return undefined;
       }
-      const [isExpanded] = context.expanded;
+      const [isExpanded, setIsExpanded] = context.expanded;
 
       return (
         <Flex direction="column" gap="2">
-          {columns && elements && (
-            <>
-              <TableRoot
-                data-testid={`${strategy}_${context.parentId}`}
-                aria-label={`${strategy} schema`}
-              >
-                <TableHeader>
-                  {columns.map((col, index) => (
-                    <Column
-                      key={col.key}
-                      id={col.key}
-                      isRowHeader={index === 0}
-                      defaultWidth={col.width ?? undefined}
-                    >
-                      {col.title}
-                    </Column>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {elements.map(el => {
-                    const id = generateId(el, context);
-                    return (
+          {columns &&
+            elements &&
+            elements.map(el => {
+              const id = generateId(el, context);
+              const info = inspectSchema(el.schema);
+              const hasDetails =
+                typeof el.schema !== 'boolean' &&
+                (info.canSubschema || info.hasEnum);
+              const s =
+                typeof el.schema !== 'boolean'
+                  ? (el.schema as JSONSchema7)
+                  : undefined;
+              const isOpen =
+                hasDetails && s && (!getTypes(s) || isExpanded[id]);
+
+              return (
+                <Flex key={id} direction="column" gap="2">
+                  <TableRoot
+                    data-testid={`${strategy}_${id}`}
+                    aria-label={`${strategy} schema for ${
+                      el.key ?? context.parentId
+                    }`}
+                  >
+                    <TableHeader>
+                      {columns.map((col, index) => (
+                        <Column
+                          key={col.key}
+                          id={col.key}
+                          isRowHeader={index === 0}
+                          defaultWidth={col.width ?? undefined}
+                        >
+                          {col.title}
+                        </Column>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
                       <Row
-                        key={id}
                         id={`${strategy}-row_${id}`}
                         data-testid={`${strategy}-row_${id}`}
                         columns={columns}
                       >
                         {col => col.render(el, context)}
                       </Row>
-                    );
-                  })}
-                </TableBody>
-              </TableRoot>
-              {elements.map(el => {
-                const id = generateId(el, context);
-                const info = inspectSchema(el.schema);
-                const hasDetails =
-                  typeof el.schema !== 'boolean' &&
-                  (info.canSubschema || info.hasEnum);
-                if (!hasDetails || typeof el.schema === 'boolean') {
-                  return null;
-                }
-                const s = el.schema as JSONSchema7;
-                const isOpen = !getTypes(s) || isExpanded[id];
-                if (!isOpen) {
-                  return null;
-                }
-                return (
-                  <div
-                    key={id}
-                    data-testid={`expansion_${id}`}
-                    style={{ paddingLeft: 16 }}
-                  >
-                    {info.canSubschema && (
-                      <RenderSchema
-                        strategy="properties"
-                        context={{
-                          ...context,
-                          parentId: id,
-                          parent: context,
-                        }}
-                        schema={
-                          s.type === 'array'
-                            ? (s.items as JSONSchema7 | undefined)
-                            : s
-                        }
-                      />
-                    )}
-                    {info.hasEnum && (
-                      <>
-                        <Text as="h4" variant="title-small" weight="bold">
-                          Valid values:
-                        </Text>
-                        <RenderEnum
-                          data-testid={`enum_${id}`}
-                          e={enumFrom(s)!}
+                    </TableBody>
+                  </TableRoot>
+                  {isOpen && (
+                    <div
+                      data-testid={`expansion_${id}`}
+                      style={{ paddingLeft: 16 }}
+                    >
+                      {info.canSubschema && (
+                        <RenderSchema
+                          strategy="properties"
+                          context={{
+                            ...context,
+                            parentId: id,
+                            parent: context,
+                          }}
+                          schema={
+                            s!.type === 'array'
+                              ? (s!.items as JSONSchema7 | undefined)
+                              : s
+                          }
                         />
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )}
-          {(Object.keys(subschemas) as Array<keyof subSchemasType>).map(sk => (
-            <Flex key={sk} direction="column" gap="2">
-              <Text as="h4" variant="title-small" weight="bold">
-                {sk}
-              </Text>
-              {subschemas[sk]!.map((sub, index) => (
-                <RenderSchema
-                  key={index}
-                  strategy={
-                    typeof sub !== 'boolean' && 'properties' in sub
-                      ? strategy
-                      : 'root'
+                      )}
+                      {info.hasEnum && (
+                        <>
+                          <Text as="h4" variant="title-small" weight="bold">
+                            Valid values:
+                          </Text>
+                          <RenderEnum
+                            data-testid={`enum_${id}`}
+                            e={enumFrom(s!)!}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
+                </Flex>
+              );
+            })}
+          {(Object.keys(subschemas) as Array<keyof subSchemasType>).map(sk => {
+            const subId = `${context.parentId}_${sk}`;
+            const isSubOpen = isExpanded[subId];
+            return (
+              <Flex key={sk} direction="column" gap="2">
+                <Button
+                  data-testid={`expand_${subId}`}
+                  variant="tertiary"
+                  size="small"
+                  onPress={() =>
+                    setIsExpanded(prevState => ({
+                      ...prevState,
+                      [subId]: !prevState[subId],
+                    }))
                   }
-                  context={{
-                    ...context,
-                    parentId: `${context.parentId}_${sk}${index}`,
-                  }}
-                  schema={sub}
-                />
-              ))}
-            </Flex>
-          ))}
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  {isSubOpen ? '▴' : '▾'} {sk}
+                </Button>
+                {isSubOpen &&
+                  subschemas[sk]!.map((sub, index) => (
+                    <RenderSchema
+                      key={index}
+                      strategy={
+                        typeof sub !== 'boolean' && 'properties' in sub
+                          ? strategy
+                          : 'root'
+                      }
+                      context={{
+                        ...context,
+                        parentId: `${context.parentId}_${sk}${index}`,
+                      }}
+                      schema={sub}
+                    />
+                  ))}
+              </Flex>
+            );
+          })}
         </Flex>
       );
     }
@@ -435,14 +435,6 @@ function renderNameCell(
 ) {
   const name = element.key ?? '';
   return <CellText title={element.required ? `${name} *` : name} />;
-}
-
-function renderTitleCell(element: SchemaRenderElement) {
-  return (
-    <Cell>
-      <MarkdownContent content={(element.schema as JSONSchema7).title ?? ''} />
-    </Cell>
-  );
 }
 
 function renderDescriptionCell(element: SchemaRenderElement) {

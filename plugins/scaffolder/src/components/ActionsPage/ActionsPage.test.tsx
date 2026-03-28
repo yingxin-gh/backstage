@@ -90,12 +90,9 @@ describe('ActionsPage', () => {
       await screen.findByRole('row', { name: /test/ }),
     ).toBeInTheDocument();
 
-    expect(screen.queryByText('Test title')).not.toBeInTheDocument();
-
     await selectAction('test');
 
-    expect(await screen.findByText('Test title')).toBeInTheDocument();
-    expect(screen.getByText('foobar *')).toBeInTheDocument();
+    expect(await screen.findByText('foobar *')).toBeInTheDocument();
   });
 
   it('renders action with input and output on row click', async () => {
@@ -139,9 +136,8 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('Test title')).toBeInTheDocument();
-    expect(screen.getByText('foobar *')).toBeInTheDocument();
-    expect(screen.getByText('Test output')).toBeInTheDocument();
+    expect(await screen.findByText('foobar *')).toBeInTheDocument();
+    expect(screen.getByText('buzz')).toBeInTheDocument();
   });
 
   it('renders action with oneOf output on row click', async () => {
@@ -198,10 +194,10 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('oneOf')).toBeInTheDocument();
-    expect(screen.getByText('Test title')).toBeInTheDocument();
-    expect(screen.getByText('Test output1')).toBeInTheDocument();
-    expect(screen.getByText('Test output2')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: /oneOf/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('foobar *')).toBeInTheDocument();
   });
 
   it('renders action with multiple input types on row click', async () => {
@@ -297,10 +293,16 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('oneOf')).toBeInTheDocument();
-    expect(screen.getByText('Foo title')).toBeInTheDocument();
+    const oneOfButton = await screen.findByRole('button', { name: /oneOf/ });
+    expect(oneOfButton).toBeInTheDocument();
+
+    expect(screen.queryByText('foo *')).not.toBeInTheDocument();
+
+    await userEvent.click(oneOfButton);
+
+    expect(await screen.findByText('foo *')).toBeInTheDocument();
     expect(screen.getByText('Foo description')).toBeInTheDocument();
-    expect(screen.getByText('Bar title')).toBeInTheDocument();
+    expect(screen.getByText('bar *')).toBeInTheDocument();
     expect(screen.getByText('Bar description')).toBeInTheDocument();
   });
 
@@ -346,20 +348,17 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('Test object')).toBeInTheDocument();
-    const objectButton = screen.getByRole('button', { name: /object/ });
+    const objectButton = await screen.findByRole('button', { name: /object/ });
     expect(objectButton).toBeInTheDocument();
 
-    expect(screen.queryByText('nested prop a')).not.toBeInTheDocument();
     expect(screen.queryByText(/^string$/)).not.toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
     expect(screen.queryByText(/^number$/)).not.toBeInTheDocument();
 
     await userEvent.click(objectButton);
 
-    expect(screen.queryByText('nested prop a')).toBeInTheDocument();
+    expect(screen.queryByText('a')).toBeInTheDocument();
     expect(screen.queryByText(/^string$/)).toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
+    expect(screen.queryByText('b')).toBeInTheDocument();
     expect(screen.queryByText(/^number$/)).toBeInTheDocument();
   });
 
@@ -411,27 +410,20 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('Test object')).toBeInTheDocument();
-    const objectButton = screen.getByRole('button', { name: /object/ });
+    const objectButton = await screen.findByRole('button', { name: /object/ });
     expect(objectButton).toBeInTheDocument();
-
-    expect(screen.queryByText('nested object a')).not.toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
-    expect(screen.queryByText('nested object c')).not.toBeInTheDocument();
 
     await userEvent.click(objectButton);
 
-    expect(screen.queryByText('nested object a')).toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
-    expect(screen.queryByText('nested object c')).not.toBeInTheDocument();
+    expect(screen.queryByText('a')).toBeInTheDocument();
+    expect(screen.queryByText('b')).toBeInTheDocument();
+    expect(screen.queryByText('c')).not.toBeInTheDocument();
 
     const allObjectButtons = screen.getAllByRole('button', { name: /object/ });
     expect(allObjectButtons.length).toBe(2);
     await userEvent.click(allObjectButtons[1]);
 
-    expect(screen.queryByText('nested object a')).toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
-    expect(screen.queryByText('nested object c')).toBeInTheDocument();
+    expect(screen.queryByText('c')).toBeInTheDocument();
   });
 
   it('renders action with object input type and no properties', async () => {
@@ -466,8 +458,7 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('Test object')).toBeInTheDocument();
-    const objectButton = screen.getByRole('button', { name: /object/ });
+    const objectButton = await screen.findByRole('button', { name: /object/ });
     expect(objectButton).toBeInTheDocument();
 
     expect(screen.queryByText('No schema defined')).not.toBeInTheDocument();
@@ -511,8 +502,7 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('Test array')).toBeInTheDocument();
-    expect(screen.getByText('array(string)')).toBeInTheDocument();
+    expect(await screen.findByText('array(string)')).toBeInTheDocument();
   });
 
   it('renders action with array(object) input type', async () => {
@@ -566,19 +556,17 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(await screen.findByText('Test array')).toBeInTheDocument();
-    const arrayButton = screen.getByRole('button', {
+    const arrayButton = await screen.findByRole('button', {
       name: /array\(object\)/,
     });
     expect(arrayButton).toBeInTheDocument();
 
-    expect(screen.queryByText('nested object a')).not.toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
+    expect(screen.queryByText('b')).not.toBeInTheDocument();
 
     await userEvent.click(arrayButton);
 
-    expect(screen.queryByText('nested object a')).toBeInTheDocument();
-    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
+    expect(screen.queryByText('a')).toBeInTheDocument();
+    expect(screen.queryByText('b')).toBeInTheDocument();
   });
 
   it('renders action with array input type and no items', async () => {

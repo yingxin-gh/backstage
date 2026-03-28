@@ -146,13 +146,10 @@ describe('JSON schema UI rendering', () => {
       const allCells = [...headerCells, ...dataCells];
       const cellTexts = allCells.map(c => c.textContent);
 
-      expect(cellTexts).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining(p),
-          expect.stringContaining(`the ${pt}`),
-          expect.stringContaining(String(pt)),
-        ]),
-      );
+      expect(cellTexts[0]).toContain(p);
+      const valueCell = cellTexts[1];
+      expect(valueCell).toContain(String(pt));
+      expect(valueCell).toContain(`the ${pt}`);
 
       if (basic.required?.includes(p)) {
         expect(cellTexts[0]).toContain('*');

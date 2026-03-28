@@ -94,7 +94,7 @@ function parseHelpPage(helpPageContent: string) {
 
 async function exploreCliHelpPages(
   run: (...args: string[]) => Promise<string>,
-  limit: pLimit.Limit,
+  limit: ReturnType<typeof pLimit>,
 ): Promise<CliHelpPage[]> {
   const helpPages = new Array<CliHelpPage>();
 
@@ -198,7 +198,7 @@ export async function runCliExtraction({
 
               logApiReportInstructions();
             }
-            throw new Error(`CLI report changed for ${packageDir}, `);
+            throw new Error(`CLI report changed for ${packageDir}`);
           }
         }
       }

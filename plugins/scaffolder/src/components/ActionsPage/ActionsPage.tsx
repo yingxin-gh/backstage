@@ -16,10 +16,8 @@
 import { useMemo, useState } from 'react';
 import useAsync from 'react-use/esm/useAsync';
 import { Action, scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
-import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import LinkIcon from '@material-ui/icons/Link';
 
 import { useApi, useRouteRef } from '@backstage/core-plugin-api';
 import {
@@ -27,14 +25,21 @@ import {
   EmptyState,
   ErrorPanel,
   Header,
-  Link,
-  MarkdownContent,
   Page,
 } from '@backstage/core-components';
 import {
+  Accordion,
+  AccordionGroup,
+  AccordionPanel,
+  AccordionTrigger,
+  Card,
+  CardBody,
+  CardHeader,
   CellText,
+  Flex,
   SearchField,
   Table,
+  Text,
   useTable,
   type ColumnConfig,
   type TableItem,
@@ -76,9 +81,6 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.error.light,
     },
   },
-  link: {
-    paddingLeft: theme.spacing(1),
-  },
 }));
 
 interface ActionTableItem extends TableItem {
@@ -96,64 +98,69 @@ function ActionDetail({ action }: { action: Action }) {
     headings: [<Typography variant="h6" component="h4" />],
   };
 
+  const hasInput = !!action.schema?.input;
+  const hasOutput = !!action.schema?.output;
+  const hasExamples = !!action.examples;
+
   return (
-    <Box pb={1}>
-      <Box display="flex" alignItems="center" pb={1}>
-        <Typography
-          id={action.id.replaceAll(':', '-')}
-          variant="h5"
-          component="h2"
-          className={classes.code}
-        >
-          {action.id}
-        </Typography>
-        <Link
-          className={classes.link}
-          to={`#${action.id.replaceAll(':', '-')}`}
-        >
-          <LinkIcon />
-        </Link>
-      </Box>
-      {action.description && <MarkdownContent content={action.description} />}
-      {action.schema?.input && (
-        <Box pb={2}>
-          <Typography variant="h6" component="h3">
-            {t('actionsPage.action.input')}
-          </Typography>
-          <RenderSchema
-            strategy="properties"
-            context={{
-              parentId: `${action.id}.input`,
-              ...partialSchemaRenderContext,
-            }}
-            schema={action?.schema?.input}
-          />
-        </Box>
+    <Card>
+      <CardHeader>
+        <Flex direction="column" gap="1">
+          <Text as="h2" variant="title-medium" weight="bold">
+            {action.id}
+          </Text>
+          {action.description && (
+            <Text as="p" variant="body-medium" color="secondary">
+              {action.description}
+            </Text>
+          )}
+        </Flex>
+      </CardHeader>
+      {(hasInput || hasOutput || hasExamples) && (
+        <CardBody>
+          <AccordionGroup allowsMultiple>
+            {hasInput && (
+              <Accordion defaultExpanded>
+                <AccordionTrigger title={t('actionsPage.action.input')} />
+                <AccordionPanel>
+                  <RenderSchema
+                    strategy="properties"
+                    context={{
+                      parentId: `${action.id}.input`,
+                      ...partialSchemaRenderContext,
+                    }}
+                    schema={action?.schema?.input}
+                  />
+                </AccordionPanel>
+              </Accordion>
+            )}
+            {hasOutput && (
+              <Accordion>
+                <AccordionTrigger title={t('actionsPage.action.output')} />
+                <AccordionPanel>
+                  <RenderSchema
+                    strategy="properties"
+                    context={{
+                      parentId: `${action.id}.output`,
+                      ...partialSchemaRenderContext,
+                    }}
+                    schema={action?.schema?.output}
+                  />
+                </AccordionPanel>
+              </Accordion>
+            )}
+            {hasExamples && (
+              <Accordion>
+                <AccordionTrigger title={t('actionsPage.action.examples')} />
+                <AccordionPanel>
+                  <ScaffolderUsageExamplesTable examples={action.examples!} />
+                </AccordionPanel>
+              </Accordion>
+            )}
+          </AccordionGroup>
+        </CardBody>
       )}
-      {action.schema?.output && (
-        <Box pb={2}>
-          <Typography variant="h5" component="h3">
-            {t('actionsPage.action.output')}
-          </Typography>
-          <RenderSchema
-            strategy="properties"
-            context={{
-              parentId: `${action.id}.output`,
-              ...partialSchemaRenderContext,
-            }}
-            schema={action?.schema?.output}
-          />
-        </Box>
-      )}
-      {action.examples && (
-        <Box pb={2}>
-          <Typography variant="h6" component="h3">
-            {t('actionsPage.action.examples')}
-          </Typography>
-          <ScaffolderUsageExamplesTable examples={action.examples} />
-        </Box>
-      )}
-    </Box>
+    </Card>
   );
 }
 
@@ -163,13 +170,12 @@ const columnConfig: ColumnConfig<ActionTableItem>[] = [
     label: 'Name',
     isRowHeader: true,
     defaultWidth: '1fr',
-    cell: item => <CellText title={item.action.id} />,
-  },
-  {
-    id: 'description',
-    label: 'Description',
-    defaultWidth: '2fr',
-    cell: item => <CellText title={item.action.description ?? ''} />,
+    cell: item => (
+      <CellText
+        title={item.action.id}
+        description={item.action.description ?? undefined}
+      />
+    ),
   },
 ];
 
@@ -203,7 +209,7 @@ export const ActionPageContent = () => {
   const { tableProps, search } = useTable({
     mode: 'complete',
     data: tableData,
-    paginationOptions: { type: 'none' },
+    paginationOptions: { pageSize: 20 },
     searchFn: (items, query) => {
       const lowerQuery = query.toLowerCase();
       return items.filter(
@@ -228,11 +234,10 @@ export const ActionPageContent = () => {
   }
 
   return (
-    <>
+    <Flex direction="column" gap="4">
       <SearchField
         aria-label={t('actionsPage.content.searchFieldPlaceholder')}
         placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-        style={{ marginBottom: 24 }}
         {...search}
       />
       <Table
@@ -254,12 +259,8 @@ export const ActionPageContent = () => {
           },
         }}
       />
-      {selectedAction && (
-        <Box mt={2}>
-          <ActionDetail action={selectedAction} />
-        </Box>
-      )}
-    </>
+      {selectedAction && <ActionDetail action={selectedAction} />}
+    </Flex>
   );
 };
 

@@ -94,8 +94,8 @@ describe('ActionsPage', () => {
 
     await selectAction('test');
 
-    expect(screen.getByText('Test title')).toBeVisible();
-    expect(screen.getByText('foobar')).toBeVisible();
+    expect(await screen.findByText('Test title')).toBeInTheDocument();
+    expect(screen.getByText('foobar')).toBeInTheDocument();
   });
 
   it('renders action with input and output on row click', async () => {

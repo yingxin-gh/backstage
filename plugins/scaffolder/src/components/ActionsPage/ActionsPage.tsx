@@ -23,9 +23,10 @@ import {
   EmptyState,
   ErrorPanel,
   Header,
+  MarkdownContent,
   Page,
 } from '@backstage/core-components';
-import { Box, Flex, List, ListRow, SearchField, Text } from '@backstage/ui';
+import { Flex, List, ListRow, SearchField, Text } from '@backstage/ui';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -185,9 +186,7 @@ export const ActionPageContent = () => {
           key={action.id}
           id={action.id}
           textValue={action.id}
-          description={
-            selectedAction ? undefined : action.description ?? undefined
-          }
+          description={action.description ?? undefined}
         >
           {action.id}
         </ListRow>
@@ -195,9 +194,13 @@ export const ActionPageContent = () => {
     </List>
   );
 
-  if (!selectedAction) {
-    return (
-      <Flex direction="column" gap="4">
+  return (
+    <Flex gap="6">
+      <Flex
+        direction="column"
+        gap="4"
+        style={selectedAction ? { minWidth: 320, maxWidth: 320 } : undefined}
+      >
         <SearchField
           aria-label={t('actionsPage.content.searchFieldPlaceholder')}
           placeholder={t('actionsPage.content.searchFieldPlaceholder')}
@@ -206,35 +209,19 @@ export const ActionPageContent = () => {
         />
         {listElement}
       </Flex>
-    );
-  }
-
-  return (
-    <Flex gap="6">
-      <Box minWidth="320px" maxWidth="320px">
-        <Flex direction="column" gap="4">
-          <SearchField
-            aria-label={t('actionsPage.content.searchFieldPlaceholder')}
-            placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-            value={searchQuery}
-            onChange={setSearchQuery}
-          />
-          {listElement}
-        </Flex>
-      </Box>
-      <Flex direction="column" gap="3" style={{ flex: 1, minWidth: 0 }}>
-        <Flex direction="column" gap="1">
-          <Text as="h2" variant="title-medium" weight="bold">
-            {selectedAction.id}
-          </Text>
-          {selectedAction.description && (
-            <Text as="p" variant="body-medium" color="secondary">
-              {selectedAction.description}
+      {selectedAction && (
+        <Flex direction="column" gap="3" style={{ flex: 1, minWidth: 0 }}>
+          <Flex direction="column" gap="1">
+            <Text as="h2" variant="title-medium" weight="bold">
+              {selectedAction.id}
             </Text>
-          )}
+            {selectedAction.description && (
+              <MarkdownContent content={selectedAction.description} />
+            )}
+          </Flex>
+          <ActionDetail action={selectedAction} />
         </Flex>
-        <ActionDetail action={selectedAction} />
-      </Flex>
+      )}
     </Flex>
   );
 };

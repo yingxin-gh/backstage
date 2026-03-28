@@ -34,7 +34,7 @@ import {
   JSONSchema7Definition,
   JSONSchema7Type,
 } from 'json-schema';
-import { FC, Fragment, JSX } from 'react';
+import { FC, JSX } from 'react';
 import { scaffolderTranslationRef } from '../../translation';
 import { SchemaRenderContext, SchemaRenderStrategy } from './types';
 
@@ -313,111 +313,94 @@ export const RenderSchema = ({
       const [isExpanded] = context.expanded;
 
       return (
-        <>
+        <Flex direction="column" gap="2">
           {columns && elements && (
-            <TableRoot
-              data-testid={`${strategy}_${context.parentId}`}
-              aria-label={`${strategy} schema`}
-            >
-              <TableHeader>
-                {columns.map(col => (
-                  <Column
-                    key={col.key}
-                    id={col.key}
-                    isRowHeader={col.key === 'name'}
-                    defaultWidth={col.width ?? undefined}
-                  >
-                    {col.title}
-                  </Column>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {elements.map(el => {
-                  const id = generateId(el, context);
-                  const info = inspectSchema(el.schema);
-                  const hasDetails =
-                    typeof el.schema !== 'boolean' &&
-                    (info.canSubschema || info.hasEnum);
-
-                  return (
-                    <Fragment key={id}>
+            <>
+              <TableRoot
+                data-testid={`${strategy}_${context.parentId}`}
+                aria-label={`${strategy} schema`}
+              >
+                <TableHeader>
+                  {columns.map((col, index) => (
+                    <Column
+                      key={col.key}
+                      id={col.key}
+                      isRowHeader={index === 0}
+                      defaultWidth={col.width ?? undefined}
+                    >
+                      {col.title}
+                    </Column>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {elements.map(el => {
+                    const id = generateId(el, context);
+                    return (
                       <Row
+                        key={id}
                         id={`${strategy}-row_${id}`}
                         data-testid={`${strategy}-row_${id}`}
                         columns={columns}
                       >
                         {col => col.render(el, context)}
                       </Row>
-                      {hasDetails &&
-                        typeof el.schema !== 'boolean' &&
-                        (() => {
-                          const s = el.schema as JSONSchema7;
-                          const isOpen = !getTypes(s) || isExpanded[id];
-                          if (!isOpen) {
-                            return null;
-                          }
-                          return (
-                            <Row
-                              id={`${strategy}-detail_${id}`}
-                              columns={columns}
-                            >
-                              {(col: ColumnDef) =>
-                                col.key === columns![0].key ? (
-                                  <Cell
-                                    data-testid={`expansion_${id}`}
-                                    style={{
-                                      gridColumn: `1 / -1`,
-                                      padding: '8px 16px',
-                                    }}
-                                  >
-                                    {info.canSubschema && (
-                                      <RenderSchema
-                                        strategy="properties"
-                                        context={{
-                                          ...context,
-                                          parentId: id,
-                                          parent: context,
-                                        }}
-                                        schema={
-                                          s.type === 'array'
-                                            ? (s.items as
-                                                | JSONSchema7
-                                                | undefined)
-                                            : s
-                                        }
-                                      />
-                                    )}
-                                    {info.hasEnum && (
-                                      <>
-                                        <Text
-                                          as="h4"
-                                          variant="title-small"
-                                          weight="bold"
-                                        >
-                                          Valid values:
-                                        </Text>
-                                        <RenderEnum
-                                          data-testid={`enum_${id}`}
-                                          e={enumFrom(s)!}
-                                        />
-                                      </>
-                                    )}
-                                  </Cell>
-                                ) : (
-                                  <Cell style={{ display: 'none' }} />
-                                )
-                              }
-                            </Row>
-                          );
-                        })()}
-                    </Fragment>
-                  );
-                })}
-              </TableBody>
-            </TableRoot>
+                    );
+                  })}
+                </TableBody>
+              </TableRoot>
+              {elements.map(el => {
+                const id = generateId(el, context);
+                const info = inspectSchema(el.schema);
+                const hasDetails =
+                  typeof el.schema !== 'boolean' &&
+                  (info.canSubschema || info.hasEnum);
+                if (!hasDetails || typeof el.schema === 'boolean') {
+                  return null;
+                }
+                const s = el.schema as JSONSchema7;
+                const isOpen = !getTypes(s) || isExpanded[id];
+                if (!isOpen) {
+                  return null;
+                }
+                return (
+                  <div
+                    key={id}
+                    data-testid={`expansion_${id}`}
+                    style={{ paddingLeft: 16 }}
+                  >
+                    {info.canSubschema && (
+                      <RenderSchema
+                        strategy="properties"
+                        context={{
+                          ...context,
+                          parentId: id,
+                          parent: context,
+                        }}
+                        schema={
+                          s.type === 'array'
+                            ? (s.items as JSONSchema7 | undefined)
+                            : s
+                        }
+                      />
+                    )}
+                    {info.hasEnum && (
+                      <>
+                        <Text as="h4" variant="title-small" weight="bold">
+                          Valid values:
+                        </Text>
+                        <RenderEnum
+                          data-testid={`enum_${id}`}
+                          e={enumFrom(s)!}
+                        />
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </>
           )}
           {(Object.keys(subschemas) as Array<keyof subSchemasType>).map(sk => (
-            <Fragment key={sk}>
+            <Flex key={sk} direction="column" gap="2">
               <Text as="h4" variant="title-small" weight="bold">
                 {sk}
               </Text>
@@ -436,9 +419,9 @@ export const RenderSchema = ({
                   schema={sub}
                 />
               ))}
-            </Fragment>
+            </Flex>
           ))}
-        </>
+        </Flex>
       );
     }
     return undefined;

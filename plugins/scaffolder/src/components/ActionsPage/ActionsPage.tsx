@@ -202,7 +202,7 @@ export const ActionPageContent = () => {
         <Flex
           direction="column"
           gap="3"
-          style={{ gridRow: '1 / -1', minWidth: 0 }}
+          style={{ gridColumn: 2, gridRow: '1 / -1', minWidth: 0 }}
         >
           <Flex direction="column" gap="1">
             <Text as="h2" variant="title-medium" weight="bold">

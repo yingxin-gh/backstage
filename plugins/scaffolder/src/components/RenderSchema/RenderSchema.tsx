@@ -267,7 +267,7 @@ export const RenderSchema = ({
               key: 'description',
               title: t('renderSchema.tableCell.description'),
               render: renderDescriptionCell,
-              width: '1fr',
+              width: '3fr',
             });
           }
         }
@@ -282,7 +282,7 @@ export const RenderSchema = ({
             key: 'description',
             title: t('renderSchema.tableCell.description'),
             render: renderDescriptionCell,
-            width: '1fr',
+            width: '3fr',
           },
           {
             key: 'type',
@@ -302,87 +302,91 @@ export const RenderSchema = ({
 
       return (
         <Flex direction="column" gap="2">
-          {columns &&
-            elements &&
-            elements.map(el => {
-              const id = generateId(el, context);
-              const info = inspectSchema(el.schema);
-              const hasDetails =
-                typeof el.schema !== 'boolean' &&
-                (info.canSubschema || info.hasEnum);
-              const s =
-                typeof el.schema !== 'boolean'
-                  ? (el.schema as JSONSchema7)
-                  : undefined;
-              const isOpen =
-                hasDetails && s && (!getTypes(s) || isExpanded[id]);
-
-              return (
-                <Flex key={id} direction="column" gap="2">
-                  <TableRoot
-                    data-testid={`${strategy}_${id}`}
-                    aria-label={`${strategy} schema for ${
-                      el.key ?? context.parentId
-                    }`}
-                  >
-                    <TableHeader>
-                      {columns.map((col, index) => (
-                        <Column
-                          key={col.key}
-                          id={col.key}
-                          isRowHeader={index === 0}
-                          defaultWidth={col.width ?? undefined}
-                        >
-                          {col.title}
-                        </Column>
-                      ))}
-                    </TableHeader>
-                    <TableBody>
-                      <Row
-                        id={`${strategy}-row_${id}`}
-                        data-testid={`${strategy}-row_${id}`}
-                        columns={columns}
-                      >
-                        {col => col.render(el, context)}
-                      </Row>
-                    </TableBody>
-                  </TableRoot>
-                  {isOpen && (
-                    <div
-                      data-testid={`expansion_${id}`}
-                      style={{ paddingLeft: 16 }}
+          {columns && elements && (
+            <>
+              <TableRoot
+                data-testid={`${strategy}_${context.parentId}`}
+                aria-label={`${strategy} schema for ${context.parentId}`}
+              >
+                <TableHeader>
+                  {columns.map((col, index) => (
+                    <Column
+                      key={col.key}
+                      id={col.key}
+                      isRowHeader={index === 0}
+                      defaultWidth={col.width ?? undefined}
                     >
-                      {info.canSubschema && (
-                        <RenderSchema
-                          strategy="properties"
-                          context={{
-                            ...context,
-                            parentId: id,
-                            parent: context,
-                          }}
-                          schema={
-                            s!.type === 'array'
-                              ? (s!.items as JSONSchema7 | undefined)
-                              : s
-                          }
+                      {col.title}
+                    </Column>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {elements.map(el => (
+                    <Row
+                      key={generateId(el, context)}
+                      id={`${strategy}-row_${generateId(el, context)}`}
+                      data-testid={`${strategy}-row_${generateId(el, context)}`}
+                      columns={columns}
+                    >
+                      {col => col.render(el, context)}
+                    </Row>
+                  ))}
+                </TableBody>
+              </TableRoot>
+              {elements.map(el => {
+                const id = generateId(el, context);
+                const info = inspectSchema(el.schema);
+                const hasDetails =
+                  typeof el.schema !== 'boolean' &&
+                  (info.canSubschema || info.hasEnum);
+                const s =
+                  typeof el.schema !== 'boolean'
+                    ? (el.schema as JSONSchema7)
+                    : undefined;
+                const isOpen =
+                  hasDetails && s && (!getTypes(s) || isExpanded[id]);
+
+                if (!isOpen) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={id}
+                    data-testid={`expansion_${id}`}
+                    style={{ paddingLeft: 16 }}
+                  >
+                    {info.canSubschema && (
+                      <RenderSchema
+                        strategy="properties"
+                        context={{
+                          ...context,
+                          parentId: id,
+                          parent: context,
+                        }}
+                        schema={
+                          s!.type === 'array'
+                            ? (s!.items as JSONSchema7 | undefined)
+                            : s
+                        }
+                      />
+                    )}
+                    {info.hasEnum && (
+                      <>
+                        <Text as="h4" variant="title-small" weight="bold">
+                          Valid values:
+                        </Text>
+                        <RenderEnum
+                          data-testid={`enum_${id}`}
+                          e={enumFrom(s!)!}
                         />
-                      )}
-                      {info.hasEnum && (
-                        <>
-                          <Text as="h4" variant="title-small" weight="bold">
-                            Valid values:
-                          </Text>
-                          <RenderEnum
-                            data-testid={`enum_${id}`}
-                            e={enumFrom(s!)!}
-                          />
-                        </>
-                      )}
-                    </div>
-                  )}
-                </Flex>
-              );
-            })}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </>
+          )}
           {(Object.keys(subschemas) as Array<keyof subSchemasType>).map(sk => {
             const subId = `${context.parentId}_${sk}`;
             const isSubOpen = isExpanded[subId];

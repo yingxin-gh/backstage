@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import useAsync from 'react-use/esm/useAsync';
 import { Action, scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import LinkIcon from '@material-ui/icons/Link';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import TextField from '@material-ui/core/TextField';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import SearchIcon from '@material-ui/icons/Search';
 
 import { useApi, useRouteRef } from '@backstage/core-plugin-api';
 import {
@@ -40,6 +32,13 @@ import {
   Page,
   Progress,
 } from '@backstage/core-components';
+import {
+  Accordion,
+  AccordionGroup,
+  AccordionPanel,
+  AccordionTrigger,
+  SearchField,
+} from '@backstage/ui';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -82,27 +81,106 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+function ActionDetail({ action }: { action: Action }) {
+  const classes = useStyles();
+  const { t } = useTranslationRef(scaffolderTranslationRef);
+  const expanded = useState<Expanded>({});
+
+  const partialSchemaRenderContext: Omit<SchemaRenderContext, 'parentId'> = {
+    classes,
+    expanded,
+    headings: [<Typography variant="h6" component="h4" />],
+  };
+
+  return (
+    <Box pb={1}>
+      <Box display="flex" alignItems="center" pb={1}>
+        <Typography
+          id={action.id.replaceAll(':', '-')}
+          variant="h5"
+          component="h2"
+          className={classes.code}
+        >
+          {action.id}
+        </Typography>
+        <Link
+          className={classes.link}
+          to={`#${action.id.replaceAll(':', '-')}`}
+        >
+          <LinkIcon />
+        </Link>
+      </Box>
+      {action.description && <MarkdownContent content={action.description} />}
+      {action.schema?.input && (
+        <Box pb={2}>
+          <Typography variant="h6" component="h3">
+            {t('actionsPage.action.input')}
+          </Typography>
+          <RenderSchema
+            strategy="properties"
+            context={{
+              parentId: `${action.id}.input`,
+              ...partialSchemaRenderContext,
+            }}
+            schema={action?.schema?.input}
+          />
+        </Box>
+      )}
+      {action.schema?.output && (
+        <Box pb={2}>
+          <Typography variant="h5" component="h3">
+            {t('actionsPage.action.output')}
+          </Typography>
+          <RenderSchema
+            strategy="properties"
+            context={{
+              parentId: `${action.id}.output`,
+              ...partialSchemaRenderContext,
+            }}
+            schema={action?.schema?.output}
+          />
+        </Box>
+      )}
+      {action.examples && (
+        <Box pb={2}>
+          <Typography variant="h6" component="h3">
+            {t('actionsPage.action.examples')}
+          </Typography>
+          <ScaffolderUsageExamplesTable examples={action.examples} />
+        </Box>
+      )}
+    </Box>
+  );
+}
+
 export const ActionPageContent = () => {
   const api = useApi(scaffolderApiRef);
   const { t } = useTranslationRef(scaffolderTranslationRef);
 
-  const classes = useStyles();
   const {
     loading,
-    value = [],
+    value: actions = [],
     error,
   } = useAsync(async () => {
     return api.listActions();
   }, [api]);
 
-  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
-  const expanded = useState<Expanded>({});
+  const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    if (value.length && window.location.hash) {
-      document.querySelector(window.location.hash)?.scrollIntoView();
+  const filteredActions = useMemo(() => {
+    const nonLegacy = actions.filter(
+      action => !action.id.startsWith('legacy:'),
+    );
+    if (!search) {
+      return nonLegacy;
     }
-  }, [value]);
+    const lowerQuery = search.toLowerCase();
+    return nonLegacy.filter(
+      action =>
+        action.id.toLowerCase().includes(lowerQuery) ||
+        action.description?.toLowerCase().includes(lowerQuery),
+    );
+  }, [actions, search]);
 
   if (loading) {
     return <Progress />;
@@ -123,114 +201,34 @@ export const ActionPageContent = () => {
 
   return (
     <>
-      <Box pb={3}>
-        <Autocomplete
-          id="actions-autocomplete"
-          options={value}
-          loading={loading}
-          getOptionLabel={option => option.id}
-          renderInput={params => (
-            <TextField
-              {...params}
-              aria-label={t('actionsPage.content.searchFieldPlaceholder')}
-              placeholder={t('actionsPage.content.searchFieldPlaceholder')}
-              variant="outlined"
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
-          onChange={(_event, option) => {
-            setSelectedAction(option);
-          }}
-          fullWidth
+      <SearchField
+        aria-label={t('actionsPage.content.searchFieldPlaceholder')}
+        placeholder={t('actionsPage.content.searchFieldPlaceholder')}
+        style={{ marginBottom: 24 }}
+        value={search}
+        onChange={setSearch}
+      />
+      {filteredActions.length === 0 ? (
+        <EmptyState
+          missing="info"
+          title={t('actionsPage.content.emptyState.title')}
+          description={t('actionsPage.content.emptyState.description')}
         />
-      </Box>
-      {(selectedAction ? [selectedAction] : value).map(action => {
-        if (action.id.startsWith('legacy:')) {
-          return undefined;
-        }
-        const partialSchemaRenderContext: Omit<
-          SchemaRenderContext,
-          'parentId'
-        > = {
-          classes,
-          expanded,
-          headings: [<Typography variant="h6" component="h4" />],
-        };
-        return (
-          <Box pb={3} key={action.id}>
-            <Box display="flex" alignItems="center">
-              <Typography
-                id={action.id.replaceAll(':', '-')}
-                variant="h5"
-                component="h2"
-                className={classes.code}
-              >
-                {action.id}
-              </Typography>
-              <Link
-                className={classes.link}
-                to={`#${action.id.replaceAll(':', '-')}`}
-              >
-                <LinkIcon />
-              </Link>
-            </Box>
-            {action.description && (
-              <MarkdownContent content={action.description} />
-            )}
-            {action.schema?.input && (
-              <Box pb={2}>
-                <Typography variant="h6" component="h3">
-                  {t('actionsPage.action.input')}
-                </Typography>
-                <RenderSchema
-                  strategy="properties"
-                  context={{
-                    parentId: `${action.id}.input`,
-                    ...partialSchemaRenderContext,
-                  }}
-                  schema={action?.schema?.input}
-                />
-              </Box>
-            )}
-            {action.schema?.output && (
-              <Box pb={2}>
-                <Typography variant="h5" component="h3">
-                  {t('actionsPage.action.output')}
-                </Typography>
-                <RenderSchema
-                  strategy="properties"
-                  context={{
-                    parentId: `${action.id}.output`,
-                    ...partialSchemaRenderContext,
-                  }}
-                  schema={action?.schema?.output}
-                />
-              </Box>
-            )}
-            {action.examples && (
-              <Accordion>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography variant="h6" component="h3">
-                    {t('actionsPage.action.examples')}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Box pb={2}>
-                    <ScaffolderUsageExamplesTable examples={action.examples} />
-                  </Box>
-                </AccordionDetails>
-              </Accordion>
-            )}
-          </Box>
-        );
-      })}
+      ) : (
+        <AccordionGroup allowsMultiple>
+          {filteredActions.map(action => (
+            <Accordion key={action.id} id={action.id.replaceAll(':', '-')}>
+              <AccordionTrigger
+                title={action.id}
+                subtitle={action.description}
+              />
+              <AccordionPanel>
+                <ActionDetail action={action} />
+              </AccordionPanel>
+            </Accordion>
+          ))}
+        </AccordionGroup>
+      )}
     </>
   );
 };

@@ -22,6 +22,7 @@ import { renderInTestApp, TestApiRegistry } from '@backstage/test-utils';
 import { ApiProvider } from '@backstage/core-app-api';
 import { rootRouteRef } from '../../routes';
 import { userEvent } from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
 import { permissionApiRef } from '@backstage/plugin-permission-react';
 
 const scaffolderApiMock: jest.Mocked<ScaffolderApi> = {
@@ -45,10 +46,17 @@ const apis = TestApiRegistry.from(
   [permissionApiRef, mockPermissionApi],
 );
 
-describe('TemplatePage', () => {
+async function expandAction(actionId: string) {
+  const button = await screen.findByRole('button', {
+    name: new RegExp(actionId),
+  });
+  await userEvent.click(button);
+}
+
+describe('ActionsPage', () => {
   beforeEach(() => jest.resetAllMocks());
 
-  it('renders action with input', async () => {
+  it('renders actions as accordions and shows detail on expand', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -67,7 +75,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -77,13 +85,27 @@ describe('TemplatePage', () => {
         },
       },
     );
-    expect(rendered.getByText('Test title')).toBeInTheDocument();
-    expect(rendered.getByText('example description')).toBeInTheDocument();
-    expect(rendered.getByText('foobar')).toBeInTheDocument();
-    expect(rendered.queryByText('output')).not.toBeInTheDocument();
+
+    expect(
+      await screen.findByRole('button', { name: /test/ }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: /test/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+
+    await expandAction('test');
+
+    expect(screen.getByRole('button', { name: /test/ })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(screen.getByText('Test title')).toBeVisible();
+    expect(screen.getByText('foobar')).toBeVisible();
   });
 
-  it('renders action with input and output', async () => {
+  it('renders action with input and output on expand', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -111,7 +133,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -121,13 +143,15 @@ describe('TemplatePage', () => {
         },
       },
     );
-    expect(rendered.getByText('Test title')).toBeInTheDocument();
-    expect(rendered.getByText('example description')).toBeInTheDocument();
-    expect(rendered.getByText('foobar')).toBeInTheDocument();
-    expect(rendered.getByText('Test output')).toBeInTheDocument();
+
+    await expandAction('test');
+
+    expect(await screen.findByText('Test title')).toBeInTheDocument();
+    expect(screen.getByText('foobar')).toBeInTheDocument();
+    expect(screen.getByText('Test output')).toBeInTheDocument();
   });
 
-  it('renders action with oneOf output', async () => {
+  it('renders action with oneOf output on expand', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -168,7 +192,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -178,13 +202,16 @@ describe('TemplatePage', () => {
         },
       },
     );
-    expect(rendered.getByText('oneOf')).toBeInTheDocument();
-    expect(rendered.getByText('Test title')).toBeInTheDocument();
-    expect(rendered.getByText('Test output1')).toBeInTheDocument();
-    expect(rendered.getByText('Test output2')).toBeInTheDocument();
+
+    await expandAction('test');
+
+    expect(await screen.findByText('oneOf')).toBeInTheDocument();
+    expect(screen.getByText('Test title')).toBeInTheDocument();
+    expect(screen.getByText('Test output1')).toBeInTheDocument();
+    expect(screen.getByText('Test output2')).toBeInTheDocument();
   });
 
-  it('renders action with multiple input types', async () => {
+  it('renders action with multiple input types on expand', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -212,7 +239,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -222,11 +249,14 @@ describe('TemplatePage', () => {
         },
       },
     );
-    expect(rendered.getByText('array')).toBeInTheDocument();
-    expect(rendered.getByText('number')).toBeInTheDocument();
+
+    await expandAction('test');
+
+    expect(await screen.findByText('array')).toBeInTheDocument();
+    expect(screen.getByText('number')).toBeInTheDocument();
   });
 
-  it('renders action with oneOf input', async () => {
+  it('renders action with oneOf input on expand', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -261,7 +291,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -271,14 +301,17 @@ describe('TemplatePage', () => {
         },
       },
     );
-    expect(rendered.getByText('oneOf')).toBeInTheDocument();
-    expect(rendered.getByText('Foo title')).toBeInTheDocument();
-    expect(rendered.getByText('Foo description')).toBeInTheDocument();
-    expect(rendered.getByText('Bar title')).toBeInTheDocument();
-    expect(rendered.getByText('Bar description')).toBeInTheDocument();
+
+    await expandAction('test');
+
+    expect(await screen.findByText('oneOf')).toBeInTheDocument();
+    expect(screen.getByText('Foo title')).toBeInTheDocument();
+    expect(screen.getByText('Foo description')).toBeInTheDocument();
+    expect(screen.getByText('Bar title')).toBeInTheDocument();
+    expect(screen.getByText('Bar description')).toBeInTheDocument();
   });
 
-  it('renders action with object input type', async () => {
+  it('renders action with expandable object input type', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'test',
@@ -307,7 +340,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -318,21 +351,23 @@ describe('TemplatePage', () => {
       },
     );
 
-    expect(rendered.getByText('Test object')).toBeInTheDocument();
-    const objectChip = rendered.getByText('object');
+    await expandAction('test');
+
+    expect(await screen.findByText('Test object')).toBeInTheDocument();
+    const objectChip = screen.getByText('object');
     expect(objectChip).toBeInTheDocument();
 
-    expect(rendered.queryByText('nested prop a')).not.toBeInTheDocument();
-    expect(rendered.queryByText('string')).not.toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).not.toBeInTheDocument();
-    expect(rendered.queryByText('number')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested prop a')).not.toBeInTheDocument();
+    expect(screen.queryByText('string')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
+    expect(screen.queryByText('number')).not.toBeInTheDocument();
 
     await userEvent.click(objectChip);
 
-    expect(rendered.queryByText('nested prop a')).toBeInTheDocument();
-    expect(rendered.queryByText('string')).toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).toBeInTheDocument();
-    expect(rendered.queryByText('number')).toBeInTheDocument();
+    expect(screen.queryByText('nested prop a')).toBeInTheDocument();
+    expect(screen.queryByText('string')).toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
+    expect(screen.queryByText('number')).toBeInTheDocument();
   });
 
   it('renders action with nested object input type', async () => {
@@ -370,7 +405,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -381,27 +416,29 @@ describe('TemplatePage', () => {
       },
     );
 
-    expect(rendered.getByText('Test object')).toBeInTheDocument();
-    const objectChip = rendered.getByText('object');
+    await expandAction('test');
+
+    expect(await screen.findByText('Test object')).toBeInTheDocument();
+    const objectChip = screen.getByText('object');
     expect(objectChip).toBeInTheDocument();
 
-    expect(rendered.queryByText('nested object a')).not.toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).not.toBeInTheDocument();
-    expect(rendered.queryByText('nested object c')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested object a')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested object c')).not.toBeInTheDocument();
 
     await userEvent.click(objectChip);
 
-    expect(rendered.queryByText('nested object a')).toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).toBeInTheDocument();
-    expect(rendered.queryByText('nested object c')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested object a')).toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
+    expect(screen.queryByText('nested object c')).not.toBeInTheDocument();
 
-    const allObjectChips = rendered.getAllByText('object');
+    const allObjectChips = screen.getAllByText('object');
     expect(allObjectChips.length).toBe(2);
     await userEvent.click(allObjectChips[1]);
 
-    expect(rendered.queryByText('nested object a')).toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).toBeInTheDocument();
-    expect(rendered.queryByText('nested object c')).toBeInTheDocument();
+    expect(screen.queryByText('nested object a')).toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
+    expect(screen.queryByText('nested object c')).toBeInTheDocument();
   });
 
   it('renders action with object input type and no properties', async () => {
@@ -423,7 +460,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -434,15 +471,17 @@ describe('TemplatePage', () => {
       },
     );
 
-    expect(rendered.getByText('Test object')).toBeInTheDocument();
-    const objectChip = rendered.getByText('object');
+    await expandAction('test');
+
+    expect(await screen.findByText('Test object')).toBeInTheDocument();
+    const objectChip = screen.getByText('object');
     expect(objectChip).toBeInTheDocument();
 
-    expect(rendered.queryByText('No schema defined')).not.toBeInTheDocument();
+    expect(screen.queryByText('No schema defined')).not.toBeInTheDocument();
 
     await userEvent.click(objectChip);
 
-    expect(rendered.queryByText('No schema defined')).toBeInTheDocument();
+    expect(screen.queryByText('No schema defined')).toBeInTheDocument();
   });
 
   it('renders action with array(string) input type', async () => {
@@ -466,7 +505,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -477,8 +516,10 @@ describe('TemplatePage', () => {
       },
     );
 
-    expect(rendered.getByText('Test array')).toBeInTheDocument();
-    expect(rendered.getByText('array(string)')).toBeInTheDocument();
+    await expandAction('test');
+
+    expect(await screen.findByText('Test array')).toBeInTheDocument();
+    expect(screen.getByText('array(string)')).toBeInTheDocument();
   });
 
   it('renders action with array(object) input type', async () => {
@@ -519,7 +560,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -530,17 +571,19 @@ describe('TemplatePage', () => {
       },
     );
 
-    expect(rendered.getByText('Test array')).toBeInTheDocument();
-    const objectChip = rendered.getByText('array(object)');
+    await expandAction('test');
+
+    expect(await screen.findByText('Test array')).toBeInTheDocument();
+    const objectChip = screen.getByText('array(object)');
     expect(objectChip).toBeInTheDocument();
 
-    expect(rendered.queryByText('nested object a')).not.toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested object a')).not.toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).not.toBeInTheDocument();
 
     await userEvent.click(objectChip);
 
-    expect(rendered.queryByText('nested object a')).toBeInTheDocument();
-    expect(rendered.queryByText('nested prop b')).toBeInTheDocument();
+    expect(screen.queryByText('nested object a')).toBeInTheDocument();
+    expect(screen.queryByText('nested prop b')).toBeInTheDocument();
   });
 
   it('renders action with array input type and no items', async () => {
@@ -560,7 +603,7 @@ describe('TemplatePage', () => {
         },
       },
     ]);
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -571,13 +614,15 @@ describe('TemplatePage', () => {
       },
     );
 
-    expect(rendered.getByText('array(unknown)')).toBeInTheDocument();
+    await expandAction('test');
+
+    expect(await screen.findByText('array(unknown)')).toBeInTheDocument();
   });
 
-  it('should filter an action', async () => {
+  it('should filter actions via the search field', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
-        id: 'githut:repo:create',
+        id: 'github:repo:create',
         description: 'Create a new Github repository',
         schema: {
           input: {
@@ -593,7 +638,7 @@ describe('TemplatePage', () => {
         },
       },
       {
-        id: 'githut:repo:push',
+        id: 'github:repo:push',
         description: 'Push to a Github repository',
         schema: {
           input: {
@@ -610,7 +655,7 @@ describe('TemplatePage', () => {
       },
     ]);
 
-    const rendered = await renderInTestApp(
+    await renderInTestApp(
       <ApiProvider apis={apis}>
         <ActionsPage />
       </ApiProvider>,
@@ -622,32 +667,31 @@ describe('TemplatePage', () => {
     );
 
     expect(
-      rendered.getByRole('heading', { name: 'githut:repo:create' }),
+      await screen.findByRole('button', { name: /github:repo:create/ }),
     ).toBeInTheDocument();
     expect(
-      rendered.getByRole('heading', { name: 'githut:repo:push' }),
+      screen.getByRole('button', { name: /github:repo:push/ }),
     ).toBeInTheDocument();
 
-    // should filter actions when searching
     await userEvent.type(
-      rendered.getByPlaceholderText('Search for an action'),
+      screen.getByPlaceholderText('Search for an action'),
       'create',
     );
-    await userEvent.keyboard('[ArrowDown][Enter]');
+
     expect(
-      rendered.getByRole('heading', { name: 'githut:repo:create' }),
+      await screen.findByRole('button', { name: /github:repo:create/ }),
     ).toBeInTheDocument();
     expect(
-      rendered.queryByRole('heading', { name: 'githut:repo:push' }),
+      screen.queryByRole('button', { name: /github:repo:push/ }),
     ).not.toBeInTheDocument();
 
-    // should show all actions when clearing the search
-    await userEvent.click(rendered.getByTitle('Clear'));
+    await userEvent.click(screen.getByLabelText('Clear search'));
+
     expect(
-      rendered.getByRole('heading', { name: 'githut:repo:create' }),
+      await screen.findByRole('button', { name: /github:repo:create/ }),
     ).toBeInTheDocument();
     expect(
-      rendered.getByRole('heading', { name: 'githut:repo:push' }),
+      screen.getByRole('button', { name: /github:repo:push/ }),
     ).toBeInTheDocument();
   });
 });

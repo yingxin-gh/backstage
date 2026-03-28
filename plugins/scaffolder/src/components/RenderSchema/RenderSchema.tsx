@@ -270,12 +270,13 @@ export const RenderSchema = ({
             key: 'name',
             title: t('renderSchema.tableCell.name'),
             render: renderNameCell,
+            width: '1fr',
           },
           {
             key: 'value',
             title: t('renderSchema.tableCell.value'),
             render: renderValueCell,
-            width: '3fr',
+            width: '4fr',
           },
         ];
         elements = Object.entries(schema.properties!).map(([key, v]) => ({

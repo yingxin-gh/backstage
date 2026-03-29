@@ -251,7 +251,7 @@ export const RenderSchema = ({
             id: 'name',
             label: t('renderSchema.tableCell.name'),
             isRowHeader: true,
-            defaultWidth: 220,
+            defaultWidth: 300,
             cell: item => {
               const name = item.propKey ?? '';
               return (

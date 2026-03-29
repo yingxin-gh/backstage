@@ -21,6 +21,7 @@ import {
 } from '@backstage/filter-predicates';
 import { InputError } from '@backstage/errors';
 import { Knex } from 'knex';
+import { searchExists, SEARCH_FLT_ALIAS as S } from './searchSubquery';
 
 function isPrimitive(value: unknown): value is FilterPredicatePrimitive {
   return (
@@ -32,20 +33,6 @@ function isPrimitive(value: unknown): value is FilterPredicatePrimitive {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-// Alias used for the search table in EXISTS subqueries, to avoid ambiguity
-// when the outer query is also on the search table (e.g. facets queries).
-const S = 'search_flt';
-
-/**
- * Creates an EXISTS subquery base against the search table, correlated on
- * entity_id with the outer query's entity id field.
- */
-function searchExists(knex: Knex, onEntityIdField: string): Knex.QueryBuilder {
-  return knex(`search as ${S}`)
-    .select(knex.raw('1'))
-    .whereRaw('?? = ??', [`${S}.entity_id`, onEntityIdField]);
 }
 
 export function applyPredicateEntityFilterToQuery(options: {

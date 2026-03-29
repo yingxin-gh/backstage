@@ -190,7 +190,6 @@ Since OIDC does not have a built-in auth API ref in `@backstage/core-plugin-api`
 import { createApp } from '@backstage/frontend-defaults';
 /* highlight-add-start */
 import {
-  createApiRef,
   OpenIdConnectApi,
   ProfileInfoApi,
   BackstageIdentityApi,
@@ -200,6 +199,7 @@ import { OAuth2 } from '@backstage/core-app-api';
 import { SignInPageBlueprint } from '@backstage/plugin-app-react';
 import { SignInPage } from '@backstage/core-components';
 import {
+  createApiRef,
   createFrontendModule,
   configApiRef,
   discoveryApiRef,
@@ -209,7 +209,7 @@ import {
 
 const keycloakAuthApiRef = createApiRef<
   OpenIdConnectApi & ProfileInfoApi & BackstageIdentityApi & SessionApi
->({
+>().with({
   id: 'auth.keycloak',
 });
 
@@ -269,7 +269,7 @@ export default createApp({
 });
 ```
 
-The `id` of the API ref, as well as the `provider.id` used in the `SignInPage` configuration (for example, `'keycloak-auth-provider'` in the snippet above), can be customized. However, the `provider.id` passed to `OAuth2.create({ provider: { id } })` must remain `'oidc'` to match Backstage's generic OIDC auth strategy on the backend.
+The `id` of the API ref (e.g. `'auth.keycloak'`) and the `id` used in the `SignInPage` provider configuration (e.g. `'keycloak-auth-provider'`) can be customized. However, the `provider.id` passed to `OAuth2.create` must remain `'oidc'` to match Backstage's generic OIDC auth strategy on the backend.
 
 :::note Note
 You can configure sign-in to use a redirect flow with no pop-up by adding `enableExperimentalRedirectFlow: true` to the root of your `app-config.yaml`.

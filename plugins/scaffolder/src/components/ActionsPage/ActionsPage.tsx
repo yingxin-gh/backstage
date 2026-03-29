@@ -176,6 +176,7 @@ export const ActionPageContent = () => {
           selectionMode="single"
           selectionBehavior="toggle"
           selectedKeys={selectedActionId ? [selectedActionId] : []}
+          style={{ minWidth: 0, overflow: 'hidden' }}
           onSelectionChange={selection => {
             if (selection === 'all') {
               return;

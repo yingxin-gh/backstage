@@ -29,22 +29,36 @@ export class ClarifyFailuresFetchMiddleware implements FetchMiddleware {
         return await next(input as any, init);
       } catch (e) {
         if (e instanceof TypeError && e.message === 'Failed to fetch') {
-          let method: string;
-          let url: string;
+          try {
+            let method: string;
+            let url: string;
 
-          if (input instanceof Request) {
-            method = input.method;
-            url = input.url;
-          } else {
-            method = init?.method || 'GET';
-            url = String(input);
+            if (isRequestLike(input)) {
+              method = input.method;
+              url = input.url;
+            } else {
+              method = init?.method || 'GET';
+              url = String(input);
+            }
+
+            e.message = `Failed to fetch: ${method} ${url}`;
+          } catch {
+            // intentionally ignored - clarification is best-effort
           }
-
-          e.message = `Failed to fetch: ${method} ${url}`;
-          throw e;
         }
         throw e;
       }
     };
   }
+}
+
+function isRequestLike(input: unknown): input is Request {
+  return (
+    input !== null &&
+    typeof input === 'object' &&
+    'method' in input &&
+    'url' in input &&
+    typeof input.method === 'string' &&
+    typeof input.url === 'string'
+  );
 }

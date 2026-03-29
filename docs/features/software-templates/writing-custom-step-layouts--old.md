@@ -1,14 +1,13 @@
 ---
-id: writing-custom-step-layouts
-title: Writing custom step layouts
+id: writing-custom-step-layouts--old
+title: Writing custom step layouts (Old Frontend System)
 description: How to override the default step form layout
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system,
-read the [old frontend system version of this guide](./writing-custom-step-layouts--old.md)
-instead.
+This documentation is for Backstage apps that still use the old frontend
+system. If your app uses the new frontend system, read the
+[current guide](./writing-custom-step-layouts.md) instead.
 ::::
 
 Every form in each step rendered in the frontend uses the default form layout from [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form/docs/). It is possible to override this behaviour by supplying a `ui:ObjectFieldTemplate` property for a particular step:
@@ -23,12 +22,14 @@ This is the same [field](https://rjsf-team.github.io/react-jsonschema-form/docs/
 
 ## Registering a React component as a custom step layout
 
-In the new frontend system, custom step layouts can be registered by creating a scaffolder module plugin that provides the layout through an extension override. Create a new plugin module:
+The [createScaffolderLayout](https://backstage.io/api/stable/functions/_backstage_plugin-scaffolder-react.index.createScaffolderLayout.html) function is used to mark a component as a custom step layout:
 
-```tsx title="packages/app/src/scaffolder/customLayouts.tsx"
-import { createFrontendModule } from '@backstage/frontend-plugin-api';
-import scaffolderPlugin from '@backstage/plugin-scaffolder/alpha';
-import { LayoutTemplate } from '@backstage/plugin-scaffolder-react';
+```tsx
+import { scaffolderPlugin } from '@backstage/plugin-scaffolder';
+import {
+  createScaffolderLayout,
+  LayoutTemplate,
+} from '@backstage/plugin-scaffolder-react';
 import { Grid } from '@material-ui/core';
 
 const TwoColumn: LayoutTemplate = ({ properties, description, title }) => {
@@ -54,15 +55,37 @@ const TwoColumn: LayoutTemplate = ({ properties, description, title }) => {
     </>
   );
 };
+
+export const TwoColumnLayout = scaffolderPlugin.provide(
+  createScaffolderLayout({
+    name: 'TwoColumn',
+    component: TwoColumn,
+  }),
+);
 ```
 
-Use `createScaffolderLayout` from `@backstage/plugin-scaffolder-react` and `scaffolderPlugin.provide` from `@backstage/plugin-scaffolder` to register the layout under the name `TwoColumn`, then install it through a frontend module using `createFrontendModule` together with `scaffolderPlugin.withOverrides` from `@backstage/plugin-scaffolder/alpha`, following the patterns described in the extension overrides guide.
+After you have registered your component as a custom layout then you need to provide the `layouts` to the `ScaffolderPage`:
 
-For details on how to override and extend extensions in the new frontend system, see the [extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation.
+```tsx
+import { MyCustomFieldExtension } from './scaffolder/MyCustomExtension';
+import { TwoColumnLayout } from './components/scaffolder/customScaffolderLayouts';
+
+const routes = (
+  <FlatRoutes>
+    ...
+    <Route path="/create" element={<ScaffolderPage />}>
+      <ScaffolderLayouts>
+        <TwoColumnLayout />
+      </ScaffolderLayouts>
+    </Route>
+    ...
+  </FlatRoutes>
+);
+```
 
 ## Using the custom step layout
 
-Once the layout is registered, it can be used as a `ui:ObjectFieldTemplate` in your template file:
+Any component that has been passed to the `ScaffolderPage` as children of the `ScaffolderLayouts` component can be used as a `ui:ObjectFieldTemplate` in your template file:
 
 ```yaml
 parameters:

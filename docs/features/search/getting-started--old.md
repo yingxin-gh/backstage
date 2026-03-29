@@ -1,14 +1,13 @@
 ---
-id: getting-started
-title: Getting Started with Search
+id: getting-started--old
+title: Getting Started with Search (Old Frontend System)
 description: How to set up and install Backstage Search
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system,
-read the [old frontend system version of this guide](./getting-started--old.md)
-instead.
+This documentation is for Backstage apps that still use the old frontend
+system. If your app uses the new frontend system, read the
+[current guide](./getting-started.md) instead.
 ::::
 
 Search functions as a plugin to Backstage, so you will need to use Backstage to
@@ -17,47 +16,122 @@ use Search.
 If you haven't setup Backstage already, start
 [here](../../getting-started/index.md).
 
+> If you used `npx @backstage/create-app`, and you have a search page defined in
+> `packages/app/src/components/search`, skip to
+> [`Customizing Search`](#customizing-search) below.
+
 ## Adding Search to the Frontend
 
 ```bash title="From your Backstage root directory"
 yarn --cwd packages/app add @backstage/plugin-search @backstage/plugin-search-react
 ```
 
-Once installed, the search plugin is automatically available in your app through
-the default feature discovery. It provides a search page at `/search`, a search
-navigation item in the sidebar, and a search modal accessible from the sidebar.
-For more details and alternative installation methods, see
-[installing plugins](../../frontend-system/building-apps/05-installing-plugins.md).
+Create a new `packages/app/src/components/search/SearchPage.tsx` file in your
+Backstage app with the following contents:
 
-### Configuring the search page
+```tsx
+import { Content, Header, Page } from '@backstage/core-components';
+import { Grid, List, Card, CardContent } from '@material-ui/core';
+import {
+  SearchBar,
+  SearchResult,
+  DefaultResultListItem,
+  SearchFilter,
+} from '@backstage/plugin-search-react';
+import { CatalogSearchResultListItem } from '@backstage/plugin-catalog';
 
-The search page can be configured through `app-config.yaml`. For example, to
-disable search result tracking:
-
-```yaml title="app-config.yaml"
-app:
-  extensions:
-    - page:search:
-        config:
-          noTrack: true
+export const searchPage = (
+  <Page themeId="home">
+    <Header title="Search" />
+    <Content>
+      <Grid container direction="row">
+        <Grid item xs={12}>
+          <SearchBar />
+        </Grid>
+        <Grid item xs={3}>
+          <Card>
+            <CardContent>
+              <SearchFilter.Select
+                name="kind"
+                values={['Component', 'Template']}
+              />
+            </CardContent>
+            <CardContent>
+              <SearchFilter.Checkbox
+                name="lifecycle"
+                values={['experimental', 'production']}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={9}>
+          <SearchResult>
+            {({ results }) => (
+              <List>
+                {results.map(result => {
+                  switch (result.type) {
+                    case 'software-catalog':
+                      return (
+                        <CatalogSearchResultListItem
+                          key={result.document.location}
+                          result={result.document}
+                          highlight={result.highlight}
+                        />
+                      );
+                    default:
+                      return (
+                        <DefaultResultListItem
+                          key={result.document.location}
+                          result={result.document}
+                          highlight={result.highlight}
+                        />
+                      );
+                  }
+                })}
+              </List>
+            )}
+          </SearchResult>
+        </Grid>
+      </Grid>
+    </Content>
+  </Page>
+);
 ```
 
-### Search result list items
+Bind the above Search Page to the `/search` route in your
+`packages/app/src/App.tsx` file, like this:
 
-The search page automatically discovers and uses search result list item
-extensions provided by installed plugins. For example, the catalog plugin
-provides a `CatalogSearchResultListItem` and the TechDocs plugin provides a
-`TechDocsSearchResultListItem`. These are automatically registered when the
-respective plugins are installed.
+```tsx
+import { SearchPage } from '@backstage/plugin-search';
+import { searchPage } from './components/search/SearchPage';
 
-You can also install additional search result list item extensions using the
-`SearchResultListItemBlueprint` from `@backstage/plugin-search-react/alpha`.
+const routes = (
+  <FlatRoutes>
+    <Route path="/search" element={<SearchPage />}>
+      {searchPage}
+    </Route>
+  </FlatRoutes>
+);
+```
 
-### Search filters
+### Using the Search Modal
 
-Similarly, search filter extensions are automatically discovered. You can add
-custom filters using the `SearchFilterBlueprint` or
-`SearchFilterResultTypeBlueprint` from `@backstage/plugin-search-react/alpha`.
+In `Root.tsx`, add the `SidebarSearchModal` component:
+
+```bash
+import { SidebarSearchModal } from '@backstage/plugin-search';
+
+export const Root = ({ children }: PropsWithChildren<{}>) => (
+  <SidebarPage>
+    <Sidebar>
+      <SidebarLogo />
+      <SidebarSearchModal />
+      <SidebarDivider />
+...
+```
+
+For more information about using `Root.tsx`, please see
+[the changelog](https://github.com/backstage/backstage/blob/master/packages/create-app/CHANGELOG.md#0315).
 
 ## Adding Search to the Backend
 
@@ -97,39 +171,70 @@ The above also sets up two Collators for you - Catalog and TechDocs - which will
 
 ### Frontend
 
-The search plugin provides extension points for customizing the search
-experience through blueprints. You can add custom search result list items,
-filters, and result type filters.
+The Search Plugin web library (`@backstage/plugin-search-react`) exposes several default filter types as static properties,
+including `<SearchFilter.Select />` and `<SearchFilter.Checkbox />`. These allow
+you to provide values relevant to your Backstage instance that, when selected,
+get passed to the backend.
 
-For example, to create a custom search result list item, use the
-`SearchResultListItemBlueprint` from `@backstage/plugin-search-react/alpha`:
-
-```tsx
-import { SearchResultListItemBlueprint } from '@backstage/plugin-search-react/alpha';
-
-export const MySearchResultListItem = SearchResultListItemBlueprint.make({
-  name: 'my-result-item',
-  params: {
-    predicate: result => result.type === 'my-custom-type',
-    component: async () => {
-      const { MyResultItem } = await import('./components/MyResultItem');
-      return MyResultItem;
-    },
-  },
-});
+```tsx {2-5,8-11}
+<CardContent>
+  <SearchFilter.Select
+    name="kind"
+    values={['Component', 'Template']}
+  />
+</CardContent>
+<CardContent>
+  <SearchFilter.Checkbox
+    name="lifecycle"
+    values={['production', 'experimental']}
+  />
+</CardContent>
 ```
 
-Install this in your app by passing it to `createApp`:
+If you have advanced filter needs, you can specify your own filter component
+like this (although new core filter contributions are welcome):
 
-```tsx title="packages/app/src/App.tsx"
-import { createApp } from '@backstage/frontend-defaults';
-import { MySearchResultListItem } from './search/MySearchResultListItem';
+```tsx
+import { useSearch, SearchFilter } from '@backstage/plugin-search-react';
 
-const app = createApp({
-  features: [MySearchResultListItem],
-});
+const MyCustomFilter = () => {
+  // Note: filters contain filter data from other filter components. Be sure
+  // not to clobber other filters' data!
+  const { filters, setFilters } = useSearch();
 
-export default app.createRoot();
+  return (/* ... */);
+};
+
+// Which could be rendered like this:
+<SearchFilter component={MyCustomFilter} />
+```
+
+It's good practice for search results to highlight information that was used to
+return it in the first place! The code below highlights how you might specify a
+custom result item component, using the `<CatalogSearchResultListItem />` component as
+an example:
+
+```tsx {7-13}
+<SearchResult>
+  {({ results }) => (
+    <List>
+      {results.map(result => {
+        // result.type is the index type defined by the collator.
+        switch (result.type) {
+          case 'software-catalog':
+            return (
+              <CatalogSearchResultListItem
+                key={result.document.location}
+                result={result.document}
+                highlight={result.highlight}
+              />
+            );
+          // ...
+        }
+      })}
+    </List>
+  )}
+</SearchResult>
 ```
 
 > For more advanced customization of the Search frontend, also see how to guides such as [How to implement your own Search API](./how-to-guides.md#how-to-implement-your-own-search-api) and [How to customize search results highlighting styling](./how-to-guides.md#how-to-customize-search-results-highlighting-styling)

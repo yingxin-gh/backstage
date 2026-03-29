@@ -413,7 +413,7 @@ function ValueCell({
   const [isExpanded, setIsExpanded] = context.expanded;
   const id = generateId(item, context);
   const info = inspectSchema(item.schema);
-  const description = item.schema.description;
+  const { title, description } = item.schema;
   return (
     <Cell>
       <Flex direction="column" gap="1">
@@ -452,6 +452,7 @@ function ValueCell({
             ),
           )}
         </Flex>
+        {title && <MarkdownContent content={title} />}
         {description && <MarkdownContent content={description} />}
         <RenderExpansion item={item} context={context} />
       </Flex>

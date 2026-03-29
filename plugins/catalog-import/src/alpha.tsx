@@ -51,9 +51,9 @@ const catalogImportPage = PageBlueprint.make({
     path: '/catalog-import',
     routeRef: rootRouteRef,
     loader: () =>
-      import('./components/DefaultImportPage/DefaultImportPage').then(m => (
+      import('./components/ImportPage').then(m => (
         <RequirePermission permission={catalogEntityCreatePermission}>
-          <m.NfsDefaultImportPage />
+          <m.ImportPage />
         </RequirePermission>
       )),
   },

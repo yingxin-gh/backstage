@@ -15,3 +15,4 @@
  */
 
 export * from './permissions';
+export { templateModelLayer } from './catalogModel';

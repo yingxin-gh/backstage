@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { createCatalogModelLayer } from '../model/createCatalogModelLayer';
 import type { Entity } from '../entity/Entity';
 import schema from '../schema/kinds/Component.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
@@ -50,3 +51,75 @@ export interface ComponentEntityV1alpha1 extends Entity {
  */
 export const componentEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the Component kind.
+ *
+ * @alpha
+ */
+export const componentEntityModel = createCatalogModelLayer({
+  layerId: 'catalog.backstage.io/kind-component',
+  builder: model => {
+    model.addKind({
+      group: 'backstage.io',
+      names: {
+        kind: 'Component',
+        singular: 'component',
+        plural: 'components',
+      },
+      description:
+        'A Component describes a software component, usually with a distinct deployable or linkable artifact.',
+      versions: [
+        {
+          name: ['v1alpha1', 'v1beta1'],
+          relationFields: [
+            {
+              selector: { path: 'spec.owner' },
+              relation: 'ownedBy',
+              defaultKind: 'Group',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group', 'User'],
+            },
+            {
+              selector: { path: 'spec.subcomponentOf' },
+              relation: 'partOf',
+              defaultKind: 'Component',
+              defaultNamespace: 'inherit',
+            },
+            {
+              selector: { path: 'spec.providesApis' },
+              relation: 'providesApi',
+              defaultKind: 'API',
+              defaultNamespace: 'inherit',
+            },
+            {
+              selector: { path: 'spec.consumesApis' },
+              relation: 'consumesApi',
+              defaultKind: 'API',
+              defaultNamespace: 'inherit',
+            },
+            {
+              selector: { path: 'spec.dependsOn' },
+              relation: 'dependsOn',
+              defaultNamespace: 'inherit',
+            },
+            {
+              selector: { path: 'spec.dependencyOf' },
+              relation: 'dependencyOf',
+              defaultNamespace: 'inherit',
+            },
+            {
+              selector: { path: 'spec.system' },
+              relation: 'partOf',
+              defaultKind: 'System',
+              defaultNamespace: 'inherit',
+            },
+          ],
+          schema: {
+            jsonSchema: schema,
+          },
+        },
+      ],
+    });
+  },
+});

@@ -15,7 +15,12 @@
  */
 
 import { createBackend } from '@backstage/backend-defaults';
+import { provideStaticCatalogModel } from '@backstage/plugin-catalog-node/alpha';
+import { templateModelLayer } from '@backstage/plugin-scaffolder-common/alpha';
 
 const backend = createBackend();
 backend.add(import('../src'));
+backend.add(import('@backstage/plugin-catalog-backend-module-logs'));
+backend.add(provideStaticCatalogModel({ layers: [templateModelLayer] }));
+
 backend.start();

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import { createCatalogModelLayer } from '../model/createCatalogModelLayer';
 import type { Entity } from '../entity/Entity';
-import { ajvCompiledJsonSchemaValidator } from './util';
 import schema from '../schema/kinds/System.v1alpha1.schema.json';
+import { ajvCompiledJsonSchemaValidator } from './util';
 
 /**
  * Backstage catalog System kind Entity. Systems group Components, Resources and APIs together.
@@ -44,3 +45,47 @@ export interface SystemEntityV1alpha1 extends Entity {
  */
 export const systemEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the System kind.
+ *
+ * @alpha
+ */
+export const systemEntityModel = createCatalogModelLayer({
+  layerId: 'catalog.backstage.io/kind-system',
+  builder: model => {
+    model.addKind({
+      group: 'backstage.io',
+      names: {
+        kind: 'System',
+        singular: 'system',
+        plural: 'systems',
+      },
+      description:
+        'A System is a collection of resources and components that exposes one or several APIs.',
+      versions: [
+        {
+          name: ['v1alpha1', 'v1beta1'],
+          relationFields: [
+            {
+              selector: { path: 'spec.owner' },
+              relation: 'ownedBy',
+              defaultKind: 'Group',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group', 'User'],
+            },
+            {
+              selector: { path: 'spec.domain' },
+              relation: 'partOf',
+              defaultKind: 'Domain',
+              defaultNamespace: 'inherit',
+            },
+          ],
+          schema: {
+            jsonSchema: schema,
+          },
+        },
+      ],
+    });
+  },
+});

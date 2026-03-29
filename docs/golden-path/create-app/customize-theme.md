@@ -516,7 +516,7 @@ If the icon is not available as one of the default icons or one you've added the
 
 ## Custom Sidebar
 
-In the new frontend system, the sidebar is managed by the built-in `app/nav` extension. You can customize it by creating a `NavContentBlueprint` extension. See the [sidebar customization](../../../frontend-system/building-apps/08-migrating.md#app-root-sidebar) documentation for detailed instructions on creating a custom sidebar layout with sub-menus and custom grouping.
+In the new frontend system, the sidebar is managed by the built-in `app/nav` extension. You can customize it by creating a `NavContentBlueprint` extension. See the [sidebar customization](../../frontend-system/building-apps/08-migrating.md#app-root-sidebar) documentation for detailed instructions on creating a custom sidebar layout with sub-menus and custom grouping.
 
 ## Custom Homepage
 

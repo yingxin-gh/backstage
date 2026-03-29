@@ -61,7 +61,7 @@ app:
 
 ### Custom filters
 
-You can create custom catalog filters using the `CatalogFilterBlueprint` from `@backstage/plugin-catalog-react/alpha`. See the [extension overrides](../../frontend-system/building-apps/03-extension-overrides.md) documentation for details on how to install custom extensions.
+You can create custom catalog filters using the `CatalogFilterBlueprint` from `@backstage/plugin-catalog-react/alpha`. See the [extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation for details on how to install custom extensions.
 
 ## Entity page
 

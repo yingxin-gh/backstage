@@ -120,8 +120,52 @@ similar to the one provided by the Catalog plugin. TechDocs also comes with
 an alternative grid based layout and panel layout.
 
 Customization of the TechDocs home page in the new frontend system is done by
-overriding the default page extension. For details on how to override
-extensions, see the [extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation.
+overriding the `page:techdocs` extension. The TechDocs home page is a standard
+page extension created using `PageBlueprint`, which means you can override it
+just like any other page extension.
+
+The simplest approach is to create a frontend module that provides a replacement
+page extension with the same extension ID. Since the TechDocs page extension has
+the ID `page:techdocs`, you can override it by creating a new page extension
+under the `techdocs` plugin namespace:
+
+```tsx title="packages/app/src/techdocs/TechDocsHomePage.tsx"
+import {
+  PageBlueprint,
+  createFrontendModule,
+} from '@backstage/frontend-plugin-api';
+
+const customTechDocsPage = PageBlueprint.make({
+  params: {
+    path: '/docs',
+    loader: () =>
+      import('./CustomTechDocsHome').then(m => <m.CustomTechDocsHome />),
+  },
+});
+
+export default createFrontendModule({
+  pluginId: 'techdocs',
+  extensions: [customTechDocsPage],
+});
+```
+
+Then install the module in your app:
+
+```tsx title="packages/app/src/App.tsx"
+import { createApp } from '@backstage/frontend-defaults';
+import customTechDocsModule from './techdocs/TechDocsHomePage';
+
+const app = createApp({
+  features: [customTechDocsModule],
+});
+
+export default app.createRoot();
+```
+
+You can also use the `.override(...)` method on the original extension if you
+want to customize the existing page without fully replacing it. For more details
+on extension overrides and the different override patterns available, see the
+[extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation.
 
 ## How to customize the TechDocs reader page?
 

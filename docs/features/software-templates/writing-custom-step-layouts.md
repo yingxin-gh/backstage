@@ -11,61 +11,12 @@ read the [old frontend system version of this guide](./writing-custom-step-layou
 instead.
 ::::
 
-Every form in each step rendered in the frontend uses the default form layout from [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form/docs/). It is possible to override this behaviour by supplying a `ui:ObjectFieldTemplate` property for a particular step:
+:::caution
+Custom step layouts are not yet supported in the new frontend system. The
+scaffolder plugin does not provide an extension blueprint or input for
+registering custom layouts in the new system.
 
-```yaml
-parameters:
-  - title: Fill in some steps
-    ui:ObjectFieldTemplate: TwoColumn
-```
-
-This is the same [field](https://rjsf-team.github.io/react-jsonschema-form/docs/advanced-customization/custom-templates#objectfieldtemplate) used by [react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form/docs/) but we need to add a couple of steps to ensure that the string value of `TwoColumn` above is resolved to a react component.
-
-## Registering a React component as a custom step layout
-
-In the new frontend system, custom step layouts can be registered by creating a scaffolder module plugin that provides the layout through an extension override. Create a new plugin module:
-
-```tsx title="packages/app/src/scaffolder/customLayouts.tsx"
-import { createFrontendModule } from '@backstage/frontend-plugin-api';
-import scaffolderPlugin from '@backstage/plugin-scaffolder/alpha';
-import { LayoutTemplate } from '@backstage/plugin-scaffolder-react';
-import { Grid } from '@material-ui/core';
-
-const TwoColumn: LayoutTemplate = ({ properties, description, title }) => {
-  const mid = Math.ceil(properties.length / 2);
-
-  return (
-    <>
-      <h1>{title}</h1>
-      <h2>In two column layout!!</h2>
-      <Grid container justifyContent="flex-end">
-        {properties.slice(0, mid).map(prop => (
-          <Grid item xs={6} key={prop.content.key}>
-            {prop.content}
-          </Grid>
-        ))}
-        {properties.slice(mid).map(prop => (
-          <Grid item xs={6} key={prop.content.key}>
-            {prop.content}
-          </Grid>
-        ))}
-      </Grid>
-      {description}
-    </>
-  );
-};
-```
-
-Use `createScaffolderLayout` from `@backstage/plugin-scaffolder-react` and `scaffolderPlugin.provide` from `@backstage/plugin-scaffolder` to register the layout under the name `TwoColumn`, then install it through a frontend module using `createFrontendModule` together with `scaffolderPlugin.withOverrides` from `@backstage/plugin-scaffolder/alpha`, following the patterns described in the extension overrides guide.
-
-For details on how to override and extend extensions in the new frontend system, see the [extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation.
-
-## Using the custom step layout
-
-Once the layout is registered, it can be used as a `ui:ObjectFieldTemplate` in your template file:
-
-```yaml
-parameters:
-  - title: Fill in some steps
-    ui:ObjectFieldTemplate: TwoColumn
-```
+If you need custom step layouts, you can continue using the
+[old frontend system](./writing-custom-step-layouts--old.md) approach with
+`createScaffolderLayout` and the `ScaffolderLayouts` component.
+:::

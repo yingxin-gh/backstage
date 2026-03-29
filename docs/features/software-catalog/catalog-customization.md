@@ -61,7 +61,149 @@ app:
 
 ### Custom filters
 
-You can create custom catalog filters using the `CatalogFilterBlueprint` from `@backstage/plugin-catalog-react/alpha`. See the [extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation for details on how to install custom extensions.
+You can create custom catalog filters using the `CatalogFilterBlueprint` from `@backstage/plugin-catalog-react/alpha`. For example, to add a custom security tier filter:
+
+```tsx title="packages/app/src/catalog/SecurityTierFilter.tsx"
+import { CatalogFilterBlueprint } from '@backstage/plugin-catalog-react/alpha';
+
+export const securityTierFilter = CatalogFilterBlueprint.make({
+  name: 'security-tier',
+  params: {
+    loader: async () => {
+      const { EntitySecurityTierPicker } = await import(
+        './EntitySecurityTierPicker'
+      );
+      return <EntitySecurityTierPicker />;
+    },
+  },
+});
+```
+
+Then install it as a frontend module:
+
+```tsx title="packages/app/src/catalog/catalogCustomizations.tsx"
+import { createFrontendModule } from '@backstage/frontend-plugin-api';
+import { securityTierFilter } from './SecurityTierFilter';
+
+export default createFrontendModule({
+  pluginId: 'catalog',
+  extensions: [securityTierFilter],
+});
+```
+
+### Removing default filters
+
+Default filters can be disabled through `app-config.yaml` by setting them to `false`:
+
+```yaml title="app-config.yaml"
+app:
+  extensions:
+    - catalog-filter:catalog/lifecycle: false
+    - catalog-filter:catalog/tag: false
+    - catalog-filter:catalog/processing-status: false
+```
+
+## Customizing columns, actions, and table options
+
+In the old frontend system, customizing the catalog table columns, row actions,
+and table options was done by passing props directly to the `CatalogIndexPage`
+component. In the new frontend system, these customizations are done by
+overriding the `page:catalog` extension.
+
+For example, to customize the catalog index page with custom columns or actions,
+you can override the page extension using a frontend module:
+
+```tsx title="packages/app/src/catalog/customCatalogPage.tsx"
+import {
+  PageBlueprint,
+  createFrontendModule,
+} from '@backstage/frontend-plugin-api';
+
+const customCatalogPage = PageBlueprint.make({
+  params: {
+    path: '/catalog',
+    loader: () =>
+      import('./CustomCatalogPage').then(m => <m.CustomCatalogPage />),
+  },
+});
+
+export default createFrontendModule({
+  pluginId: 'catalog',
+  extensions: [customCatalogPage],
+});
+```
+
+Inside your custom catalog page component you have full control over the table
+columns, actions, and options. You can compose a page using components from
+`@backstage/plugin-catalog` and `@backstage/plugin-catalog-react`:
+
+```tsx title="packages/app/src/catalog/CustomCatalogPage.tsx"
+import {
+  PageWithHeader,
+  Content,
+  ContentHeader,
+  SupportButton,
+} from '@backstage/core-components';
+import { useApi, configApiRef } from '@backstage/core-plugin-api';
+import { CatalogTable } from '@backstage/plugin-catalog';
+import {
+  EntityListProvider,
+  CatalogFilterLayout,
+  EntityKindPicker,
+  EntityLifecyclePicker,
+  EntityNamespacePicker,
+  EntityOwnerPicker,
+  EntityProcessingStatusPicker,
+  EntityTagPicker,
+  EntityTypePicker,
+  UserListPicker,
+} from '@backstage/plugin-catalog-react';
+
+export const CustomCatalogPage = () => {
+  const orgName =
+    useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
+
+  return (
+    <PageWithHeader title={orgName} themeId="home">
+      <Content>
+        <ContentHeader title="">
+          <SupportButton>All your software catalog entities</SupportButton>
+        </ContentHeader>
+        <EntityListProvider pagination>
+          <CatalogFilterLayout>
+            <CatalogFilterLayout.Filters>
+              <EntityKindPicker />
+              <EntityTypePicker />
+              <UserListPicker />
+              <EntityOwnerPicker />
+              <EntityLifecyclePicker />
+              <EntityTagPicker />
+              <EntityProcessingStatusPicker />
+              <EntityNamespacePicker />
+            </CatalogFilterLayout.Filters>
+            <CatalogFilterLayout.Content>
+              <CatalogTable />
+            </CatalogFilterLayout.Content>
+          </CatalogFilterLayout>
+        </EntityListProvider>
+      </Content>
+    </PageWithHeader>
+  );
+};
+```
+
+:::note Note
+
+The catalog index page is designed to have a minimal code footprint to support
+easy customization, but creating a replica does introduce a possibility of
+drifting out of date over time. Be sure to check the catalog
+[CHANGELOG](https://github.com/backstage/backstage/blob/master/plugins/catalog/CHANGELOG.md)
+periodically.
+
+:::
+
+For more details on extension overrides and the different override patterns
+available, see the [extension overrides](../../frontend-system/architecture/25-extension-overrides.md) documentation.
 
 ## Entity page
 

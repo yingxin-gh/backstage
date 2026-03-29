@@ -1,14 +1,13 @@
 ---
-id: usage
-title: Usage
+id: usage--old
+title: Usage (Old Frontend System)
 description: How to use the notifications and signals
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system,
-read the [old frontend system version of this guide](./usage--old.md)
-instead.
+This documentation is for Backstage apps that still use the old frontend
+system. If your app uses the new frontend system, read the
+[current guide](./usage.md) instead.
 ::::
 
 ## Notifications Backend
@@ -25,11 +24,11 @@ The recipients of notifications have to be entities in the catalog, e.g., of the
 
 Otherwise, no specific configuration is needed for the front-end notifications plugin.
 
-The `NotificationsSidebarItem` component can be used as an active left-side menu item in the front-end. Since the notifications plugin does not yet include a built-in navigation item, it needs to be added manually to your sidebar through a `NavContentBlueprint` in a custom app module. See the [Getting Started](./index.md#add-notifications-sidebar-item) guide for setup instructions.
+All parametrization is done through component properties, such as the `NotificationsSidebarItem`, which can be used as an active left-side menu item in the front-end.
 
 ![Notifications Page](notificationsPage.png)
 
-You can customize the sidebar item using its [properties](https://backstage.io/api/stable/functions/_backstage_plugin-notifications.index.NotificationsSidebarItem.html) to fit your specific needs.
+In the `packages/app/src/components/Root/Root.tsx`, tweak the [properties](https://backstage.io/api/stable/functions/_backstage_plugin-notifications.index.NotificationsSidebarItem.html) of the `<NotificationsSidebarItem />` per specific needs.
 
 ## Usage
 

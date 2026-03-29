@@ -1,14 +1,13 @@
 ---
-id: index
-title: Getting Started
+id: index--old
+title: Getting Started (Old Frontend System)
 description: How to get started with the notifications and signals
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system,
-read the [old frontend system version of this guide](./index--old.md)
-instead.
+This documentation is for Backstage apps that still use the old frontend
+system. If your app uses the new frontend system, read the
+[current guide](./index.md) instead.
 ::::
 
 The Backstage Notifications System provides a way for plugins and external services to send notifications to Backstage users.
@@ -42,7 +41,7 @@ Example of use-cases:
 
 :::note
 
-As of the `1.42.0` release of Backstage, Notifications and Signals are installed as part of the default `@backstage/create-app` instance which means you won't need to follow the installations steps outlined here. The only exception to this is adding the [Notifications sidebar item](#add-notifications-sidebar-item) and optionally [Notifications tab to User Settings](#user-specific-notification-settings).
+As of the `1.42.0` release of Backstage, Notifications and Signals are installed as part of the default `@backstage/create-app` instance which means you won't need to follow the installations steps outlined here. The only exception to this is adding the [Notifications tab to User Settings](#user-specific-notification-settings) to allow managing these settings.
 
 :::
 
@@ -72,29 +71,35 @@ First we need to add the frontend package:
 yarn --cwd packages/app add @backstage/plugin-notifications
 ```
 
-Once installed, the notifications plugin is automatically available in your app through the default feature discovery. It provides a notifications page at `/notifications` and the notifications API. For more details and alternative installation methods, see [installing plugins](../frontend-system/building-apps/05-installing-plugins.md).
+To add the notifications main menu, add the following:
 
-### Add Notifications Sidebar Item
-
-The notifications plugin does not yet include a built-in navigation item, so you need to add the `NotificationsSidebarItem` component to your sidebar manually. If you have a custom sidebar through a `NavContentBlueprint`, add the component there:
-
-```tsx
+```tsx title="packages/app/src/components/Root/Root.tsx"
 import { NotificationsSidebarItem } from '@backstage/plugin-notifications';
 
-// Inside your NavContentBlueprint component:
-<Sidebar>
-  <SidebarGroup label="Menu" icon={<MenuIcon />}>
-    {/* ... other items ... */}
-  </SidebarGroup>
-  <SidebarGroup label="Settings" icon={<SettingsIcon />} to="/settings">
-    <NotificationsSidebarItem />
-  </SidebarGroup>
-</Sidebar>;
+<SidebarPage>
+  <Sidebar>
+    <SidebarGroup>
+      // ...
+      <NotificationsSidebarItem />
+    </SidebarGroup>
+  </Sidebar>
+</SidebarPage>;
+```
+
+Also add the route to notifications:
+
+```tsx title="packages/app/src/App.tsx"
+import { NotificationsPage } from '@backstage/plugin-notifications';
+
+<FlatRoutes>
+  // ...
+  <Route path="/notifications" element={<NotificationsPage />} />
+</FlatRoutes>;
 ```
 
 ### Optional: Add Signals
 
-The use of signals is optional but improves the user experience by providing real-time push updates.
+The use of signals is optional but improves the user experience.
 
 #### Optional: Add Signals Backend
 
@@ -120,41 +125,41 @@ Start with adding the frontend package:
 yarn --cwd packages/app add @backstage/plugin-signals
 ```
 
-Once installed, the signals plugin is automatically available in your app through the default feature discovery. No additional configuration is required. If the signals plugin is properly configured, it will be automatically discovered by the notifications plugin and used.
+To install the plugin, add the `SignalsDisplay` to your app root:
+
+```tsx title="packages/app/src/App.tsx"
+import { SignalsDisplay } from '@backstage/plugin-signals';
+
+export default app.createRoot(
+  <>
+    <AlertDisplay transientTimeoutMs={2500} />
+    <OAuthRequestDialog />
+    {/* highlight-add-next-line */}
+    <SignalsDisplay />
+    <AppRouter>
+      <VisitListener />
+      <Root>{routes}</Root>
+    </AppRouter>
+  </>,
+);
+```
+
+If the signals plugin is properly configured, it will be automatically discovered by the notifications plugin and used.
 
 ### User-specific notification settings
 
-The notifications plugin provides a way for users to manage their notification settings. To enable this, you can create a frontend module that adds a settings tab to the user-settings plugin using the `SubPageBlueprint`:
+The notifications plugin provides a way for users to manage their notification settings. To enable this, you must
+add the `UserNotificationSettingsCard` to your frontend.
 
-```tsx title="packages/app/src/modules/notificationSettings.tsx"
-import { createFrontendModule } from '@backstage/frontend-plugin-api';
-import { SubPageBlueprint } from '@backstage/frontend-plugin-api';
-import { Content } from '@backstage/core-components';
-import { UserNotificationSettingsCard } from '@backstage/plugin-notifications';
-
-export const notificationSettingsModule = createFrontendModule({
-  pluginId: 'user-settings',
-  extensions: [
-    SubPageBlueprint.make({
-      name: 'notifications',
-      params: {
-        path: 'notifications',
-        title: 'Notifications',
-        loader: () =>
-          Promise.resolve(
-            <Content>
-              <UserNotificationSettingsCard
-                originNames={{ 'plugin:scaffolder': 'Scaffolder' }}
-              />
-            </Content>,
-          ),
-      },
-    }),
-  ],
-});
+```tsx title="packages/app/src/App.tsx"
+<Route path="/settings" element={<UserSettingsPage />}>
+  <SettingsLayout.Route path="/notifications" title="Notifications">
+    <UserNotificationSettingsCard
+      originNames={{ 'plugin:scaffolder': 'Scaffolder' }}
+    />
+  </SettingsLayout.Route>
+</Route>
 ```
-
-Then install the module in your app by adding it to the features array of `createApp`, or through default feature discovery if your app is set up for it.
 
 ![Notification Settings](notificationSettings.png)
 

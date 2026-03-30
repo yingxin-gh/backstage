@@ -121,7 +121,7 @@ class GithubAppManager {
   }
 
   async getInstallationCredentials(
-    owner: string,
+    owner?: string,
     repo?: string,
   ): Promise<{ accessToken: string | undefined }> {
     // No owner means a bare host URL (e.g. https://github.com) — return an
@@ -267,7 +267,10 @@ export class GithubAppCredentialsMux {
     return installs.flat();
   }
 
-  async getAppToken(owner: string, repo?: string): Promise<string | undefined> {
+  async getAppToken(
+    owner?: string,
+    repo?: string,
+  ): Promise<string | undefined> {
     if (this.apps.length === 0) {
       return undefined;
     }

@@ -155,7 +155,7 @@ export const ExampleFetchComponent = () => {
 3. Save that and ensure you see no errors. Comment out the unused imports if
    your linter gets in the way.
 
-###### We will add a lot to this file for the sake of ease. Please don't do this in productional code!
+###### We will add a lot to this file for the sake of ease. Please don't do this in production code!
 
 ## The Graph Model
 

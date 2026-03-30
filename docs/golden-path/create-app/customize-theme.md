@@ -466,6 +466,8 @@ export default app.createRoot();
 You can register additional icons so that they can be used in other places like entity links. For example, to add an `alert` icon:
 
 ```tsx title="packages/app/src/App.tsx"
+import { createApp } from '@backstage/frontend-defaults';
+import { createFrontendModule } from '@backstage/frontend-plugin-api';
 import AlarmIcon from '@material-ui/icons/Alarm';
 import { IconBundleBlueprint } from '@backstage/plugin-app-react';
 
@@ -477,6 +479,17 @@ const extraIcons = IconBundleBlueprint.make({
     },
   },
 });
+
+const app = createApp({
+  features: [
+    createFrontendModule({
+      pluginId: 'app',
+      extensions: [extraIcons],
+    }),
+  ],
+});
+
+export default app.createRoot();
 ```
 
 You can then reference `alert` for your icon in entity links like this:

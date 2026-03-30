@@ -41,7 +41,7 @@ Example of use-cases:
 
 :::note
 
-As of the `1.42.0` release of Backstage, Notifications and Signals are installed as part of the default `@backstage/create-app` instance which means you won't need to follow the installations steps outlined here. The only exception to this is adding the [Notifications tab to User Settings](#user-specific-notification-settings) to allow managing these settings.
+As of the `1.42.0` release of Backstage, Notifications and Signals are installed as part of the default `@backstage/create-app` instance which means you won't need to follow the installation steps outlined here. The only exception to this is adding the [Notifications tab to User Settings](#user-specific-notification-settings) to allow managing these settings.
 
 :::
 

@@ -231,7 +231,7 @@ Below are metadata fields that will be commonly used between processors and have
 # Example:
 const payload = {
   title: 'Entities Require Attention',
-  description: 'Entities: Service A, Service B'
+  description: 'Entities: Service A, Service B',
   metadata: {
      'backstage.io/body.markdown': `
         # Entities

@@ -126,11 +126,24 @@ Once installed, the signals plugin is automatically available in your app throug
 
 The notifications plugin provides a way for users to manage their notification settings. To enable this, you can create a frontend module that adds a settings tab to the user-settings plugin using the `SubPageBlueprint`:
 
+```tsx title="packages/app/src/modules/NotificationSettingsPage.tsx"
+import { Content } from '@backstage/core-components';
+import { UserNotificationSettingsCard } from '@backstage/plugin-notifications';
+
+export function NotificationSettingsPage() {
+  return (
+    <Content>
+      <UserNotificationSettingsCard
+        originNames={{ 'plugin:scaffolder': 'Scaffolder' }}
+      />
+    </Content>
+  );
+}
+```
+
 ```tsx title="packages/app/src/modules/notificationSettings.tsx"
 import { createFrontendModule } from '@backstage/frontend-plugin-api';
 import { SubPageBlueprint } from '@backstage/frontend-plugin-api';
-import { Content } from '@backstage/core-components';
-import { UserNotificationSettingsCard } from '@backstage/plugin-notifications';
 
 export const notificationSettingsModule = createFrontendModule({
   pluginId: 'user-settings',
@@ -141,13 +154,9 @@ export const notificationSettingsModule = createFrontendModule({
         path: 'notifications',
         title: 'Notifications',
         loader: () =>
-          Promise.resolve(
-            <Content>
-              <UserNotificationSettingsCard
-                originNames={{ 'plugin:scaffolder': 'Scaffolder' }}
-              />
-            </Content>,
-          ),
+          import('./NotificationSettingsPage').then(m => (
+            <m.NotificationSettingsPage />
+          )),
       },
     }),
   ],

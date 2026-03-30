@@ -121,7 +121,12 @@ function useTableProps<T extends TableItem>(
   );
 }
 
-/** @public */
+/**
+ * A hook that manages table data fetching, pagination, sorting, search, and filtering.
+ * Supports three modes: `complete` for client-side data, `offset` for server-side offset pagination, and `cursor` for server-side cursor pagination.
+ *
+ * @public
+ */
 export function useTable<T extends TableItem, TFilter = unknown>(
   options: UseTableCompleteOptions<T, TFilter>,
 ): UseTableResult<T, TFilter>;

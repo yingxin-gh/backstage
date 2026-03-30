@@ -19,7 +19,11 @@ import type { FieldLabelProps } from './types';
 import { useDefinition } from '../../hooks/useDefinition';
 import { FieldLabelDefinition } from './definition';
 
-/** @public */
+/**
+ * Renders a label for a form field with optional secondary label and description text.
+ *
+ * @public
+ */
 export const FieldLabel = forwardRef<HTMLDivElement, FieldLabelProps>(
   (props: FieldLabelProps, ref) => {
     const { ownProps, restProps } = useDefinition(FieldLabelDefinition, props);

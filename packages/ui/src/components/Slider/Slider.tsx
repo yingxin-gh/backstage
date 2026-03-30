@@ -115,7 +115,11 @@ function SliderImpl<T extends number | number[]>(
   );
 }
 
-/** @public */
+/**
+ * A draggable input for selecting a numeric value or range within a defined interval, with an integrated label and value output.
+ *
+ * @public
+ */
 export const Slider = forwardRef(SliderImpl) as (<T extends number | number[]>(
   props: SliderProps<T> & { ref?: React.ForwardedRef<HTMLDivElement> },
 ) => JSX.Element) & { displayName: string };

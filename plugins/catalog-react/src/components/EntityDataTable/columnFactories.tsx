@@ -21,7 +21,10 @@ import {
 } from '@backstage/catalog-model';
 import { Cell, CellText, Column, ColumnConfig, TableItem } from '@backstage/ui';
 import { EntityRefLink, EntityRefLinks } from '../EntityRefLink';
-import { defaultEntityPresentation, EntityPresentationApi } from '../../apis';
+import {
+  defaultEntityPresentation,
+  EntityPresentationApi,
+} from '@backstage/plugin-catalog-react';
 import { EntityTableColumnTitle } from '../EntityTable/TitleColumn';
 import { getEntityRelations } from '../../utils';
 

@@ -6,19 +6,17 @@
 import { AnyRouteRefParams } from '@backstage/frontend-plugin-api';
 import { ColumnConfig } from '@backstage/ui';
 import { ComponentType } from 'react';
-import { CompoundEntityRef } from '@backstage/catalog-model';
 import { ConfigurableExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { Entity } from '@backstage/catalog-model';
+import { EntityPresentationApi } from '@backstage/plugin-catalog-react';
 import { ExtensionBlueprint } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { ExtensionDefinition } from '@backstage/frontend-plugin-api';
 import { FilterPredicate } from '@backstage/filter-predicates';
-import { IconComponent } from '@backstage/core-plugin-api';
 import { IconLinkVerticalProps } from '@backstage/core-components';
 import { JSX as JSX_2 } from 'react';
 import { JSX as JSX_3 } from 'react/jsx-runtime';
 import { JSXElementConstructor } from 'react';
-import { Observable } from '@backstage/types';
 import { ReactElement } from 'react';
 import { ReactNode } from 'react';
 import { ResourcePermission } from '@backstage/plugin-permission-common';
@@ -185,15 +183,6 @@ export const defaultEntityContentGroups: Record<
   keyof typeof defaultEntityContentGroupDefinitions,
   string
 >;
-
-// @public
-export function defaultEntityPresentation(
-  entityOrRef: Entity | CompoundEntityRef | string,
-  context?: {
-    defaultKind?: string;
-    defaultNamespace?: string;
-  },
-): EntityRefPresentationSnapshot;
 
 // @alpha
 export const EntityCardBlueprint: ExtensionBlueprint<{
@@ -534,18 +523,6 @@ export interface EntityDataTableProps {
   loading?: boolean;
 }
 
-// @public
-export const EntityDisplayName: (props: EntityDisplayNameProps) => JSX.Element;
-
-// @public
-export type EntityDisplayNameProps = {
-  entityRef: Entity | CompoundEntityRef | string;
-  hideIcon?: boolean;
-  disableTooltip?: boolean;
-  defaultKind?: string;
-  defaultNamespace?: string;
-};
-
 // @alpha (undocumented)
 export const EntityHeaderBlueprint: ExtensionBlueprint<{
   kind: 'entity-header';
@@ -653,32 +630,6 @@ export const EntityIconLinkBlueprint: ExtensionBlueprint<{
   };
 }>;
 
-// @public
-export interface EntityPresentationApi {
-  forEntity(
-    entityOrRef: Entity | string,
-    context?: {
-      defaultKind?: string;
-      defaultNamespace?: string;
-    },
-  ): EntityRefPresentation;
-}
-
-// @public
-export interface EntityRefPresentation {
-  promise: Promise<EntityRefPresentationSnapshot>;
-  snapshot: EntityRefPresentationSnapshot;
-  update$?: Observable<EntityRefPresentationSnapshot>;
-}
-
-// @public
-export interface EntityRefPresentationSnapshot {
-  entityRef: string;
-  Icon?: IconComponent | undefined | false;
-  primaryTitle: string;
-  secondaryTitle?: string;
-}
-
 // @public (undocumented)
 export function EntityRelationCard(
   props: EntityRelationCardProps,
@@ -751,15 +702,6 @@ export function useEntityPermission(
   allowed: boolean;
   error?: Error;
 };
-
-// @public
-export function useEntityPresentation(
-  entityOrRef: Entity | CompoundEntityRef | string,
-  context?: {
-    defaultKind?: string;
-    defaultNamespace?: string;
-  },
-): EntityRefPresentationSnapshot;
 
 // @alpha (undocumented)
 export type UseProps = () =>

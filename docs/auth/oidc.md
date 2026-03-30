@@ -228,6 +228,7 @@ const keycloakAuthApi = ApiBlueprint.make({
           configApi,
           discoveryApi,
           oauthRequestApi,
+          environment: configApi.getOptionalString('auth.environment'),
           provider: {
             id: 'oidc',
             title: 'Keycloak',

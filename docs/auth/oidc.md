@@ -84,12 +84,13 @@ The OIDC provider **also** requires `auth.session.secret` to be set.
 
 These parameters have implicit default values. Don't override them unless you know what you're doing.
 
-- `authorizationUrl` and `tokenUrl`: Open the `metadataUrl` in a browser, that JSON will
-  hold these 2 URLs somewhere in there.
+- `callbackUrl`: Override the default callback URL used by the OIDC provider.
+- `timeout`: Override the default timeout for calls to the OIDC provider.
 - `tokenEndpointAuthMethod`
 - `tokenSignedResponseAlg`
-- `scope`: Defaults to `openid profile email`. Override if your provider needs different
-  scopes.
+- `additionalScopes`: Requests additional scopes on top of the default `openid profile
+  email` scopes. Do not configure `scope` directly, as the OIDC provider will reject
+  configurations that include it.
 - `prompt`: Recommended to use `auto` so the browser will request sign-in to the identity
   provider if the user has no active session.
 - `sessionDuration`: Lifespan of the user session.

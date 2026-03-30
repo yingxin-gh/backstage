@@ -24,6 +24,10 @@ test('App should render the welcome page', async ({ page }) => {
   await enterButton.click();
 
   const nav = page.getByRole('navigation');
-  await expect(nav.getByRole('link', { name: 'Catalog' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'APIs' })).toBeVisible();
+  await expect(
+    nav.getByRole('link', { name: 'Catalog', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'APIs', exact: true }),
+  ).toBeVisible();
 });

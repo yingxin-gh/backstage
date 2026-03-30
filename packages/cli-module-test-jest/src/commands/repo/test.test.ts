@@ -84,7 +84,7 @@ describe('repo test arg forwarding', () => {
   });
 
   it('supports legacy camelCase flag names', () => {
-    const args = ['--successCache', '--successCacheDir', '/tmp/cache'];
+    const args = ['--success-cache', '--success-cache-dir', '/tmp/cache'];
 
     const { flags } = parseRepoTestArgs(args);
 

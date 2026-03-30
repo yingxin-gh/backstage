@@ -19,6 +19,7 @@ import preview from '../../../../../.storybook/preview';
 import { Button, Flex, Text } from '../../../../../packages/ui/src';
 /* eslint-enable @backstage/no-relative-monorepo-imports */
 import { ToastQueue } from '@react-stately/toast';
+import { useApi, alertApiRef } from '@backstage/core-plugin-api';
 import { ToastContainer } from './index';
 import type { ToastApiMessageContent } from './types';
 import { MemoryRouter } from 'react-router-dom';
@@ -567,8 +568,6 @@ export const AlertApiIntegration = meta.story({
  * Backstage app where the app plugin's elements.tsx is used.
  */
 function RealAlertApiStory() {
-  // eslint-disable-next-line @backstage/no-relative-monorepo-imports
-  const { useApi, alertApiRef } = require('@backstage/core-plugin-api');
   const alertApi = useApi(alertApiRef);
 
   return (

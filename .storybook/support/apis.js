@@ -32,7 +32,7 @@ import { translationApiRef } from '@backstage/core-plugin-api/alpha';
 import { MockTranslationApi } from '@backstage/test-utils/alpha';
 
 const configApi = new ConfigReader({});
-const appThemeApi = AppThemeSelector.createWithStorage([
+export const appThemeApi = AppThemeSelector.createWithStorage([
   { id: 'light', title: 'Light', variant: 'light', theme: themes.light },
   { id: 'dark', title: 'Dark', variant: 'dark', theme: themes.dark },
 ]);

@@ -19,7 +19,6 @@ import preview from '../../../../../.storybook/preview';
 import { Button, Flex, Text } from '../../../../../packages/ui/src';
 /* eslint-enable @backstage/no-relative-monorepo-imports */
 import { ToastQueue } from '@react-stately/toast';
-import { useApi, alertApiRef } from '@backstage/core-plugin-api';
 import { ToastContainer } from './index';
 import type { ToastApiMessageContent } from './types';
 import { MemoryRouter } from 'react-router-dom';
@@ -29,7 +28,7 @@ const toastQueue = new ToastQueue<ToastApiMessageContent>({
 });
 
 const meta = preview.meta({
-  title: 'Plugins/App/Toast',
+  title: 'App/Toast',
   component: ToastContainer,
   parameters: {
     layout: 'centered',

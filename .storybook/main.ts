@@ -13,7 +13,7 @@ const isChromatic = process.env.STORYBOOK_STORY_SET === 'chromatic';
 
 // All stories for full development
 const allStories = isChromatic
-  ? ['packages/ui']
+  ? ['packages/ui', 'plugins/app']
   : [
       'packages/ui',
       'packages/core-components',

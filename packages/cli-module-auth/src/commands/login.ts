@@ -31,7 +31,7 @@ import { getSecretStore, getAuthInstanceService } from '@internal/cli';
 import crypto from 'node:crypto';
 import fs from 'fs-extra';
 import path from 'node:path';
-import { globSync } from 'glob';
+import glob from 'glob';
 import YAML from 'yaml';
 import inquirer from 'inquirer';
 
@@ -178,7 +178,7 @@ async function pickBaseUrl() {
     'packages/*/app-config.yaml',
     'packages/*/app-config.*.yaml',
   ];
-  const files = patterns.flatMap(p => globSync(p, { cwd, nodir: true }));
+  const files = patterns.flatMap(p => glob.sync(p, { cwd, nodir: true }));
   for (const file of files) {
     try {
       const content = await fs.readFile(path.resolve(cwd, file), 'utf8');

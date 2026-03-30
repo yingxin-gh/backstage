@@ -15,8 +15,9 @@
  */
 
 import fs from 'fs-extra';
-import { glob } from 'glob';
+import g from 'glob';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { LocationSpec } from '@backstage/plugin-catalog-common';
 import {
   CatalogProcessor,
@@ -24,6 +25,8 @@ import {
   CatalogProcessorParser,
   processingResult,
 } from '@backstage/plugin-catalog-node';
+
+const glob = promisify(g);
 
 const LOCATION_TYPE = 'file';
 

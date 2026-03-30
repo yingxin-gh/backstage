@@ -158,6 +158,35 @@ export const Default = meta.story({
   ),
 });
 
+const previewQueue = new ToastQueue<ToastApiMessageContent>({
+  maxVisibleToasts: 4,
+});
+previewQueue.add({
+  title: 'Changes saved successfully',
+  description: 'Your changes have been saved.',
+  status: 'success',
+});
+
+export const PreviewToast = meta.story({
+  render: () => <ToastContainer queue={previewQueue} />,
+});
+
+const timerQueue = new ToastQueue<ToastApiMessageContent>({
+  maxVisibleToasts: 4,
+});
+timerQueue.add(
+  {
+    title: 'Auto-dismissing in 5 seconds',
+    description: 'This toast will disappear automatically.',
+    status: 'info',
+  },
+  { timeout: 5000 },
+);
+
+export const PreviewToastWithTimer = meta.story({
+  render: () => <ToastContainer queue={timerQueue} />,
+});
+
 export const StatusVariants = meta.story({
   render: () => (
     <>

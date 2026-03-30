@@ -269,12 +269,10 @@ export default createApp({
 });
 ```
 
-The `id` of the API ref and the provider `id` in `OAuth2.create` can be customized, but the `provider.id` must be `'oidc'` to match Backstage's generic OIDC auth strategy on the backend.
+The `id` of the API ref, as well as the `provider.id` used in the `SignInPage` configuration (for example, `'keycloak-auth-provider'` in the snippet above), can be customized. However, the `provider.id` passed to `OAuth2.create({ provider: { id } })` must remain `'oidc'` to match Backstage's generic OIDC auth strategy on the backend.
 
 :::note Note
 You can configure sign-in to use a redirect flow with no pop-up by adding `enableExperimentalRedirectFlow: true` to the root of your `app-config.yaml`.
 :::
 
 For more information about sign-in configuration, see [Sign-in Configuration](./index.md#sign-in-configuration).
-
-[1]: https://backstage.io/docs/auth/identity-resolver

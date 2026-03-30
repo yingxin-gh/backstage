@@ -89,7 +89,7 @@ These parameters have implicit default values. Don't override them unless you kn
 - `tokenEndpointAuthMethod`
 - `tokenSignedResponseAlg`
 - `additionalScopes`: Requests additional scopes on top of the default `openid profile
-  email` scopes. Do not configure `scope` directly, as the OIDC provider will reject
+email` scopes. Do not configure `scope` directly, as the OIDC provider will reject
   configurations that include it.
 - `prompt`: Recommended to use `auto` so the browser will request sign-in to the identity
   provider if the user has no active session.

@@ -29,11 +29,11 @@ import { EntityTableColumnTitle } from './TitleColumn';
 function getEntityTitle(
   entityOrRef: Entity | CompoundEntityRef,
   context: { defaultKind?: string },
-  entityPresentation?: EntityPresentationApi,
+  entityPresentationApi?: EntityPresentationApi,
 ): string {
-  if (entityPresentation) {
-    return entityPresentation.forEntity(entityOrRef as Entity, context).snapshot
-      .primaryTitle;
+  if (entityPresentationApi) {
+    return entityPresentationApi.forEntity(entityOrRef as Entity, context)
+      .snapshot.primaryTitle;
   }
   return defaultEntityPresentation(entityOrRef, context).primaryTitle;
 }
@@ -42,11 +42,11 @@ function getEntityTitle(
 export const columnFactories = Object.freeze({
   createEntityRefColumn<T extends Entity>(options: {
     defaultKind?: string;
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<T> {
-    const { defaultKind, entityPresentation } = options;
+    const { defaultKind, entityPresentationApi } = options;
     function formatContent(entity: T): string {
-      return getEntityTitle(entity, { defaultKind }, entityPresentation);
+      return getEntityTitle(entity, { defaultKind }, entityPresentationApi);
     }
 
     return {
@@ -80,14 +80,14 @@ export const columnFactories = Object.freeze({
     relation: string;
     defaultKind?: string;
     filter?: { kind: string };
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<T> {
     const {
       title,
       relation,
       defaultKind,
       filter: entityFilter,
-      entityPresentation,
+      entityPresentationApi,
     } = options;
 
     function getRelations(entity: T): CompoundEntityRef[] {
@@ -96,7 +96,7 @@ export const columnFactories = Object.freeze({
 
     function formatContent(entity: T): string {
       return getRelations(entity)
-        .map(r => getEntityTitle(r, { defaultKind }, entityPresentation))
+        .map(r => getEntityTitle(r, { defaultKind }, entityPresentationApi))
         .join(', ');
     }
 

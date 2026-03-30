@@ -36,11 +36,11 @@ export interface EntityColumnConfig extends ColumnConfig<EntityRow> {
 function getEntityTitle(
   entityOrRef: Entity | { kind: string; namespace?: string; name: string },
   context: { defaultKind?: string },
-  entityPresentation?: EntityPresentationApi,
+  entityPresentationApi?: EntityPresentationApi,
 ): string {
-  if (entityPresentation) {
-    return entityPresentation.forEntity(entityOrRef as Entity, context).snapshot
-      .primaryTitle;
+  if (entityPresentationApi) {
+    return entityPresentationApi.forEntity(entityOrRef as Entity, context)
+      .snapshot.primaryTitle;
   }
   return defaultEntityPresentation(entityOrRef as Entity, context).primaryTitle;
 }
@@ -50,7 +50,7 @@ export const columnFactories = Object.freeze({
   createEntityRefColumn(options: {
     defaultKind?: string;
     isRowHeader?: boolean;
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): EntityColumnConfig {
     const isRowHeader = options.isRowHeader ?? true;
     return {
@@ -76,7 +76,7 @@ export const columnFactories = Object.freeze({
         getEntityTitle(
           entity,
           { defaultKind: options.defaultKind },
-          options.entityPresentation,
+          options.entityPresentationApi,
         ),
     };
   },
@@ -87,7 +87,7 @@ export const columnFactories = Object.freeze({
     relation: string;
     defaultKind?: string;
     filter?: { kind: string };
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): EntityColumnConfig {
     return {
       id: options.id,
@@ -116,7 +116,7 @@ export const columnFactories = Object.freeze({
             getEntityTitle(
               r,
               { defaultKind: options.defaultKind },
-              options.entityPresentation,
+              options.entityPresentationApi,
             ),
           )
           .join(', '),

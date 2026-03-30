@@ -266,7 +266,7 @@ export type CatalogReactUserListPickerClassKey =
 export const columnFactories: Readonly<{
   createEntityRefColumn<T extends Entity>(options: {
     defaultKind?: string;
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<T>;
   createEntityRelationColumn<T extends Entity>(options: {
     title: string | JSX.Element;
@@ -275,7 +275,7 @@ export const columnFactories: Readonly<{
     filter?: {
       kind: string;
     };
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<T>;
   createOwnerColumn<T extends Entity>(): TableColumn<T>;
   createDomainColumn<T extends Entity>(): TableColumn<T>;
@@ -689,7 +689,7 @@ export const EntityTable: {
   columns: Readonly<{
     createEntityRefColumn<T extends Entity>(options: {
       defaultKind?: string;
-      entityPresentation?: EntityPresentationApi;
+      entityPresentationApi?: EntityPresentationApi;
     }): TableColumn<T>;
     createEntityRelationColumn<T extends Entity>(options: {
       title: string | JSX.Element;
@@ -698,7 +698,7 @@ export const EntityTable: {
       filter?: {
         kind: string;
       };
-      entityPresentation?: EntityPresentationApi;
+      entityPresentationApi?: EntityPresentationApi;
     }): TableColumn<T>;
     createOwnerColumn<T extends Entity>(): TableColumn<T>;
     createDomainColumn<T extends Entity>(): TableColumn<T>;

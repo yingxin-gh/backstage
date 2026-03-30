@@ -37,7 +37,7 @@ export function entitiesToDocsMapper(
   entities: Entity[],
   getRouteToReaderPageFor: getRouteFunc,
   config: ConfigApi,
-  entityPresentation?: EntityPresentationApi,
+  entityPresentationApi?: EntityPresentationApi,
 ) {
   return entities.map(entity => {
     const ownedByRelations = getEntityRelations(entity, RELATION_OWNED_BY);
@@ -55,8 +55,8 @@ export function entitiesToDocsMapper(
         ownedByRelations,
         ownedByRelationsTitle: ownedByRelations
           .map(r => {
-            if (entityPresentation) {
-              return entityPresentation.forEntity(stringifyEntityRef(r), {
+            if (entityPresentationApi) {
+              return entityPresentationApi.forEntity(stringifyEntityRef(r), {
                 defaultKind: 'group',
               }).snapshot.primaryTitle;
             }

@@ -500,7 +500,7 @@ export const entityDataTableColumns: Readonly<{
   createEntityRefColumn(options: {
     defaultKind?: string;
     isRowHeader?: boolean;
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): EntityColumnConfig;
   createEntityRelationColumn(options: {
     id: string;
@@ -510,7 +510,7 @@ export const entityDataTableColumns: Readonly<{
     filter?: {
       kind: string;
     };
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): EntityColumnConfig;
   createOwnerColumn(): EntityColumnConfig;
   createSystemColumn(): EntityColumnConfig;

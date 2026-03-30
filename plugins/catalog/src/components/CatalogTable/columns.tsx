@@ -32,11 +32,11 @@ import { EntityTableColumnTitle } from '@backstage/plugin-catalog-react/alpha';
 export const columnFactories = Object.freeze({
   createNameColumn(options?: {
     defaultKind?: string;
-    entityPresentation?: EntityPresentationApi;
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<CatalogTableRow> {
     function formatContent(entity: Entity): string {
-      if (options?.entityPresentation) {
-        return options.entityPresentation.forEntity(entity, {
+      if (options?.entityPresentationApi) {
+        return options.entityPresentationApi.forEntity(entity, {
           defaultKind: options?.defaultKind,
         }).snapshot.primaryTitle;
       }

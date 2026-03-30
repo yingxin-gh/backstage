@@ -52,7 +52,10 @@ export const AppRoutes = createExtension({
     const Routes = () => {
       const element = useRoutes([
         ...redirects.map(redirect => ({
-          path: `${redirect.from.replace(/\/$/, '')}/*`,
+          path:
+            redirect.from === '/'
+              ? redirect.from
+              : `${redirect.from.replace(/\/$/, '')}/*`,
           element: <Navigate to={redirect.to} replace />,
         })),
         ...inputs.routes.map(route => {

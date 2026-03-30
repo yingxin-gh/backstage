@@ -370,6 +370,79 @@ describe('AppRoutes', () => {
     });
   });
 
+  it('should only redirect the root path when from is /', async () => {
+    const LocationDisplay = () => {
+      const location = useLocation();
+      return <div data-testid="location">{location.pathname}</div>;
+    };
+
+    const catalogPage = PageBlueprint.make({
+      name: 'catalog',
+      params: {
+        path: '/catalog',
+        loader: async () => (
+          <div>
+            Catalog Page
+            <LocationDisplay />
+          </div>
+        ),
+      },
+    });
+
+    const homePage = PageBlueprint.make({
+      name: 'home',
+      params: {
+        path: '/home',
+        loader: async () => (
+          <div>
+            Home Page
+            <LocationDisplay />
+          </div>
+        ),
+      },
+    });
+
+    const redirectsConfig = {
+      ...DEFAULT_CONFIG,
+      app: {
+        ...DEFAULT_CONFIG.app,
+        extensions: [
+          {
+            'app/routes': {
+              config: {
+                redirects: [{ from: '/', to: '/home' }],
+              },
+            },
+          },
+        ],
+      },
+    };
+
+    const { unmount } = renderTestApp({
+      extensions: [catalogPage, homePage],
+      initialRouteEntries: ['/'],
+      config: redirectsConfig,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Home Page')).toBeInTheDocument();
+      expect(screen.getByTestId('location')).toHaveTextContent('/home');
+    });
+
+    unmount();
+
+    renderTestApp({
+      extensions: [catalogPage, homePage],
+      initialRouteEntries: ['/catalog'],
+      config: redirectsConfig,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Catalog Page')).toBeInTheDocument();
+      expect(screen.getByTestId('location')).toHaveTextContent('/catalog');
+    });
+  });
+
   it('should not interfere with normal routes when redirects are configured', async () => {
     const homePage = PageBlueprint.make({
       name: 'home',

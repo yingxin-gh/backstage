@@ -102,7 +102,7 @@ jobs:
             ${{ runner.os }}-v${{ matrix.node-version }}-backstage-cli-
 
       - name: lint
-        run: yarn backstage-cli repo lint --successCache --successCacheDir .cache/backstage-cli
+        run: yarn backstage-cli repo lint --success-cache --success-cache-dir .cache/backstage-cli
 
       - name: type checking and declarations
         run: yarn tsc:full
@@ -115,7 +115,7 @@ jobs:
 
       - name: test (and upload coverage)
         run: |
-          yarn backstage-cli repo test --maxWorkers=3 --workerIdleMemoryLimit=1300M --coverage --successCache --successCacheDir .cache/backstage-cli
+          yarn backstage-cli repo test --maxWorkers=3 --workerIdleMemoryLimit=1300M --coverage --success-cache --success-cache-dir .cache/backstage-cli
         env:
           BACKSTAGE_TEST_DISABLE_DOCKER: 1
           BACKSTAGE_TEST_DATABASE_postgres18_CONNECTION_STRING: postgresql://postgres:postgres@localhost:${{ job.services.postgres18.ports[5432] }}

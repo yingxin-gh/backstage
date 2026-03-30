@@ -108,6 +108,8 @@ export async function buildPgDatabaseConfig(
       return buildAzurePgConfig(mergedConfigReader);
     case 'cloudsql':
       return buildCloudSqlConfig(mergedConfigReader);
+    case 'rds':
+      return buildRdsPgConfig(mergedConfigReader);
     default:
       throw new Error(`Unknown connection type: ${config.connection.type}`);
   }
@@ -268,6 +270,56 @@ export async function buildCloudSqlConfig(
       ...sanitizedConnection,
       ...clientOpts,
     },
+  };
+}
+
+export async function buildRdsPgConfig(config: Config): Promise<Knex.Config> {
+  const { Signer } =
+    require('@aws-sdk/rds-signer') as typeof import('@aws-sdk/rds-signer');
+
+  const rawConfig = config.get() as Record<string, unknown>;
+  const normalized = normalizeConnection(rawConfig.connection as any);
+  const sanitizedConnection = omit(normalized, [
+    'type',
+    'region',
+  ]) as Partial<Knex.StaticConnectionConfig>;
+
+  const hostname = (normalized as any).host as string;
+  if (!hostname) {
+    throw new Error('Missing host in connection config for AWS RDS IAM auth');
+  }
+  const port = ((normalized as any).port as number | undefined) ?? 5432;
+  const username = (normalized as any).user as string;
+  if (!username) {
+    throw new Error('Missing user in connection config for AWS RDS IAM auth');
+  }
+  const region =
+    ((normalized as any).region as string | undefined) ??
+    process.env.AWS_REGION ??
+    process.env.AWS_DEFAULT_REGION;
+  if (!region) {
+    throw new Error(
+      'Missing region for AWS RDS IAM auth: set connection.region or the AWS_REGION environment variable',
+    );
+  }
+
+  const signer = new Signer({ hostname, port, username, region });
+
+  async function getConnectionConfig() {
+    try {
+      const password = await signer.getAuthToken();
+      return { ...sanitizedConnection, password };
+    } catch (err) {
+      console.error(
+        `AWS RDS IAM auth token acquisition failed for ${username}@${hostname}:${port}: ${err}`,
+      );
+      throw err;
+    }
+  }
+
+  return {
+    ...(rawConfig as Record<string, unknown>),
+    connection: getConnectionConfig,
   };
 }
 

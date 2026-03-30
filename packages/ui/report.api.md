@@ -62,7 +62,7 @@ import type { ToggleButtonProps as ToggleButtonProps_2 } from 'react-aria-compon
 import type { TooltipProps as TooltipProps_2 } from 'react-aria-components';
 import { TooltipTriggerComponentProps } from 'react-aria-components';
 
-// @public (undocumented)
+// @public
 export const Accordion: ForwardRefExoticComponent<
   AccordionProps & RefAttributes<HTMLDivElement>
 >;
@@ -86,7 +86,7 @@ export const AccordionDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const AccordionGroup: ForwardRefExoticComponent<
   AccordionGroupProps & RefAttributes<HTMLDivElement>
 >;
@@ -125,7 +125,7 @@ export type AccordionOwnProps = {
   className?: string;
 };
 
-// @public (undocumented)
+// @public
 export const AccordionPanel: ForwardRefExoticComponent<
   AccordionPanelProps & RefAttributes<HTMLDivElement>
 >;
@@ -158,7 +158,7 @@ export interface AccordionProps
   extends Omit<DisclosureProps, 'children' | 'className'>,
     AccordionOwnProps {}
 
-// @public (undocumented)
+// @public
 export const AccordionTrigger: ForwardRefExoticComponent<
   AccordionTriggerProps & RefAttributes<HTMLHeadingElement>
 >;
@@ -275,7 +275,7 @@ export type AnalyticsTracker = {
   ) => void;
 };
 
-// @public (undocumented)
+// @public
 export const Avatar: ForwardRefExoticComponent<
   AvatarProps & RefAttributes<HTMLDivElement>
 >;
@@ -349,7 +349,7 @@ export type BorderRadius =
   | 'xl'
   | '2xl';
 
-// @public (undocumented)
+// @public
 export const Box: ForwardRefExoticComponent<
   BoxProps & RefAttributes<HTMLDivElement>
 >;
@@ -480,7 +480,7 @@ export const ButtonDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const ButtonIcon: ForwardRefExoticComponent<
   ButtonIconProps & RefAttributes<HTMLButtonElement>
 >;
@@ -527,7 +527,7 @@ export interface ButtonIconProps
   extends Omit<ButtonProps_2, keyof ButtonIconOwnProps>,
     ButtonIconOwnProps {}
 
-// @public (undocumented)
+// @public
 export const ButtonLink: ForwardRefExoticComponent<
   ButtonLinkProps & RefAttributes<HTMLAnchorElement>
 >;
@@ -765,7 +765,7 @@ export type CardStaticVariant = {
   download?: never;
 };
 
-// @public (undocumented)
+// @public
 export const Cell: {
   (props: CellProps): JSX_2.Element;
   displayName: string;
@@ -776,7 +776,7 @@ export type CellOwnProps = {
   className?: string;
 };
 
-// @public (undocumented)
+// @public
 export const CellProfile: (props: CellProfileProps) => JSX_2.Element;
 
 // @public
@@ -799,7 +799,7 @@ export interface CellProps
   extends CellOwnProps,
     Omit<CellProps_2, keyof CellOwnProps> {}
 
-// @public (undocumented)
+// @public
 export const CellText: {
   (props: CellTextProps): JSX_2.Element;
   displayName: string;
@@ -820,7 +820,7 @@ export interface CellTextProps
   extends CellTextOwnProps,
     Omit<CellProps_2, keyof CellTextOwnProps> {}
 
-// @public (undocumented)
+// @public
 export const Checkbox: ForwardRefExoticComponent<
   CheckboxProps & RefAttributes<HTMLLabelElement>
 >;
@@ -851,7 +851,7 @@ export interface CheckboxProps
   extends Omit<CheckboxProps_2, 'children' | 'className'>,
     CheckboxOwnProps {}
 
-// @public (undocumented)
+// @public
 export const Column: (props: ColumnProps) => JSX_2.Element;
 
 // @public
@@ -912,7 +912,7 @@ export interface CompletePaginationOptions extends PaginationOptions {
   type?: 'page' | 'none';
 }
 
-// @public (undocumented)
+// @public
 export const Container: ForwardRefExoticComponent<
   ContainerProps & RefAttributes<HTMLDivElement>
 >;
@@ -1003,12 +1003,12 @@ export interface CursorResponse<T> {
   totalCount?: number;
 }
 
-// @public (undocumented)
+// @public
 export const Dialog: ForwardRefExoticComponent<
   DialogProps & RefAttributes<HTMLDivElement>
 >;
 
-// @public (undocumented)
+// @public
 export const DialogBody: ForwardRefExoticComponent<
   DialogBodyProps & RefAttributes<HTMLDivElement>
 >;
@@ -1057,7 +1057,7 @@ export const DialogDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const DialogFooter: ForwardRefExoticComponent<
   DialogFooterProps & RefAttributes<HTMLDivElement>
 >;
@@ -1087,7 +1087,7 @@ export interface DialogFooterProps
   extends DialogFooterOwnProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, keyof DialogFooterOwnProps> {}
 
-// @public (undocumented)
+// @public
 export const DialogHeader: ForwardRefExoticComponent<
   DialogHeaderProps & RefAttributes<HTMLDivElement>
 >;
@@ -1132,7 +1132,7 @@ export interface DialogProps
   extends DialogOwnProps,
     Omit<ModalOverlayProps, keyof DialogOwnProps> {}
 
-// @public (undocumented)
+// @public
 export const DialogTrigger: (props: DialogTriggerProps) => JSX_2.Element;
 
 // @public
@@ -1141,7 +1141,7 @@ export interface DialogTriggerProps extends DialogTriggerProps_2 {}
 // @public (undocumented)
 export type Display = 'none' | 'flex' | 'block' | 'inline';
 
-// @public (undocumented)
+// @public
 export const FieldLabel: ForwardRefExoticComponent<
   FieldLabelProps & RefAttributes<HTMLDivElement>
 >;
@@ -1192,7 +1192,7 @@ export interface FilterState<TFilter> {
   value: TFilter | undefined;
 }
 
-// @public (undocumented)
+// @public
 export const Flex: ForwardRefExoticComponent<
   FlexProps & RefAttributes<HTMLDivElement>
 >;
@@ -1580,7 +1580,7 @@ export type JustifyContent =
   | 'around'
   | 'between';
 
-// @public (undocumented)
+// @public
 export const Link: ForwardRefExoticComponent<
   LinkProps & RefAttributes<HTMLAnchorElement>
 >;
@@ -1884,7 +1884,7 @@ export interface MenuSeparatorProps
   extends MenuSeparatorOwnProps,
     Omit<SeparatorProps, keyof MenuSeparatorOwnProps> {}
 
-// @public (undocumented)
+// @public
 export const MenuTrigger: (props: MenuTriggerProps) => JSX_2.Element;
 
 // @public (undocumented)
@@ -1979,7 +1979,7 @@ export interface PaginationOptions
   initialOffset?: number;
 }
 
-// @public (undocumented)
+// @public
 export const PasswordField: ForwardRefExoticComponent<
   PasswordFieldProps & RefAttributes<HTMLDivElement>
 >;
@@ -2134,7 +2134,7 @@ export interface QueryOptions<TFilter> {
   sort?: SortDescriptor | null;
 }
 
-// @public (undocumented)
+// @public
 export const Radio: ForwardRefExoticComponent<
   RadioProps & RefAttributes<HTMLLabelElement>
 >;
@@ -2152,7 +2152,7 @@ export const RadioDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const RadioGroup: ForwardRefExoticComponent<
   RadioGroupProps & RefAttributes<HTMLDivElement>
 >;
@@ -2204,7 +2204,7 @@ export interface RadioProps
 // @public (undocumented)
 export type Responsive<T> = T | Partial<Record<Breakpoint, T>>;
 
-// @public (undocumented)
+// @public
 export function Row<T extends object>(props: RowProps<T>): JSX_2.Element;
 
 // @public (undocumented)
@@ -2236,7 +2236,7 @@ export type RowRenderFn<T extends TableItem> = (params: {
   index: number;
 }) => ReactNode;
 
-// @public (undocumented)
+// @public
 export function SearchAutocomplete(
   props: SearchAutocompleteProps,
 ): JSX_2.Element;
@@ -2280,7 +2280,7 @@ export const SearchAutocompleteDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export function SearchAutocompleteItem(
   props: SearchAutocompleteItemProps,
 ): JSX_2.Element;
@@ -2316,7 +2316,7 @@ export type SearchAutocompleteOwnProps = {
 // @public (undocumented)
 export interface SearchAutocompleteProps extends SearchAutocompleteOwnProps {}
 
-// @public (undocumented)
+// @public
 export const SearchField: ForwardRefExoticComponent<
   SearchFieldProps & RefAttributes<HTMLDivElement>
 >;
@@ -2379,7 +2379,7 @@ export interface SearchState {
   value: string;
 }
 
-// @public (undocumented)
+// @public
 export const Select: ForwardRefExoticComponent<
   SelectProps<'multiple' | 'single'> & RefAttributes<HTMLDivElement>
 >;
@@ -2431,7 +2431,7 @@ export interface SelectProps<T extends 'single' | 'multiple'>
   selectionMode?: T;
 }
 
-// @public (undocumented)
+// @public
 export const Skeleton: (props: SkeletonProps) => JSX_2.Element;
 
 // @public
@@ -2472,7 +2472,7 @@ export interface SkeletonProps
   extends Omit<ComponentProps<'div'>, 'children' | 'className' | 'style'>,
     SkeletonOwnProps {}
 
-// @public (undocumented)
+// @public
 export const Slider: (<T extends number | number[]>(
   props: SliderProps<T> & {
     ref?: React.ForwardedRef<HTMLDivElement>;
@@ -2562,7 +2562,7 @@ export const SubmenuTrigger: (props: SubmenuTriggerProps) => JSX_2.Element;
 // @public (undocumented)
 export interface SubmenuTriggerProps extends SubmenuTriggerProps_2 {}
 
-// @public (undocumented)
+// @public
 export const Switch: ForwardRefExoticComponent<
   SwitchProps & RefAttributes<HTMLLabelElement>
 >;
@@ -2596,10 +2596,10 @@ export interface SwitchProps
 // @public
 export const Tab: (props: TabProps) => JSX_2.Element;
 
-// @public (undocumented)
+// @public
 export function Table<T extends TableItem>(input: TableProps<T>): JSX_2.Element;
 
-// @public (undocumented)
+// @public
 export const TableBody: <T extends object>(
   props: TableBodyProps<T>,
 ) => JSX_2.Element;
@@ -2630,7 +2630,7 @@ export const TableDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const TableHeader: <T extends object>(
   props: TableHeaderProps<T>,
 ) => JSX_2.Element;
@@ -2744,7 +2744,7 @@ export interface TableProps<T extends TableItem> {
   virtualized?: VirtualizedProp;
 }
 
-// @public (undocumented)
+// @public
 export const TableRoot: (props: TableRootProps) => JSX_2.Element;
 
 // @public (undocumented)
@@ -2897,7 +2897,7 @@ export interface TagProps
   extends TagOwnProps,
     Omit<TagProps_2, keyof TagOwnProps> {}
 
-// @public (undocumented)
+// @public
 const Text_2: {
   <T extends ElementType = 'p'>(
     props: TextProps<T> & {
@@ -2945,7 +2945,7 @@ export const TextDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const TextField: ForwardRefExoticComponent<
   TextFieldProps & RefAttributes<HTMLDivElement>
 >;
@@ -3040,7 +3040,7 @@ export type TextVariants =
 // @public (undocumented)
 export type TextWeights = 'regular' | 'bold';
 
-// @public (undocumented)
+// @public
 export const ToggleButton: ForwardRefExoticComponent<
   ToggleButtonProps & RefAttributes<HTMLButtonElement>
 >;
@@ -3066,7 +3066,7 @@ export const ToggleButtonDefinition: {
   };
 };
 
-// @public (undocumented)
+// @public
 export const ToggleButtonGroup: ForwardRefExoticComponent<
   ToggleButtonGroupProps & RefAttributes<HTMLDivElement>
 >;
@@ -3110,7 +3110,7 @@ export interface ToggleButtonProps
   extends Omit<ToggleButtonProps_2, 'children' | 'className'>,
     ToggleButtonOwnProps {}
 
-// @public (undocumented)
+// @public
 export const Tooltip: ForwardRefExoticComponent<
   TooltipProps & RefAttributes<HTMLDivElement>
 >;
@@ -3142,7 +3142,7 @@ export interface TooltipProps
   extends Omit<TooltipProps_2, 'children' | 'className'>,
     TooltipOwnProps {}
 
-// @public (undocumented)
+// @public
 export const TooltipTrigger: (
   props: TooltipTriggerComponentProps,
 ) => JSX_2.Element;
@@ -3166,7 +3166,7 @@ export const useBreakpoint: () => {
   down: (key: Breakpoint) => boolean;
 };
 
-// @public (undocumented)
+// @public
 export function useTable<T extends TableItem, TFilter = unknown>(
   options: UseTableCompleteOptions<T, TFilter>,
 ): UseTableResult<T, TFilter>;

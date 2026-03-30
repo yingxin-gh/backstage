@@ -122,7 +122,7 @@ Lint all packages in the project
 Options:
   --format <format>           Lint report output format (default: "eslint-formatter-friendly")
   --since <ref>               Only lint packages that changed since the specified ref
-  --success-cache             Enable success caching, which skips running tests for unchanged packages that were successful in the previous run
+  --success-cache             Enable success caching, which skips running lint for unchanged packages that were successful in the previous run
   --success-cache-dir <path>  Set the success cache location, (default: node_modules/.cache/backstage-cli)
   --fix                       Attempt to automatically fix violations
 ```

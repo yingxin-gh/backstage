@@ -24,7 +24,7 @@ The Kubernetes tab is shown by default for entities where Kubernetes data is ava
 ```yaml title="app-config.yaml"
 app:
   extensions:
-    - entity-content:kubernetes:
+    - entity-content:kubernetes/kubernetes:
         config:
           filter:
             metadata.annotations.backstage.io/kubernetes-id:

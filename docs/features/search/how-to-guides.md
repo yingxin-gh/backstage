@@ -178,14 +178,24 @@ The extension is then exported from your plugin's alpha entry point and
 automatically discovered when the plugin is installed.
 
 If you need to provide a search result list item extension from your app
-rather than a plugin, you can install it directly in `createApp`:
+rather than a plugin, wrap it in a frontend module and pass it to `createApp`:
+
+```tsx title="packages/app/src/search/searchModule.ts"
+import { createFrontendModule } from '@backstage/frontend-plugin-api';
+import { YourSearchResultListItem } from './YourSearchResultListItem';
+
+export const searchCustomizations = createFrontendModule({
+  pluginId: 'search',
+  extensions: [YourSearchResultListItem],
+});
+```
 
 ```tsx title="packages/app/src/App.tsx"
 import { createApp } from '@backstage/frontend-defaults';
-import { YourSearchResultListItem } from './search/YourSearchResultListItem';
+import { searchCustomizations } from './search/searchModule';
 
 const app = createApp({
-  features: [YourSearchResultListItem],
+  features: [searchCustomizations],
 });
 
 export default app.createRoot();

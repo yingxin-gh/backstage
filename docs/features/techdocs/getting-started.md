@@ -29,15 +29,30 @@ The plugin provides a docs index page at `/docs` and a reader page for individua
 
 ## Using TechDocs Addons
 
-The TechDocs Addon framework lets you render React components in documentation pages. Addons are provided as separate plugin packages that are automatically discovered when installed.
+The TechDocs Addon framework lets you render React components in documentation pages. Addons are provided as separate plugin modules.
 
-For example, to add the Report Issue addon:
+For example, to add the Report Issue addon, first install the package:
 
 ```bash title="From your Backstage root directory"
 yarn --cwd packages/app add @backstage/plugin-techdocs-module-addons-contrib
 ```
 
-Once installed, the addon is automatically active. You can see it in action when you highlight text in your documentation:
+Then install the addon module in your app:
+
+```tsx title="packages/app/src/App.tsx"
+import { createApp } from '@backstage/frontend-defaults';
+import { techDocsReportIssueAddonModule } from '@backstage/plugin-techdocs-module-addons-contrib/alpha';
+
+const app = createApp({
+  features: [techDocsReportIssueAddonModule],
+});
+
+export default app.createRoot();
+```
+
+The same package also provides `techDocsExpandableNavigationAddonModule`, `techDocsTextSizeAddonModule`, and `techDocsLightBoxAddonModule`.
+
+You can see the Report Issue addon in action when you highlight text in your documentation:
 
 <!-- todo: Needs zoomable plugin -->
 

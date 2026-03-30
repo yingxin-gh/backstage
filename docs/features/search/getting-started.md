@@ -119,14 +119,24 @@ export const MySearchResultListItem = SearchResultListItemBlueprint.make({
 });
 ```
 
-Install this in your app by passing it to `createApp`:
+Install this in your app by wrapping it in a frontend module and passing it to `createApp`:
+
+```tsx title="packages/app/src/search/searchModule.ts"
+import { createFrontendModule } from '@backstage/frontend-plugin-api';
+import { MySearchResultListItem } from './MySearchResultListItem';
+
+export const searchCustomizations = createFrontendModule({
+  pluginId: 'search',
+  extensions: [MySearchResultListItem],
+});
+```
 
 ```tsx title="packages/app/src/App.tsx"
 import { createApp } from '@backstage/frontend-defaults';
-import { MySearchResultListItem } from './search/MySearchResultListItem';
+import { searchCustomizations } from './search/searchModule';
 
 const app = createApp({
-  features: [MySearchResultListItem],
+  features: [searchCustomizations],
 });
 
 export default app.createRoot();

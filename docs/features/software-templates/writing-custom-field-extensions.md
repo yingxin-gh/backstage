@@ -117,14 +117,24 @@ export const ValidateKebabCaseFieldExtension = FormFieldBlueprint.make({
 export { ValidateKebabCaseFieldExtension } from './extensions';
 ```
 
-Once the extension is created, install it in your app by passing it to `createApp`:
+Once the extension is created, install it in your app by wrapping it in a frontend module and passing it to `createApp`:
+
+```tsx title="packages/app/src/scaffolder/scaffolderModule.ts"
+import { createFrontendModule } from '@backstage/frontend-plugin-api';
+import { ValidateKebabCaseFieldExtension } from './ValidateKebabCase';
+
+export const scaffolderCustomizations = createFrontendModule({
+  pluginId: 'scaffolder',
+  extensions: [ValidateKebabCaseFieldExtension],
+});
+```
 
 ```tsx title="packages/app/src/App.tsx"
 import { createApp } from '@backstage/frontend-defaults';
-import { ValidateKebabCaseFieldExtension } from './scaffolder/ValidateKebabCase';
+import { scaffolderCustomizations } from './scaffolder/scaffolderModule';
 
 const app = createApp({
-  features: [ValidateKebabCaseFieldExtension],
+  features: [scaffolderCustomizations],
 });
 
 export default app.createRoot();

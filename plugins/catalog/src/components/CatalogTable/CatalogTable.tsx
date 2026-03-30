@@ -42,7 +42,7 @@ import Typography from '@material-ui/core/Typography';
 import { visuallyHidden } from '@mui/utils';
 import Edit from '@material-ui/icons/Edit';
 import OpenInNew from '@material-ui/icons/OpenInNew';
-import { capitalize } from 'lodash';
+import { capitalize, sortBy } from 'lodash';
 import pluralize from 'pluralize';
 import { ReactNode, useMemo } from 'react';
 import { columnFactories } from './columns';
@@ -86,10 +86,8 @@ function getTitle(
   return defaultEntityPresentation(entityOrRef, context).primaryTitle;
 }
 
-const refCompare = (a: Entity, b: Entity, api?: EntityPresentationApi) => {
-  return getTitle(a, { defaultKind: 'Component' }, api).localeCompare(
-    getTitle(b, { defaultKind: 'Component' }, api),
-  );
+const sortEntities = (entities: Entity[], api?: EntityPresentationApi) => {
+  return sortBy(entities, e => getTitle(e, { defaultKind: 'Component' }, api));
 };
 
 /**
@@ -269,9 +267,9 @@ export const CatalogTable = (props: CatalogTableProps) => {
     );
   }
 
-  const rows = entities
-    .sort((a, b) => refCompare(a, b, entityPresentationApi))
-    .map(e => toEntityRow(e, entityPresentationApi));
+  const rows = sortEntities(entities, entityPresentationApi).map(e =>
+    toEntityRow(e, entityPresentationApi),
+  );
   const pageSize = 20;
   const showPagination = rows.length > pageSize;
 

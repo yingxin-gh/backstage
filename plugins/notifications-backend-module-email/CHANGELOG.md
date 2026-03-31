@@ -1,5 +1,15 @@
 # @backstage/plugin-notifications-backend-module-email
 
+## 0.3.20-next.1
+
+### Patch Changes
+
+- 19ef9fb: build(deps): bump `nodemailer` from 7.0.13 to 8.0.4
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.9.0-next.1
+  - @backstage/plugin-catalog-node@2.1.1-next.1
+  - @backstage/plugin-notifications-node@0.2.25-next.1
+
 ## 0.3.20-next.0
 
 ### Patch Changes

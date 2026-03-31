@@ -1,5 +1,30 @@
 # @backstage/plugin-app
 
+## 0.4.3-next.1
+
+### Patch Changes
+
+- e5baa20: Added support for configuring URL redirects on the `app/routes` extension. Redirects can be configured through `app-config` as an array of `{from, to}` path pairs, which will cause navigation to the `from` path to be redirected to the `to` path.
+
+  For example:
+
+  ```yaml
+  app:
+    extensions:
+      - app/routes:
+          config:
+            redirects:
+              - from: /old-path
+                to: /new-path
+  ```
+
+- Updated dependencies
+  - @backstage/ui@0.14.0-next.1
+  - @backstage/frontend-plugin-api@0.16.0-next.1
+  - @backstage/core-components@0.18.9-next.0
+  - @backstage/core-plugin-api@1.12.5-next.1
+  - @backstage/plugin-app-react@0.2.2-next.1
+
 ## 0.4.3-next.0
 
 ### Patch Changes

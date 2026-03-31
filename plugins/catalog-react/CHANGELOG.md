@@ -1,5 +1,19 @@
 # @backstage/plugin-catalog-react
 
+## 2.1.2-next.1
+
+### Patch Changes
+
+- eba2f61: Fixed `EntityInfoCard` header overflowing on narrow screens.
+- 0416216: Fixed entity relation cards (e.g., "Has components") only showing one entity at a time by using `paginationOptions: { type: 'none' }` instead of deriving page size from data length.
+- Updated dependencies
+  - @backstage/ui@0.14.0-next.1
+  - @backstage/frontend-plugin-api@0.16.0-next.1
+  - @backstage/core-compat-api@0.5.10-next.1
+  - @backstage/core-components@0.18.9-next.0
+  - @backstage/core-plugin-api@1.12.5-next.1
+  - @backstage/frontend-test-utils@0.5.2-next.1
+
 ## 2.1.1-next.0
 
 ### Patch Changes

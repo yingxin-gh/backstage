@@ -1,5 +1,16 @@
 # @backstage/frontend-app-api
 
+## 0.16.2-next.1
+
+### Patch Changes
+
+- 400aa23: Wrapped extension permission authorization in a try/catch to surface errors as `ForwardedError` with a clear message.
+- Updated dependencies
+  - @backstage/core-app-api@1.20.0-next.1
+  - @backstage/frontend-plugin-api@0.16.0-next.1
+  - @backstage/core-plugin-api@1.12.5-next.1
+  - @backstage/frontend-defaults@0.5.1-next.1
+
 ## 0.16.2-next.0
 
 ### Patch Changes

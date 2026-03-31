@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Notification } from '@backstage/plugin-notifications-common';
-import { useApp } from '@backstage/core-plugin-api';
-import { SeverityIcon } from './SeverityIcon';
 
-export const NotificationIcon = ({
-  notification,
-}: {
-  notification: Notification;
-}) => {
-  const app = useApp();
-
-  if (notification.payload.icon) {
-    const Icon = app.getSystemIcon(notification.payload.icon);
-    if (Icon) {
-      return <Icon />;
-    }
+@layer components {
+  .label {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+    max-width: 4rem;
+    gap: var(--bui-space-1);
+    cursor: pointer;
+    font-size: var(--bui-font-size-1);
+    color: var(--bui-fg-primary);
   }
-  return <SeverityIcon severity={notification.payload.severity} />;
-};
+}

@@ -113,7 +113,7 @@ const components: Options['components'] = {
 
   a: ({ href, children, title, target, rel }) =>
     href ? (
-      <Link to={href} title={title} target={target} rel={rel}>
+      <Link to={href} title={title} ...(target ? { target } : {}) ...(rel ? { rel } : {})>
         {children}
       </Link>
     ) : (

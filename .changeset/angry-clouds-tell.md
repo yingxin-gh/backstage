@@ -2,4 +2,4 @@
 '@backstage/cli-module-new': patch
 ---
 
-Rename the legacy `frontend-plugin` to `legacy-frontend-plugin`
+Rename the legacy `frontend-plugin` to `frontend-plugin-legacy`

@@ -1265,7 +1265,7 @@ describe('createOAuthRouteHandlers', () => {
     });
 
     it('should return logoutUrl as JSON when authenticator provides one', async () => {
-      mockAuthenticator.logout.mockResolvedValueOnce({
+      (mockAuthenticator.logout as jest.Mock).mockResolvedValueOnce({
         logoutUrl: 'https://example.auth0.com/v2/logout?federated',
       });
 
@@ -1293,7 +1293,7 @@ describe('createOAuthRouteHandlers', () => {
     });
 
     it('should return empty body when authenticator logout returns void', async () => {
-      mockAuthenticator.logout.mockResolvedValueOnce(undefined);
+      (mockAuthenticator.logout as jest.Mock).mockResolvedValueOnce(undefined);
 
       const agent = request.agent(
         wrapInApp(createOAuthRouteHandlers(baseConfig)),

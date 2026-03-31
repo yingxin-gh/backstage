@@ -280,7 +280,7 @@ export function createOAuthRouteHandlers<TProfile>(
         throw new AuthenticationError('Invalid X-Requested-With header');
       }
 
-      let logoutResult: void | { logoutUrl?: string };
+      let logoutResult: void | { logoutUrl?: string } = undefined;
       if (authenticator.logout) {
         const refreshToken = cookieManager.getRefreshToken(req);
         logoutResult = await authenticator.logout(

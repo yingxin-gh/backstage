@@ -85,7 +85,7 @@ export const auth0Authenticator = createOAuthAuthenticator({
         },
       ),
     );
-    return { helper, audience, connection, connectionScope };
+    return { helper, audience, connection, connectionScope, domain, clientID };
   },
 
   async start(
@@ -114,5 +114,14 @@ export const auth0Authenticator = createOAuthAuthenticator({
 
   async refresh(input, { helper }) {
     return helper.refresh(input);
+  },
+
+  async logout(input, { domain, clientID }) {
+    const origin = input.req.get('origin') ?? '';
+    return {
+      logoutUrl: `https://${domain}/v2/logout?federated&client_id=${encodeURIComponent(
+        clientID,
+      )}&returnTo=${encodeURIComponent(origin)}`,
+    };
   },
 });

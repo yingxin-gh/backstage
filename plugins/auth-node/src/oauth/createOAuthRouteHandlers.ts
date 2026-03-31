@@ -280,9 +280,13 @@ export function createOAuthRouteHandlers<TProfile>(
         throw new AuthenticationError('Invalid X-Requested-With header');
       }
 
+      let logoutResult: void | { logoutUrl?: string };
       if (authenticator.logout) {
         const refreshToken = cookieManager.getRefreshToken(req);
-        await authenticator.logout({ req, refreshToken }, authenticatorCtx);
+        logoutResult = await authenticator.logout(
+          { req, refreshToken },
+          authenticatorCtx,
+        );
       }
 
       // remove refresh token cookie if it is set
@@ -291,7 +295,11 @@ export function createOAuthRouteHandlers<TProfile>(
       // remove persisted scopes
       await scopeManager.clear(req);
 
-      res.status(200).end();
+      if (logoutResult?.logoutUrl) {
+        res.status(200).json({ logoutUrl: logoutResult.logoutUrl });
+      } else {
+        res.status(200).end();
+      }
     },
 
     async refresh(

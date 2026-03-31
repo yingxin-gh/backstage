@@ -1,5 +1,11 @@
 # @backstage/cli-module-build
 
+## 0.1.1-next.1
+
+### Patch Changes
+
+- 2e5c5f8: Bumped `glob` dependency from v7/v8/v11 to v13 to address security vulnerabilities in older versions. Bumped `rollup` from v4.27 to v4.59+ to fix a high severity path traversal vulnerability (GHSA-mw96-cpmx-2vgc).
+
 ## 0.1.1-next.0
 
 ### Patch Changes

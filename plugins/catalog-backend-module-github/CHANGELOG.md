@@ -1,5 +1,15 @@
 # @backstage/plugin-catalog-backend-module-github
 
+## 0.13.1-next.1
+
+### Patch Changes
+
+- b11e338: Fixed a bug where `GithubEntityProvider` with `validateLocationsExist: true` and `filters.branch` configured would always check for the catalog file on the repository's default branch (`HEAD`) instead of the configured branch. This caused repositories to be filtered out when the catalog file only existed on the non-default branch.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.9.0-next.1
+  - @backstage/plugin-catalog-node@2.1.1-next.1
+  - @backstage/plugin-events-node@0.4.21-next.1
+
 ## 0.13.1-next.0
 
 ### Patch Changes

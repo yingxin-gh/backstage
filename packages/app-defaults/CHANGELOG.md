@@ -1,5 +1,15 @@
 # @backstage/app-defaults
 
+## 1.7.7-next.1
+
+### Patch Changes
+
+- 400aa23: Added `FetchMiddlewares.clarifyFailures()` to the default fetch API middleware stack.
+- Updated dependencies
+  - @backstage/core-app-api@1.20.0-next.1
+  - @backstage/core-components@0.18.9-next.0
+  - @backstage/core-plugin-api@1.12.5-next.1
+
 ## 1.7.7-next.0
 
 ### Patch Changes

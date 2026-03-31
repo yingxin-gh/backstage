@@ -127,7 +127,7 @@ export default {
             description:
               'Features in Backstage you can leverage with your AI tools.',
           },
-          ['ai/mcp-actions', 'ai/well-known-actions'],
+          ['ai/skills', 'ai/mcp-actions', 'ai/well-known-actions'],
         ),
         sidebarElementWithIndex(
           {

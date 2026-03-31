@@ -9,6 +9,8 @@ This skill helps fully migrate an existing Backstage plugin from the old fronten
 
 This is the preferred approach for internal plugins that are only used in a single app, since there is no need to maintain backward compatibility. It can also be used for published plugins when you're ready to drop old system support entirely.
 
+It is highly recommended to be on Backstage version 1.49.x or above. This can be verified by looking in the `backstage.json` file in the root of the repository.
+
 ## Key Differences from Dual Support
 
 | Aspect           | Dual Support                                      | Full Migration                                              |

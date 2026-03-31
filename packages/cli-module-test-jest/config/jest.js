@@ -367,7 +367,9 @@ async function getRootConfig() {
   // workspace and load those in as separate jest projects instead.
   const projectPaths = await Promise.all(
     workspacePatterns.map(pattern =>
-      glob(path.join(paths.targetRoot, pattern)),
+      glob(path.join(paths.targetRoot, pattern), {
+        windowsPathsNoEscape: true,
+      }),
     ),
   ).then(_ => _.flat());
 

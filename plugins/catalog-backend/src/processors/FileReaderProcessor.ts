@@ -44,7 +44,9 @@ export class FileReaderProcessor implements CatalogProcessor {
     }
 
     try {
-      const fileMatches = await glob(location.target);
+      const fileMatches = await glob(location.target, {
+        windowsPathsNoEscape: true,
+      });
 
       if (fileMatches.length > 0) {
         for (const fileMatch of fileMatches) {

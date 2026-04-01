@@ -21,6 +21,37 @@ import { getPortPromise } from 'portfinder';
 import { ForwardedError } from '@backstage/errors';
 import chalk from 'chalk';
 
+const TEMP_DIR_PREFIX = 'backstage-dev-db-';
+const PID_FILE = 'backstage.pid';
+
+function isProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function cleanStaleDatabases() {
+  const tmpBase = os.tmpdir();
+  const entries = (await fs.readdir(tmpBase)).filter(d =>
+    d.startsWith(TEMP_DIR_PREFIX),
+  );
+  await Promise.all(
+    entries.map(async d => {
+      const dir = resolvePath(tmpBase, d);
+      const raw = await fs
+        .readFile(resolvePath(dir, PID_FILE), 'utf8')
+        .catch(() => undefined);
+      const pid = raw ? Number(raw.trim()) : NaN;
+      if (!pid || !isProcessAlive(pid)) {
+        await fs.remove(dir);
+      }
+    }),
+  );
+}
+
 export async function startEmbeddedDb() {
   console.warn(
     chalk.yellow(
@@ -39,13 +70,16 @@ export async function startEmbeddedDb() {
     },
   );
 
+  await cleanStaleDatabases();
+
   const host = 'localhost';
   const user = 'postgres';
   const password = 'password';
   const port = await getPortPromise();
-  const tmpDir = await fs.mkdtemp(
-    resolvePath(os.tmpdir(), 'backstage-dev-db-'),
-  );
+  const tmpDir = await fs.mkdtemp(resolvePath(os.tmpdir(), TEMP_DIR_PREFIX));
+
+  await fs.writeFile(resolvePath(tmpDir, PID_FILE), String(process.pid));
+
   const pg = new EmbeddedPostgres({
     databaseDir: tmpDir,
     user,

@@ -202,13 +202,17 @@ export class DefaultAuthConnector<AuthSession>
       if (contentType?.includes('application/json')) {
         const body = await res.json();
         if (body.logoutUrl) {
-          window.location.href = body.logoutUrl;
-          return new Promise(() => {});
+          const url = new URL(body.logoutUrl);
+          if (url.protocol === 'https:' || url.hostname === 'localhost') {
+            window.location.href = body.logoutUrl;
+            return new Promise(() => {});
+          }
         }
       }
     } catch {
-      // Provider logout redirect is best-effort — the Backstage session is
-      // already cleared, so we degrade gracefully.
+      // Provider logout redirect is best-effort - the backend session
+      // (refresh token cookie and persisted scopes) is already cleared,
+      // so we degrade gracefully.
     }
 
     return undefined;

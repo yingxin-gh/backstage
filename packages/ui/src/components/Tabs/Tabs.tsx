@@ -50,14 +50,8 @@ import {
   TabDefinition,
   TabPanelDefinition,
 } from './definition';
-import {
-  isInternalLink,
-  createRoutingRegistration,
-} from '../InternalLinkProvider';
+import { isInternalLink } from '../../utils/linkUtils';
 import { getNodeText } from '../../analytics/getNodeText';
-
-const { RoutingProvider, useRoutingRegistrationEffect } =
-  createRoutingRegistration();
 
 const TabsContext = createContext<TabsContextValue | undefined>(undefined);
 
@@ -153,7 +147,7 @@ export const Tabs = (props: TabsProps) => {
       return '';
     }
 
-    let selectedId: string | null = null;
+    let selectedId: string | undefined;
     let maxSegments = -1;
 
     activeTabs.forEach((segmentCount, id) => {
@@ -218,21 +212,19 @@ export const Tabs = (props: TabsProps) => {
   );
 
   return (
-    <RoutingProvider>
-      <TabsContext.Provider value={tabsContextValue}>
-        <TabSelectionContext.Provider value={selectionContextValue}>
-          <AriaTabs
-            className={classes.root}
-            keyboardActivation="manual"
-            selectedKey={selectedTabId}
-            ref={tabsRef}
-            {...restProps}
-          >
-            {children as ReactNode}
-          </AriaTabs>
-        </TabSelectionContext.Provider>
-      </TabsContext.Provider>
-    </RoutingProvider>
+    <TabsContext.Provider value={tabsContextValue}>
+      <TabSelectionContext.Provider value={selectionContextValue}>
+        <AriaTabs
+          className={classes.root}
+          keyboardActivation="manual"
+          selectedKey={selectedTabId}
+          ref={tabsRef}
+          {...restProps}
+        >
+          {children as ReactNode}
+        </AriaTabs>
+      </TabSelectionContext.Provider>
+    </TabsContext.Provider>
   );
 };
 
@@ -298,9 +290,6 @@ function RoutedTabEffects({
 }) {
   const selectionCtx = useContext(TabSelectionContext);
   const location = useLocation();
-
-  // Register with RoutingProvider for conditional RouterProvider wrapping
-  useRoutingRegistrationEffect(href);
 
   // Register as a routed tab (for controlled vs uncontrolled mode)
   useEffect(() => {

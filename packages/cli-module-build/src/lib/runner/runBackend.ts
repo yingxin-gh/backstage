@@ -20,8 +20,13 @@ import { ctrlc } from 'ctrlc-windows';
 import { IpcServer, ServerDataStore } from '../ipc';
 import debounce from 'lodash/debounce';
 import { fileURLToPath } from 'node:url';
-import { isAbsolute as isAbsolutePath } from 'node:path';
+import {
+  isAbsolute as isAbsolutePath,
+  resolve as resolvePath,
+} from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
+import { ConfigSources } from '@backstage/config-loader';
+import { ConfigReader } from '@backstage/config';
 
 import spawn from 'cross-spawn';
 import { startEmbeddedDb } from './startEmbeddedDb';
@@ -46,6 +51,8 @@ export type RunBackendOptions = {
   require?: string | string[];
   /** An external linked workspace to override module resolution towards */
   linkedWorkspace?: string;
+  /** Config file paths from --config flags */
+  configPaths?: string[];
 };
 
 export async function runBackend(options: RunBackendOptions) {
@@ -60,7 +67,8 @@ export async function runBackend(options: RunBackendOptions) {
 
   const extraEnv: Record<string, string> = {};
 
-  if (process.env.EXPERIMENTAL_DEV_DB) {
+  const dbClient = await readDatabaseClient(options.configPaths);
+  if (dbClient === 'embedded-postgres') {
     const db = await startEmbeddedDb();
     extraEnv.APP_CONFIG_backend_database = JSON.stringify({
       client: 'pg',
@@ -206,4 +214,29 @@ export async function runBackend(options: RunBackendOptions) {
   });
 
   return () => exitPromise;
+}
+
+async function readDatabaseClient(
+  configPaths?: string[],
+): Promise<string | undefined> {
+  const rootDir = targetPaths.rootDir;
+  const source = ConfigSources.default({
+    rootDir,
+    allowMissingDefaultConfig: true,
+    argv: (configPaths ?? []).flatMap(p => [
+      '--config',
+      resolvePath(rootDir, p),
+    ]),
+  });
+
+  const abortController = new AbortController();
+  for await (const { configs } of source.readConfigData({
+    signal: abortController.signal,
+  })) {
+    abortController.abort();
+    return ConfigReader.fromConfigs(configs).getOptionalString(
+      'backend.database.client',
+    );
+  }
+  return undefined;
 }

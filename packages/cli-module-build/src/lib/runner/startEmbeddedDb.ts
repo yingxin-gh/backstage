@@ -19,8 +19,15 @@ import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
 import { getPortPromise } from 'portfinder';
 import { ForwardedError } from '@backstage/errors';
+import chalk from 'chalk';
 
 export async function startEmbeddedDb() {
+  console.warn(
+    chalk.yellow(
+      'WARNING: Using embedded-postgres for local development is experimental and subject to change',
+    ),
+  );
+
   const { default: EmbeddedPostgres } = await import('embedded-postgres').catch(
     error => {
       throw new ForwardedError(

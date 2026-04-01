@@ -293,7 +293,10 @@ export interface OAuthAuthenticator<TContext, TProfile> {
   // (undocumented)
   initialize(ctx: { callbackUrl: string; config: Config }): TContext;
   // (undocumented)
-  logout?(input: OAuthAuthenticatorLogoutInput, ctx: TContext): Promise<void>;
+  logout?(
+    input: OAuthAuthenticatorLogoutInput,
+    ctx: TContext,
+  ): Promise<void | OAuthAuthenticatorLogoutResult>;
   // (undocumented)
   refresh(
     input: OAuthAuthenticatorRefreshInput,
@@ -327,6 +330,11 @@ export interface OAuthAuthenticatorLogoutInput {
   refreshToken?: string;
   // (undocumented)
   req: Request_2;
+}
+
+// @public (undocumented)
+export interface OAuthAuthenticatorLogoutResult {
+  logoutUrl?: string;
 }
 
 // @public (undocumented)

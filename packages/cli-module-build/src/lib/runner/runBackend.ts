@@ -232,6 +232,9 @@ async function readDatabaseClient(
   });
 
   const config = await ConfigSources.toConfig(source);
-  config.close();
-  return config.getOptionalString('backend.database.client');
+  try {
+    return config.getOptionalString('backend.database.client');
+  } finally {
+    config.close();
+  }
 }

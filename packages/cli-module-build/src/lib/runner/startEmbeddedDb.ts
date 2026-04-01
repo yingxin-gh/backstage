@@ -92,11 +92,14 @@ export async function startEmbeddedDb() {
     onLog() {},
   });
 
-  // Create the cluster config files
-  await pg.initialise();
-
-  // Start the server
-  await pg.start();
+  try {
+    await pg.initialise();
+    await pg.start();
+  } catch (error) {
+    await pg.stop().catch(() => {});
+    await fs.remove(tmpDir).catch(() => {});
+    throw error;
+  }
 
   return {
     connection: {

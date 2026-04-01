@@ -126,15 +126,15 @@ export const auth0Authenticator = createOAuthAuthenticator({
   },
 
   async logout(input, { domain, clientID, federated }) {
+    const logoutUrl = new URL(`https://${domain}/v2/logout`);
+    if (federated) {
+      logoutUrl.searchParams.set('federated', '');
+    }
+    logoutUrl.searchParams.set('client_id', clientID);
     const origin = input.req.get('origin');
-    const federatedParam = federated ? 'federated&' : '';
-    const returnToParam = origin
-      ? `&returnTo=${encodeURIComponent(origin)}`
-      : '';
-    return {
-      logoutUrl: `https://${domain}/v2/logout?${federatedParam}client_id=${encodeURIComponent(
-        clientID,
-      )}${returnToParam}`,
-    };
+    if (origin) {
+      logoutUrl.searchParams.set('returnTo', origin);
+    }
+    return { logoutUrl: logoutUrl.toString() };
   },
 });

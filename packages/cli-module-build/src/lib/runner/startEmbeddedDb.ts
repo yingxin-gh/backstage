@@ -16,7 +16,7 @@
 
 import os from 'node:os';
 import fs from 'fs-extra';
-import { resolve as resolvePath } from 'path';
+import { resolve as resolvePath } from 'node:path';
 import { getPortPromise } from 'portfinder';
 
 export async function startEmbeddedDb() {
@@ -42,8 +42,8 @@ export async function startEmbeddedDb() {
     password,
     port,
     persistent: false,
-    onError(_messageOrError) {},
-    onLog(_message) {},
+    onError(_messageOrError: unknown) {},
+    onLog(_message: unknown) {},
   });
 
   // Create the cluster config files

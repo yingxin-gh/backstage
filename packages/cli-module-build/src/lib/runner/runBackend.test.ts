@@ -49,6 +49,24 @@ jest.mock('ctrlc-windows', () => ({
   ctrlc: jest.fn(),
 }));
 
+jest.mock('@backstage/config-loader', () => ({
+  ConfigSources: {
+    default: () => ({
+      readConfigData: async function* readConfigData() {
+        yield { configs: [] };
+      },
+    }),
+  },
+}));
+
+jest.mock('@backstage/config', () => ({
+  ConfigReader: {
+    fromConfigs: () => ({
+      getOptionalString: () => undefined,
+    }),
+  },
+}));
+
 describe('runBackend', () => {
   let originalEnv: NodeJS.ProcessEnv;
   let originalPlatform: string;
@@ -82,92 +100,73 @@ describe('runBackend', () => {
   });
 
   describe('--no-node-snapshot argument handling', () => {
-    it('should pass --no-node-snapshot when NODE_OPTIONS is not set', () => {
+    it('should pass --no-node-snapshot when NODE_OPTIONS is not set', async () => {
       delete process.env.NODE_OPTIONS;
 
-      runBackend({
-        entry: 'src/index',
-      });
+      runBackend({ entry: 'src/index' });
 
-      // Fast-forward past the debounce delay (100ms)
-      jest.advanceTimersByTime(100);
+      await jest.advanceTimersByTimeAsync(100);
 
       expect(mockSpawn).toHaveBeenCalled();
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
       expect(spawnArgs).toContain('--no-node-snapshot');
     });
 
-    it('should pass --no-node-snapshot when NODE_OPTIONS exists without --node-snapshot', () => {
+    it('should pass --no-node-snapshot when NODE_OPTIONS exists without --node-snapshot', async () => {
       process.env.NODE_OPTIONS = '--max-old-space-size=4096';
 
-      runBackend({
-        entry: 'src/index',
-      });
+      runBackend({ entry: 'src/index' });
 
-      // Fast-forward past the debounce delay (100ms)
-      jest.advanceTimersByTime(100);
+      await jest.advanceTimersByTimeAsync(100);
 
       expect(mockSpawn).toHaveBeenCalled();
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
       expect(spawnArgs).toContain('--no-node-snapshot');
     });
 
-    it('should not pass --no-node-snapshot when --node-snapshot already exists in NODE_OPTIONS', () => {
+    it('should not pass --no-node-snapshot when --node-snapshot already exists in NODE_OPTIONS', async () => {
       process.env.NODE_OPTIONS = '--node-snapshot --max-old-space-size=4096';
 
-      runBackend({
-        entry: 'src/index',
-      });
+      runBackend({ entry: 'src/index' });
 
-      // Fast-forward past the debounce delay (100ms)
-      jest.advanceTimersByTime(100);
+      await jest.advanceTimersByTimeAsync(100);
 
       expect(mockSpawn).toHaveBeenCalled();
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
       expect(spawnArgs).not.toContain('--no-node-snapshot');
     });
 
-    it('should not pass --no-node-snapshot when --node-snapshot exists in the middle of NODE_OPTIONS', () => {
+    it('should not pass --no-node-snapshot when --node-snapshot exists in the middle of NODE_OPTIONS', async () => {
       process.env.NODE_OPTIONS =
         '--max-old-space-size=4096 --node-snapshot --inspect';
 
-      runBackend({
-        entry: 'src/index',
-      });
+      runBackend({ entry: 'src/index' });
 
-      // Fast-forward past the debounce delay (100ms)
-      jest.advanceTimersByTime(100);
+      await jest.advanceTimersByTimeAsync(100);
 
       expect(mockSpawn).toHaveBeenCalled();
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
       expect(spawnArgs).not.toContain('--no-node-snapshot');
     });
 
-    it('should pass --no-node-snapshot even with trailing spaces in NODE_OPTIONS', () => {
+    it('should pass --no-node-snapshot even with trailing spaces in NODE_OPTIONS', async () => {
       process.env.NODE_OPTIONS = '--max-old-space-size=4096 ';
 
-      runBackend({
-        entry: 'src/index',
-      });
+      runBackend({ entry: 'src/index' });
 
-      // Fast-forward past the debounce delay (100ms)
-      jest.advanceTimersByTime(100);
+      await jest.advanceTimersByTimeAsync(100);
 
       expect(mockSpawn).toHaveBeenCalled();
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
       expect(spawnArgs).toContain('--no-node-snapshot');
     });
 
-    it('should pass --no-node-snapshot alongside other option args like --inspect', () => {
+    it('should pass --no-node-snapshot alongside other option args like --inspect', async () => {
       delete process.env.NODE_OPTIONS;
 
-      runBackend({
-        entry: 'src/index',
-        inspectEnabled: true,
-      });
+      runBackend({ entry: 'src/index', inspectEnabled: true });
 
-      // Fast-forward past the debounce delay (100ms)
-      jest.advanceTimersByTime(100);
+      await jest.advanceTimersByTimeAsync(100);
 
       expect(mockSpawn).toHaveBeenCalled();
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];

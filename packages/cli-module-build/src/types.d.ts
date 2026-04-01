@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
-// It's missing a types entry point, but has types in dist
 declare module 'embedded-postgres' {
-  export { default } from 'embedded-postgres/dist/index';
+  export interface EmbeddedPostgresOptions {
+    databaseDir: string;
+    user: string;
+    password: string;
+    port: number;
+    persistent: boolean;
+    onError?: (messageOrError: unknown) => void;
+    onLog?: (message: unknown) => void;
+  }
+
+  export default class EmbeddedPostgres {
+    constructor(options: EmbeddedPostgresOptions);
+    initialise(): Promise<void>;
+    start(): Promise<void>;
+    stop(): Promise<void>;
+  }
 }

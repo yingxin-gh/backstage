@@ -85,7 +85,7 @@ export const auth0Authenticator = createOAuthAuthenticator({
         },
       ),
     );
-    const federated = config.getOptionalBoolean('federated') ?? false;
+    const federated = config.getOptionalBoolean('federatedLogout') ?? false;
     return {
       helper,
       audience,

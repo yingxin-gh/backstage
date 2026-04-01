@@ -225,7 +225,7 @@ describe('authModuleAuth0Provider', () => {
     );
   });
 
-  it('should include federated param when federated is true', async () => {
+  it('should include federated param when federatedLogout is true', async () => {
     const { server } = await startTestBackend({
       features: [
         authPlugin,
@@ -242,7 +242,7 @@ describe('authModuleAuth0Provider', () => {
                     clientId: 'test-client-id',
                     clientSecret: 'clientSecret',
                     domain: 'test.eu.auth0.com',
-                    federated: true,
+                    federatedLogout: true,
                   },
                 },
               },

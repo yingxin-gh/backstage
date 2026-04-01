@@ -51,17 +51,9 @@ jest.mock('ctrlc-windows', () => ({
 
 jest.mock('@backstage/config-loader', () => ({
   ConfigSources: {
-    default: () => ({
-      readConfigData: async function* readConfigData() {
-        yield { configs: [] };
-      },
-    }),
-  },
-}));
-
-jest.mock('@backstage/config', () => ({
-  ConfigReader: {
-    fromConfigs: () => ({
+    default: () => ({}),
+    toConfig: async () => ({
+      close: jest.fn(),
       getOptionalString: () => undefined,
     }),
   },

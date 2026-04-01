@@ -26,7 +26,6 @@ import {
 } from 'node:path';
 import { targetPaths } from '@backstage/cli-common';
 import { ConfigSources } from '@backstage/config-loader';
-import { ConfigReader } from '@backstage/config';
 
 import spawn from 'cross-spawn';
 import { startEmbeddedDb } from './startEmbeddedDb';
@@ -229,14 +228,7 @@ async function readDatabaseClient(
     ]),
   });
 
-  const abortController = new AbortController();
-  for await (const { configs } of source.readConfigData({
-    signal: abortController.signal,
-  })) {
-    abortController.abort();
-    return ConfigReader.fromConfigs(configs).getOptionalString(
-      'backend.database.client',
-    );
-  }
-  return undefined;
+  const config = await ConfigSources.toConfig(source);
+  config.close();
+  return config.getOptionalString('backend.database.client');
 }

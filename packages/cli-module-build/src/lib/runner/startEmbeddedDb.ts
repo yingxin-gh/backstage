@@ -18,14 +18,16 @@ import os from 'node:os';
 import fs from 'fs-extra';
 import { resolve as resolvePath } from 'node:path';
 import { getPortPromise } from 'portfinder';
+import { ForwardedError } from '@backstage/errors';
 
 export async function startEmbeddedDb() {
   const { default: EmbeddedPostgres } = await import('embedded-postgres').catch(
     error => {
-      throw new Error(
+      throw new ForwardedError(
         `Failed to load 'embedded-postgres' which is required when using ` +
-          `'embedded-postgres' as the database client. It must be installed as ` +
-          `an explicit dependency in your project. Caused by: ${error}`,
+          `'embedded-postgres' as the database client. It must be installed ` +
+          `as an explicit dependency in your project`,
+        error,
       );
     },
   );

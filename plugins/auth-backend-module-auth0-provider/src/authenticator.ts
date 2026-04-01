@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+import { CacheService } from '@backstage/backend-plugin-api';
 import express from 'express';
+import { Strategy } from 'passport';
 import {
   createOAuthAuthenticator,
+  PassportHelpers,
   PassportOAuthAuthenticatorHelper,
   PassportOAuthDoneCallback,
   PassportProfile,
@@ -24,35 +27,40 @@ import {
 import { Auth0Strategy } from './strategy';
 
 /** @public */
-export const auth0Authenticator = createOAuthAuthenticator({
-  defaultProfileTransform:
-    PassportOAuthAuthenticatorHelper.defaultProfileTransform,
-  initialize({ callbackUrl, config }) {
-    const clientID = config.getString('clientId');
-    const clientSecret = config.getString('clientSecret');
-    const domain = config.getString('domain');
-    const audience = config.getOptionalString('audience');
-    const connection = config.getOptionalString('connection');
-    const connectionScope = config.getOptionalString('connectionScope');
-    const callbackURL = config.getOptionalString('callbackUrl') ?? callbackUrl;
-    const organization = config.getOptionalString('organization');
-    // Due to passport-auth0 forcing options.state = true,
-    // passport-oauth2 requires express-session to be installed
-    // so that the 'state' parameter of the oauth2 flow can be stored.
-    // This implementation of StateStore matches the NullStore found within
-    // passport-oauth2, which is the StateStore implementation used when options.state = false,
-    // allowing us to avoid using express-session in order to integrate with auth0.
-    const store = {
-      store(_req: express.Request, cb: any) {
-        cb(null, null);
-      },
-      verify(_req: express.Request, _state: string, cb: any) {
-        cb(null, true);
-      },
-    };
+export function createAuth0Authenticator(options?: { cache?: CacheService }) {
+  const profileCache = options?.cache?.withOptions({
+    defaultTtl: { minutes: 1 },
+  });
 
-    const helper = PassportOAuthAuthenticatorHelper.from(
-      new Auth0Strategy(
+  return createOAuthAuthenticator({
+    defaultProfileTransform:
+      PassportOAuthAuthenticatorHelper.defaultProfileTransform,
+    initialize({ callbackUrl, config }) {
+      const clientID = config.getString('clientId');
+      const clientSecret = config.getString('clientSecret');
+      const domain = config.getString('domain');
+      const audience = config.getOptionalString('audience');
+      const connection = config.getOptionalString('connection');
+      const connectionScope = config.getOptionalString('connectionScope');
+      const callbackURL =
+        config.getOptionalString('callbackUrl') ?? callbackUrl;
+      const organization = config.getOptionalString('organization');
+      // Due to passport-auth0 forcing options.state = true,
+      // passport-oauth2 requires express-session to be installed
+      // so that the 'state' parameter of the oauth2 flow can be stored.
+      // This implementation of StateStore matches the NullStore found within
+      // passport-oauth2, which is the StateStore implementation used when options.state = false,
+      // allowing us to avoid using express-session in order to integrate with auth0.
+      const store = {
+        store(_req: express.Request, cb: any) {
+          cb(null, null);
+        },
+        verify(_req: express.Request, _state: string, cb: any) {
+          cb(null, true);
+        },
+      };
+
+      const strategy = new Auth0Strategy(
         {
           clientID,
           clientSecret,
@@ -83,58 +91,93 @@ export const auth0Authenticator = createOAuthAuthenticator({
             },
           );
         },
-      ),
-    );
-    const federated = config.getOptionalBoolean('federatedLogout') ?? false;
-    return {
-      helper,
-      audience,
-      connection,
-      connectionScope,
-      domain,
-      clientID,
-      federated,
-    };
-  },
+      );
 
-  async start(
-    input,
-    { helper, audience, connection, connectionScope: connection_scope },
-  ) {
-    return helper.start(input, {
-      accessType: 'offline',
-      prompt: 'consent',
-      ...(audience ? { audience } : {}),
-      ...(connection ? { connection } : {}),
-      ...(connection_scope ? { connection_scope } : {}),
-    });
-  },
+      const helper = PassportOAuthAuthenticatorHelper.from(strategy);
+      const federated = config.getOptionalBoolean('federatedLogout') ?? false;
+      return {
+        helper,
+        strategy: strategy as Strategy,
+        audience,
+        connection,
+        connectionScope,
+        domain,
+        clientID,
+        federated,
+      };
+    },
 
-  async authenticate(
-    input,
-    { helper, audience, connection, connectionScope: connection_scope },
-  ) {
-    return helper.authenticate(input, {
-      ...(audience ? { audience } : {}),
-      ...(connection ? { connection } : {}),
-      ...(connection_scope ? { connection_scope } : {}),
-    });
-  },
+    async start(
+      input,
+      { helper, audience, connection, connectionScope: connection_scope },
+    ) {
+      return helper.start(input, {
+        accessType: 'offline',
+        prompt: 'consent',
+        ...(audience ? { audience } : {}),
+        ...(connection ? { connection } : {}),
+        ...(connection_scope ? { connection_scope } : {}),
+      });
+    },
 
-  async refresh(input, { helper }) {
-    return helper.refresh(input);
-  },
+    async authenticate(
+      input,
+      { helper, audience, connection, connectionScope: connection_scope },
+    ) {
+      return helper.authenticate(input, {
+        ...(audience ? { audience } : {}),
+        ...(connection ? { connection } : {}),
+        ...(connection_scope ? { connection_scope } : {}),
+      });
+    },
 
-  async logout(input, { domain, clientID, federated }) {
-    const logoutUrl = new URL(`https://${domain}/v2/logout`);
-    if (federated) {
-      logoutUrl.searchParams.set('federated', '');
-    }
-    logoutUrl.searchParams.set('client_id', clientID);
-    const origin = input.req.get('origin');
-    if (origin) {
-      logoutUrl.searchParams.set('returnTo', origin);
-    }
-    return { logoutUrl: logoutUrl.toString() };
-  },
-});
+    async refresh(input, { helper, strategy }) {
+      const result = await PassportHelpers.executeRefreshTokenStrategy(
+        strategy,
+        input.refreshToken,
+        input.scope,
+      );
+
+      const cacheKey = `auth0-profile:${input.refreshToken}`;
+      let fullProfile = (await profileCache?.get(cacheKey)) as
+        | PassportProfile
+        | undefined;
+
+      if (!fullProfile) {
+        fullProfile = await helper.fetchProfile(result.accessToken);
+        await profileCache?.set(
+          cacheKey,
+          JSON.parse(JSON.stringify(fullProfile)),
+        );
+      }
+
+      return {
+        fullProfile,
+        session: {
+          accessToken: result.accessToken,
+          tokenType: result.params.token_type ?? 'bearer',
+          scope: result.params.scope,
+          expiresInSeconds: result.params.expires_in,
+          idToken: result.params.id_token,
+          refreshToken: result.refreshToken,
+        },
+      };
+    },
+
+    async logout(input, { domain, clientID, federated }) {
+      const logoutUrl = new URL(`https://${domain}/v2/logout`);
+      if (federated) {
+        logoutUrl.searchParams.set('federated', '');
+      }
+      logoutUrl.searchParams.set('client_id', clientID);
+      const origin = input.req.get('origin');
+      if (origin) {
+        logoutUrl.searchParams.set('returnTo', origin);
+      }
+      return { logoutUrl: logoutUrl.toString() };
+    },
+  });
+}
+
+/** @public */
+export const auth0Authenticator = createAuth0Authenticator();

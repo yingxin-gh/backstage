@@ -49,14 +49,19 @@ jest.mock('ctrlc-windows', () => ({
   ctrlc: jest.fn(),
 }));
 
+const mockToConfig = jest.fn();
+
 jest.mock('@backstage/config-loader', () => ({
   ConfigSources: {
     default: () => ({}),
-    toConfig: async () => ({
-      close: jest.fn(),
-      getOptionalString: () => undefined,
-    }),
+    toConfig: (...args: any[]) => mockToConfig(...args),
   },
+}));
+
+const mockStartEmbeddedDb = jest.fn();
+
+jest.mock('./startEmbeddedDb', () => ({
+  startEmbeddedDb: (...args: any[]) => mockStartEmbeddedDb(...args),
 }));
 
 describe('runBackend', () => {
@@ -78,6 +83,12 @@ describe('runBackend', () => {
 
     // Mock process.once to prevent actual signal handling
     jest.spyOn(process, 'once').mockReturnValue(process);
+
+    mockToConfig.mockResolvedValue({
+      close: jest.fn(),
+      getOptionalString: () => undefined,
+    });
+    mockStartEmbeddedDb.mockReset();
   });
 
   afterEach(() => {
@@ -164,6 +175,64 @@ describe('runBackend', () => {
       const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
       expect(spawnArgs).toContain('--no-node-snapshot');
       expect(spawnArgs).toContain('--inspect');
+    });
+  });
+
+  describe('embedded-postgres support', () => {
+    it('should start embedded DB and inject config when database client is embedded-postgres', async () => {
+      mockToConfig.mockResolvedValue({
+        close: jest.fn(),
+        getOptionalString: (key: string) =>
+          key === 'backend.database.client' ? 'embedded-postgres' : undefined,
+      });
+      mockStartEmbeddedDb.mockResolvedValue({
+        connection: {
+          host: 'localhost',
+          user: 'postgres',
+          password: 'password',
+          port: 5555,
+        },
+        close: jest.fn(),
+      });
+
+      runBackend({ entry: 'src/index' });
+      await jest.advanceTimersByTimeAsync(100);
+
+      expect(mockStartEmbeddedDb).toHaveBeenCalled();
+      expect(mockSpawn).toHaveBeenCalled();
+      const spawnEnv = mockSpawn.mock.calls[0][2]?.env as Record<
+        string,
+        string
+      >;
+      const injected = JSON.parse(spawnEnv.APP_CONFIG_backend_database);
+      expect(injected).toEqual({
+        client: 'pg',
+        connection: {
+          host: 'localhost',
+          user: 'postgres',
+          password: 'password',
+          port: 5555,
+        },
+      });
+    });
+
+    it('should not start embedded DB for other database clients', async () => {
+      mockToConfig.mockResolvedValue({
+        close: jest.fn(),
+        getOptionalString: (key: string) =>
+          key === 'backend.database.client' ? 'better-sqlite3' : undefined,
+      });
+
+      runBackend({ entry: 'src/index' });
+      await jest.advanceTimersByTimeAsync(100);
+
+      expect(mockStartEmbeddedDb).not.toHaveBeenCalled();
+      expect(mockSpawn).toHaveBeenCalled();
+      const spawnEnv = mockSpawn.mock.calls[0][2]?.env as Record<
+        string,
+        string
+      >;
+      expect(spawnEnv.APP_CONFIG_backend_database).toBeUndefined();
     });
   });
 });

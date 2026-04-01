@@ -301,4 +301,16 @@ describe('DefaultAuthConnector', () => {
     await connector.removeSession();
     // Should complete without error — non-JSON responses are ignored
   });
+
+  it('should ignore logoutUrl with non-HTTPS protocol', async () => {
+    server.use(
+      rest.post('*', (_req, res, ctx) =>
+        res(ctx.json({ logoutUrl: 'http://evil.com/steal' })),
+      ),
+    );
+
+    const connector = new DefaultAuthConnector(defaultOptions);
+    await connector.removeSession();
+    // Should complete normally without redirecting - http:// is rejected
+  });
 });

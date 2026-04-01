@@ -305,10 +305,21 @@ export function createOAuthRouteHandlers<TProfile>(
       await scopeManager.clear(req);
 
       if (logoutResult?.logoutUrl) {
-        res.status(200).json({ logoutUrl: logoutResult.logoutUrl });
-      } else {
-        res.status(200).end();
+        try {
+          const logoutUrl = new URL(logoutResult.logoutUrl);
+          if (
+            logoutUrl.protocol === 'https:' ||
+            logoutUrl.hostname === 'localhost'
+          ) {
+            res.status(200).json({ logoutUrl: logoutResult.logoutUrl });
+            return;
+          }
+        } catch {
+          // Malformed URL — fall through to empty response
+        }
       }
+
+      res.status(200).end();
     },
 
     async refresh(

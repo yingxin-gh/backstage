@@ -85,7 +85,16 @@ export const auth0Authenticator = createOAuthAuthenticator({
         },
       ),
     );
-    return { helper, audience, connection, connectionScope, domain, clientID };
+    const federated = config.getOptionalBoolean('federated') ?? false;
+    return {
+      helper,
+      audience,
+      connection,
+      connectionScope,
+      domain,
+      clientID,
+      federated,
+    };
   },
 
   async start(
@@ -116,12 +125,16 @@ export const auth0Authenticator = createOAuthAuthenticator({
     return helper.refresh(input);
   },
 
-  async logout(input, { domain, clientID }) {
-    const origin = input.req.get('origin') ?? '';
+  async logout(input, { domain, clientID, federated }) {
+    const origin = input.req.get('origin');
+    const federatedParam = federated ? 'federated&' : '';
+    const returnToParam = origin
+      ? `&returnTo=${encodeURIComponent(origin)}`
+      : '';
     return {
-      logoutUrl: `https://${domain}/v2/logout?federated&client_id=${encodeURIComponent(
+      logoutUrl: `https://${domain}/v2/logout?${federatedParam}client_id=${encodeURIComponent(
         clientID,
-      )}&returnTo=${encodeURIComponent(origin)}`,
+      )}${returnToParam}`,
     };
   },
 });

@@ -17,6 +17,7 @@ export const auth0Authenticator: OAuthAuthenticator<
     connectionScope: string | undefined;
     domain: string;
     clientID: string;
+    federated: boolean;
   },
   PassportProfile
 >;

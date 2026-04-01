@@ -45,7 +45,9 @@ export async function startEmbeddedDb() {
     password,
     port,
     persistent: false,
-    onError() {},
+    onError(messageOrError) {
+      console.error(`[embedded-postgres]`, messageOrError);
+    },
     onLog() {},
   });
 
@@ -64,7 +66,7 @@ export async function startEmbeddedDb() {
     },
     async close() {
       await pg.stop();
-      await fs.rmdir(tmpDir, { recursive: true, maxRetries: 3 });
+      await fs.remove(tmpDir);
     },
   };
 }

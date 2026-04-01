@@ -66,12 +66,14 @@ export async function runBackend(options: RunBackendOptions) {
 
   const extraEnv: Record<string, string> = {};
 
+  let embeddedDb: Awaited<ReturnType<typeof startEmbeddedDb>> | undefined;
+
   const dbClient = await readDatabaseClient(options.configPaths);
   if (dbClient === 'embedded-postgres') {
-    const db = await startEmbeddedDb();
+    embeddedDb = await startEmbeddedDb();
     extraEnv.APP_CONFIG_backend_database = JSON.stringify({
       client: 'pg',
-      connection: db.connection,
+      connection: embeddedDb.connection,
     });
   }
 
@@ -205,6 +207,7 @@ export async function runBackend(options: RunBackendOptions) {
         });
       }
 
+      await embeddedDb?.close();
       resolveExitPromise();
     }
 
@@ -224,7 +227,7 @@ async function readDatabaseClient(
     allowMissingDefaultConfig: true,
     argv: (configPaths ?? []).flatMap(p => [
       '--config',
-      resolvePath(rootDir, p),
+      isAbsolutePath(p) ? p : resolvePath(rootDir, p),
     ]),
   });
 

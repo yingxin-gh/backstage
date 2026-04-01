@@ -45,8 +45,8 @@ export async function startEmbeddedDb() {
     password,
     port,
     persistent: false,
-    onError(_messageOrError: unknown) {},
-    onLog(_message: unknown) {},
+    onError() {},
+    onLog() {},
   });
 
   // Create the cluster config files

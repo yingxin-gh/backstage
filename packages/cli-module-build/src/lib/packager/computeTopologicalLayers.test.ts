@@ -84,7 +84,7 @@ describe('computeTopologicalLayers', () => {
     expect(layers[2]).toEqual([d]);
   });
 
-  it('falls back to a single layer on circular dependencies', () => {
+  it('falls back to sequential single-package layers on circular dependencies', () => {
     const a = makeNode('a');
     const b = makeNode('b');
     // Create a cycle: a -> b -> a
@@ -92,9 +92,11 @@ describe('computeTopologicalLayers', () => {
     b.publishedLocalDependencies.set('a', a);
 
     const layers = computeTopologicalLayers([a, b]);
-    // Should still return all packages rather than hanging or throwing
-    expect(layers).toHaveLength(1);
-    expect(layers[0]).toEqual(expect.arrayContaining([a, b]));
+    // Should pack each remaining package sequentially rather than in parallel
+    expect(layers).toHaveLength(2);
+    expect(layers[0]).toHaveLength(1);
+    expect(layers[1]).toHaveLength(1);
+    expect(layers.flat()).toEqual(expect.arrayContaining([a, b]));
   });
 
   it('handles a partial cycle with non-cyclic packages separated into earlier layers', () => {
@@ -108,9 +110,13 @@ describe('computeTopologicalLayers', () => {
     const layers = computeTopologicalLayers([a, b, c]);
     // a has no deps, so it goes in layer 0
     expect(layers[0]).toEqual([a]);
-    // b and c form a cycle, so they are dumped together
-    expect(layers[1]).toEqual(expect.arrayContaining([b, c]));
-    expect(layers).toHaveLength(2);
+    // b and c form a cycle, so they are packed sequentially
+    expect(layers[1]).toHaveLength(1);
+    expect(layers[2]).toHaveLength(1);
+    expect([layers[1][0], layers[2][0]]).toEqual(
+      expect.arrayContaining([b, c]),
+    );
+    expect(layers).toHaveLength(3);
   });
 
   it('produces correct layers regardless of input order', () => {

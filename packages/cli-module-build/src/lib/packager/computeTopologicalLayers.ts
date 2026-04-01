@@ -47,9 +47,12 @@ export function computeTopologicalLayers(
     }
 
     if (layer.length === 0) {
-      // Circular dependency — fall back to packing everything remaining
-      // together, accepting the (pre-existing) race risk for this cycle.
-      layers.push(Array.from(remaining.values()));
+      // Circular dependency — fall back to packing the remaining packages
+      // sequentially as single-package layers to avoid parallel races.
+      for (const pkg of remaining.values()) {
+        layers.push([pkg]);
+      }
+      remaining.clear();
       break;
     }
 

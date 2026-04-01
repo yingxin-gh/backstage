@@ -199,6 +199,7 @@ export const RenderEnum: FC<{
                     data-testid={`wrap-text_${i}`}
                     variant="tertiary"
                     size="small"
+                    aria-label="Show formatted value"
                   >
                     ↵
                   </Button>
@@ -242,7 +243,7 @@ export const RenderSchema = ({
             id: 'value',
             label: t('renderSchema.tableCell.value'),
             isRowHeader: true,
-            defaultWidth: '3fr' as any,
+            defaultWidth: '3fr',
             cell: item => <ValueCell item={item} context={context} />,
           },
         ]
@@ -270,7 +271,7 @@ export const RenderSchema = ({
           {
             id: 'value',
             label: t('renderSchema.tableCell.value'),
-            defaultWidth: '1fr' as any,
+            defaultWidth: '1fr',
             cell: item => <ValueCell item={item} context={context} />,
           },
         ];
@@ -349,7 +350,7 @@ export const RenderSchema = ({
     }
     return undefined;
   })();
-  return result ?? <Text as="p">No schema defined</Text>;
+  return result ?? <Text as="p">{t('renderSchema.undefined')}</Text>;
 };
 
 function RenderExpansion({

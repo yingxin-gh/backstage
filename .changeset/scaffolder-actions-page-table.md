@@ -2,4 +2,4 @@
 '@backstage/plugin-scaffolder': patch
 ---
 
-Migrated the actions page to use `@backstage/ui` table and search components. Actions are now listed in a table with aligned name and description columns, with click-to-expand detail view and built-in search filtering.
+Migrated the actions page to use `@backstage/ui` list and search components. Actions are now presented in a sidebar list with a separate detail panel for the selected action, along with built-in search filtering.

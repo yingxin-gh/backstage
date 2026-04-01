@@ -606,7 +606,7 @@ describe('ActionsPage', () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'github:repo:create',
-        description: 'Create a new Github repository',
+        description: 'Create a new GitHub repository',
         schema: {
           input: {
             type: 'object',
@@ -622,7 +622,7 @@ describe('ActionsPage', () => {
       },
       {
         id: 'github:repo:push',
-        description: 'Push to a Github repository',
+        description: 'Push to a GitHub repository',
         schema: {
           input: {
             type: 'object',
@@ -682,7 +682,7 @@ describe('ActionsPage', () => {
     scaffolderApiMock.listActions.mockResolvedValue([
       {
         id: 'github:repo:create',
-        description: 'Create a new Github repository',
+        description: 'Create a new GitHub repository',
         schema: {},
       },
     ]);

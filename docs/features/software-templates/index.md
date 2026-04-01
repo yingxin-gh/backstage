@@ -20,7 +20,7 @@ See the [Writing Custom Actions guide](./writing-custom-actions.md#naming-conven
 
 ## Prerequisites
 
-These docs assume you have already gone over the [Backstage Getting Started](../../getting-started) section and you are able to run Backstage locally or it has been deployed somewhere.
+These docs assume you have already gone over the [Backstage Getting Started](../../getting-started/index.md) section and you are able to run Backstage locally or it has been deployed somewhere.
 
 ## Getting Started
 

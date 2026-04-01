@@ -65,7 +65,6 @@
     "cross-spawn": "^7.0.3",
     "css-loader": "^6.5.1",
     "ctrlc-windows": "^2.1.0",
-    "embedded-postgres": "^17.2.0-beta.15",
     "esbuild-loader": "^4.0.0",
     "eslint-rspack-plugin": "^4.2.1",
     "eslint-webpack-plugin": "^4.2.0",
@@ -108,6 +107,15 @@
     "@types/fs-extra": "^11.0.0",
     "@types/lodash": "^4.14.151",
     "@types/npm-packlist": "^3.0.0",
-    "@types/shell-quote": "^1.7.5"
+    "@types/shell-quote": "^1.7.5",
+    "embedded-postgres": "17.2.0-beta.15"
+  },
+  "peerDependencies": {
+    "embedded-postgres": "^17.2.0-beta.15"
+  },
+  "peerDependenciesMeta": {
+    "embedded-postgres": {
+      "optional": true
+    }
   }
 }

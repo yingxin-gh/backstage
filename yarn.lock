@@ -2900,7 +2900,7 @@ __metadata:
     cross-spawn: "npm:^7.0.3"
     css-loader: "npm:^6.5.1"
     ctrlc-windows: "npm:^2.1.0"
-    embedded-postgres: "npm:^17.2.0-beta.15"
+    embedded-postgres: "npm:17.2.0-beta.15"
     esbuild-loader: "npm:^4.0.0"
     eslint-rspack-plugin: "npm:^4.2.1"
     eslint-webpack-plugin: "npm:^4.2.0"
@@ -2936,6 +2936,11 @@ __metadata:
     webpack-dev-server: "npm:^5.0.0"
     yml-loader: "npm:^2.1.0"
     yn: "npm:^4.0.0"
+  peerDependencies:
+    embedded-postgres: ^17.2.0-beta.15
+  peerDependenciesMeta:
+    embedded-postgres:
+      optional: true
   bin:
     cli-module-build: bin/backstage-cli-module-build
   languageName: unknown
@@ -29424,7 +29429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"embedded-postgres@npm:^17.2.0-beta.15":
+"embedded-postgres@npm:17.2.0-beta.15":
   version: 17.2.0-beta.15
   resolution: "embedded-postgres@npm:17.2.0-beta.15"
   dependencies:

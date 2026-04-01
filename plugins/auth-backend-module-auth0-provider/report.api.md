@@ -15,6 +15,8 @@ export const auth0Authenticator: OAuthAuthenticator<
     audience: string | undefined;
     connection: string | undefined;
     connectionScope: string | undefined;
+    domain: string;
+    clientID: string;
   },
   PassportProfile
 >;

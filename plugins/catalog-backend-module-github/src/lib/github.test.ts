@@ -1010,7 +1010,7 @@ describe('github', () => {
       baseUrl,
       logger,
     });
-    it('should return a graphql client with throttling', async () => {
+    it('should return a graphql client with throttling and retry', async () => {
       expect(client).toBeDefined();
       expect(Octokit.plugin).toHaveBeenCalledWith(throttling, retry);
     });

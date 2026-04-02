@@ -16,7 +16,7 @@
 
 import { Entity } from '@backstage/catalog-model';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
-import { assertError } from '@backstage/errors';
+import { toError } from '@backstage/errors';
 import { useTranslationRef } from '@backstage/frontend-plugin-api';
 import {
   catalogApiRef,
@@ -210,8 +210,7 @@ export const StepPrepareCreatePullRequest = (
           { notRepeatable: true },
         );
       } catch (e) {
-        assertError(e);
-        setError(e.message);
+        setError(toError(e).message);
         setSubmitted(false);
       }
     },

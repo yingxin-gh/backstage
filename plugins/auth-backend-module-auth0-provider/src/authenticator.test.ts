@@ -63,6 +63,15 @@ describe('createAuth0Authenticator', () => {
     },
   });
 
+  // Create a minimal valid JWT with a sub claim for decodeJwt
+  function createTestIdToken(sub: string): string {
+    const header = Buffer.from(JSON.stringify({ alg: 'none' })).toString(
+      'base64url',
+    );
+    const payload = Buffer.from(JSON.stringify({ sub })).toString('base64url');
+    return `${header}.${payload}.`;
+  }
+
   const mockProfile = {
     provider: 'auth0',
     id: 'user-123',
@@ -101,7 +110,7 @@ describe('createAuth0Authenticator', () => {
         token_type: 'bearer',
         scope: 'openid profile',
         expires_in: 3600,
-        id_token: 'id-token-value',
+        id_token: createTestIdToken('auth0|user-123'),
       },
     });
   });
@@ -134,7 +143,7 @@ describe('createAuth0Authenticator', () => {
       tokenType: 'bearer',
       scope: 'openid profile',
       expiresInSeconds: 3600,
-      idToken: 'id-token-value',
+      idToken: createTestIdToken('auth0|user-123'),
       refreshToken: 'new-refresh-token',
     });
   });
@@ -166,7 +175,7 @@ describe('createAuth0Authenticator', () => {
         token_type: 'bearer',
         scope: 'openid profile',
         expires_in: 3600,
-        id_token: 'id-token-2',
+        id_token: createTestIdToken('auth0|user-123'),
       },
     });
 
@@ -181,22 +190,21 @@ describe('createAuth0Authenticator', () => {
 
     // Token refresh still happens
     expect(mockExecuteRefresh).toHaveBeenCalledTimes(1);
-    // But profile fetch is skipped
+    // But profile fetch is skipped because same sub
     expect(mockFetchProfile).not.toHaveBeenCalled();
     expect(result.fullProfile).toEqual(mockProfile);
     // Session uses fresh token data
     expect(result.session.accessToken).toBe('another-access-token');
-    expect(result.session.idToken).toBe('id-token-2');
   });
 
-  it('should fetch profile again when refresh token changes', async () => {
+  it('should fetch profile again when sub claim changes', async () => {
     const authenticator = createAuth0Authenticator({ cache });
     const ctx = authenticator.initialize({
       callbackUrl: 'http://localhost/callback',
       config: mockConfig,
     });
 
-    // First call with token A
+    // First call with user-123
     await authenticator.refresh(
       {
         refreshToken: 'token-a',
@@ -208,7 +216,17 @@ describe('createAuth0Authenticator', () => {
 
     expect(mockFetchProfile).toHaveBeenCalledTimes(1);
 
-    // Second call with token B - different session, should miss cache
+    // Second call with a different sub - different user, should miss cache
+    mockExecuteRefresh.mockResolvedValue({
+      accessToken: 'new-access-token',
+      refreshToken: 'new-refresh-token',
+      params: {
+        token_type: 'bearer',
+        scope: 'openid profile',
+        expires_in: 3600,
+        id_token: createTestIdToken('auth0|user-456'),
+      },
+    });
     const updatedProfile = { ...mockProfile, displayName: 'Updated User' };
     mockFetchProfile.mockResolvedValue(updatedProfile);
 

@@ -16,6 +16,7 @@
 
 import { CacheService } from '@backstage/backend-plugin-api';
 import express from 'express';
+import { decodeJwt } from 'jose';
 import { Strategy } from 'passport';
 import {
   createOAuthAuthenticator,
@@ -138,9 +139,7 @@ export function createAuth0Authenticator(options?: { cache?: CacheService }) {
         input.scope,
       );
 
-      const sub = JSON.parse(
-        Buffer.from(result.params.id_token.split('.')[1], 'base64').toString(),
-      ).sub;
+      const { sub } = decodeJwt(result.params.id_token);
       const cacheKey = `auth0-profile:${sub}`;
       let fullProfile = (await profileCache?.get(cacheKey)) as
         | PassportProfile

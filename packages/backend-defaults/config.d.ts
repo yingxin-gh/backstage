@@ -644,9 +644,9 @@ export interface Config {
              */
             host: string;
             /**
-             * The port number the database is listening on. Defaults to 5432.
+             * The port number the database is listening on.
              */
-            port?: number;
+            port: number;
             /**
              * The database user to authenticate as. This user must have the `rds_iam` role granted.
              */

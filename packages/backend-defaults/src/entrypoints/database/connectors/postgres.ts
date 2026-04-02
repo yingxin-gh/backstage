@@ -277,24 +277,21 @@ export async function buildRdsPgConfig(config: Config): Promise<Knex.Config> {
   const { Signer } =
     require('@aws-sdk/rds-signer') as typeof import('@aws-sdk/rds-signer');
 
-  const rawConfig = config.get() as Record<string, unknown>;
-  const normalized = normalizeConnection(rawConfig.connection as any);
-  const sanitizedConnection = omit(normalized, [
-    'type',
-    'region',
-  ]) as Partial<Knex.StaticConnectionConfig>;
-
-  const hostname = (normalized as any).host as string;
-  if (!hostname) {
-    throw new Error('Missing host in connection config for AWS RDS IAM auth');
-  }
-  const port = ((normalized as any).port as number | undefined) ?? 5432;
-  const username = (normalized as any).user as string;
-  if (!username) {
-    throw new Error('Missing user in connection config for AWS RDS IAM auth');
+  let hostname: string;
+  let port: number;
+  let username: string;
+  try {
+    hostname = config.getString('connection.host');
+    port = config.getNumber('connection.port');
+    username = config.getString('connection.user');
+  } catch (err) {
+    throw new ForwardedError(
+      'AWS RDS IAM auth: missing required database connection config — make sure connection.host, connection.port, and connection.user are set and any environment variables they reference are set',
+      err,
+    );
   }
   const region =
-    ((normalized as any).region as string | undefined) ??
+    config.getOptionalString('connection.region') ??
     process.env.AWS_REGION ??
     process.env.AWS_DEFAULT_REGION;
   if (!region) {
@@ -303,17 +300,33 @@ export async function buildRdsPgConfig(config: Config): Promise<Knex.Config> {
     );
   }
 
+  const rawConfig = config.get() as Record<string, unknown>;
+  const sanitizedConnection = omit(
+    config.get('connection') as Record<string, unknown>,
+    ['type', 'region'],
+  ) as Partial<Knex.StaticConnectionConfig>;
+
   const signer = new Signer({ hostname, port, username, region });
+
+  // RDS IAM auth tokens are valid for 15 minutes. Renew 1 minute early so
+  // that pooled connections are refreshed before the token actually expires.
+  const tokenTtlMs = 15 * 60 * 1000;
+  const renewalOffsetMs = 60 * 1000;
 
   async function getConnectionConfig() {
     try {
       const password = await signer.getAuthToken();
-      return { ...sanitizedConnection, password };
+      const tokenExpiration = Date.now() + tokenTtlMs - renewalOffsetMs;
+      return {
+        ...sanitizedConnection,
+        password,
+        expirationChecker: () => tokenExpiration <= Date.now(),
+      };
     } catch (err) {
-      console.error(
-        `AWS RDS IAM auth token acquisition failed for ${username}@${hostname}:${port}: ${err}`,
+      throw new ForwardedError(
+        `AWS RDS IAM auth token acquisition failed for ${username}@${hostname}:${port}`,
+        err,
       );
-      throw err;
     }
   }
 

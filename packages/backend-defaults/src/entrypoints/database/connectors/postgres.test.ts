@@ -649,6 +649,7 @@ describe('postgres', () => {
           connection: {
             type: 'rds',
             host: 'mydb.cluster.eu-west-1.rds.amazonaws.com',
+            port: 5432,
             user: 'postgres',
             region: 'eu-west-1',
           },
@@ -662,28 +663,47 @@ describe('postgres', () => {
       expect(conn2.password).toBe('token-2');
     });
 
-    it('defaults port to 5432 for rds connections', async () => {
+    it('returns an expirationChecker that reflects the token TTL', async () => {
       const { Signer } = jest.requireMock('@aws-sdk/rds-signer') as jest.Mocked<
         typeof import('@aws-sdk/rds-signer')
       >;
 
       Signer.prototype.getAuthToken.mockResolvedValue('mock-iam-token');
 
-      await buildPgDatabaseConfig(
+      const configResult = await buildPgDatabaseConfig(
         new ConfigReader({
           client: 'pg',
           connection: {
             type: 'rds',
             host: 'mydb.cluster.eu-west-1.rds.amazonaws.com',
+            port: 5432,
             user: 'postgres',
             region: 'eu-west-1',
           },
         }),
       );
 
-      expect(Signer).toHaveBeenCalledWith(
-        expect.objectContaining({ port: 5432 }),
-      );
+      const conn = await (configResult.connection as () => Promise<any>)();
+
+      expect(conn.expirationChecker).toBeInstanceOf(Function);
+      // Token was just issued, so it should not yet be considered expired.
+      expect(conn.expirationChecker()).toBe(false);
+    });
+
+    it('throws when port is missing for rds connection', async () => {
+      await expect(
+        buildPgDatabaseConfig(
+          new ConfigReader({
+            client: 'pg',
+            connection: {
+              type: 'rds',
+              host: 'mydb.cluster.eu-west-1.rds.amazonaws.com',
+              user: 'postgres',
+              region: 'eu-west-1',
+            },
+          }),
+        ),
+      ).rejects.toThrow(/connection\.port/);
     });
 
     it('falls back to AWS_REGION env var when region is not set in config', async () => {
@@ -703,6 +723,7 @@ describe('postgres', () => {
             connection: {
               type: 'rds',
               host: 'mydb.cluster.us-east-1.rds.amazonaws.com',
+              port: 5432,
               user: 'postgres',
             },
           }),
@@ -727,14 +748,13 @@ describe('postgres', () => {
             client: 'pg',
             connection: {
               type: 'rds',
+              port: 5432,
               user: 'postgres',
               region: 'eu-west-1',
             },
           }),
         ),
-      ).rejects.toThrow(
-        /Missing host in connection config for AWS RDS IAM auth/,
-      );
+      ).rejects.toThrow(/connection\.host/);
     });
 
     it('throws when user is missing for rds connection', async () => {
@@ -745,13 +765,12 @@ describe('postgres', () => {
             connection: {
               type: 'rds',
               host: 'mydb.cluster.eu-west-1.rds.amazonaws.com',
+              port: 5432,
               region: 'eu-west-1',
             },
           }),
         ),
-      ).rejects.toThrow(
-        /Missing user in connection config for AWS RDS IAM auth/,
-      );
+      ).rejects.toThrow(/connection\.user/);
     });
 
     it('throws when region is missing and no env var is set for rds connection', async () => {
@@ -768,6 +787,7 @@ describe('postgres', () => {
               connection: {
                 type: 'rds',
                 host: 'mydb.cluster.eu-west-1.rds.amazonaws.com',
+                port: 5432,
                 user: 'postgres',
               },
             }),

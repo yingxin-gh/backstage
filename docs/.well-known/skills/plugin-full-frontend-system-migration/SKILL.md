@@ -272,7 +272,7 @@ export const myPage = PageBlueprint.make({
 
 ## Step 5: Replace Internal Routing with Sub-Pages
 
-This is one of the biggest changes in a full migration. Old plugins often use React Router `<Route>` trees inside a router component to handle internal navigation. Before migrating, determine which routing pattern fits the plugin.
+Old frontend plugins often use React Router `<Route>` trees inside a router component to handle internal navigation. Before migrating, determine which routing pattern fits the plugin.
 
 ### Decide Which Routing Pattern to Use
 

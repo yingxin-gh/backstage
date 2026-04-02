@@ -138,7 +138,10 @@ export function createAuth0Authenticator(options?: { cache?: CacheService }) {
         input.scope,
       );
 
-      const cacheKey = `auth0-profile:${input.refreshToken}`;
+      const sub = JSON.parse(
+        Buffer.from(result.params.id_token.split('.')[1], 'base64').toString(),
+      ).sub;
+      const cacheKey = `auth0-profile:${sub}`;
       let fullProfile = (await profileCache?.get(cacheKey)) as
         | PassportProfile
         | undefined;

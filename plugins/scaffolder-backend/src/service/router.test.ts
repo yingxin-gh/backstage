@@ -58,7 +58,10 @@ import {
 import { createDefaultFilters } from '../lib/templating/filters/createDefaultFilters';
 import { createRouter } from './router';
 import { DatabaseTaskStore } from '../scaffolder/tasks/DatabaseTaskStore';
-import { actionsRegistryServiceMock } from '@backstage/backend-test-utils/alpha';
+import {
+  actionsRegistryServiceMock,
+  metricsServiceMock,
+} from '@backstage/backend-test-utils/alpha';
 import { ActionsService } from '@backstage/backend-plugin-api/alpha';
 
 function createDatabase(): DatabaseService {
@@ -229,6 +232,7 @@ const createTestRouter = async (
       createDebugLogAction(),
     ],
     actionsRegistry: overrides.actionsRegistry ?? actionsRegistryServiceMock(),
+    metrics: metricsServiceMock.mock(),
   });
 
   router.use(mockErrorHandler());

@@ -6818,7 +6818,6 @@ __metadata:
     "@backstage/plugin-scaffolder-node-test-utils": "workspace:^"
     "@backstage/repo-tools": "workspace:^"
     "@backstage/types": "workspace:^"
-    "@opentelemetry/api": "npm:^1.9.0"
     "@types/express": "npm:^4.17.6"
     "@types/fs-extra": "npm:^11.0.0"
     "@types/luxon": "npm:^3.0.0"

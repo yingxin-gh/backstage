@@ -143,8 +143,8 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
     // at index-time. The batchSize is calculated as a factor of the given
     // parallelism limit to simplify configuration.
     const batchSize = this.parallelismLimit * 50;
-    const credentials = await this.auth.getOwnServiceCredentials();
     while (moreEntitiesToGet) {
+      const credentials = await this.auth.getOwnServiceCredentials();
       const entities = (
         await this.catalog.getEntities(
           {

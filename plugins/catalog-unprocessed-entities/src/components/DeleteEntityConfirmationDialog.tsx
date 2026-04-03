@@ -19,7 +19,6 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { useState } from 'react';
-import { toError } from '@backstage/errors';
 
 interface DeleteEntityConfirmationProps {
   open: boolean;
@@ -36,8 +35,8 @@ export function DeleteEntityConfirmationDialog(
     setBusy(true);
     try {
       onConfirm();
-    } catch (err) {
-      void toError(err);
+    } catch {
+      // ignored
     } finally {
       setBusy(false);
     }

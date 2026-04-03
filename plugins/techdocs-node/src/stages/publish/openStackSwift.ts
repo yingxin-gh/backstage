@@ -222,8 +222,9 @@ export class OpenStackSwiftPublish implements PublisherBase {
 
           resolve(techdocsMetadata);
         } catch (err) {
-          this.logger.error(toError(err).message);
-          reject(new Error(toError(err).message));
+          const error = toError(err);
+          this.logger.error(error.message);
+          reject(error);
         }
       } else {
         reject({

@@ -110,10 +110,8 @@ export class UrlReaderProcessor implements CatalogProcessor {
       emit(processingResult.refresh(`${location.type}:${location.target}`));
     } catch (error) {
       const err = toError(error);
-      const message = `Unable to read ${location.type}, ${err}`.substring(
-        0,
-        5000,
-      );
+      const message =
+        `Unable to read ${location.type}, ${err.message}`.substring(0, 5000);
       if (err.name === 'NotModifiedError' && cacheItem) {
         for (const parseResult of cacheItem.value) {
           emit(parseResult);

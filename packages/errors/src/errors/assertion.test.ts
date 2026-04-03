@@ -125,17 +125,10 @@ describe('toError', () => {
     expect(toError(true).message).toBe("unknown error 'true'");
   });
 
-  it('should wrap plain objects using JSON when toString is unhelpful', () => {
-    expect(toError({ name: 'e' }).message).toBe(`unknown error '{"name":"e"}'`);
-    expect(toError({ message: '' }).message).toBe(
-      `unknown error '{"message":""}'`,
+  it('should wrap plain objects', () => {
+    expect(toError({ name: 'e' }).message).toBe(
+      "unknown error '[object Object]'",
     );
-    expect(toError({ code: 404, detail: 'missing' }).message).toBe(
-      `unknown error '{"code":404,"detail":"missing"}'`,
-    );
-  });
-
-  it('should fall back to [object Object] for empty plain objects', () => {
     expect(toError({}).message).toBe("unknown error '[object Object]'");
   });
 
@@ -152,10 +145,25 @@ describe('toError', () => {
   it('should handle symbols', () => {
     const result = toError(Symbol('test'));
     expect(result).toBeInstanceOf(Error);
-    expect(result.message).toBe("unknown error 'Symbol(test)'");
+    expect(result.message).toBe("unknown error of type 'symbol'");
   });
 
   it('should handle BigInt', () => {
     expect(toError(BigInt(42)).message).toBe("unknown error '42'");
+  });
+
+  it('should not throw for objects with a throwing toString', () => {
+    const obj = Object.create(null);
+    const result = toError(obj);
+    expect(result).toBeInstanceOf(Error);
+    expect(result.message).toBe("unknown error of type 'object'");
+  });
+
+  it('should not throw for circular objects', () => {
+    const obj: { self?: unknown } = {};
+    obj.self = obj;
+    const result = toError(obj);
+    expect(result).toBeInstanceOf(Error);
+    expect(result.message).toBe("unknown error '[object Object]'");
   });
 });

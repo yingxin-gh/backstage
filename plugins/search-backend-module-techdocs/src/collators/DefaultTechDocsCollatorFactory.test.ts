@@ -186,9 +186,9 @@ describe('DefaultTechDocsCollatorFactory', () => {
     });
 
     it('paginates through catalog entities using batchSize', async () => {
-      // A parallelismLimit of 1 is a catalog limit of 50 per request. Code
-      // above in the /entities handler ensures valid entities are only
-      // returned on the second page.
+      // A parallelismLimit of 1 results in a batchSize of 50 per request.
+      // The catalog returns fewer entities than the batchSize, so the loop
+      // exits after a single page, producing 3 documents (1 entity × 3 search index docs).
       const _config = new ConfigReader({
         ...config.get(),
         search: {

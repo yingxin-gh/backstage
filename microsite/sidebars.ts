@@ -655,7 +655,6 @@ export default {
             description: 'Technical tutorials and guides.',
           },
           [
-            'tutorials/quickstart-app-plugin',
             'tutorials/configuring-plugin-databases',
             'tutorials/manual-knex-rollback',
             'tutorials/switching-sqlite-postgres',

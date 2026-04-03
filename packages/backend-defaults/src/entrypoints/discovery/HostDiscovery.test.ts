@@ -418,7 +418,11 @@ describe('HostDiscovery', () => {
     const originalNodeEnv = env.NODE_ENV;
 
     afterEach(() => {
-      env.NODE_ENV = originalNodeEnv;
+      if (originalNodeEnv) {
+        env.NODE_ENV = originalNodeEnv;
+      } else {
+        delete env.NODE_ENV;
+      }
     });
 
     it('warns when backend.baseUrl is a localhost URL and NODE_ENV is production', () => {
@@ -436,7 +440,7 @@ describe('HostDiscovery', () => {
       );
 
       expect(logger.warn).toHaveBeenCalledWith(
-        `backend.baseUrl is set to a localhost URL (http://localhost:7007) but NODE_ENV is 'production'. This is likely a misconfiguration — localhost URLs are not reachable by other services in a deployed environment. Prefer setting it to a routable URL that can be resolved and reached both by your app and by other plugin deployments / services.`,
+        `backend.baseUrl is set to a localhost URL and NODE_ENV is 'production'. This is likely a misconfiguration — localhost URLs are not reachable by other services in a deployed environment. Prefer setting it to a routable URL that can be resolved and reached both by your app and by other plugin deployments / services.`,
       );
     });
 

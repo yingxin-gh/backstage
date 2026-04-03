@@ -164,7 +164,7 @@ export class HostDiscovery implements DiscoveryService {
         hostname === '::';
       if (isLocalhost && process.env.NODE_ENV === 'production') {
         options?.logger?.warn(
-          `backend.baseUrl is set to a localhost URL (${baseUrl}) but NODE_ENV is '${process.env.NODE_ENV}'. This is likely a misconfiguration — localhost URLs are not reachable by other services in a deployed environment. Prefer setting it to a routable URL that can be resolved and reached both by your app and by other plugin deployments / services.`,
+          `backend.baseUrl is set to a localhost URL and NODE_ENV is '${process.env.NODE_ENV}'. This is likely a misconfiguration — localhost URLs are not reachable by other services in a deployed environment. Prefer setting it to a routable URL that can be resolved and reached both by your app and by other plugin deployments / services.`,
         );
       }
     } catch {

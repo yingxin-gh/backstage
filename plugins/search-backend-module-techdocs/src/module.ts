@@ -162,7 +162,7 @@ export default createBackendModule({
             discovery,
             auth,
             logger,
-            catalogClient: catalog,
+            catalog,
             entityTransformer,
             documentTransformer,
             customCatalogApiFilters,

@@ -91,7 +91,7 @@ describe('DefaultTechDocsCollatorFactory', () => {
     logger,
     discovery: mockDiscoveryApi,
     auth: mockServices.auth(),
-    catalogClient: mockCatalog,
+    catalog: mockCatalog,
   };
 
   it('has expected type', () => {
@@ -161,7 +161,7 @@ describe('DefaultTechDocsCollatorFactory', () => {
         discovery: mockDiscoveryApi,
         logger,
         auth: mockServices.auth(),
-        catalogClient: mockCatalog,
+        catalog: mockCatalog,
       });
       collator = await factory.getCollator();
 

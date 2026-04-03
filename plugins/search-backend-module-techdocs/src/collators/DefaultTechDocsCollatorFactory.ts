@@ -55,7 +55,7 @@ export type TechDocsCollatorFactoryOptions = {
   logger: LoggerService;
   auth: AuthService;
   locationTemplate?: string;
-  catalogClient?: CatalogService;
+  catalog?: CatalogService;
   parallelismLimit?: number;
   legacyPathCasing?: boolean;
   entityTransformer?: TechDocsCollatorEntityTransformer;
@@ -85,7 +85,7 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
   private locationTemplate: string;
   private readonly logger: LoggerService;
   private readonly auth: AuthService;
-  private readonly catalogClient: CatalogService;
+  private readonly catalog: CatalogService;
   private readonly parallelismLimit: number;
   private readonly legacyPathCasing: boolean;
   private entityTransformer: TechDocsCollatorEntityTransformer;
@@ -98,10 +98,10 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
     this.locationTemplate =
       options.locationTemplate || '/docs/:namespace/:kind/:name/:path';
     this.logger = options.logger.child({ documentType: this.type });
-    if (!options.catalogClient) {
-      throw new Error('catalogClient is required');
+    if (!options.catalog) {
+      throw new Error('catalog is required');
     }
-    this.catalogClient = options.catalogClient;
+    this.catalog = options.catalog;
     this.parallelismLimit = options.parallelismLimit ?? 10;
     this.legacyPathCasing = options.legacyPathCasing ?? false;
     this.entityTransformer = options.entityTransformer ?? (() => ({}));
@@ -150,7 +150,7 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
       const credentials = await this.auth.getOwnServiceCredentials();
 
       const entities = (
-        await this.catalogClient.getEntities(
+        await this.catalog.getEntities(
           {
             filter: {
               'metadata.annotations.backstage.io/techdocs-ref':

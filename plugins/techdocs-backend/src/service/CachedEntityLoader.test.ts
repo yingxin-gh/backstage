@@ -39,8 +39,6 @@ describe('CachedEntityLoader', () => {
     },
   };
 
-  const token = 'test-token';
-
   const userCredentials: BackstageCredentials = {
     $$type: '@backstage/BackstageCredentials',
     principal: {
@@ -67,7 +65,7 @@ describe('CachedEntityLoader', () => {
     auth.isPrincipal.mockReturnValue(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(userCredentials, entityName, token);
+    const result = await loader.load(userCredentials, entityName);
 
     expect(result).toEqual(entity);
     expect(cache.set).toHaveBeenCalledWith(
@@ -84,7 +82,7 @@ describe('CachedEntityLoader', () => {
     auth.isPrincipal.mockReturnValue(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(userCredentials, entityName, token);
+    const result = await loader.load(userCredentials, entityName);
 
     expect(result).toEqual(entity);
     expect(catalog.getEntityByRef).not.toHaveBeenCalled();
@@ -96,7 +94,7 @@ describe('CachedEntityLoader', () => {
     auth.isPrincipal.mockReturnValue(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(userCredentials, entityName, token);
+    const result = await loader.load(userCredentials, entityName);
 
     expect(result).toBeUndefined();
     expect(cache.set).not.toHaveBeenCalled();
@@ -108,7 +106,7 @@ describe('CachedEntityLoader', () => {
     auth.isPrincipal.mockReturnValueOnce(false).mockReturnValueOnce(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(pluginCredentials, entityName, undefined);
+    const result = await loader.load(pluginCredentials, entityName);
 
     expect(result).toEqual(entity);
     expect(cache.set).toHaveBeenCalledWith(
@@ -131,7 +129,7 @@ describe('CachedEntityLoader', () => {
     auth.isPrincipal.mockReturnValue(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(userCredentials, entityName, token);
+    const result = await loader.load(userCredentials, entityName);
 
     expect(result).toEqual(entity);
   });
@@ -151,8 +149,8 @@ describe('CachedEntityLoader', () => {
       },
     };
 
-    await loader.load(userCredentials, entityName, token);
-    await loader.load(anotherUserCredentials, entityName, token);
+    await loader.load(userCredentials, entityName);
+    await loader.load(anotherUserCredentials, entityName);
 
     expect(cache.set).toHaveBeenCalledWith(
       'catalog:component:default/test:user:default/test-user',
@@ -172,7 +170,7 @@ describe('CachedEntityLoader', () => {
     auth.isPrincipal.mockReturnValueOnce(false).mockReturnValueOnce(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(pluginCredentials, entityName, token);
+    const result = await loader.load(pluginCredentials, entityName);
 
     expect(result).toEqual(entity);
     expect(cache.set).toHaveBeenCalledWith(
@@ -197,7 +195,7 @@ describe('CachedEntityLoader', () => {
     };
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
-    const result = await loader.load(unknownCredentials, entityName, token);
+    const result = await loader.load(unknownCredentials, entityName);
 
     expect(result).toEqual(entity);
     expect(cache.set).toHaveBeenCalledWith(

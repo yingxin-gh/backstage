@@ -34,7 +34,7 @@ import {
   techdocsPreparerExtensionPoint,
   techdocsPublisherExtensionPoint,
 } from '@backstage/plugin-techdocs-node';
-import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
+import { catalogServiceRef } from '@backstage/plugin-catalog-node';
 import * as winston from 'winston';
 import { createRouter } from './service/router';
 

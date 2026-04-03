@@ -21,6 +21,7 @@ import {
   mockServices,
   registerMswTestHooks,
 } from '@backstage/backend-test-utils';
+import { catalogServiceMock } from '@backstage/plugin-catalog-node/testUtils';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { Readable } from 'node:stream';
@@ -85,10 +86,12 @@ describe('DefaultTechDocsCollatorFactory', () => {
   const mockDiscoveryApi = mockServices.discovery.mock({
     getBaseUrl: async () => 'http://test-backend',
   });
+  const mockCatalog = catalogServiceMock({ entities: expectedEntities });
   const options = {
     logger,
     discovery: mockDiscoveryApi,
     auth: mockServices.auth(),
+    catalogClient: mockCatalog,
   };
 
   it('has expected type', () => {
@@ -112,31 +115,6 @@ describe('DefaultTechDocsCollatorFactory', () => {
           'http://test-backend/static/docs/default/Component/test-entity-with-docs/search/search_index.json',
           (_, res, ctx) => res(ctx.status(200), ctx.json(mockSearchDocIndex)),
         ),
-        rest.get('http://test-backend/entities', (req, res, ctx) => {
-          // Imitate offset/limit pagination.
-          const offset = parseInt(
-            req.url.searchParams.get('offset') || '0',
-            10,
-          );
-          const limit = parseInt(
-            req.url.searchParams.get('limit') || '500',
-            10,
-          );
-
-          // Limit 50 corresponds to a case testing pagination.
-          if (limit === 50) {
-            // Return 50 copies of invalid entities on the first request.
-            if (offset === 0) {
-              return res(ctx.status(200), ctx.json(Array(50).fill({})));
-            }
-            // Then just the regular 2 on the second.
-            return res(ctx.status(200), ctx.json(expectedEntities));
-          }
-          return res(
-            ctx.status(200),
-            ctx.json(expectedEntities.slice(offset, limit + offset)),
-          );
-        }),
       );
     });
 
@@ -147,7 +125,6 @@ describe('DefaultTechDocsCollatorFactory', () => {
     it('fetches from the configured catalog and tech docs services', async () => {
       const pipeline = TestPipeline.fromCollator(collator);
       const { documents } = await pipeline.execute();
-      expect(mockDiscoveryApi.getBaseUrl).toHaveBeenCalledWith('catalog');
       expect(mockDiscoveryApi.getBaseUrl).toHaveBeenCalledWith('techdocs');
       expect(documents).toHaveLength(mockSearchDocIndex.docs.length);
     });
@@ -184,6 +161,7 @@ describe('DefaultTechDocsCollatorFactory', () => {
         discovery: mockDiscoveryApi,
         logger,
         auth: mockServices.auth(),
+        catalogClient: mockCatalog,
       });
       collator = await factory.getCollator();
 

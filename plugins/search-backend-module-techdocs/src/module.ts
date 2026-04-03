@@ -27,7 +27,7 @@ import {
 } from '@backstage/backend-plugin-api';
 import { EntityFilterQuery } from '@backstage/catalog-client';
 import { Entity } from '@backstage/catalog-model';
-import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
+import { catalogServiceRef } from '@backstage/plugin-catalog-node';
 import { searchIndexRegistryExtensionPoint } from '@backstage/plugin-search-backend-node/alpha';
 import { DefaultTechDocsCollatorFactory } from './collators/DefaultTechDocsCollatorFactory';
 import {

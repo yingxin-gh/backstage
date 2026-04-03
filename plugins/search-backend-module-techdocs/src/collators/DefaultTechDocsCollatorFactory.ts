@@ -16,8 +16,6 @@
 
 import {
   CATALOG_FILTER_EXISTS,
-  CatalogApi,
-  CatalogClient,
   EntityFilterQuery,
 } from '@backstage/catalog-client';
 import {
@@ -45,6 +43,7 @@ import {
   DiscoveryService,
   LoggerService,
 } from '@backstage/backend-plugin-api';
+import { CatalogService } from '@backstage/plugin-catalog-node';
 
 /**
  * Options to configure the TechDocs collator factory
@@ -56,7 +55,7 @@ export type TechDocsCollatorFactoryOptions = {
   logger: LoggerService;
   auth: AuthService;
   locationTemplate?: string;
-  catalogClient?: CatalogApi;
+  catalogClient?: CatalogService;
   parallelismLimit?: number;
   legacyPathCasing?: boolean;
   entityTransformer?: TechDocsCollatorEntityTransformer;
@@ -86,7 +85,7 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
   private locationTemplate: string;
   private readonly logger: LoggerService;
   private readonly auth: AuthService;
-  private readonly catalogClient: CatalogApi;
+  private readonly catalogClient: CatalogService;
   private readonly parallelismLimit: number;
   private readonly legacyPathCasing: boolean;
   private entityTransformer: TechDocsCollatorEntityTransformer;
@@ -99,9 +98,10 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
     this.locationTemplate =
       options.locationTemplate || '/docs/:namespace/:kind/:name/:path';
     this.logger = options.logger.child({ documentType: this.type });
-    this.catalogClient =
-      options.catalogClient ||
-      new CatalogClient({ discoveryApi: options.discovery });
+    if (!options.catalogClient) {
+      throw new Error('catalogClient is required');
+    }
+    this.catalogClient = options.catalogClient;
     this.parallelismLimit = options.parallelismLimit ?? 10;
     this.legacyPathCasing = options.legacyPathCasing ?? false;
     this.entityTransformer = options.entityTransformer ?? (() => ({}));
@@ -147,10 +147,7 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
     // parallelism limit to simplify configuration.
     const batchSize = this.parallelismLimit * 50;
     while (moreEntitiesToGet) {
-      const { token: catalogToken } = await this.auth.getPluginRequestToken({
-        onBehalfOf: await this.auth.getOwnServiceCredentials(),
-        targetPluginId: 'catalog',
-      });
+      const credentials = await this.auth.getOwnServiceCredentials();
 
       const entities = (
         await this.catalogClient.getEntities(
@@ -163,7 +160,7 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
             limit: batchSize,
             offset: entitiesRetrieved,
           },
-          { token: catalogToken },
+          { credentials },
         )
       ).items;
 

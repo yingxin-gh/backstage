@@ -62,12 +62,16 @@ describe('CachedEntityLoader', () => {
   it('writes entities to cache for user credentials', async () => {
     cache.get.mockResolvedValue(undefined);
     const catalog = catalogServiceMock({ entities: [entity] });
+    jest.spyOn(catalog, 'getEntityByRef');
     auth.isPrincipal.mockReturnValue(true);
 
     const loader = new CachedEntityLoader({ auth, catalog, cache });
     const result = await loader.load(userCredentials, entityName);
 
     expect(result).toEqual(entity);
+    expect(catalog.getEntityByRef).toHaveBeenCalledWith(entityName, {
+      credentials: userCredentials,
+    });
     expect(cache.set).toHaveBeenCalledWith(
       'catalog:component:default/test:user:default/test-user',
       entity,

@@ -186,9 +186,9 @@ describe('DefaultTechDocsCollatorFactory', () => {
     });
 
     it('paginates through catalog entities using batchSize', async () => {
-      // A parallelismLimit of 1 results in a batchSize of 50 per request.
-      // The catalog returns fewer entities than the batchSize, so the loop
-      // exits after a single page, producing 3 documents (1 entity × 3 search index docs).
+      // parallelismLimit of 1 → batchSize of 50 per request.
+      // First page returns exactly 50 (no techdocs annotation) triggering a
+      // second request; second page returns the real entity with annotation.
       const _config = new ConfigReader({
         ...config.get(),
         search: {
@@ -199,17 +199,24 @@ describe('DefaultTechDocsCollatorFactory', () => {
           },
         },
       });
-      factory = DefaultTechDocsCollatorFactory.fromConfig(_config, options);
+      const paginationCatalog = catalogServiceMock({ entities: [] });
+      jest
+        .spyOn(paginationCatalog, 'getEntities')
+        .mockResolvedValueOnce({ items: Array(50).fill({}) })
+        .mockResolvedValueOnce({ items: expectedEntities });
+      factory = DefaultTechDocsCollatorFactory.fromConfig(_config, {
+        ...options,
+        catalog: paginationCatalog,
+      });
       collator = await factory.getCollator();
 
       const pipeline = TestPipeline.fromCollator(collator);
       const { documents } = await pipeline.execute();
 
-      // Only 1 entity with TechDocs configured multiplied by 3 pages.
+      expect(paginationCatalog.getEntities).toHaveBeenCalledTimes(2);
+      // First page: 50 entities with no techdocs annotation → 0 docs
+      // Second page: 1 entity × 3 search index docs → 3 docs
       expect(documents).toHaveLength(3);
-      expect(_config.get('search.collators.techdocs.parallelismLimit')).toEqual(
-        1,
-      );
     });
 
     describe('with legacyPathCasing configuration', () => {

@@ -18,6 +18,10 @@ export const components: Page[] = [
     slug: 'avatar',
   },
   {
+    title: 'Badge',
+    slug: 'badge',
+  },
+  {
     title: 'Box',
     slug: 'box',
   },

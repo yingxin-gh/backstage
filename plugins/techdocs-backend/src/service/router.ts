@@ -114,9 +114,9 @@ export async function createRouter(
   options: RouterOptions,
 ): Promise<express.Router> {
   const router = Router();
-  const { publisher, config, logger, discovery, httpAuth, auth } = options;
+  const { publisher, config, logger, discovery, httpAuth, auth, catalog } =
+    options;
 
-  const catalogClient = options.catalog;
   const docsBuildStrategy =
     options.docsBuildStrategy ?? DefaultDocsBuildStrategy.fromConfig(config);
   const buildLogTransport = options.buildLogTransport;
@@ -125,7 +125,7 @@ export async function createRouter(
   // when loading a single techdocs page.
   const entityLoader = new CachedEntityLoader({
     auth,
-    catalog: catalogClient,
+    catalog,
     cache: options.cache,
   });
 

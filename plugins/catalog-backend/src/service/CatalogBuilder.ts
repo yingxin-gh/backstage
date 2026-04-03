@@ -43,10 +43,7 @@ import {
   UrlReaderService,
 } from '@backstage/backend-plugin-api';
 import { Config, readDurationFromConfig } from '@backstage/config';
-import {
-  catalogPermissions,
-  RESOURCE_TYPE_CATALOG_ENTITY,
-} from '@backstage/plugin-catalog-common/alpha';
+import { catalogPermissions } from '@backstage/plugin-catalog-common/alpha';
 import {
   CatalogProcessor,
   CatalogProcessorParser,
@@ -55,15 +52,8 @@ import {
   ScmLocationAnalyzer,
 } from '@backstage/plugin-catalog-node';
 import { EventsService } from '@backstage/plugin-events-node';
-import {
-  Permission,
-  PermissionAuthorizer,
-  toPermissionEvaluator,
-} from '@backstage/plugin-permission-common';
-import {
-  createConditionTransformer,
-  createPermissionIntegrationRouter,
-} from '@backstage/plugin-permission-node';
+import { Permission } from '@backstage/plugin-permission-common';
+import { createConditionTransformer } from '@backstage/plugin-permission-node';
 import { durationToMilliseconds } from '@backstage/types';
 import { DefaultCatalogDatabase } from '../database/DefaultCatalogDatabase';
 import { DefaultProcessingDatabase } from '../database/DefaultProcessingDatabase';
@@ -124,8 +114,8 @@ export type CatalogEnvironment = {
   database: DatabaseService;
   config: RootConfigService;
   reader: UrlReaderService;
-  permissions: PermissionsService | PermissionAuthorizer;
-  permissionsRegistry?: PermissionsRegistryService;
+  permissions: PermissionsService;
+  permissionsRegistry: PermissionsRegistryService;
   scheduler: SchedulerService;
   auth: AuthService;
   httpAuth: HttpAuthService;
@@ -479,16 +469,6 @@ export class CatalogBuilder {
       enableRelationsCompatibility,
     });
 
-    let permissionsService: PermissionsService;
-    if ('authorizeConditional' in permissions) {
-      permissionsService = permissions as PermissionsService;
-    } else {
-      logger.warn(
-        'PermissionAuthorizer is deprecated. Please use an instance of PermissionEvaluator instead of PermissionAuthorizer in PluginEnvironment#permissions',
-      );
-      permissionsService = toPermissionEvaluator(permissions);
-    }
-
     const orchestrator = new DefaultCatalogProcessingOrchestrator({
       processors,
       integrations,
@@ -500,14 +480,12 @@ export class CatalogBuilder {
 
     const entitiesCatalog = new AuthorizedEntitiesCatalog(
       unauthorizedEntitiesCatalog,
-      permissionsService,
-      permissionsRegistry
-        ? createConditionTransformer(
-            permissionsRegistry.getPermissionRuleset(
-              catalogEntityPermissionResourceRef,
-            ),
-          )
-        : createConditionTransformer(this.permissionRules),
+      permissions,
+      createConditionTransformer(
+        permissionsRegistry.getPermissionRuleset(
+          catalogEntityPermissionResourceRef,
+        ),
+      ),
     );
 
     const getResources = async (resourceRefs: string[]) => {
@@ -519,24 +497,12 @@ export class CatalogBuilder {
       return entitiesResponseToObjects(items).map(e => e || undefined);
     };
 
-    let permissionIntegrationRouter:
-      | ReturnType<typeof createPermissionIntegrationRouter>
-      | undefined;
-    if (permissionsRegistry) {
-      permissionsRegistry.addResourceType({
-        resourceRef: catalogEntityPermissionResourceRef,
-        getResources,
-        permissions: this.permissions,
-        rules: this.permissionRules,
-      });
-    } else {
-      permissionIntegrationRouter = createPermissionIntegrationRouter({
-        resourceType: RESOURCE_TYPE_CATALOG_ENTITY,
-        getResources,
-        permissions: this.permissions,
-        rules: this.permissionRules,
-      });
-    }
+    permissionsRegistry.addResourceType({
+      resourceRef: catalogEntityPermissionResourceRef,
+      getResources,
+      permissions: this.permissions,
+      rules: this.permissionRules,
+    });
 
     const scmEventHandlingConfig = readScmEventHandlingConfig(config);
     const locationStore = new DefaultLocationStore(
@@ -589,7 +555,7 @@ export class CatalogBuilder {
       this.locationAnalyzer ??
       new AuthorizedLocationAnalyzer(
         new RepoLocationAnalyzer(logger, integrations, this.locationAnalyzers),
-        permissionsService,
+        permissions,
       );
     const locationService = new AuthorizedLocationService(
       new DefaultLocationService(locationStore, orchestrator, {
@@ -599,11 +565,11 @@ export class CatalogBuilder {
             'catalog.defaultLocationConflictStrategy',
           ) as 'refresh' | 'reject') || 'reject',
       }),
-      permissionsService,
+      permissions,
     );
     const refreshService = new AuthorizedRefreshService(
       new DefaultRefreshService({ database: catalogDatabase }),
-      permissionsService,
+      permissions,
     );
 
     const router = await createRouter({
@@ -614,10 +580,9 @@ export class CatalogBuilder {
       refreshService,
       logger,
       config,
-      permissionIntegrationRouter,
       auth,
       httpAuth,
-      permissionsService,
+      permissionsService: permissions,
       auditor,
       enableRelationsCompatibility,
     });

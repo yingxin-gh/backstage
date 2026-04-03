@@ -663,14 +663,14 @@ To resolve this issue:
 
 ```ts
 // this replicates functionality from UnifiedThemeProvider
-import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className'
+import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className';
 
-ClassNameGenerator.configure(
+ClassNameGenerator.configure(componentName => {
   if ((componentName ?? '').startsWith('v5-')) {
     return componentName;
   }
   return `v5-${componentName}`;
-)
+});
 ```
 
 2. Import this as the very first thing in `packages/app/src/index.tsx`

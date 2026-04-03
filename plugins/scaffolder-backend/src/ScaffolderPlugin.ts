@@ -23,6 +23,7 @@ import { catalogServiceRef } from '@backstage/plugin-catalog-node';
 import { eventsServiceRef } from '@backstage/plugin-events-node';
 import {
   scaffolderActionsExtensionPoint,
+  scaffolderServiceRef,
   TaskBroker,
   TemplateAction,
 } from '@backstage/plugin-scaffolder-node';
@@ -59,7 +60,12 @@ import {
   convertFiltersToRecord,
   convertGlobalsToRecord,
 } from './util/templating';
-import { actionsServiceRef } from '@backstage/backend-plugin-api/alpha';
+import {
+  actionsServiceRef,
+  actionsRegistryServiceRef,
+  metricsServiceRef,
+} from '@backstage/backend-plugin-api/alpha';
+import { createScaffolderActions } from './actions';
 
 /**
  * Scaffolder plugin
@@ -144,6 +150,9 @@ export const scaffolderPlugin = createBackendPlugin({
         catalog: catalogServiceRef,
         events: eventsServiceRef,
         actionsRegistry: actionsServiceRef,
+        actionsRegistryService: actionsRegistryServiceRef,
+        scaffolderService: scaffolderServiceRef,
+        metrics: metricsServiceRef,
       },
       async init({
         logger,
@@ -159,6 +168,9 @@ export const scaffolderPlugin = createBackendPlugin({
         events,
         auditor,
         actionsRegistry,
+        actionsRegistryService,
+        scaffolderService,
+        metrics,
       }) {
         const log = loggerToWinstonLogger(logger);
         const integrations = ScmIntegrations.fromConfig(config);
@@ -211,6 +223,12 @@ export const scaffolderPlugin = createBackendPlugin({
           `Starting scaffolder with the following actions enabled ${actionIds}`,
         );
 
+        createScaffolderActions({
+          actionsRegistry: actionsRegistryService,
+          scaffolderService,
+          auth,
+        });
+
         const router = await createRouter({
           logger,
           config,
@@ -229,6 +247,7 @@ export const scaffolderPlugin = createBackendPlugin({
           events,
           auditor,
           actionsRegistry,
+          metrics,
         });
         httpRouter.use(router);
       },

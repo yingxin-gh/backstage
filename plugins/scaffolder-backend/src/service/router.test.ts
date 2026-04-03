@@ -285,7 +285,6 @@ describe('scaffolder router', () => {
 
       expect(response.body).toContainEqual({
         description: 'Test',
-        examples: [],
         id: 'test:my-demo-action',
         schema: {
           input: {

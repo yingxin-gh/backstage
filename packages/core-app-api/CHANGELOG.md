@@ -1,5 +1,28 @@
 # @backstage/core-app-api
 
+## 1.20.0-next.1
+
+### Minor Changes
+
+- 400aa23: Added `FetchMiddlewares.clarifyFailures()` which replaces the uninformative "TypeError: Failed to fetch" with a message that includes the request method and URL.
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/ui@0.14.0-next.1
+  - @backstage/core-plugin-api@1.12.5-next.1
+
+## 1.19.7-next.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/ui@0.14.0-next.0
+  - @backstage/core-plugin-api@1.12.5-next.0
+  - @backstage/config@1.3.6
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.12
+
 ## 1.19.6
 
 ### Patch Changes

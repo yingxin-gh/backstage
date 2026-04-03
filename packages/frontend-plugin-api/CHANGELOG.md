@@ -1,5 +1,28 @@
 # @backstage/frontend-plugin-api
 
+## 0.16.0-next.1
+
+### Minor Changes
+
+- 49397c1: Simplified the type signature of `createRouteRef` by replacing the dual `TParams`/`TParamKeys` type parameters with a single `TParamKey` parameter. This is a breaking change for callers that explicitly provided type arguments, but most usage that relies on inference is unaffected.
+
+### Patch Changes
+
+- ddc5247: Fixed `FlattenedMessages` type to avoid excessive type instantiation depth in TypeScript 6 when using `createTranslationRef` with the `translations` option.
+- fa55078: Refactored the internal `createSchemaFromZod` helper to use a schema-first generic pattern, replacing the `ZodSchema<TOutput, ZodTypeDef, TInput>` constraint with `TSchema extends ZodType`. This avoids "excessively deep" type inference errors when multiple Zod copies are resolved.
+
+## 0.15.2-next.0
+
+### Patch Changes
+
+- d66a3ec: Added `titleLink` prop to `PageLayoutProps` so the plugin header title can link back to the plugin root.
+- e220589: Removed the unnecessary need to use `defineParams` callback from `PluginHeaderActionBlueprint`. It still works, but is no longer required.
+- Updated dependencies
+  - @backstage/errors@1.2.7
+  - @backstage/filter-predicates@0.1.1
+  - @backstage/types@1.2.2
+  - @backstage/version-bridge@1.0.12
+
 ## 0.15.0
 
 ### Minor Changes

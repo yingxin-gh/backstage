@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-import { z } from 'zod/v3';
-
-/** @internal */
-export const severityLogLevelMappingsSchema = z.record(
-  z.enum(['low', 'medium', 'high', 'critical']),
-  z.enum(['debug', 'info', 'warn', 'error']),
-);
-
-/** @internal */
-export const CONFIG_ROOT_KEY = 'backend.auditor';
+export { Slider } from './Slider';
+export * from './types';
+export { SliderDefinition } from './definition';

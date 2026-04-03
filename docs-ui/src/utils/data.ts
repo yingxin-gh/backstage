@@ -106,6 +106,10 @@ export const components: Page[] = [
     slug: 'skeleton',
   },
   {
+    title: 'Slider',
+    slug: 'slider',
+  },
+  {
     title: 'Switch',
     slug: 'switch',
   },

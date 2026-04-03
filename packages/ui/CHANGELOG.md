@@ -1,5 +1,93 @@
 # @backstage/ui
 
+## 0.14.0-next.1
+
+### Patch Changes
+
+- 2e5c5f8: Bumped `glob` dependency from v7/v8/v11 to v13 to address security vulnerabilities in older versions. Bumped `rollup` from v4.27 to v4.59+ to fix a high severity path traversal vulnerability (GHSA-mw96-cpmx-2vgc).
+- 8d79835: Added RangeSlider component for selecting numeric ranges.
+
+  **Affected components:** RangeSlider
+
+- 5081bcc: Fixed `Avatar` becoming elliptical in flex layouts by preventing it from shrinking.
+
+  **Affected components:** Avatar
+
+- d840ba9: Fixed relative `href` resolution for BUI link components. Relative paths like `../other` are now correctly turned into absolute paths before reaching the React Aria layer, ensuring client-side navigation goes to the right place.
+
+  **Affected components:** ButtonLink, Card, CellProfile, CellText, Link, ListRow, MenuItem, MenuListBoxItem, Row, SearchAutocompleteItem, Tab, Tag
+
+- 3bc23a5: Added support for disabling pagination in `useTable` complete mode by setting `paginationOptions: { type: 'none' }`. This skips data slicing and produces `pagination: { type: 'none' }` in `tableProps`, removing the need for consumers to manually override the pagination prop on `Table`. Also fixed complete mode not reacting to dynamic changes in `paginationOptions.pageSize`.
+
+  **Affected components:** `useTable`
+
+- c368cf3: Updated dependency `@types/use-sync-external-store` to `^1.0.0`.
+- d0f055f: Added `showPaginationLabel` prop to `TablePagination` and `useTable` pagination options. When set to `false`, the pagination label (e.g., "1 - 20 of 150") is hidden while navigation controls remain visible. Defaults to `true`.
+
+  **Affected components:** `TablePagination`, `useTable`
+
+- feaf3d1: Fixed HeaderNav hover indicator covering tab text when theme uses opaque background colors. Also fixed an incorrect CSS variable reference (`--bui-font-family` → `--bui-font-regular`).
+
+  **Affected components:** Header
+
+## 0.14.0-next.0
+
+### Minor Changes
+
+- 8659f33: **BREAKING**: The `Header` component's `tabs` prop now uses `HeaderNavTabItem[]` instead of `HeaderTab[]`. Tabs render as a `<nav>` element with links and optional dropdown menus instead of `role="tablist"`. A new `activeTabId` prop controls which tab is highlighted.
+
+  **Migration:**
+
+  ```diff
+  - import { Header, type HeaderTab } from '@backstage/ui';
+  + import { Header, type HeaderNavTabItem } from '@backstage/ui';
+
+    // Tabs no longer support matchStrategy — active state is controlled via activeTabId
+  - const tabs: HeaderTab[] = [
+  -   { id: 'overview', label: 'Overview', href: '/overview', matchStrategy: 'prefix' },
+  + const tabs: HeaderNavTabItem[] = [
+  +   { id: 'overview', label: 'Overview', href: '/overview' },
+    ];
+
+  - <Header title="My Page" tabs={tabs} />
+  + <Header title="My Page" tabs={tabs} activeTabId="overview" />
+  ```
+
+  **Affected components:** Header
+
+- bed3307: **BREAKING**: Dropped support for React 17. The minimum supported React version is now 18.
+- 49ffe8a: **BREAKING**: Removed the `toolbarWrapper` element from `PluginHeader` and dropped `toolbarWrapper` from `PluginHeaderDefinition.classNames`. Toolbar layout styles now live on `toolbar` (`.bui-PluginHeaderToolbar`).
+
+  **Migration:** Update custom CSS that targeted `.bui-PluginHeaderToolbarWrapper` to use `.bui-PluginHeaderToolbar` instead.
+
+  **Affected components:** PluginHeader
+
+### Patch Changes
+
+- bcbb6eb: Made `SearchAutocomplete` background-aware. The input now adapts its background color based on its parent container's background level.
+
+  **Affected components:** SearchAutocomplete
+
+- 8c2e24e: Added `aria-hidden` to the `PluginHeader` icon to prevent screen readers from announcing decorative plugin icons.
+
+  **Affected components:** PluginHeader
+
+- 3d67aeb: Added `prefers-reduced-motion` support to Tab indicator animations. Users with reduced motion preferences will no longer see sliding transitions on the active and hover indicators.
+
+  **Affected components:** Tabs
+
+- cc4a682: Fixed the ButtonIcon's loading spinner animation
+
+  **Affected components:** ButtonIcon
+
+- adcdd2f: Simplified the `Menu` component's item structure by removing the inner wrapper element and applying styles directly to the menu item, improving DOM clarity.
+
+  **Affected components:** Menu
+
+- 0257ada: Added `react-aria`, `react-stately`, `@react-aria/interactions`, `@react-stately/layout`, and `@react-stately/overlays` as dependencies.
+- Updated dependencies
+  - @backstage/version-bridge@1.0.12
+
 ## 0.13.0
 
 ### Minor Changes

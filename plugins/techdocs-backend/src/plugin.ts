@@ -166,7 +166,7 @@ export const techdocsPlugin = createBackendPlugin({
             discovery,
             httpAuth,
             auth,
-            catalogClient: catalog,
+            catalog,
           }),
         );
 

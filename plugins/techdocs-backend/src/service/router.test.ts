@@ -125,7 +125,7 @@ describe('createRouter', () => {
     docsBuildStrategy,
     auth: mockServices.auth(),
     httpAuth: mockServices.httpAuth(),
-    catalogClient: mockCatalogService,
+    catalog: mockCatalogService,
   };
   const recommendedOptions = {
     publisher,
@@ -136,7 +136,7 @@ describe('createRouter', () => {
     docsBuildStrategy,
     auth: mockServices.auth(),
     httpAuth: mockServices.httpAuth(),
-    catalogClient: mockCatalogService,
+    catalog: mockCatalogService,
   };
 
   beforeEach(() => {

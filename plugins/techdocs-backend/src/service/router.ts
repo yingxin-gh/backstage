@@ -60,7 +60,7 @@ export type OutOfTheBoxDeploymentOptions = {
   cache: CacheService;
   docsBuildStrategy?: DocsBuildStrategy;
   buildLogTransport?: winston.transport;
-  catalogClient?: CatalogService;
+  catalog: CatalogService;
   httpAuth: HttpAuthService;
   auth: AuthService;
 };
@@ -79,7 +79,7 @@ export type RecommendedDeploymentOptions = {
   cache: CacheService;
   docsBuildStrategy?: DocsBuildStrategy;
   buildLogTransport?: winston.transport;
-  catalogClient?: CatalogService;
+  catalog: CatalogService;
   httpAuth: HttpAuthService;
   auth: AuthService;
 };
@@ -116,10 +116,7 @@ export async function createRouter(
   const router = Router();
   const { publisher, config, logger, discovery, httpAuth, auth } = options;
 
-  if (!options.catalogClient) {
-    throw new Error('catalogClient is required');
-  }
-  const catalogClient = options.catalogClient;
+  const catalogClient = options.catalog;
   const docsBuildStrategy =
     options.docsBuildStrategy ?? DefaultDocsBuildStrategy.fromConfig(config);
   const buildLogTransport = options.buildLogTransport;

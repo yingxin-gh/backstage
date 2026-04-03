@@ -52,7 +52,6 @@ import {
   ScmLocationAnalyzer,
 } from '@backstage/plugin-catalog-node';
 import { EventsService } from '@backstage/plugin-events-node';
-import { Permission } from '@backstage/plugin-permission-common';
 import { createConditionTransformer } from '@backstage/plugin-permission-node';
 import { durationToMilliseconds } from '@backstage/types';
 import { DefaultCatalogDatabase } from '../database/DefaultCatalogDatabase';
@@ -101,7 +100,6 @@ import { DefaultRefreshService } from './DefaultRefreshService';
 import { entitiesResponseToObjects } from './response';
 import {
   catalogEntityPermissionResourceRef,
-  CatalogPermissionRuleInput,
   CatalogScmEventsService,
 } from '@backstage/plugin-catalog-node/alpha';
 import { filterAndSortProcessors, filterProviders } from './util';
@@ -167,8 +165,6 @@ export class CatalogBuilder {
   }) => Promise<void> | void;
   private processingInterval: ProcessingIntervalFunction;
   private locationAnalyzer: LocationAnalyzer | undefined = undefined;
-  private readonly permissions: Permission[];
-  private readonly permissionRules: CatalogPermissionRuleInput[];
   private allowedLocationType: string[];
 
   /**
@@ -189,8 +185,6 @@ export class CatalogBuilder {
     this.locationAnalyzers = [];
     this.processorsReplace = false;
     this.parser = undefined;
-    this.permissions = [...catalogPermissions];
-    this.permissionRules = Object.values(catalogPermissionRules);
     this.allowedLocationType = ['url'];
 
     this.processingInterval = CatalogBuilder.getDefaultProcessingInterval(
@@ -366,33 +360,6 @@ export class CatalogBuilder {
   }
 
   /**
-   * Adds additional permissions. See
-   * {@link @backstage/plugin-permission-node#Permission}.
-   *
-   * @param permissions - Additional permissions
-   */
-  addPermissions(...permissions: Array<Permission | Array<Permission>>) {
-    this.permissions.push(...permissions.flat());
-    return this;
-  }
-
-  /**
-   * Adds additional permission rules. Permission rules are used to evaluate
-   * catalog resources against queries. See
-   * {@link @backstage/plugin-permission-node#PermissionRule}.
-   *
-   * @param permissionRules - Additional permission rules
-   */
-  addPermissionRules(
-    ...permissionRules: Array<
-      CatalogPermissionRuleInput | Array<CatalogPermissionRuleInput>
-    >
-  ) {
-    this.permissionRules.push(...permissionRules.flat());
-    return this;
-  }
-
-  /**
    * Sets up the allowed location types from being registered via the location service.
    *
    * @param allowedLocationTypes - the allowed location types
@@ -500,8 +467,8 @@ export class CatalogBuilder {
     permissionsRegistry.addResourceType({
       resourceRef: catalogEntityPermissionResourceRef,
       getResources,
-      permissions: this.permissions,
-      rules: this.permissionRules,
+      permissions: [...catalogPermissions],
+      rules: Object.values(catalogPermissionRules),
     });
 
     const scmEventHandlingConfig = readScmEventHandlingConfig(config);

@@ -55,7 +55,7 @@ export type TechDocsCollatorFactoryOptions = {
   logger: LoggerService;
   auth: AuthService;
   locationTemplate?: string;
-  catalog?: CatalogService;
+  catalog: CatalogService;
   parallelismLimit?: number;
   legacyPathCasing?: boolean;
   entityTransformer?: TechDocsCollatorEntityTransformer;
@@ -98,9 +98,6 @@ export class DefaultTechDocsCollatorFactory implements DocumentCollatorFactory {
     this.locationTemplate =
       options.locationTemplate || '/docs/:namespace/:kind/:name/:path';
     this.logger = options.logger.child({ documentType: this.type });
-    if (!options.catalog) {
-      throw new Error('catalog is required');
-    }
     this.catalog = options.catalog;
     this.parallelismLimit = options.parallelismLimit ?? 10;
     this.legacyPathCasing = options.legacyPathCasing ?? false;

@@ -1104,8 +1104,8 @@ describe('migrations', () => {
         '20260403000000_add_location_entity_ref.js',
       );
 
-      // The bootstrap location row was added by an earlier migration; it should
-      // NOT receive a location_entity_ref value.
+      // The bootstrap location row was added by an earlier migration; after this
+      // migration it will have an empty-string placeholder for location_entity_ref.
       const [bootstrapRow] = await knex('locations').where('type', 'bootstrap');
       expect(bootstrapRow).toBeDefined();
 

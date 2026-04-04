@@ -100,14 +100,12 @@ import {
 export const ValidateKebabCaseFieldExtension = FormFieldBlueprint.make({
   name: 'validate-kebab-case',
   params: {
-    field: () =>
-      Promise.resolve(
-        createFormField({
-          name: 'ValidateKebabCase',
-          component: ValidateKebabCase,
-          validation: validateKebabCaseValidation,
-        }),
-      ),
+    field: async () =>
+      createFormField({
+        name: 'ValidateKebabCase',
+        component: ValidateKebabCase,
+        validation: validateKebabCaseValidation,
+      }),
   },
 });
 ```
@@ -210,14 +208,12 @@ const CustomFieldExtensionComponent = (props: FieldExtensionComponentProps<strin
 const CustomFieldExtension = FormFieldBlueprint.make({
   name: 'custom-field',
   params: {
-    field: () =>
-      Promise.resolve(
-        createFormField({
-          name: 'custom-field',
-          component: CustomFieldExtensionComponent,
-          validation: ...,
-        }),
-      ),
+    field: async () =>
+      createFormField({
+        name: 'custom-field',
+        component: CustomFieldExtensionComponent,
+        validation: ...,
+      }),
   },
 });
 ```
@@ -285,14 +281,12 @@ import {
 export const MyCustomFieldWithOptionsExtension = FormFieldBlueprint.make({
   name: 'MyCustomExtensionWithOptions',
   params: {
-    field: () =>
-      Promise.resolve(
-        createFormField({
-          name: 'MyCustomExtensionWithOptions',
-          component: MyCustomExtensionWithOptions,
-          schema: MyCustomExtensionWithOptionsSchema,
-        }),
-      ),
+    field: async () =>
+      createFormField({
+        name: 'MyCustomExtensionWithOptions',
+        component: MyCustomExtensionWithOptions,
+        schema: MyCustomExtensionWithOptionsSchema,
+      }),
   },
 });
 ```

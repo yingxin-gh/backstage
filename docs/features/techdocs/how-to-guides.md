@@ -124,39 +124,36 @@ overriding the `page:techdocs` extension. The TechDocs home page is a standard
 page extension created using `PageBlueprint`, which means you can override it
 just like any other page extension.
 
-The simplest approach is to create a frontend module that provides a replacement
-page extension with the same extension ID. Since the TechDocs page extension has
-the ID `page:techdocs`, you can override it by creating a new page extension
-under the `techdocs` plugin namespace:
+The simplest approach is to use the `plugin.withOverrides` method to provide a
+replacement page extension. Since the TechDocs page extension has the ID
+`page:techdocs`, you can override it by creating a new page extension under the
+`techdocs` plugin namespace:
 
 ```tsx title="packages/app/src/techdocs/TechDocsHomePage.tsx"
-import {
-  PageBlueprint,
-  createFrontendModule,
-} from '@backstage/frontend-plugin-api';
+import { PageBlueprint } from '@backstage/frontend-plugin-api';
+import techdocsPlugin from '@backstage/plugin-techdocs/alpha';
 
-const customTechDocsPage = PageBlueprint.make({
-  params: {
-    path: '/docs',
-    loader: () =>
-      import('./CustomTechDocsHome').then(m => <m.CustomTechDocsHome />),
-  },
-});
-
-export default createFrontendModule({
-  pluginId: 'techdocs',
-  extensions: [customTechDocsPage],
+export default techdocsPlugin.withOverrides({
+  extensions: [
+    PageBlueprint.make({
+      params: {
+        path: '/docs',
+        loader: () =>
+          import('./CustomTechDocsHome').then(m => <m.CustomTechDocsHome />),
+      },
+    }),
+  ],
 });
 ```
 
-Then install the module in your app:
+Then install the overridden plugin in your app:
 
 ```tsx title="packages/app/src/App.tsx"
 import { createApp } from '@backstage/frontend-defaults';
-import customTechDocsModule from './techdocs/TechDocsHomePage';
+import techdocsPlugin from './techdocs/TechDocsHomePage';
 
 const app = createApp({
-  features: [customTechDocsModule],
+  features: [techdocsPlugin],
 });
 
 export default app.createRoot();

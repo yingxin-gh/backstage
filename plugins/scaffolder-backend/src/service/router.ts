@@ -131,7 +131,10 @@ import {
   scaffolderTaskRules,
   scaffolderTemplateRules,
 } from './rules';
-import { ActionsService } from '@backstage/backend-plugin-api/alpha';
+import {
+  ActionsService,
+  MetricsService,
+} from '@backstage/backend-plugin-api/alpha';
 
 /**
  * RouterOptions
@@ -165,6 +168,7 @@ export interface RouterOptions {
   auditor?: AuditorService;
   autocompleteHandlers?: Record<string, AutocompleteHandler>;
   actionsRegistry: ActionsService;
+  metrics: MetricsService;
 }
 
 function isSupportedTemplate(entity: TemplateEntityV1beta3) {
@@ -256,6 +260,7 @@ export async function createRouter(
     httpAuth,
     auditor,
     actionsRegistry,
+    metrics,
   } = options;
 
   const concurrentTasksLimit =
@@ -344,6 +349,7 @@ export async function createRouter(
       concurrentTasksLimit,
       permissions,
       gracefulShutdown,
+      metrics,
       ...templateExtensions,
     });
 
@@ -375,6 +381,7 @@ export async function createRouter(
     workingDirectory,
     permissions,
     config,
+    metrics,
     ...templateExtensions,
   });
 

@@ -318,6 +318,45 @@ export interface AvatarProps
   extends Omit<React.ComponentPropsWithoutRef<'div'>, 'children' | 'className'>,
     AvatarOwnProps {}
 
+// @public
+export const Badge: ForwardRefExoticComponent<
+  BadgeProps & RefAttributes<HTMLSpanElement>
+>;
+
+// @public
+export const BadgeDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly classNames: {
+    readonly root: 'bui-Badge';
+    readonly icon: 'bui-BadgeIcon';
+  };
+  readonly bg: 'consumer';
+  readonly propDefs: {
+    readonly icon: {};
+    readonly size: {
+      readonly dataAttribute: true;
+      readonly default: 'small';
+    };
+    readonly children: {};
+    readonly className: {};
+  };
+};
+
+// @public
+export type BadgeOwnProps = {
+  icon?: React.ReactNode;
+  size?: 'small' | 'medium';
+  children?: React.ReactNode;
+  className?: string;
+};
+
+// @public
+export interface BadgeProps
+  extends BadgeOwnProps,
+    Omit<React.HTMLAttributes<HTMLSpanElement>, keyof BadgeOwnProps> {}
+
 // @public (undocumented)
 export interface BgContextValue {
   // (undocumented)

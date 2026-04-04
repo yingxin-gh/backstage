@@ -27,6 +27,7 @@ export {
 } from './components/Accordion/definition';
 export { AlertDefinition } from './components/Alert/definition';
 export { AvatarDefinition } from './components/Avatar/definition';
+export { BadgeDefinition } from './components/Badge/definition';
 export { BoxDefinition } from './components/Box/definition';
 export { ButtonDefinition } from './components/Button/definition';
 export { ButtonIconDefinition } from './components/ButtonIcon/definition';

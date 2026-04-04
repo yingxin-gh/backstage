@@ -31,6 +31,7 @@ export * from './components/FullPage';
 export * from './components/Accordion';
 export * from './components/Alert';
 export * from './components/Avatar';
+export * from './components/Badge';
 export * from './components/Button';
 export * from './components/Card';
 export * from './components/Dialog';

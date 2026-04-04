@@ -38,6 +38,7 @@ import request from 'supertest';
 import { Cursor, EntitiesCatalog } from '../catalog/types';
 import { applyDatabaseMigrations } from '../database/migrations';
 import { DbLocationsRow } from '../database/tables';
+import { computeLocationEntityRef } from '../util/conversion';
 import { CatalogProcessingOrchestrator } from '../processing/types';
 import { DefaultLocationStore } from '../providers/DefaultLocationStore';
 import { createRouter } from './createRouter';
@@ -1635,7 +1636,13 @@ describe('POST /locations/by-query works end to end', () => {
       // Clear the table and insert our test data
       await knex<DbLocationsRow>('locations').delete();
       for (const location of locations) {
-        await knex<DbLocationsRow>('locations').insert(location);
+        await knex<DbLocationsRow>('locations').insert({
+          ...location,
+          location_entity_ref: computeLocationEntityRef(
+            location.type,
+            location.target,
+          ),
+        });
       }
 
       // First request: get first 2 locations
@@ -1703,7 +1710,13 @@ describe('POST /locations/by-query works end to end', () => {
       // Clear the table and insert our test data
       await knex<DbLocationsRow>('locations').delete();
       for (const location of locations) {
-        await knex<DbLocationsRow>('locations').insert(location);
+        await knex<DbLocationsRow>('locations').insert({
+          ...location,
+          location_entity_ref: computeLocationEntityRef(
+            location.type,
+            location.target,
+          ),
+        });
       }
 
       // Query only url type locations

@@ -28,7 +28,10 @@ import {
   DbSearchRow,
 } from '../database/tables';
 import { DefaultLocationStore } from './DefaultLocationStore';
-import { locationSpecToLocationEntity } from '../util/conversion';
+import {
+  computeLocationEntityRef,
+  locationSpecToLocationEntity,
+} from '../util/conversion';
 import { CatalogScmEventsServiceSubscriber } from '@backstage/plugin-catalog-node/alpha';
 import waitFor from 'wait-for-expect';
 
@@ -285,6 +288,10 @@ describe('DefaultLocationStore', () => {
           id: locationId,
           type: 'url',
           target: 'https://example.com',
+          location_entity_ref: computeLocationEntityRef(
+            'url',
+            'https://example.com',
+          ),
         });
 
         await expect(
@@ -338,11 +345,13 @@ describe('DefaultLocationStore', () => {
               id: expect.any(String),
               type: 'url',
               target: matchTarget,
+              location_entity_ref: expect.any(String),
             },
             {
               id: expect.any(String),
               type: 'url',
               target: otherTarget,
+              location_entity_ref: expect.any(String),
             },
           ]);
         });
@@ -394,7 +403,12 @@ describe('DefaultLocationStore', () => {
               .where('type', 'url')
               .orderBy('target', 'asc'),
           ).resolves.toEqual([
-            { id: expect.any(String), type: 'url', target: otherTarget },
+            {
+              id: expect.any(String),
+              type: 'url',
+              target: otherTarget,
+              location_entity_ref: expect.any(String),
+            },
           ]);
 
           expect(connection.applyMutation).toHaveBeenLastCalledWith({
@@ -448,11 +462,13 @@ describe('DefaultLocationStore', () => {
               id: expect.any(String),
               type: 'url',
               target: matchTarget,
+              location_entity_ref: expect.any(String),
             },
             {
               id: expect.any(String),
               type: 'url',
               target: otherTarget,
+              location_entity_ref: expect.any(String),
             },
           ]);
         });
@@ -514,8 +530,14 @@ describe('DefaultLocationStore', () => {
               type: 'url',
               target:
                 'https://github.com/backstage/freben/blob/master/catalog-info.yaml',
+              location_entity_ref: expect.any(String),
             },
-            { id: expect.any(String), type: 'url', target: otherTarget },
+            {
+              id: expect.any(String),
+              type: 'url',
+              target: otherTarget,
+              location_entity_ref: expect.any(String),
+            },
           ]);
 
           expect(connection.applyMutation).toHaveBeenLastCalledWith({
@@ -579,11 +601,13 @@ describe('DefaultLocationStore', () => {
               id: expect.any(String),
               type: 'url',
               target: matchTarget,
+              location_entity_ref: expect.any(String),
             },
             {
               id: expect.any(String),
               type: 'url',
               target: otherTarget,
+              location_entity_ref: expect.any(String),
             },
           ]);
         });
@@ -635,7 +659,12 @@ describe('DefaultLocationStore', () => {
               .where('type', 'url')
               .orderBy('target', 'asc'),
           ).resolves.toEqual([
-            { id: expect.any(String), type: 'url', target: otherTarget },
+            {
+              id: expect.any(String),
+              type: 'url',
+              target: otherTarget,
+              location_entity_ref: expect.any(String),
+            },
           ]);
 
           expect(connection.applyMutation).toHaveBeenLastCalledWith({
@@ -689,11 +718,13 @@ describe('DefaultLocationStore', () => {
               id: expect.any(String),
               type: 'url',
               target: matchTarget,
+              location_entity_ref: expect.any(String),
             },
             {
               id: expect.any(String),
               type: 'url',
               target: otherTarget,
+              location_entity_ref: expect.any(String),
             },
           ]);
         });
@@ -749,12 +780,18 @@ describe('DefaultLocationStore', () => {
               .where('type', 'url')
               .orderBy('target', 'asc'),
           ).resolves.toEqual([
-            { id: expect.any(String), type: 'url', target: otherTarget },
+            {
+              id: expect.any(String),
+              type: 'url',
+              target: otherTarget,
+              location_entity_ref: expect.any(String),
+            },
             {
               id: expect.any(String),
               type: 'url',
               target:
                 'https://github.com/freben/demo-renamed/blob/master/folder/catalog-info.yaml',
+              location_entity_ref: expect.any(String),
             },
           ]);
 
@@ -819,7 +856,13 @@ describe('DefaultLocationStore', () => {
         locations.sort(() => Math.random() - 0.5);
         await knex<DbLocationsRow>('locations').delete();
         for (const location of locations) {
-          await knex<DbLocationsRow>('locations').insert(location);
+          await knex<DbLocationsRow>('locations').insert({
+            ...location,
+            location_entity_ref: computeLocationEntityRef(
+              location.type,
+              location.target,
+            ),
+          });
         }
 
         await expect(

@@ -124,7 +124,6 @@ export async function createRouter(
   // Entities are cached to optimize the /static/docs request path, which can be called many times
   // when loading a single techdocs page.
   const entityLoader = new CachedEntityLoader({
-    auth,
     catalog,
     cache: options.cache,
   });

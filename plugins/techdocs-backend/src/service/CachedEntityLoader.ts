@@ -15,7 +15,6 @@
  */
 
 import {
-  AuthService,
   BackstageCredentials,
   CacheService,
 } from '@backstage/backend-plugin-api';
@@ -27,19 +26,16 @@ import {
 import { CatalogService } from '@backstage/plugin-catalog-node';
 
 export type CachedEntityLoaderOptions = {
-  auth: AuthService;
   catalog: CatalogService;
   cache: CacheService;
 };
 
 export class CachedEntityLoader {
-  private readonly auth: AuthService;
   private readonly catalog: CatalogService;
   private readonly cache: CacheService;
   private readonly readTimeout = 1000;
 
-  constructor({ auth, catalog, cache }: CachedEntityLoaderOptions) {
-    this.auth = auth;
+  constructor({ catalog, cache }: CachedEntityLoaderOptions) {
     this.catalog = catalog;
     this.cache = cache;
   }
@@ -77,14 +73,10 @@ export class CachedEntityLoader {
     entityName: CompoundEntityRef,
     credentials: BackstageCredentials,
   ): string {
-    const key = ['catalog', stringifyEntityRef(entityName)];
-
-    if (this.auth.isPrincipal(credentials, 'user')) {
-      key.push(credentials.principal.userEntityRef);
-    } else if (this.auth.isPrincipal(credentials, 'service')) {
-      key.push(credentials.principal.subject);
-    }
-
-    return key.join(':');
+    return [
+      'catalog',
+      stringifyEntityRef(entityName),
+      String(credentials), // these have a well defined toString method
+    ].join(':');
   }
 }

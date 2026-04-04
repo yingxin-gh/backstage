@@ -1,5 +1,5 @@
 ---
-id: getting-started--old
+id: techdocs-getting-started--old
 title: Getting Started (Old Frontend System)
 description: Getting Started Documentation
 ---

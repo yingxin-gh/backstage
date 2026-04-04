@@ -1,5 +1,5 @@
 ---
-id: how-to-guides--old
+id: techdocs-how-to-guides--old
 title: TechDocs How-To guides (Old Frontend System)
 sidebar_label: How-To guides
 description: TechDocs How-To guides related to TechDocs

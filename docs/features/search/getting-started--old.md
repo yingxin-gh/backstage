@@ -1,5 +1,5 @@
 ---
-id: getting-started--old
+id: search-getting-started--old
 title: Getting Started with Search (Old Frontend System)
 description: How to set up and install Backstage Search
 ---

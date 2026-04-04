@@ -1,5 +1,5 @@
 ---
-id: how-to-guides--old
+id: search-how-to-guides--old
 title: Search How-To guides (Old Frontend System)
 sidebar_label: How-To guides
 description: Search How To guides

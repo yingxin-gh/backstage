@@ -138,8 +138,11 @@ export default techdocsPlugin.withOverrides({
     PageBlueprint.make({
       params: {
         path: '/docs',
-        loader: () =>
-          import('./CustomTechDocsHome').then(m => <m.CustomTechDocsHome />),
+        routeRef: techdocsPlugin.routes.root,
+        loader: async () => {
+          const { CustomTechDocsHome } = await import('./CustomTechDocsHome');
+          return <CustomTechDocsHome />;
+        },
       },
     }),
   ],

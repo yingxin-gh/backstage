@@ -155,7 +155,7 @@ Please be aware that the version requirement could change, you need to check our
 
 On a Debian-based Docker container, Python packages must be either installed using the OS package manager or within a virtual environment (see the [related PEP](https://peps.python.org/pep-0668/)). Alternative is to use e.g. [pipx](https://pypa.github.io/pipx/) for installing Python packages in an isolated environment.
 
-The above Dockerfile snippet installs the latest `mkdocs-techdoc-core` package. Version numbers can be found in the corresponding [changelog](https://github.com/backstage/mkdocs-techdocs-core#changelog). In case you want to pin the version, use the example below:
+The above Dockerfile snippet installs the latest `mkdocs-techdocs-core` package. Version numbers can be found in the corresponding [changelog](https://github.com/backstage/mkdocs-techdocs-core#changelog). In case you want to pin the version, use the example below:
 
 ```Dockerfile
 RUN pip3 install mkdocs-techdocs-core==1.2.3

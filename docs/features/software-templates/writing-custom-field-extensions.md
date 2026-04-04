@@ -293,7 +293,7 @@ export const MyCustomFieldWithOptionsExtension = FormFieldBlueprint.make({
 
 We recommend using a library like [zod](https://github.com/colinhacks/zod) to define your schema
 and the provided `makeFieldSchemaFromZod` helper utility function to generate both the JSON schema
-and type for your field props to preventing having to duplicate the definitions:
+and type for your field props to prevent having to duplicate the definitions:
 
 ```tsx
 // packages/app/src/scaffolder/MyCustomExtensionWithOptions/MyCustomExtensionWithOptions.tsx

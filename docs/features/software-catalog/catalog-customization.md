@@ -91,6 +91,19 @@ export default createFrontendModule({
 });
 ```
 
+Then register the module in your app:
+
+```tsx title="packages/app/src/App.tsx"
+import { createApp } from '@backstage/frontend-defaults';
+import catalogCustomizations from './catalog/catalogCustomizations';
+
+const app = createApp({
+  features: [catalogCustomizations],
+});
+
+export default app.createRoot();
+```
+
 ### Removing default filters
 
 Default filters can be disabled through `app-config.yaml` by setting them to `false`:
@@ -117,13 +130,17 @@ you can override the page extension using a frontend module:
 import {
   PageBlueprint,
   createFrontendModule,
+  createRouteRef,
 } from '@backstage/frontend-plugin-api';
 
 const customCatalogPage = PageBlueprint.make({
   params: {
     path: '/catalog',
-    loader: () =>
-      import('./CustomCatalogPage').then(m => <m.CustomCatalogPage />),
+    routeRef: createRouteRef({ aliasFor: 'catalog.catalogIndex' }),
+    loader: async () => {
+      const { CustomCatalogPage } = await import('./CustomCatalogPage');
+      return <CustomCatalogPage />;
+    },
   },
 });
 

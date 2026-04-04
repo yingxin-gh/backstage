@@ -38,10 +38,11 @@ export function locationSpecToMetadataName(location: LocationSpec) {
  * stored location row, e.g. `location:default/generated-<sha1hex>`.
  */
 export function computeLocationEntityRef(type: string, target: string): string {
-  return `location:default/${locationSpecToMetadataName({
-    type,
-    target,
-  })}`.toLocaleLowerCase('en-US');
+  return stringifyEntityRef({
+    kind: 'Location',
+    namespace: 'default',
+    name: locationSpecToMetadataName({ type, target }),
+  });
 }
 
 export function locationSpecToLocationEntity(opts: {

@@ -46,7 +46,7 @@
 | Column                | Type                | Nullable | Max Length | Default |
 | --------------------- | ------------------- | -------- | ---------- | ------- |
 | `id`                  | `uuid`              | false    | -          | -       |
-| `location_entity_ref` | `text`              | false    | -          | -       |
+| `location_entity_ref` | `character varying` | false    | 255        | -       |
 | `target`              | `text`              | true     | -          | -       |
 | `type`                | `character varying` | false    | 255        | -       |
 

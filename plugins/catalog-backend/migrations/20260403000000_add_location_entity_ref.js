@@ -50,7 +50,7 @@ exports.up = async function up(knex) {
   // Step 1: Add column as nullable so the schema change itself needs no data.
   await knex.schema.alterTable('locations', table => {
     table
-      .text('location_entity_ref')
+      .string('location_entity_ref')
       .nullable()
       .comment(
         'The entity ref of the corresponding Location kind entity, e.g. location:default/generated-<sha1hex>',
@@ -126,7 +126,7 @@ exports.up = async function up(knex) {
     // MySQL: MODIFY COLUMN rewrites the column definition.
     // SQLite: knex recreates the table to enforce the NOT NULL constraint.
     await knex.schema.alterTable('locations', table => {
-      table.text('location_entity_ref').notNullable().alter();
+      table.string('location_entity_ref').notNullable().alter();
     });
   }
 };

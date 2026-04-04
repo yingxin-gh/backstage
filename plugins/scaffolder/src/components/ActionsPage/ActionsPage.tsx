@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import useAsync from 'react-use/esm/useAsync';
 import { Action, scaffolderApiRef } from '@backstage/plugin-scaffolder-react';
 
@@ -116,6 +116,24 @@ export const ActionPageContent = () => {
     string | undefined
   >();
   const [searchQuery, setSearchQuery] = useState('');
+  const initialHashHandled = useRef(false);
+
+  useEffect(() => {
+    if (initialHashHandled.current || !actions) {
+      return;
+    }
+    const hash = window.location.hash.slice(1);
+    if (hash && actions.some(a => a.id === hash)) {
+      initialHashHandled.current = true;
+      setSelectedActionId(hash);
+      requestAnimationFrame(() => {
+        const row = document.querySelector(`[data-key="${CSS.escape(hash)}"]`);
+        if (row && typeof row.scrollIntoView === 'function') {
+          row.scrollIntoView({ block: 'nearest' });
+        }
+      });
+    }
+  }, [actions]);
 
   const filteredActions = useMemo(() => {
     const nonLegacy =
@@ -182,9 +200,16 @@ export const ActionPageContent = () => {
               return;
             }
             const selected = [...selection][0] as string | undefined;
-            setSelectedActionId(prev =>
-              prev === selected ? undefined : selected,
-            );
+            setSelectedActionId(prev => {
+              const next = prev === selected ? undefined : selected;
+              const hash = next ? `#${next}` : '';
+              window.history.replaceState(
+                null,
+                '',
+                `${window.location.pathname}${window.location.search}${hash}`,
+              );
+              return next;
+            });
           }}
         >
           {filteredActions.map(action => (

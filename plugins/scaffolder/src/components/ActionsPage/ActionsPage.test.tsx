@@ -54,7 +54,10 @@ async function selectAction(actionId: string) {
 }
 
 describe('ActionsPage', () => {
-  beforeEach(() => jest.resetAllMocks());
+  beforeEach(() => {
+    jest.resetAllMocks();
+    window.location.hash = '';
+  });
 
   it('renders actions in a table and shows detail on row click', async () => {
     scaffolderApiMock.listActions.mockResolvedValue([
@@ -676,6 +679,78 @@ describe('ActionsPage', () => {
     expect(
       screen.getByRole('row', { name: /github:repo:push/ }),
     ).toBeInTheDocument();
+  });
+
+  it('should pre-select the action matching the URL hash on load', async () => {
+    scaffolderApiMock.listActions.mockResolvedValue([
+      {
+        id: 'publish:github',
+        description: 'Publish to GitHub',
+        schema: {
+          input: {
+            type: 'object',
+            properties: {
+              repo: { title: 'Repo name', type: 'string' },
+            },
+          },
+        },
+      },
+      {
+        id: 'fetch:plain',
+        description: 'Fetch plain content',
+        schema: {},
+      },
+    ]);
+
+    window.location.hash = '#publish:github';
+
+    await renderInTestApp(
+      <ApiProvider apis={apis}>
+        <ActionsPage />
+      </ApiProvider>,
+      {
+        mountedRoutes: {
+          '/create/actions': rootRouteRef,
+        },
+        routeEntries: ['/create/actions#publish:github'],
+      },
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'publish:github' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should update the URL hash when selecting and deselecting actions', async () => {
+    scaffolderApiMock.listActions.mockResolvedValue([
+      {
+        id: 'publish:github',
+        description: 'Publish to GitHub',
+        schema: {},
+      },
+      {
+        id: 'fetch:plain',
+        description: 'Fetch plain content',
+        schema: {},
+      },
+    ]);
+
+    await renderInTestApp(
+      <ApiProvider apis={apis}>
+        <ActionsPage />
+      </ApiProvider>,
+      {
+        mountedRoutes: {
+          '/create/actions': rootRouteRef,
+        },
+      },
+    );
+
+    await selectAction('publish:github');
+    expect(window.location.hash).toBe('#publish:github');
+
+    await selectAction('publish:github');
+    expect(window.location.hash).toBe('');
   });
 
   it('should keep search field focused when filtering causes empty then non-empty results', async () => {

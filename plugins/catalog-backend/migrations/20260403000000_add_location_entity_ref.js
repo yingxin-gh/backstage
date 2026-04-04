@@ -18,7 +18,8 @@
 
 const { createHash } = require('node:crypto');
 
-const BATCH_SIZE = 1000;
+// MySQL UNION ALL SQL text grows linearly with batch size; 1 000 keeps packets small.
+const MYSQL_BATCH_SIZE = 1000;
 
 /**
  * Adds a `location_entity_ref` column to the `locations` table.
@@ -35,10 +36,14 @@ const BATCH_SIZE = 1000;
  * tightens it to NOT NULL. This avoids the MySQL strict-mode restriction that
  * TEXT columns cannot have DEFAULT values.
  *
- * Postgres:  one `UPDATE … FROM unnest(ids::uuid[], refs::text[])` per batch,
- *            then `ALTER COLUMN … SET NOT NULL` (no table rewrite needed).
- * MySQL:     one `UPDATE … INNER JOIN (SELECT … UNION ALL …)` per batch,
- *            then `MODIFY COLUMN … NOT NULL`.
+ * Postgres:  single `UPDATE … FROM unnest(ids::uuid[], refs::text[])` for all
+ *            rows — the SQL text is fixed-size and the planner does an index
+ *            nested-loop (O(N)), so round-trip count is the only cost worth
+ *            minimising. Followed by `ALTER COLUMN … SET NOT NULL` (metadata
+ *            only, no table rewrite).
+ * MySQL:     one `UPDATE … INNER JOIN (SELECT … UNION ALL …)` per batch of
+ *            1 000 — the SQL text grows linearly with batch size, so smaller
+ *            batches keep packet sizes reasonable.
  * SQLite:    transaction-wrapped per-row updates, then knex table-recreation
  *            to enforce NOT NULL.
  *
@@ -77,21 +82,19 @@ exports.up = async function up(knex) {
     }));
 
     if (client === 'pg') {
-      // Single round trip per batch: pass both arrays to unnest and JOIN back.
-      for (let i = 0; i < computed.length; i += BATCH_SIZE) {
-        const batch = computed.slice(i, i + BATCH_SIZE);
-        await knex.raw(
-          `UPDATE locations
-           SET location_entity_ref = data.ref
-           FROM unnest(?::uuid[], ?::text[]) AS data(id, ref)
-           WHERE locations.id = data.id`,
-          [batch.map(r => r.id), batch.map(r => r.location_entity_ref)],
-        );
-      }
+      // One round trip for all rows: the SQL text is constant-size, and
+      // Postgres executes the unnest join with an index nested-loop (O(N)).
+      await knex.raw(
+        `UPDATE locations
+         SET location_entity_ref = data.ref
+         FROM unnest(?::uuid[], ?::text[]) AS data(id, ref)
+         WHERE locations.id = data.id`,
+        [computed.map(r => r.id), computed.map(r => r.location_entity_ref)],
+      );
     } else if (client.includes('mysql')) {
-      // Single round trip per batch: JOIN against an inline UNION ALL subquery.
-      for (let i = 0; i < computed.length; i += BATCH_SIZE) {
-        const batch = computed.slice(i, i + BATCH_SIZE);
+      // Batch to keep UNION ALL SQL packet sizes manageable (text grows linearly).
+      for (let i = 0; i < computed.length; i += MYSQL_BATCH_SIZE) {
+        const batch = computed.slice(i, i + MYSQL_BATCH_SIZE);
         const unionParts = batch
           .map(() => 'SELECT ? AS id, ? AS ref')
           .join(' UNION ALL ');

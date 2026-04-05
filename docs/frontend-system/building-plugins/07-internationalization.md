@@ -293,6 +293,23 @@ const app = createApp({
 });
 ```
 
+### Declaring available languages
+
+Installing translation extensions makes the translated messages available, but the language switcher in the Settings page only appears once you declare which languages your app supports. Configure this in your `app-config.yaml` using the `api:app/app-language` extension:
+
+```yaml
+app:
+  extensions:
+    - api:app/app-language:
+        config:
+          availableLanguages:
+            - en
+            - zh
+          defaultLanguage: en
+```
+
+The `availableLanguages` array controls which languages appear as options in the Settings page. The `defaultLanguage` sets the language used before the user makes a selection, and defaults to `en` if not specified.
+
 Go to the Settings page — you should see language switching buttons. Switch languages to verify your translations are loaded correctly.
 
 ### Using the CLI for full translation workflows

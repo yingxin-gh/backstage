@@ -33,8 +33,10 @@ const MYSQL_BATCH_SIZE = 1000;
  * removed in a future migration) gets an empty string as a placeholder value.
  *
  * The migration adds the column as nullable first, fills every row, then
- * tightens it to NOT NULL. This avoids the MySQL strict-mode restriction that
- * TEXT columns cannot have DEFAULT values.
+ * tightens it to NOT NULL. Adding a NOT NULL column to a non-empty table
+ * requires a DEFAULT so the database can back-fill existing rows; supplying a
+ * sentinel default here would be misleading, so instead we add the column as
+ * nullable, fill every row with its real value, then tighten the constraint.
  *
  * Postgres:  single `UPDATE … FROM unnest(ids::uuid[], refs::text[])` for all
  *            rows — the SQL text is fixed-size and the planner does an index

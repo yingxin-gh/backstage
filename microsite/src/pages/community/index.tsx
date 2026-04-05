@@ -81,7 +81,12 @@ const Community = () => {
     },
   ];
 
-  const partners: { name: string; url: string; logo: string; height: number }[] = [
+  const partners: {
+    name: string;
+    url: string;
+    logo: string;
+    height: number;
+  }[] = [
     {
       name: 'Frontside Software',
       url: 'https://frontside.com/backstage/',

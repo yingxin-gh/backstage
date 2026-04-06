@@ -232,7 +232,7 @@ export default createBackendModule({
 The framework enforces declarations at two levels:
 
 - **Startup validation.** If a module depends on `coreServices.connections` but did not call `env.registerConnections`, the framework throws at startup before any init code runs.
-- **Runtime validation.** If a module calls `find` or `findAll` with a type that was not declared, the service throws immediately.
+- **Runtime validation.** If a module calls `find` with a type that was not declared, the service throws immediately.
 
 Each module declares its own connection requirements independently. The plugin's total set of declared types is the union of all its modules' declarations. This means a catalog plugin with a GitHub provider module and a GitLab provider module each declare only the types they need:
 
@@ -254,7 +254,7 @@ register(env) {
 
 ### Querying Connections
 
-The connection service exposes two methods. Both take a single options object with a required `type` field, which is validated against the module's declared types.
+The connection service exposes a single query method with a required `type` field, which is validated against the module's declared types.
 
 **`find` — best match:**
 
@@ -283,15 +283,6 @@ The `find` method selects both the connection and the auth method in one step. I
 ```
 
 If no connection matches the type and URL at all, `find` returns `undefined` as usual — the error only occurs when a connection exists but the caller cannot handle its auth method.
-
-**`findAll` — all connections of a type:**
-
-Returns all connections of the given type with their base fields:
-
-```typescript
-const all = connections.findAll({ type: 'github' });
-// GithubConnectionBase[] — base fields without auth selection
-```
 
 **Always-optional results:**
 
@@ -667,14 +658,12 @@ interface ConnectionsService {
     url?: string | URL;
     [key: string]: unknown;
   }): ConnectionResult<T, M>;
-
-  findAll<T extends string>(options: { type: T }): ConnectionOfType<T>[];
 }
 ```
 
-Both methods take a single options object with a required `type` field. Both validate the type against the module's declared connection types and throw if the type was not registered.
+The `find` method takes a single options object with a required `type` field. It validates the type against the module's declared connection types and throws if the type was not registered.
 
-The `find` method requires an `authMethods` array declaring which auth methods the caller supports. It returns the best matching connection with the best auth method selected. If a connection matches but its best auth method is not in the caller's `authMethods` list, `find` throws — this is a configuration/code mismatch, not a missing connection. If no connection matches at all, the result is `undefined`. The `findAll` method returns all connections of the given type with their base fields.
+The `authMethods` array declares which auth methods the caller supports. `find` returns the best matching connection with the best auth method selected. If a connection matches but its best auth method is not in the caller's `authMethods` list, `find` throws — this is a configuration/code mismatch, not a missing connection. If no connection matches at all, the result is `undefined`.
 
 ### `ConnectionType` Interface
 
@@ -738,7 +727,7 @@ interface ResolvedConnection extends Connection {
 
 The base `Connection` interface requires `type` and `host`. The `ResolvedConnection` extends it with a single `auth` field — the selected auth method, a discriminated union with a `method` string and method-specific fields.
 
-The `find` method returns a `ResolvedConnection` — a connection with the single best-matching auth method already selected. The `findAll` method returns `Connection[]` — connections with their base fields, without auth selection (since there is no query to select by).
+The `find` method returns a `ResolvedConnection` — a connection with the single best-matching auth method already selected.
 
 The `match` block is not part of the connection or auth output types — it is a framework-level config concern handled during auth method selection. The `match` key is reserved by the framework on auth config entries and is stripped before the auth object is returned to consumers.
 
@@ -775,18 +764,6 @@ type ResolvedConnectionOfType<
 ```
 
 For example, `GithubConnectionResolved<'token' | 'app'>` has `auth: GithubTokenAuth | GithubAppAuth`, while `GithubConnectionResolved<'token'>` narrows to `auth: GithubTokenAuth`.
-
-`ConnectionOfType<T>` maps known type strings to their base subtypes (without auth selection), used by `findAll`:
-
-```typescript
-type ConnectionOfType<T extends string> = T extends 'github'
-  ? GithubConnectionBase
-  : T extends 'gitlab'
-  ? GitlabConnectionBase
-  : T extends 'azure'
-  ? AzureConnectionBase
-  : Connection;
-```
 
 ### URL Matching and Indexing
 
@@ -835,43 +812,26 @@ Within each `auth` entry, the `match` and `method` keys are reserved by the fram
 
 The association between annotations and connection types is a documentation convention only — there is no runtime annotation handling in the connection service. The full annotation key follows the pattern `<host>/<suffix>` (e.g. `github.com/project-slug`), where the host matches the connection's host.
 
-Plugins that need to resolve annotations to connections do so explicitly. A utility function can simplify the common pattern:
+Plugins that need to resolve annotations to connections do so explicitly. The annotation value identifies the resource, and the annotation prefix (the host) is used to construct a URL for `find`:
 
 ```typescript
-function findEntityConnection<T extends string>(
-  entity: Entity,
-  connections: ConnectionsService,
-  options: {
-    type: T;
-    annotation: string;
-  },
-): ConnectionResult<T> {
-  const annotations = entity.metadata.annotations ?? {};
-
-  for (const conn of connections.findAll({ type: options.type })) {
-    const value = annotations[`${conn.host}/${options.annotation}`];
-    if (value) {
-      return { connection: conn };
-    }
-  }
-
-  return { connection: undefined };
+const slug = entity.metadata.annotations?.['github.com/project-slug'];
+if (slug) {
+  const result = connections.find({
+    type: 'github',
+    authMethods: ['token', 'app'],
+    url: `https://github.com/${slug}`,
+  });
 }
-
-// Usage: find the github connection for this entity's project
-const result = findEntityConnection(entity, connections, {
-  type: 'github',
-  annotation: 'project-slug',
-});
 ```
 
-This iterates over configured connections of the given type and checks whether the entity has a matching annotation for any of their hosts. This naturally handles self-hosted instances — an entity with `ghe.example.com/project-slug` matches the connection with `host: ghe.example.com`.
+This naturally handles self-hosted instances — an entity with `ghe.example.com/project-slug` uses the annotation prefix as the host, routing to the correct connection.
 
 ### Credential APIs on Top of Connections
 
 Connections are intentionally limited to static configuration data. Dynamic credential resolution — token exchange, caching, refresh, SDK credential chains — is handled by separate type-specific APIs built on top of connections. This mirrors the existing pattern where `DefaultGithubCredentialsProvider`, `DefaultAzureDevOpsCredentialsProvider`, and `DefaultAwsCredentialsManager` already exist as distinct APIs separate from `ScmIntegrations`.
 
-With the connection service in place, these credential APIs would read from `coreServices.connections` instead of `ScmIntegrations.fromConfig(config)`. They could be wired as independent service refs with default factories, making each one separately overridable. For example, a GitHub credentials service would use `connections.find({ type: 'github', authMethods: ['token', 'app'], url })` to get the best connection and auth method, then handle token exchange for `app` auth methods (installation token negotiation) or pass through the token directly for `token` auth methods, caching tokens with appropriate expiry. An AWS credentials service would read static keys and role configurations via `connections.findAll({ type: 'aws-s3' })` and provide SDK credential provider chains.
+With the connection service in place, these credential APIs would read from `coreServices.connections` instead of `ScmIntegrations.fromConfig(config)`. They could be wired as independent service refs with default factories, making each one separately overridable. For example, a GitHub credentials service would use `connections.find({ type: 'github', authMethods: ['token', 'app'], url })` to get the best connection and auth method, then handle token exchange for `app` auth methods (installation token negotiation) or pass through the token directly for `token` auth methods, caching tokens with appropriate expiry.
 
 The design of these credential APIs is outside the scope of this BEP and will be addressed separately.
 
@@ -951,4 +911,8 @@ Wrap existing types in services without changing config format. Simpler to imple
 
 ### Per-Provider Service Refs for Connections
 
-One connection service per type (`coreServices.githubConnections`, etc.). Better type safety but leads to service ref proliferation and makes generic code harder to write. The single `coreServices.connections` with typed `find` and `findAll` methods provides sufficient type safety through the `type` option, while `registerConnections` provides the declaration guarantee.
+One connection service per type (`coreServices.githubConnections`, etc.). Better type safety but leads to service ref proliferation and makes generic code harder to write. The single `coreServices.connections` with a typed `find` method provides sufficient type safety through the `type` option, while `registerConnections` provides the declaration guarantee.
+
+### `findAll` Method
+
+A `findAll` method that returns all connections of a given type could be useful for listing configured hosts or for credential services that need to enumerate connections. However, no current requirement is believed to need this — every known use case is a targeted lookup for a specific connection and auth method, which `find` handles. Leaving `findAll` out of the initial API keeps the surface minimal and preserves maximum freedom to evolve the internal representation, matching behavior, and auth selection model without being constrained by a listing contract. If a concrete need arises, `findAll` can be added as a backward-compatible extension.

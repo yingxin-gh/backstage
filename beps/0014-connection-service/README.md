@@ -20,13 +20,15 @@ creation-date: 2026-03-30
   - [Configuration Format](#configuration-format)
   - [Connection Service](#connection-service)
   - [Querying Connections](#querying-connections)
-  - [Connection Type Versioning](#connection-type-versioning)
+  - [Defining Connection Types](#defining-connection-types)
+  - [Connection Type Evolution](#connection-type-evolution)
   - [Catalog Entity Annotations](#catalog-entity-annotations)
   - [Frontend Discovery](#frontend-discovery)
   - [Override Capability](#override-capability)
   - [Custom Connection Types](#custom-connection-types)
 - [Design Details](#design-details)
   - [ConnectionsService Interface](#connectionsservice-interface)
+  - [ConnectionType Interface](#connectiontype-interface)
   - [Connection Interface](#connection-interface)
   - [ConnectionResult](#connectionresult)
   - [URL Matching and Indexing](#url-matching-and-indexing)
@@ -44,7 +46,7 @@ This BEP proposes a **Connection Service** for Backstage — a centralized syste
 
 Connections provide static, typed data about configured external services: what they are, where they live (hosts, API endpoints, regions), and what authentication material is available (tokens, app credentials, service account keys). Connections are pure configuration data — they do not perform dynamic operations like token exchange or credential refresh. Dynamic credential resolution (e.g. GitHub App installation tokens, Azure OAuth flows) is left to type-specific APIs that can be built on top of connections separately.
 
-The connection service supports querying by URL with specificity beyond host matching, querying by type with optional type-specific context, and always returns a standardized result — a missing connection is never an error. The service can be overridden at the app level, and adopters can register custom connection types.
+Each connection type defines base fields (host, API endpoints) and one or more authentication methods as first-class primitives. The `find` method selects both the best connection and the best auth method in one step, returning a single connection with a single selected auth object. The service supports querying by URL with specificity beyond host matching, querying by type, and always returns a standardized result — a missing connection is never an error. The service can be overridden at the app level, and adopters can register custom connection types.
 
 ## Motivation
 
@@ -99,16 +101,19 @@ connections:
     host: github.com
     apiBaseUrl: https://api.github.com
     rawBaseUrl: https://raw.githubusercontent.com
-    token: ${GITHUB_TOKEN}
-    apps:
-      - appId: 12345
+    auth:
+      - method: token
+        token: ${GITHUB_TOKEN}
+      - method: app
+        appId: 12345
         privateKey: ${GH_APP_PRIVATE_KEY}
         clientId: ${GH_APP_CLIENT_ID}
         clientSecret: ${GH_APP_CLIENT_SECRET}
         allowedOwners:
           - my-org
           - partner-org
-      - appId: 67890
+      - method: app
+        appId: 67890
         privateKey: ${GH_APP_2_KEY}
         clientId: ${GH_APP_2_CLIENT_ID}
         clientSecret: ${GH_APP_2_CLIENT_SECRET}
@@ -117,44 +122,46 @@ connections:
   - type: github
     host: ghe.example.com
     apiBaseUrl: https://ghe.example.com/api/v3
-    token: ${GHE_TOKEN}
+    auth:
+      - method: token
+        token: ${GHE_TOKEN}
   - type: gitlab
     host: gitlab.com
-    token: ${GITLAB_TOKEN}
+    auth:
+      - method: token
+        token: ${GITLAB_TOKEN}
   - type: azure
     host: dev.azure.com
-    credentials:
-      - personalAccessToken: ${AZURE_TOKEN}
-  - type: aws-s3
-    endpoint: ${AWS_S3_ENDPOINT}
-    accessKeyId: ${AWS_ACCESS_KEY_ID}
-    secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+    auth:
+      - method: pat
+        personalAccessToken: ${AZURE_TOKEN}
 ```
 
-This is the simplest possible structure: just a list. The `type` field is the discriminator.
+Each connection entry has a `type`, base fields like `host`, and an `auth` array listing one or more authentication methods. Each auth entry has a `method` discriminator and method-specific fields. The `find` method selects both the best connection and the best auth method for a given query — consumers receive a single connection with a single selected auth object.
 
-**Plugin scoping.** Each connection entry can optionally specify which plugins it is available to using the `plugins` field. When omitted, the connection is available to all plugins. When specified, the connection is only visible to the listed plugin IDs:
+**Auth method matching.** Each auth entry can optionally include a `match` block that controls when the entry is eligible for selection. The `match` key is reserved by the framework — auth method schemas cannot use it. Currently `match` supports `plugins`, which restricts the auth entry to specific plugin IDs:
 
 ```yaml
 connections:
-  # Only the catalog plugin sees this connection (e.g. a read-only token)
   - type: github
     host: github.com
-    token: ${GITHUB_CATALOG_TOKEN}
-    plugins: [catalog]
-
-  # All other plugins use this connection for github.com
-  - type: github
-    host: github.com
-    token: ${GITHUB_TOKEN}
-    apps:
-      - appId: 12345
+    auth:
+      # Only the catalog plugin can select this auth method
+      - method: token
+        token: ${GITHUB_CATALOG_TOKEN}
+        match:
+          plugins: [catalog]
+      # All other plugins use the app
+      - method: app
+        appId: 12345
         privateKey: ${GH_APP_KEY}
         clientId: ${GH_APP_CLIENT_ID}
         clientSecret: ${GH_APP_CLIENT_SECRET}
 ```
 
-When a plugin queries for a connection, the service first considers connections scoped to that plugin, then falls back to connections without a scope. This allows adopters to give different plugins different credentials or permission levels for the same host without any code changes — for example, giving the catalog a read-only token while the scaffolder uses a GitHub App with write access.
+When `find` selects an auth method, entries whose `match` criteria exclude the requesting plugin are removed from consideration. Auth methods without a `match` block are always eligible. Among eligible entries, those with a `match` that explicitly includes the requesting plugin are preferred over unmatched ones. This allows adopters to give different plugins different credentials or permission levels for the same connection without duplicating the connection entry or writing any code.
+
+The `match` block is designed to evolve — future selection criteria can be added alongside `plugins` without changing auth method schemas or the overall config structure.
 
 **Config merging.** Arrays in Backstage's config system are replaced wholesale when merging across config sources — they do not merge element-by-element. This means that if `connections` is defined in multiple config files, the last source wins. In practice this is acceptable because different environments (local dev, staging, production) typically define entirely different sets of connections. For the case where base config and secrets need to be split, the recommended approach is to use environment variable substitution within a single config file, or to use the `$include` directive.
 
@@ -181,7 +188,7 @@ export const connectionsServiceRef = createServiceRef<ConnectionsService>({
 });
 ```
 
-The service depends on `coreServices.pluginMetadata` so that each plugin receives a view of connections filtered to those available to it. Connections with a `plugins` scope that does not include the requesting plugin are excluded. Connections without a `plugins` scope are always included.
+The service depends on `coreServices.pluginMetadata` so that auth method selection can apply `match` criteria. When `find` evaluates auth methods, entries whose `match.plugins` does not include the requesting plugin are excluded from selection. Auth methods without a `match` block are always eligible.
 
 Added to `coreServices`:
 
@@ -208,11 +215,13 @@ export default createBackendModule({
       async init({ connections }) {
         const result = connections.find({
           type: 'github',
+          authMethods: ['token', 'app'],
           url: 'https://github.com/my-org/my-repo',
         });
 
         if (result.connection) {
-          const { host, apiBaseUrl, token, apps } = result.connection;
+          const { host, apiBaseUrl, auth } = result.connection;
+          // auth is narrowed to GithubTokenAuth | GithubAppAuth
         }
       },
     });
@@ -249,33 +258,39 @@ The connection service exposes two methods. Both take a single options object wi
 
 **`find` — best match:**
 
-Returns the single best-matching connection for the given criteria, or `undefined` if none matches:
+Returns the single best-matching connection for the given criteria. The caller must declare which auth methods it supports via the required `authMethods` parameter:
 
 ```typescript
 const result = connections.find({
   type: 'github',
+  authMethods: ['token', 'app'],
   url: 'https://github.com/my-org/my-repo',
 });
 // result.connection is GithubConnection | undefined
+// result.connection.auth is narrowed to GithubTokenAuth | GithubAppAuth
 ```
 
-Type-specific query parameters can refine the match beyond a URL. The set of extra parameters is defined per connection type:
+The `find` method selects both the connection and the auth method in one step. If a GitHub connection has multiple auth entries (a PAT and two apps), `find` picks the connection whose host matches and the auth entry that best matches the URL — for example, the app whose `allowedOwners` includes the URL's organization.
+
+**Auth method enforcement.** The `authMethods` parameter is not a filter — it is a declaration of what the caller can handle. If the best-matching auth method for a connection is one the caller did not list, `find` throws an error rather than silently skipping it. This ensures that when a new auth method is configured, consumers that encounter it are forced to explicitly add support rather than silently losing access to the connection:
 
 ```typescript
-const result = connections.find({
-  type: 'github',
-  host: 'github.com',
-  owner: 'my-org',
-});
+// If the best match for this URL is a 'fine-grained-pat' auth entry
+// but the caller only listed ['token', 'app'], find() throws:
+//   "Connection 'github' at 'github.com' matched auth method
+//    'fine-grained-pat' which is not in the caller's supported
+//    authMethods: ['token', 'app']"
 ```
+
+If no connection matches the type and URL at all, `find` returns `undefined` as usual — the error only occurs when a connection exists but the caller cannot handle its auth method.
 
 **`findAll` — all connections of a type:**
 
-Returns all connections of the given type:
+Returns all connections of the given type with their base fields:
 
 ```typescript
 const all = connections.findAll({ type: 'github' });
-// GithubConnection[]
+// GithubConnectionBase[] — base fields without auth selection
 ```
 
 **Always-optional results:**
@@ -285,6 +300,7 @@ The `find` method never throws for a missing connection. It returns a `Connectio
 ```typescript
 const result = connections.find({
   type: 'github',
+  authMethods: ['token', 'app'],
   url: 'https://unknown-host.example.com/path',
 });
 
@@ -296,35 +312,22 @@ if (!result.connection) {
 
 ### Defining Connection Types
 
-Each connection type is defined using `createConnectionType`, which captures the full definition: config validation, output shape, and URL matching. The definition uses a Zod schema as the single source of truth — both for the input config shape (from which a JSON Schema is derived) and for the output connection shape (via `.transform()`). There is no separate `create` function; the schema itself defines the transformation from config to connection.
+Each connection type is defined using `createConnectionType`, which captures the full definition: base config validation, auth methods, output shape, and URL matching. The definition uses Zod schemas as the source of truth for both base fields and auth methods.
 
 The `createConnectionType` function produces a `ConnectionType` object that the registry uses internally. Consumers of the connection service never interact with this object — they work with the output type produced by the schema.
 
 **What each piece does:**
 
-- **`type`** — the discriminator string used in config and queries. The framework adds `type` and `plugins` to the output automatically — the schema only defines the type-specific fields.
-- **`configSchema`** — a Zod schema that validates the raw config entry and transforms it into the output connection shape. The pre-transform shape defines the config input (from which a JSON Schema is derived for validation and IDE support). The post-transform shape is the output type that consumers receive. Must include `host` in both input and output. Use `.transform()` to apply defaults and derive computed fields.
-- **`matchUrl(connection, url)`** — optional. Scores a connection against a URL for `find()` ranking among same-host, same-type candidates. Returns a number: `0` for host-only match, higher for more specific matches, `-1` to explicitly reject. Called only among connections that already match by host. When omitted, the default implementation returns `0` (host-only matching).
+- **`type`** — the discriminator string used in config and queries. The framework adds `type` to the output automatically.
+- **`configSchema`** — a Zod schema for the base connection fields shared across all auth methods (e.g. `host`, `apiBaseUrl`). The pre-transform shape defines the config input; `.transform()` derives computed defaults. Must include `host` in both input and output.
+- **`authMethods`** — an array of auth method definitions, each with a `method` string discriminator and its own `configSchema` (Zod). Auth methods can also provide a `matchUrl` function for auth-specific URL scoring (e.g. matching `allowedOwners` on a GitHub App).
+- **`matchUrl(connection, url)`** — optional, at the connection level. Scores a connection against a URL for `find()` ranking among same-host, same-type candidates. Returns a number: `0` for host-only match, higher for more specific matches, `-1` to explicitly reject. When omitted, the default implementation returns `0` (host-only matching). Auth-level `matchUrl` is evaluated separately to select the best auth method within a connection.
 
 #### Full Example: GitHub Connection Type
 
 ```typescript
 import { createConnectionType } from '@backstage/backend-plugin-api';
 import { z } from 'zod';
-
-const githubAppSchema = z
-  .object({
-    appId: z.union([z.number(), z.string()]),
-    privateKey: z.string(),
-    clientId: z.string(),
-    clientSecret: z.string(),
-    webhookSecret: z.string().optional(),
-    allowedOwners: z.array(z.string()).optional(),
-  })
-  .transform(app => ({
-    ...app,
-    appId: typeof app.appId === 'string' ? Number(app.appId) : app.appId,
-  }));
 
 export const githubConnectionType = createConnectionType({
   type: 'github',
@@ -334,8 +337,6 @@ export const githubConnectionType = createConnectionType({
       host: z.string(),
       apiBaseUrl: z.string().optional(),
       rawBaseUrl: z.string().optional(),
-      token: z.string().optional(),
-      apps: z.array(githubAppSchema).optional(),
     })
     .transform(input => {
       const isPublic = input.host === 'github.com';
@@ -354,98 +355,122 @@ export const githubConnectionType = createConnectionType({
       };
     }),
 
-  matchUrl(connection, url) {
-    const owner = url.pathname.split('/')[1];
-    if (!owner) {
-      return 0;
-    }
-    for (const app of connection.apps ?? []) {
-      if (app.allowedOwners?.includes(owner)) {
-        return 100;
-      }
-    }
-    return 0;
-  },
+  authMethods: [
+    {
+      method: 'token',
+      configSchema: z.object({
+        token: z.string(),
+      }),
+    },
+    {
+      method: 'app',
+      configSchema: z
+        .object({
+          appId: z.union([z.number(), z.string()]),
+          privateKey: z.string(),
+          clientId: z.string(),
+          clientSecret: z.string(),
+          webhookSecret: z.string().optional(),
+          allowedOwners: z.array(z.string()).optional(),
+        })
+        .transform(app => ({
+          ...app,
+          appId: typeof app.appId === 'string' ? Number(app.appId) : app.appId,
+        })),
+      matchUrl(auth, url) {
+        const owner = url.pathname.split('/')[1];
+        if (!owner || !auth.allowedOwners?.length) {
+          return 0;
+        }
+        if (auth.allowedOwners.includes(owner)) {
+          return 100;
+        }
+        return -1;
+      },
+    },
+  ],
 });
 
-// The output type that consumers receive (inferred from the schema):
-export interface GithubConnection extends Connection {
+// The output type that consumers receive from find():
+export interface GithubConnection extends ResolvedConnection {
   readonly type: 'github';
   readonly host: string;
   readonly apiBaseUrl: string;
   readonly rawBaseUrl: string;
-  readonly token?: string;
-  readonly apps?: ReadonlyArray<{
-    readonly appId: number;
-    readonly privateKey: string;
-    readonly clientId: string;
-    readonly clientSecret: string;
-    readonly webhookSecret?: string;
-    readonly allowedOwners?: readonly string[];
-  }>;
+  readonly auth: GithubTokenAuth | GithubAppAuth;
+}
+
+export interface GithubTokenAuth {
+  readonly method: 'token';
+  readonly token: string;
+}
+
+export interface GithubAppAuth {
+  readonly method: 'app';
+  readonly appId: number;
+  readonly privateKey: string;
+  readonly clientId: string;
+  readonly clientSecret: string;
+  readonly webhookSecret?: string;
+  readonly allowedOwners?: readonly string[];
 }
 ```
 
-The Zod schema does all the work. The pre-transform shape (`z.object(...)`) defines what config authors write — `apiBaseUrl` and `rawBaseUrl` are optional, `appId` accepts strings or numbers. The `.transform()` fills in defaults and normalizes types, producing the output shape where `apiBaseUrl` and `rawBaseUrl` are always `string` and `appId` is always `number`. The JSON Schema is derived from the pre-transform shape, so config documentation and IDE support reflect the optional inputs.
+The base `configSchema` handles fields shared across all auth methods — `host`, `apiBaseUrl`, `rawBaseUrl` — with `.transform()` filling in defaults. Each auth method defines its own schema independently, validated and transformed in isolation.
 
-The `matchUrl` function uses `allowedOwners` to provide more specific matching — when multiple GitHub connections exist for the same host (e.g. different apps for different organizations), the one whose app explicitly lists the URL's owner scores higher.
+When `find` is called, the registry selects the best connection by host, then selects the best auth method within that connection. The `matchUrl` on the `app` auth method uses `allowedOwners` to score — when a URL's organization matches an app's allowed owners, that app is preferred. The result returned to the caller includes the base connection fields and a single `auth` object — the selected method.
 
-Every connection output has a `matchUrl` method provided by the framework. The default implementation matches by host only. When a connection type provides its own `matchUrl`, it replaces the default with type-specific logic.
+Every connection output has a `matchUrl` method provided by the framework. The default implementation matches by host only. When a connection type or auth method provides its own `matchUrl`, it enables more specific scoring.
 
 ### Connection Type Evolution
 
-Since all connection types are defined centrally, they can be evolved by modifying the single package. There are two strategies for evolving a connection type, and both can be used together.
+Since all connection types are defined centrally and auth methods are first-class primitives, there are clean paths for evolving connection types over time.
 
-**Additive changes within a type.** New optional fields can be added to an existing schema without affecting existing configs. For changes to the auth method or config shape that need to coexist, the Zod schema is extended with `z.union`:
+**Adding a new auth method.** New auth methods can be added to an existing connection type. The definition change is purely additive — existing auth methods are unchanged:
 
 ```typescript
-export const githubConnectionType = createConnectionType({
-  type: 'github',
-
-  configSchema: z
-    .union([
-      z.object({
-        host: z.string(),
-        token: z.string().optional(),
-        apiBaseUrl: z.string().optional(),
-        apps: z.array(/* ... */).optional(),
-      }),
-      z.object({
-        host: z.string(),
-        auth: z.object({
-          method: z.literal('fine-grained-pat'),
-          token: z.string(),
-          repositories: z.array(z.string()),
-        }),
-      }),
-    ])
-    .transform(input => {
-      // Normalize both shapes into a single output
+// Adding fine-grained PAT support to the GitHub connection type:
+authMethods: [
+  // ... existing token and app methods unchanged ...
+  {
+    method: 'fine-grained-pat',
+    configSchema: z.object({
+      token: z.string(),
+      repositories: z.array(z.string()),
     }),
-});
+    matchUrl(auth, url) {
+      // Match based on repository list
+    },
+  },
+],
 ```
 
-Both config shapes are valid. The JSON Schema derived from the union documents both formats. The `.transform()` normalizes them into a single output shape. This works well when the auth method is an implementation detail that shouldn't affect consumers — a plugin asking for a GitHub connection gets the same output regardless of whether the admin configured a PAT or a fine-grained PAT.
+Existing consumers that call `find` with `authMethods: ['token', 'app']` are unaffected as long as the connections they encounter don't resolve to the new method. If an adopter configures `fine-grained-pat` as the auth method for a connection that an existing consumer queries, `find` throws — forcing the consumer to either add `'fine-grained-pat'` to their `authMethods` list and handle it, or for the adopter to also configure a `token` or `app` entry that the consumer supports. This ensures new auth methods are never silently ignored.
 
-**New type for fundamentally different variants.** When a new auth method produces a meaningfully different output shape, or when a service evolves in a way that old and new formats can't be reasonably normalized, it is better to introduce a new type. For example, if GitHub were to introduce an entirely new API that requires different fields from consumers:
+**Adding base fields.** New optional fields can be added to the base `configSchema` without affecting existing configs or consumers.
+
+**New type for fundamentally different variants.** When a service evolves in a way that requires a fundamentally different base shape or consumer interaction pattern, it is better to introduce a new type:
 
 ```yaml
 connections:
-  # Existing type — still works, unchanged
   - type: github
     host: github.com
-    token: ${GITHUB_TOKEN}
+    auth:
+      - method: token
+        token: ${GITHUB_TOKEN}
 
-  # New type for the hypothetical new API
+  # Hypothetical new API version with different base fields
   - type: github-v2
     host: github.com
     apiVersion: '2024-01-01'
-    installationToken: ${GITHUB_V2_TOKEN}
+    auth:
+      - method: installation-token
+        installationToken: ${GITHUB_V2_TOKEN}
 ```
 
 Plugins that need the new API register `github-v2`. Plugins that work with both register both. The old `github` type is never broken.
 
-**Choosing between the two.** The rule of thumb: if the output shape to consumers stays the same, use a schema union within the existing type. If consumers need to handle the variant differently, it's a new type. Since all types are centrally defined, the Backstage maintainers can make this judgment call and migrate as needed — there's no ecosystem fragmentation risk.
+**Choosing between the two.** Adding auth methods is the default path for new authentication mechanisms — the base connection shape stays the same, and consumers handle the auth variant they need. A new top-level type is only needed when the base fields or the fundamental interaction model changes. Since all types are centrally defined, the Backstage maintainers can make this judgment call.
 
 ### Catalog Entity Annotations
 
@@ -502,6 +527,7 @@ function getGithubRepo(
   }
   const result = connections.find({
     type: 'github',
+    authMethods: ['token', 'app'],
     url: `https://github.com/${slug}`,
   });
   if (!result.connection) {
@@ -542,7 +568,7 @@ GET /api/connections
 
 ### Override Capability
 
-Plugin scoping via the `plugins` field covers the common case of giving different plugins different connections. For more advanced customization, the entire connection service can be overridden at the app level:
+Auth method matching via the `match` block covers the common case of giving different plugins different credentials. For more advanced customization, the entire connection service can be overridden at the app level:
 
 ```typescript
 const backend = createBackend();
@@ -578,13 +604,21 @@ const artifactoryConnectionType = createConnectionType({
   configSchema: z
     .object({
       host: z.string(),
-      token: z.string().optional(),
       repository: z.string().optional(),
     })
     .transform(input => ({
       ...input,
       apiBaseUrl: `https://${input.host}/artifactory/api`,
     })),
+
+  authMethods: [
+    {
+      method: 'token',
+      configSchema: z.object({
+        token: z.string(),
+      }),
+    },
+  ],
 });
 ```
 
@@ -616,7 +650,9 @@ Configured as:
 connections:
   - type: artifactory
     host: artifactory.example.com
-    token: ${ARTIFACTORY_TOKEN}
+    auth:
+      - method: token
+        token: ${ARTIFACTORY_TOKEN}
 ```
 
 ## Design Details
@@ -625,17 +661,20 @@ connections:
 
 ```typescript
 interface ConnectionsService {
-  find<T extends string>(options: {
+  find<T extends string, M extends string>(options: {
     type: T;
+    authMethods: M[];
     url?: string | URL;
     [key: string]: unknown;
-  }): ConnectionResult<T>;
+  }): ConnectionResult<T, M>;
 
   findAll<T extends string>(options: { type: T }): ConnectionOfType<T>[];
 }
 ```
 
-Both methods take a single options object with a required `type` field. The `find` method returns the best matching connection for the given type and optional query parameters. The `findAll` method returns all connections of the given type. Both validate the type against the module's declared connection types and throw if the type was not registered.
+Both methods take a single options object with a required `type` field. Both validate the type against the module's declared connection types and throw if the type was not registered.
+
+The `find` method requires an `authMethods` array declaring which auth methods the caller supports. It returns the best matching connection with the best auth method selected. If a connection matches but its best auth method is not in the caller's `authMethods` list, `find` throws — this is a configuration/code mismatch, not a missing connection. If no connection matches at all, the result is `undefined`. The `findAll` method returns all connections of the given type with their base fields.
 
 ### `ConnectionType` Interface
 
@@ -647,13 +686,20 @@ interface ConnectionType<TOutput extends Connection = Connection> {
   readonly jsonSchema: JsonObject;
   parse(data: unknown): TOutput;
   matchUrl?(connection: TOutput, url: URL): number;
+  readonly authMethods: ReadonlyArray<{
+    readonly method: string;
+    readonly jsonSchema: JsonObject;
+    parseAuth(data: unknown): ConnectionAuth;
+    matchUrl?(auth: ConnectionAuth, url: URL): number;
+  }>;
 }
 ```
 
 - **`type`** — the discriminator string.
-- **`jsonSchema`** — automatically derived from the pre-transform shape of the Zod `configSchema`. Merged into the overall config schema for validation and IDE support. The Zod schema itself is not exposed.
-- **`parse(data)`** — validates and transforms `data` through the Zod schema. Returns the output connection object (with `type` and `plugins` added by the framework). Throws on invalid input.
+- **`jsonSchema`** — automatically derived from the pre-transform shape of the base Zod `configSchema`. Merged into the overall config schema for validation and IDE support.
+- **`parse(data)`** — validates and transforms the base fields through the Zod schema. Returns the base connection object (with `type` added by the framework). Throws on invalid input.
 - **`matchUrl(connection, url)`** — optional. Scores a connection against a URL for `find()` ranking among same-host, same-type candidates.
+- **`authMethods`** — the registered auth method definitions. Each has its own `jsonSchema`, `parseAuth`, and optional `matchUrl` for auth-level scoring.
 
 The `createConnectionType` helper wires these together:
 
@@ -662,10 +708,15 @@ function createConnectionType<TOutput extends Connection>(options: {
   type: string;
   configSchema: ZodType<unknown, unknown, TOutput>;
   matchUrl?: (connection: TOutput, url: URL) => number;
+  authMethods: Array<{
+    method: string;
+    configSchema: ZodType;
+    matchUrl?: (auth: any, url: URL) => number;
+  }>;
 }): ConnectionType<TOutput>;
 ```
 
-The Zod schema is the single source of truth — its pre-transform shape produces the JSON Schema, and its full pipeline (validation + transform) powers `parse`. The Zod schema itself is not part of the public `ConnectionType` interface.
+The Zod schemas are the source of truth — base pre-transform shape produces the base JSON Schema, each auth method's pre-transform shape produces its JSON Schema. The Zod schemas themselves are not part of the public `ConnectionType` interface.
 
 ### `Connection` Interface
 
@@ -673,68 +724,102 @@ The Zod schema is the single source of truth — its pre-transform shape produce
 interface Connection {
   readonly type: string;
   readonly host: string;
-  readonly plugins?: readonly string[];
   matchUrl(url: string | URL): boolean;
+}
+
+interface ConnectionAuth {
+  readonly method: string;
+}
+
+interface ResolvedConnection extends Connection {
+  readonly auth: ConnectionAuth;
 }
 ```
 
-The base interface requires `type` and `host`. The `plugins` field reflects the configured scope — when present, it lists the plugin IDs this connection is available to. When absent, the connection is available to all plugins. By the time a plugin receives a connection through the service, scoping has already been applied — a plugin only sees connections it is allowed to access.
+The base `Connection` interface requires `type` and `host`. The `ResolvedConnection` extends it with a single `auth` field — the selected auth method, a discriminated union with a `method` string and method-specific fields.
 
-The `matchUrl` method lets callers check whether a given URL is covered by this connection. The default implementation matches by host. Connection types that provide a custom `matchUrl` in their definition get more specific logic — for example, the GitHub type checks `allowedOwners` against the URL path.
+The `find` method returns a `ResolvedConnection` — a connection with the single best-matching auth method already selected. The `findAll` method returns `Connection[]` — connections with their base fields, without auth selection (since there is no query to select by).
 
-Each connection type's output shape is defined by its `create` function and exported as a TypeScript interface for consumers. See the full GitHub example above. All output properties are `readonly` — connections are immutable snapshots of configuration.
+The `match` block is not part of the connection or auth output types — it is a framework-level config concern handled during auth method selection. The `match` key is reserved by the framework on auth config entries and is stripped before the auth object is returned to consumers.
+
+The `matchUrl` method lets callers check whether a given URL is covered by this connection. The default implementation matches by host. Connection types that provide a custom `matchUrl` in their definition get more specific logic.
+
+All output properties are `readonly` — connections are immutable snapshots of configuration.
 
 ### `ConnectionResult`
 
 ```typescript
-interface ConnectionResult<T extends string = string> {
-  connection: ConnectionOfType<T> | undefined;
+interface ConnectionResult<
+  T extends string = string,
+  M extends string = string,
+> {
+  connection: ResolvedConnectionOfType<T, M> | undefined;
 }
 ```
 
-Simple presence/absence. The caller decides how to handle a missing connection.
+Simple presence/absence. The caller decides how to handle a missing connection. The `connection` is a `ResolvedConnection` — it includes the base fields and the single selected `auth` method, narrowed to only the auth methods the caller declared.
 
-`ConnectionOfType<T>` maps known type strings to their specific subtypes:
+`ResolvedConnectionOfType<T, M>` maps known type strings to their resolved subtypes, narrowing the `auth` union to only methods matching `M`:
+
+```typescript
+type ResolvedConnectionOfType<
+  T extends string,
+  M extends string = string,
+> = T extends 'github'
+  ? GithubConnectionResolved<M>
+  : T extends 'gitlab'
+  ? GitlabConnectionResolved<M>
+  : T extends 'azure'
+  ? AzureConnectionResolved<M>
+  : ResolvedConnection;
+```
+
+For example, `GithubConnectionResolved<'token' | 'app'>` has `auth: GithubTokenAuth | GithubAppAuth`, while `GithubConnectionResolved<'token'>` narrows to `auth: GithubTokenAuth`.
+
+`ConnectionOfType<T>` maps known type strings to their base subtypes (without auth selection), used by `findAll`:
 
 ```typescript
 type ConnectionOfType<T extends string> = T extends 'github'
-  ? GithubConnection
+  ? GithubConnectionBase
   : T extends 'gitlab'
-  ? GitlabConnection
+  ? GitlabConnectionBase
   : T extends 'azure'
-  ? AzureConnection
+  ? AzureConnectionBase
   : Connection;
 ```
 
 ### URL Matching and Indexing
 
-The `ConnectionsRegistry` maintains a `Map<string, Connection[]>` indexed by hostname. The connection set is already filtered by plugin scope at construction time — a plugin only sees connections that either have no `plugins` restriction or are explicitly scoped to it.
+The `ConnectionsRegistry` maintains a `Map<string, Connection[]>` indexed by hostname.
 
 **Internal scoring (used by `find`).** When `find` is called with a URL:
 
 1. Parse the URL and extract the hostname.
 2. Look up all connections for that host — O(1).
 3. Filter to the requested type (always provided).
-4. If one candidate remains, return it.
-5. If multiple candidates remain, use the connection type's internal scoring function. Plugin-scoped connections are preferred over broadly available ones at the same specificity level.
-6. Return the candidate with the highest score.
+4. For each candidate connection, score it using the connection-level `matchUrl` (default: `0` for host match).
+5. For the winning connection, apply `match` criteria — exclude auth entries whose `match.plugins` does not include the requesting plugin. Auth methods without a `match` block are always eligible. Among eligible entries, those with an explicit `match` for the requesting plugin are preferred over unmatched ones.
+6. Score each eligible auth method using the auth-level `matchUrl`. Auth methods without a `matchUrl` score `0`. Auth methods that return `-1` are excluded.
+7. Select the highest-scoring auth method.
+8. **Auth method enforcement.** If the selected auth method's `method` is not in the caller's `authMethods` list, throw an error. This is a configuration/code mismatch — the connection exists and has a matching auth method, but the caller has not declared support for it.
+9. Return the connection with the selected auth method attached as `auth`.
 
-The internal scoring function (from the `matchUrl` option in `createConnectionType`) returns:
+The scoring functions return:
 
-- `0` — matches only by host (fallback, and the default when no custom `matchUrl` is provided)
-- `1-99` — partial path match (e.g. group-level GitLab matching)
-- `100+` — specific resource match (e.g. GitHub connection whose `apps[].allowedOwners` includes the URL's owner segment)
+- `0` — matches by host only (fallback, and the default when no custom `matchUrl` is provided)
+- `1-99` — partial match (e.g. group-level GitLab matching)
+- `100+` — specific match (e.g. GitHub app whose `allowedOwners` includes the URL's owner segment)
 - `-1` — does not match this URL despite sharing the host
 
-For the common case of a single connection per host, no scoring is needed.
+For the common case of a single connection per host with a single auth method, no scoring is needed.
 
-**`connection.matchUrl()` (used by callers).** Each connection object also exposes a `matchUrl(url)` method that callers can use directly to check whether a URL is covered by this connection. The default implementation matches by host. Connection types with a custom `matchUrl` in their definition get the type-specific logic — for example, a GitHub connection's `matchUrl` returns `true` only if the URL's owner matches one of its `allowedOwners` (or if no owner restriction is configured).
+**`connection.matchUrl()` (used by callers).** Each connection object also exposes a `matchUrl(url)` method that callers can use directly to check whether a URL is covered by this connection. The default implementation matches by host. Connection types with a custom connection-level `matchUrl` in their definition get type-specific logic. Note that auth-level matching (e.g. checking `allowedOwners` on a GitHub App) is handled internally by `find` during auth selection — it does not affect the connection-level `matchUrl`.
 
-When `find` is called with type-specific parameters (e.g. `connections.find({ type: 'github', host: 'github.com', owner: 'my-org' })`) instead of a URL, the connection type handles the matching directly.
+When `find` is called with type-specific parameters (e.g. `connections.find({ type: 'github', authMethods: ['token', 'app'], host: 'github.com', owner: 'my-org' })`) instead of a URL, the connection type handles the matching directly.
 
 ### Configuration Schema
 
-The overall config schema for the `connections` key is assembled automatically from the registered connection types. Each type's `jsonSchema` (derived from its Zod `configSchema`) is combined into a discriminated union on the `type` field:
+The overall config schema for the `connections` key is assembled automatically from the registered connection types. Each type's base `jsonSchema` (derived from its Zod `configSchema`) and its auth methods' JSON schemas are combined into the appropriate structure:
 
 ```typescript
 export interface Config {
@@ -742,9 +827,9 @@ export interface Config {
 }
 ```
 
-The `type` and `plugins` fields are added by the framework to every entry — connection type authors only define the type-specific fields in their `configSchema`. At runtime, `ConnectionsRegistry.fromConfig` reads each entry, dispatches to the matching `ConnectionType.parse` by `type`, and collects the results.
+The `type` and `auth` fields are added by the framework to every entry — connection type authors define the base fields in `configSchema` and auth-specific fields in each auth method's `configSchema`. The `auth` array in config uses `method` as the discriminator across the type's registered auth methods. At runtime, `ConnectionsRegistry.fromConfig` reads each entry, parses the base fields and each auth entry through the appropriate schemas, and collects the results.
 
-The `plugins` field is common to all connection config types. When present, the connection is only visible to the listed plugin IDs.
+Within each `auth` entry, the `match` and `method` keys are reserved by the framework. The `match` block controls selection criteria (currently `plugins`) and is stripped before the auth object is passed to consumers. Auth method schemas cannot declare fields named `match` or `method` — these are managed by the framework exclusively.
 
 ### Entity Annotation Resolution
 
@@ -786,7 +871,7 @@ This iterates over configured connections of the given type and checks whether t
 
 Connections are intentionally limited to static configuration data. Dynamic credential resolution — token exchange, caching, refresh, SDK credential chains — is handled by separate type-specific APIs built on top of connections. This mirrors the existing pattern where `DefaultGithubCredentialsProvider`, `DefaultAzureDevOpsCredentialsProvider`, and `DefaultAwsCredentialsManager` already exist as distinct APIs separate from `ScmIntegrations`.
 
-With the connection service in place, these credential APIs would read from `coreServices.connections` instead of `ScmIntegrations.fromConfig(config)`. They could be wired as independent service refs with default factories, making each one separately overridable. For example, a GitHub credentials service would call `connections.findAll({ type: 'github' })` to read all GitHub connection entries, handle the app installation token exchange for URLs matching `allowedOwners`, and cache tokens with appropriate expiry. An AWS credentials service would read static keys and role configurations via `connections.findAll({ type: 'aws-s3' })` and provide SDK credential provider chains.
+With the connection service in place, these credential APIs would read from `coreServices.connections` instead of `ScmIntegrations.fromConfig(config)`. They could be wired as independent service refs with default factories, making each one separately overridable. For example, a GitHub credentials service would use `connections.find({ type: 'github', authMethods: ['token', 'app'], url })` to get the best connection and auth method, then handle token exchange for `app` auth methods (installation token negotiation) or pass through the token directly for `token` auth methods, caching tokens with appropriate expiry. An AWS credentials service would read static keys and role configurations via `connections.findAll({ type: 'aws-s3' })` and provide SDK credential provider chains.
 
 The design of these credential APIs is outside the scope of this BEP and will be addressed separately.
 
@@ -805,7 +890,9 @@ integrations:
 connections:
   - type: github
     host: github.com
-    token: ${GITHUB_TOKEN}
+    auth:
+      - method: token
+        token: ${GITHUB_TOKEN}
 ```
 
 Since the two formats use different top-level keys, they never conflict. When `integrations` is detected without a corresponding `connections` key, a deprecation warning is logged at startup.

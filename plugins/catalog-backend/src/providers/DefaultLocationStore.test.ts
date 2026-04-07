@@ -272,6 +272,60 @@ describe('DefaultLocationStore', () => {
     );
   });
 
+  describe('updateLocation', () => {
+    it.each(databases.eachSupportedId())(
+      'throws if the location does not exist, %p',
+      async databaseId => {
+        const { store } = await createLocationStore(databaseId);
+        const id = uuid();
+        await expect(() =>
+          store.updateLocation(id, {
+            type: 'url',
+            target: 'https://example.com',
+          }),
+        ).rejects.toThrow(new RegExp(`Found no location with ID ${id}`));
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'updates type and target and issues a delta mutation with the new entity, %p',
+      async databaseId => {
+        const { store, connection } = await createLocationStore(databaseId);
+
+        const created = await store.createLocation({
+          type: 'url',
+          target: 'https://example.com/old',
+        });
+
+        jest.clearAllMocks();
+
+        const updated = await store.updateLocation(created.id, {
+          type: 'url',
+          target: 'https://example.com/new',
+        });
+
+        expect(updated.id).toBe(created.id);
+        expect(updated.type).toBe('url');
+        expect(updated.target).toBe('https://example.com/new');
+        // entityRef (location_entity_ref) is stable across updates
+        expect(updated.entityRef).toBe(created.entityRef);
+
+        expect(connection.applyMutation).toHaveBeenCalledWith({
+          type: 'delta',
+          removed: [],
+          added: [
+            {
+              entity: expect.objectContaining({
+                spec: { type: 'url', target: 'https://example.com/new' },
+              }),
+              locationKey: 'url:https://example.com/new',
+            },
+          ],
+        });
+      },
+    );
+  });
+
   describe('getLocationByEntity', () => {
     it.each(databases.eachSupportedId())(
       'loads correctly, %p',

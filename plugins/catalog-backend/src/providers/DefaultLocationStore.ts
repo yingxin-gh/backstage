@@ -210,50 +210,45 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
       throw new Error('location store is not initialized');
     }
 
-    const updated = await this.db.transaction(async tx => {
-      const [old] = await tx<DbLocationsRow>('locations')
-        .where({ id })
-        .select();
-
-      if (!old) {
-        throw new NotFoundError(`Found no location with ID ${id}`);
-      }
-
-      await tx<DbLocationsRow>('locations').where({ id }).update({
-        type: location.type,
-        target: location.target,
+    // MySQL doesn't support UPDATE ... RETURNING, so we fall back to checking
+    // the affected row count and then doing a separate SELECT.
+    let row: DbLocationsRow | undefined;
+    if (this.db.client.config.client.includes('mysql')) {
+      await this.db.transaction(async tx => {
+        const count = await tx<DbLocationsRow>('locations')
+          .where({ id })
+          .update({ type: location.type, target: location.target });
+        if (Number(count) > 0) {
+          [row] = await tx<DbLocationsRow>('locations').where({ id }).select();
+        }
       });
-
-      const [row] = await tx<DbLocationsRow>('locations')
+    } else {
+      [row] = await this.db<DbLocationsRow>('locations')
         .where({ id })
-        .select();
-      return { old, row };
-    });
+        .update({ type: location.type, target: location.target })
+        .returning('*');
+    }
 
-    const oldEntity = locationSpecToLocationEntity({
-      location: updated.old,
-      locationEntityRef: updated.old.location_entity_ref,
-    });
-    const newEntity = locationSpecToLocationEntity({
-      location: updated.row,
-      locationEntityRef: updated.row.location_entity_ref,
+    if (!row) {
+      throw new NotFoundError(`Found no location with ID ${id}`);
+    }
+
+    const entity = locationSpecToLocationEntity({
+      location: row,
+      locationEntityRef: row.location_entity_ref,
     });
 
     await this.connection.applyMutation({
       type: 'delta',
-      added: [
-        { entity: newEntity, locationKey: getEntityLocationRef(newEntity) },
-      ],
-      removed: [
-        { entity: oldEntity, locationKey: getEntityLocationRef(oldEntity) },
-      ],
+      added: [{ entity, locationKey: getEntityLocationRef(entity) }],
+      removed: [],
     });
 
     return {
-      id: updated.row.id,
-      type: updated.row.type,
-      target: updated.row.target,
-      entityRef: updated.row.location_entity_ref,
+      id: row.id,
+      type: row.type,
+      target: row.target,
+      entityRef: row.location_entity_ref,
     };
   }
 

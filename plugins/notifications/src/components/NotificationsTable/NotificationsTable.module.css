@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Backstage Authors
+ * Copyright 2023 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Notification } from '@backstage/plugin-notifications-common';
-import { useApp } from '@backstage/core-plugin-api';
-import { SeverityIcon } from './SeverityIcon';
 
-export const NotificationIcon = ({
-  notification,
-}: {
-  notification: Notification;
-}) => {
-  const app = useApp();
-
-  if (notification.payload.icon) {
-    const Icon = app.getSystemIcon(notification.payload.icon);
-    if (Icon) {
-      return <Icon />;
-    }
+@layer components {
+  .severityItem {
+    align-content: center;
+    display: flex;
+    align-items: center;
   }
-  return <SeverityIcon severity={notification.payload.severity} />;
-};
+
+  .broadcastIcon {
+    font-size: 1rem;
+    vertical-align: text-bottom;
+  }
+
+  .notificationInfoRow {
+    margin-right: var(--bui-space-1);
+  }
+
+  .notificationInfoRow:not(:first-child) {
+    margin-left: var(--bui-space-1);
+  }
+}

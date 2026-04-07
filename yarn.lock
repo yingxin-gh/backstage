@@ -6287,14 +6287,11 @@ __metadata:
     "@backstage/test-utils": "workspace:^"
     "@backstage/theme": "workspace:^"
     "@backstage/ui": "workspace:^"
-    "@material-ui/core": "npm:^4.9.13"
-    "@material-ui/icons": "npm:^4.9.1"
     "@remixicon/react": "npm:^4.6.0"
     "@testing-library/jest-dom": "npm:^6.0.0"
     "@testing-library/react": "npm:^16.0.0"
     "@types/react": "npm:^18.0.0"
     lodash: "npm:^4.17.21"
-    material-ui-confirm: "npm:^3.0.12"
     msw: "npm:^1.0.0"
     notistack: "npm:^3.0.1"
     react: "npm:^18.0.2"
@@ -37834,17 +37831,6 @@ __metadata:
   dependencies:
     escape-string-regexp: "npm:^4.0.0"
   checksum: 10/d338aff31d8dfd3626873e43777f46b123579734d53bb8d18d64b08a822ba5e8d39f5fe2e23403258e6143aa0cbe20a15662720d825cd0d3af961d5a44230328
-  languageName: node
-  linkType: hard
-
-"material-ui-confirm@npm:^3.0.12":
-  version: 3.0.18
-  resolution: "material-ui-confirm@npm:3.0.18"
-  peerDependencies:
-    "@mui/material": ">= 5.0.0"
-    react: ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/c2013449b9af11bed9fbf63cb15022d8399379547fedc8ce9f9c4039606536b34cce8b737b82b9628df95291d7b631dba90dd59c6ccbc7c17f9b8dcab50fdccf
   languageName: node
   linkType: hard
 

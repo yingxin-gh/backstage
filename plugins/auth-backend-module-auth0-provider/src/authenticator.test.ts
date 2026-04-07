@@ -242,4 +242,47 @@ describe('createAuth0Authenticator', () => {
     expect(mockFetchProfile).toHaveBeenCalledTimes(2);
     expect(result.fullProfile).toEqual(updatedProfile);
   });
+
+  it('should skip cache when id_token has no sub claim', async () => {
+    const header = Buffer.from(JSON.stringify({ alg: 'none' })).toString(
+      'base64url',
+    );
+    const payload = Buffer.from(JSON.stringify({ aud: 'test' })).toString(
+      'base64url',
+    );
+    const idTokenWithoutSub = `${header}.${payload}.`;
+
+    mockExecuteRefresh.mockResolvedValue({
+      accessToken: 'new-access-token',
+      refreshToken: 'new-refresh-token',
+      params: {
+        token_type: 'bearer',
+        scope: 'openid profile',
+        expires_in: 3600,
+        id_token: idTokenWithoutSub,
+      },
+    });
+
+    const authenticator = createAuth0Authenticator({ cache });
+    const ctx = authenticator.initialize({
+      callbackUrl: 'http://localhost/callback',
+      config: mockConfig,
+    });
+
+    const result = await authenticator.refresh(
+      {
+        refreshToken: 'my-refresh-token',
+        scope: 'openid profile',
+        req: {} as express.Request,
+      },
+      ctx,
+    );
+
+    // Profile is fetched directly
+    expect(mockFetchProfile).toHaveBeenCalledWith('new-access-token');
+    expect(result.fullProfile).toEqual(mockProfile);
+    // Cache is never read or written
+    expect(cache.get).not.toHaveBeenCalled();
+    expect(cache.set).not.toHaveBeenCalled();
+  });
 });

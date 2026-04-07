@@ -140,17 +140,20 @@ export function createAuth0Authenticator(options?: { cache?: CacheService }) {
       );
 
       const { sub } = decodeJwt(result.params.id_token);
-      const cacheKey = `auth0-profile:${sub}`;
-      let fullProfile = (await profileCache?.get(cacheKey)) as
-        | PassportProfile
-        | undefined;
+      const cacheKey = sub ? `auth0-profile:${sub}` : undefined;
+
+      let fullProfile = cacheKey
+        ? ((await profileCache?.get(cacheKey)) as PassportProfile | undefined)
+        : undefined;
 
       if (!fullProfile) {
         fullProfile = await helper.fetchProfile(result.accessToken);
-        await profileCache?.set(
-          cacheKey,
-          JSON.parse(JSON.stringify(fullProfile)),
-        );
+        if (cacheKey) {
+          await profileCache?.set(
+            cacheKey,
+            JSON.parse(JSON.stringify(fullProfile)),
+          );
+        }
       }
 
       return {

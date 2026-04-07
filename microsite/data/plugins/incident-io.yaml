@@ -7,3 +7,4 @@ documentation: https://github.com/incident-io/backstage-plugins/blob/master/inci
 iconUrl: /img/incident-io-logo.png
 npmPackageName: '@incident-io/backstage'
 addedDate: '2026-04-06'
+status: active

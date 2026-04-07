@@ -21,4 +21,6 @@
  */
 
 export { createBackend } from './CreateBackend';
+export type { ExtensionPointFactoryMiddleware } from '@backstage/backend-app-api';
+export { createExtensionPointFactoryMiddleware } from '@backstage/backend-app-api';
 export { discoveryFeatureLoader } from './discoveryFeatureLoader';

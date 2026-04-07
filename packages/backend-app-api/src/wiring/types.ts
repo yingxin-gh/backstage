@@ -22,6 +22,34 @@ import {
 } from '@backstage/backend-plugin-api';
 
 /**
+ * A middleware entry that reimplements a specific extension point's output.
+ * The framework matches by extension point ID and passes through all
+ * non-matching extension points automatically.
+ *
+ * @public
+ */
+export interface ExtensionPointFactoryMiddleware<T = unknown> {
+  extensionPoint: ExtensionPoint<T>;
+  middleware: (original: T) => T;
+}
+
+/**
+ * Creates a typed middleware entry that reimplements a specific extension point.
+ * Use this helper to preserve type inference for the middleware callback.
+ *
+ * @public
+ */
+export function createExtensionPointFactoryMiddleware<T>(
+  extensionPoint: ExtensionPoint<T>,
+  middleware: (original: T) => T,
+): ExtensionPointFactoryMiddleware {
+  return {
+    extensionPoint: extensionPoint as ExtensionPoint<unknown>,
+    middleware: middleware as (original: unknown) => unknown,
+  };
+}
+
+/**
  * @public
  */
 export interface Backend {
@@ -35,6 +63,7 @@ export interface Backend {
  */
 export interface CreateSpecializedBackendOptions {
   defaultServiceFactories: ServiceFactory[];
+  extensionPointFactoryMiddleware?: ExtensionPointFactoryMiddleware[];
 }
 
 /**

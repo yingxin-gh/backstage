@@ -19,10 +19,10 @@ import {
   parseEntityRef,
   stringifyEntityRef,
 } from '@backstage/catalog-model';
-import { useAnalytics, useRouteRef, useApi } from '@backstage/core-plugin-api';
+import { useAnalytics, useRouteRef } from '@backstage/core-plugin-api';
 import {
   EntityInfoCard,
-  entityPresentationApiRef,
+  entityPresentationSnapshot,
   useEntity,
   entityRouteRef,
 } from '@backstage/plugin-catalog-react';
@@ -89,7 +89,6 @@ export const CatalogGraphCard = (
   const navigate = useNavigate();
   const classes = useStyles({ height });
   const analytics = useAnalytics();
-  const entityPresentationApi = useApi(entityPresentationApiRef);
 
   const defaultOnNodeClick = useCallback(
     (node: EntityNode, _: MouseEvent<unknown>) => {
@@ -101,12 +100,12 @@ export const CatalogGraphCard = (
       });
       analytics.captureEvent(
         'click',
-        entityPresentationApi.forEntity(node.entity).snapshot.primaryTitle,
+        entityPresentationSnapshot(node.entity).primaryTitle,
         { attributes: { to: path } },
       );
       navigate(path);
     },
-    [catalogEntityRoute, navigate, analytics, entityPresentationApi],
+    [catalogEntityRoute, navigate, analytics],
   );
 
   const catalogGraphParams = qs.stringify(

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { parseEntityRef, stringifyEntityRef } from '@backstage/catalog-model';
+import { parseEntityRef } from '@backstage/catalog-model';
 import {
   Content,
   ContentHeader,
@@ -22,9 +22,9 @@ import {
   Page,
   SupportButton,
 } from '@backstage/core-components';
-import { useAnalytics, useRouteRef, useApi } from '@backstage/core-plugin-api';
+import { useAnalytics, useRouteRef } from '@backstage/core-plugin-api';
 import {
-  entityPresentationApiRef,
+  entityPresentationSnapshot,
   entityRouteRef,
 } from '@backstage/plugin-catalog-react';
 import Grid from '@material-ui/core/Grid';
@@ -157,12 +157,10 @@ export const CatalogGraphPage = (
     toggleShowFilters,
   } = useCatalogGraphPage({ initialState });
   const analytics = useAnalytics();
-  const entityPresentationApi = useApi(entityPresentationApiRef);
   const onNodeClick = useCallback(
     (node: EntityNode, event: MouseEvent<unknown>) => {
       const nodeEntityName = parseEntityRef(node.id);
-      const nodeTitle = entityPresentationApi.forEntity(node.entity).snapshot
-        .primaryTitle;
+      const nodeTitle = entityPresentationSnapshot(node.entity).primaryTitle;
 
       if (event.shiftKey) {
         const path = catalogEntityRoute({
@@ -180,13 +178,7 @@ export const CatalogGraphPage = (
         setRootEntityNames([nodeEntityName]);
       }
     },
-    [
-      catalogEntityRoute,
-      navigate,
-      setRootEntityNames,
-      analytics,
-      entityPresentationApi,
-    ],
+    [catalogEntityRoute, navigate, setRootEntityNames, analytics],
   );
 
   return (
@@ -194,11 +186,7 @@ export const CatalogGraphPage = (
       <Header
         title={t('catalogGraphPage.title')}
         subtitle={rootEntityNames
-          .map(
-            e =>
-              entityPresentationApi.forEntity(stringifyEntityRef(e)).snapshot
-                .primaryTitle,
-          )
+          .map(e => entityPresentationSnapshot(e).primaryTitle)
           .join(', ')}
       />
       <Content stretch className={classes.content}>

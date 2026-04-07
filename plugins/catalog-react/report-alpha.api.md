@@ -8,6 +8,7 @@ import { ColumnConfig } from '@backstage/ui';
 import { ComponentType } from 'react';
 import { ConfigurableExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { Entity } from '@backstage/catalog-model';
+import { EntityPresentationApi } from '@backstage/plugin-catalog-react';
 import { ExtensionBlueprint } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { ExtensionDefinition } from '@backstage/frontend-plugin-api';
@@ -488,6 +489,7 @@ export const entityDataTableColumns: Readonly<{
   createEntityRefColumn(options: {
     defaultKind?: string;
     isRowHeader?: boolean;
+    entityPresentationApi?: EntityPresentationApi;
   }): EntityColumnConfig;
   createEntityRelationColumn(options: {
     id: string;
@@ -497,6 +499,7 @@ export const entityDataTableColumns: Readonly<{
     filter?: {
       kind: string;
     };
+    entityPresentationApi?: EntityPresentationApi;
   }): EntityColumnConfig;
   createOwnerColumn(): EntityColumnConfig;
   createSystemColumn(): EntityColumnConfig;

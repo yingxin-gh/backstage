@@ -266,6 +266,7 @@ export type CatalogReactUserListPickerClassKey =
 export const columnFactories: Readonly<{
   createEntityRefColumn<T extends Entity>(options: {
     defaultKind?: string;
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<T>;
   createEntityRelationColumn<T extends Entity>(options: {
     title: string | JSX.Element;
@@ -274,6 +275,7 @@ export const columnFactories: Readonly<{
     filter?: {
       kind: string;
     };
+    entityPresentationApi?: EntityPresentationApi;
   }): TableColumn<T>;
   createOwnerColumn<T extends Entity>(): TableColumn<T>;
   createDomainColumn<T extends Entity>(): TableColumn<T>;
@@ -591,6 +593,16 @@ export interface EntityPresentationApi {
 // @public
 export const entityPresentationApiRef: ApiRef_2<EntityPresentationApi>;
 
+// @public
+export function entityPresentationSnapshot(
+  entityOrRef: Entity | CompoundEntityRef | string,
+  context?: {
+    defaultKind?: string;
+    defaultNamespace?: string;
+  },
+  entityPresentationApi?: EntityPresentationApi,
+): EntityRefPresentationSnapshot;
+
 // @public (undocumented)
 export const EntityProcessingStatusPicker: () => JSX_2.Element;
 
@@ -687,6 +699,7 @@ export const EntityTable: {
   columns: Readonly<{
     createEntityRefColumn<T extends Entity>(options: {
       defaultKind?: string;
+      entityPresentationApi?: EntityPresentationApi;
     }): TableColumn<T>;
     createEntityRelationColumn<T extends Entity>(options: {
       title: string | JSX.Element;
@@ -695,6 +708,7 @@ export const EntityTable: {
       filter?: {
         kind: string;
       };
+      entityPresentationApi?: EntityPresentationApi;
     }): TableColumn<T>;
     createOwnerColumn<T extends Entity>(): TableColumn<T>;
     createDomainColumn<T extends Entity>(): TableColumn<T>;
@@ -834,7 +848,7 @@ export function getEntitySourceLocation(
   scmIntegrationsApi: typeof scmIntegrationsApiRef.T,
 ): EntitySourceLocation | undefined;
 
-// @public (undocumented)
+// @public @deprecated (undocumented)
 export function humanizeEntityRef(
   entityRef: Entity | CompoundEntityRef,
   opts?: {

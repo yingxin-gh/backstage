@@ -23,20 +23,8 @@ import {
 import { OverflowTooltip, TableColumn } from '@backstage/core-components';
 import { getEntityRelations } from '../../utils';
 import { EntityRefLink, EntityRefLinks } from '../EntityRefLink';
-import { defaultEntityPresentation, EntityPresentationApi } from '../../apis';
+import { entityPresentationSnapshot, EntityPresentationApi } from '../../apis';
 import { EntityTableColumnTitle } from './TitleColumn';
-
-function getEntityTitle(
-  entityOrRef: Entity | CompoundEntityRef,
-  context: { defaultKind?: string },
-  entityPresentationApi?: EntityPresentationApi,
-): string {
-  if (entityPresentationApi) {
-    return entityPresentationApi.forEntity(entityOrRef as Entity, context)
-      .snapshot.primaryTitle;
-  }
-  return defaultEntityPresentation(entityOrRef, context).primaryTitle;
-}
 
 /** @public */
 export const columnFactories = Object.freeze({
@@ -46,7 +34,11 @@ export const columnFactories = Object.freeze({
   }): TableColumn<T> {
     const { defaultKind, entityPresentationApi } = options;
     function formatContent(entity: T): string {
-      return getEntityTitle(entity, { defaultKind }, entityPresentationApi);
+      return entityPresentationSnapshot(
+        entity,
+        { defaultKind },
+        entityPresentationApi,
+      ).primaryTitle;
     }
 
     return {
@@ -96,7 +88,14 @@ export const columnFactories = Object.freeze({
 
     function formatContent(entity: T): string {
       return getRelations(entity)
-        .map(r => getEntityTitle(r, { defaultKind }, entityPresentationApi))
+        .map(
+          r =>
+            entityPresentationSnapshot(
+              r,
+              { defaultKind },
+              entityPresentationApi,
+            ).primaryTitle,
+        )
         .join(', ');
     }
 

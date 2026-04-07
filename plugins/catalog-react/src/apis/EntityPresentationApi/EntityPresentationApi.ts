@@ -37,8 +37,8 @@ import { Observable } from '@backstage/types';
  *   and tooltip.
  *
  * - In non-React contexts such as sort comparators or data mappers, use the
- *   API directly via `forEntity().snapshot` for synchronous access, or
- *   `forEntity().promise` in async loaders.
+ *   {@link entityPresentationSnapshot} helper for synchronous access, or
+ *   the API directly via `forEntity().promise` in async loaders.
  *
  * @public
  */
@@ -143,8 +143,8 @@ export interface EntityRefPresentation {
  * - {@link EntityDisplayName} — React component that renders an entity name
  *   with optional icon and tooltip.
  *
- * For non-React contexts, you can use the API directly via
- * `forEntity().snapshot` for synchronous access, or `forEntity().promise`
+ * For non-React contexts, use the {@link entityPresentationSnapshot} helper
+ * for synchronous access, or the API directly via `forEntity().promise`
  * for async contexts.
  *
  * Implement this interface to customize how entities are displayed throughout

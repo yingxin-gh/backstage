@@ -52,24 +52,12 @@ function MyComponent({ entityRef }: { entityRef: string }) {
 The hook subscribes to the `EntityPresentationApi` and returns a snapshot
 that may update over time as additional data is fetched in the background.
 
-### Using the API directly
+### Using the API directly (async, preferred for non-React)
 
-In contexts where hooks are not available, you can use the
-`entityPresentationApiRef` API directly. The API provides two access
-patterns:
-
-- **`.snapshot`** for synchronous access (for example in sort comparators or
-  filter callbacks):
-
-```ts
-import { entityPresentationApiRef } from '@backstage/plugin-catalog-react';
-
-const title = entityPresentationApi.forEntity(entity, {
-  defaultKind: 'Component',
-}).snapshot.primaryTitle;
-```
-
-- **`.promise`** for async contexts (for example inside data loaders):
+In non-React **async** contexts where you can `await` -- such as data
+loaders, `useAsync` callbacks, or event handlers -- use the
+`entityPresentationApiRef` API directly with `.promise` for the richest
+possible presentation:
 
 ```ts
 const presentation = await entityPresentationApi.forEntity(entity, {
@@ -78,9 +66,39 @@ const presentation = await entityPresentationApi.forEntity(entity, {
 const title = presentation.primaryTitle;
 ```
 
-The `.snapshot` path uses cached data when available, so it performs well
-even in tight loops like sorting. The `.promise` path resolves to a richer
-presentation that may include data fetched from the catalog.
+The `.promise` path resolves to a full presentation that may include data
+fetched from the catalog. **This is the preferred approach whenever an
+async context is available.**
+
+### `entityPresentationSnapshot` helper (synchronous fallback)
+
+When a synchronous return value is required and `await` is not possible --
+such as in sort comparators, column factories, or filter callbacks -- use
+`entityPresentationSnapshot` as a fallback. It accepts `Entity`,
+`CompoundEntityRef`, or string ref inputs and uses the presentation API
+when available, falling back to `defaultEntityPresentation` otherwise:
+
+```ts
+import {
+  entityPresentationSnapshot,
+  entityPresentationApiRef,
+} from '@backstage/plugin-catalog-react';
+
+// In a column factory or sort comparator where you have
+// the API instance (or undefined if not registered):
+const title = entityPresentationSnapshot(
+  entity,
+  {
+    defaultKind: 'Component',
+  },
+  entityPresentationApi,
+).primaryTitle;
+```
+
+Because this function is synchronous, it uses cached data from the
+presentation API. If the entity has been seen before, the snapshot will
+contain the full resolved title; otherwise it falls back to what can be
+extracted from the ref alone.
 
 ## Customizing entity presentation
 
@@ -124,6 +142,6 @@ Replace them as follows:
 | :---------------------------------------------------- | :--------------------------------------------------------------------- |
 | `humanizeEntityRef(entity)` in JSX                    | `<EntityDisplayName entityRef={entity} />`                             |
 | `humanizeEntityRef(entity)` in a React component      | `useEntityPresentation(entity).primaryTitle`                           |
-| `humanizeEntityRef(entity)` in a sort/filter callback | `entityPresentationApi.forEntity(entity).snapshot.primaryTitle`        |
 | `humanizeEntityRef(entity)` in an async loader        | `(await entityPresentationApi.forEntity(entity).promise).primaryTitle` |
+| `humanizeEntityRef(entity)` in a sort/filter callback | `entityPresentationSnapshot(entity, ctx, api).primaryTitle`            |
 | `humanizeEntity(entity, fallback)`                    | `useEntityPresentation(entity).primaryTitle`                           |

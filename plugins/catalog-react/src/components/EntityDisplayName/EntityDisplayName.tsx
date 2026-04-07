@@ -70,7 +70,7 @@ export type EntityDisplayNameProps = {
  *
  * For more control over the presentation data, use the
  * {@link useEntityPresentation} hook directly. For non-React contexts, use
- * the {@link EntityPresentationApi} directly via `forEntity().snapshot`.
+ * {@link entityPresentationSnapshot}.
  *
  * @public
  */

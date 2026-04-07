@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
+import { RELATION_OWNED_BY, Entity } from '@backstage/catalog-model';
 import {
-  RELATION_OWNED_BY,
-  Entity,
-  stringifyEntityRef,
-} from '@backstage/catalog-model';
-import {
-  defaultEntityPresentation,
+  entityPresentationSnapshot,
   getEntityRelations,
   type EntityPresentationApi,
 } from '@backstage/plugin-catalog-react';
@@ -54,15 +50,14 @@ export function entitiesToDocsMapper(
         }),
         ownedByRelations,
         ownedByRelationsTitle: ownedByRelations
-          .map(r => {
-            if (entityPresentationApi) {
-              return entityPresentationApi.forEntity(stringifyEntityRef(r), {
-                defaultKind: 'group',
-              }).snapshot.primaryTitle;
-            }
-            return defaultEntityPresentation(r, { defaultKind: 'group' })
-              .primaryTitle;
-          })
+          .map(
+            r =>
+              entityPresentationSnapshot(
+                r,
+                { defaultKind: 'group' },
+                entityPresentationApi,
+              ).primaryTitle,
+          )
           .join(', '),
       },
     };

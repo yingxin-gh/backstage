@@ -16,7 +16,6 @@
 import {
   ANNOTATION_EDIT_URL,
   ANNOTATION_VIEW_URL,
-  CompoundEntityRef,
   Entity,
   RELATION_OWNED_BY,
   RELATION_PART_OF,
@@ -30,8 +29,8 @@ import {
   WarningPanel,
 } from '@backstage/core-components';
 import {
-  defaultEntityPresentation,
   entityPresentationApiRef,
+  entityPresentationSnapshot,
   getEntityRelations,
   useEntityList,
   useStarredEntities,
@@ -73,21 +72,13 @@ export interface CatalogTableProps {
   subtitle?: string;
 }
 
-function getTitle(
-  entityOrRef: Entity | CompoundEntityRef,
-  context: { defaultKind?: string },
-  api?: EntityPresentationApi,
-): string {
-  if (api) {
-    const ref =
-      'metadata' in entityOrRef ? entityOrRef : stringifyEntityRef(entityOrRef);
-    return api.forEntity(ref, context).snapshot.primaryTitle;
-  }
-  return defaultEntityPresentation(entityOrRef, context).primaryTitle;
-}
-
 const sortEntities = (entities: Entity[], api?: EntityPresentationApi) => {
-  return sortBy(entities, e => getTitle(e, { defaultKind: 'Component' }, api));
+  return sortBy(
+    entities,
+    e =>
+      entityPresentationSnapshot(e, { defaultKind: 'Component' }, api)
+        .primaryTitle,
+  );
 };
 
 /**
@@ -307,14 +298,26 @@ function toEntityRow(entity: Entity, api?: EntityPresentationApi) {
       // This name is here for backwards compatibility mostly; the
       // presentation of refs in the table should in general be handled with
       // EntityRefLink / EntityName components
-      name: getTitle(entity, { defaultKind: 'Component' }, api),
+      name: entityPresentationSnapshot(
+        entity,
+        { defaultKind: 'Component' },
+        api,
+      ).primaryTitle,
       entityRef: stringifyEntityRef(entity),
       ownedByRelationsTitle: ownedByRelations
-        .map(r => getTitle(r, { defaultKind: 'group' }, api))
+        .map(
+          r =>
+            entityPresentationSnapshot(r, { defaultKind: 'group' }, api)
+              .primaryTitle,
+        )
         .join(', '),
       ownedByRelations,
       partOfSystemRelationTitle: partOfSystemRelations
-        .map(r => getTitle(r, { defaultKind: 'system' }, api))
+        .map(
+          r =>
+            entityPresentationSnapshot(r, { defaultKind: 'system' }, api)
+              .primaryTitle,
+        )
         .join(', '),
       partOfSystemRelations,
     },

@@ -186,7 +186,7 @@ export const TemplateFormPreviewer = ({
             severity: 'error',
           }),
         ),
-    [catalogApi],
+    [catalogApi, entityPresentationApi, alertApi],
   );
 
   const handleSelectChange = useCallback(

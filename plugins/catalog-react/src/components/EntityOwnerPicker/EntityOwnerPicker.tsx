@@ -34,8 +34,8 @@ import { useDebouncedEffect } from '@react-hookz/web';
 import PersonIcon from '@material-ui/icons/Person';
 import GroupIcon from '@material-ui/icons/Group';
 import {
-  defaultEntityPresentation,
   entityPresentationApiRef,
+  entityPresentationSnapshot,
 } from '../../apis';
 import { useFetchEntities } from './useFetchEntities';
 import { withStyles } from '@material-ui/core/styles';
@@ -209,11 +209,11 @@ export const EntityOwnerPicker = (props?: EntityOwnerPickerProps) => {
                   defaultNamespace: 'default',
                 })
               : o;
-          if (entityPresentationApi) {
-            return entityPresentationApi.forEntity(entity as Entity).snapshot
-              .primaryTitle;
-          }
-          return defaultEntityPresentation(entity).primaryTitle;
+          return entityPresentationSnapshot(
+            entity,
+            undefined,
+            entityPresentationApi,
+          ).primaryTitle;
         }}
         onChange={(_: object, owners) => {
           setText('');

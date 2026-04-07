@@ -593,6 +593,16 @@ export interface EntityPresentationApi {
 // @public
 export const entityPresentationApiRef: ApiRef_2<EntityPresentationApi>;
 
+// @public
+export function entityPresentationSnapshot(
+  entityOrRef: Entity | CompoundEntityRef | string,
+  context?: {
+    defaultKind?: string;
+    defaultNamespace?: string;
+  },
+  entityPresentationApi?: EntityPresentationApi,
+): EntityRefPresentationSnapshot;
+
 // @public (undocumented)
 export const EntityProcessingStatusPicker: () => JSX_2.Element;
 

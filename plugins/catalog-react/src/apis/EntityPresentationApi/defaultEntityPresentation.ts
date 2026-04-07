@@ -35,10 +35,10 @@ import { EntityRefPresentationSnapshot } from './EntityPresentationApi';
  *
  * This function is primarily used as the internal fallback within the
  * {@link EntityPresentationApi} when no custom implementation is registered.
- * Prefer using the API directly via `forEntity().snapshot` or
- * `forEntity().promise`, which respects custom presentation overrides.
  * In React components, use the {@link useEntityPresentation} hook or the
- * {@link EntityDisplayName} component.
+ * {@link EntityDisplayName} component. In non-React contexts, use
+ * {@link entityPresentationSnapshot} which respects custom presentation
+ * overrides and falls back to this function when no API is registered.
  *
  * @public
  * @param entityOrRef - Either an entity, or a ref to it.

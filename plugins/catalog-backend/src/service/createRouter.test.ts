@@ -77,6 +77,7 @@ describe('createRouter readonly disabled', () => {
       createLocation: jest.fn(),
       queryLocations: jest.fn(),
       listLocations: jest.fn(),
+      updateLocation: jest.fn(),
       deleteLocation: jest.fn(),
       getLocationByEntity: jest.fn(),
     };
@@ -800,7 +801,12 @@ describe('createRouter readonly disabled', () => {
   describe('GET /locations', () => {
     it('happy path: lists locations', async () => {
       const locations: Location[] = [
-        { id: 'foo', type: 'url', target: 'example.com' },
+        {
+          id: 'foo',
+          type: 'url',
+          target: 'example.com',
+          entityRef: 'location:default/generated-foo',
+        },
       ];
       locationService.listLocations.mockResolvedValueOnce(locations);
 
@@ -811,7 +817,14 @@ describe('createRouter readonly disabled', () => {
       });
       expect(response.status).toEqual(200);
       expect(response.body).toEqual([
-        { data: { id: 'foo', target: 'example.com', type: 'url' } },
+        {
+          data: {
+            id: 'foo',
+            target: 'example.com',
+            type: 'url',
+            entityRef: 'location:default/generated-foo',
+          },
+        },
       ]);
     });
   });
@@ -822,6 +835,7 @@ describe('createRouter readonly disabled', () => {
         id: 'foo',
         type: 'url',
         target: 'example.com',
+        entityRef: 'location:default/generated-foo',
       };
       locationService.getLocation.mockResolvedValueOnce(location);
 
@@ -836,6 +850,7 @@ describe('createRouter readonly disabled', () => {
         id: 'foo',
         target: 'example.com',
         type: 'url',
+        entityRef: 'location:default/generated-foo',
       });
     });
   });
@@ -863,7 +878,11 @@ describe('createRouter readonly disabled', () => {
       };
 
       locationService.createLocation.mockResolvedValue({
-        location: { id: 'a', ...spec },
+        location: {
+          id: 'a',
+          ...spec,
+          entityRef: 'location:default/generated-a',
+        },
         entities: [],
       });
 
@@ -879,7 +898,11 @@ describe('createRouter readonly disabled', () => {
       expect(response.status).toEqual(201);
       expect(response.body).toEqual(
         expect.objectContaining({
-          location: { id: 'a', ...spec },
+          location: {
+            id: 'a',
+            ...spec,
+            entityRef: 'location:default/generated-a',
+          },
         }),
       );
     });
@@ -891,7 +914,11 @@ describe('createRouter readonly disabled', () => {
       };
 
       locationService.createLocation.mockResolvedValue({
-        location: { id: 'a', ...spec },
+        location: {
+          id: 'a',
+          ...spec,
+          entityRef: 'location:default/generated-a',
+        },
         entities: [],
       });
 
@@ -907,7 +934,11 @@ describe('createRouter readonly disabled', () => {
       expect(response.status).toEqual(201);
       expect(response.body).toEqual(
         expect.objectContaining({
-          location: { id: 'a', ...spec },
+          location: {
+            id: 'a',
+            ...spec,
+            entityRef: 'location:default/generated-a',
+          },
         }),
       );
     });
@@ -920,6 +951,7 @@ describe('createRouter readonly disabled', () => {
         createLocation: jest.fn(),
         queryLocations: jest.fn(),
         listLocations: jest.fn(),
+        updateLocation: jest.fn(),
         deleteLocation: jest.fn(),
         getLocationByEntity: jest.fn(),
       };
@@ -943,8 +975,18 @@ describe('createRouter readonly disabled', () => {
 
     it('happy path: queries locations without pagination', async () => {
       const locations: Location[] = [
-        { id: 'loc1', type: 'url', target: 'https://example.com/a' },
-        { id: 'loc2', type: 'url', target: 'https://example.com/b' },
+        {
+          id: 'loc1',
+          type: 'url',
+          target: 'https://example.com/a',
+          entityRef: 'location:default/generated-loc1',
+        },
+        {
+          id: 'loc2',
+          type: 'url',
+          target: 'https://example.com/b',
+          entityRef: 'location:default/generated-loc2',
+        },
       ];
       locationService.queryLocations.mockResolvedValueOnce({
         items: locations,
@@ -970,7 +1012,12 @@ describe('createRouter readonly disabled', () => {
 
     it('happy path: queries locations with filter', async () => {
       const locations: Location[] = [
-        { id: 'loc1', type: 'url', target: 'https://example.com/a' },
+        {
+          id: 'loc1',
+          type: 'url',
+          target: 'https://example.com/a',
+          entityRef: 'location:default/generated-loc1',
+        },
       ];
       locationService.queryLocations.mockResolvedValueOnce({
         items: locations,
@@ -997,9 +1044,24 @@ describe('createRouter readonly disabled', () => {
 
     it('returns nextCursor when more results exist', async () => {
       const locations: Location[] = [
-        { id: 'loc1', type: 'url', target: 'https://example.com/a' },
-        { id: 'loc2', type: 'url', target: 'https://example.com/b' },
-        { id: 'loc3', type: 'url', target: 'https://example.com/c' },
+        {
+          id: 'loc1',
+          type: 'url',
+          target: 'https://example.com/a',
+          entityRef: 'location:default/generated-loc1',
+        },
+        {
+          id: 'loc2',
+          type: 'url',
+          target: 'https://example.com/b',
+          entityRef: 'location:default/generated-loc2',
+        },
+        {
+          id: 'loc3',
+          type: 'url',
+          target: 'https://example.com/c',
+          entityRef: 'location:default/generated-loc3',
+        },
       ];
       locationService.queryLocations.mockResolvedValueOnce({
         items: locations,
@@ -1032,7 +1094,12 @@ describe('createRouter readonly disabled', () => {
 
     it('uses cursor for pagination', async () => {
       const locations: Location[] = [
-        { id: 'loc3', type: 'url', target: 'https://example.com/c' },
+        {
+          id: 'loc3',
+          type: 'url',
+          target: 'https://example.com/c',
+          entityRef: 'location:default/generated-loc3',
+        },
       ];
       locationService.queryLocations.mockResolvedValueOnce({
         items: locations,
@@ -1115,6 +1182,7 @@ describe('createRouter readonly disabled', () => {
         id: 'foo',
         type: 'url',
         target: 'example.com',
+        entityRef: 'location:default/generated-foo',
       };
       locationService.getLocationByEntity.mockResolvedValueOnce(location);
 
@@ -1132,6 +1200,7 @@ describe('createRouter readonly disabled', () => {
         id: 'foo',
         target: 'example.com',
         type: 'url',
+        entityRef: 'location:default/generated-foo',
       });
     });
   });
@@ -1367,6 +1436,7 @@ describe('createRouter readonly and raw json enabled', () => {
       createLocation: jest.fn(),
       listLocations: jest.fn(),
       queryLocations: jest.fn(),
+      updateLocation: jest.fn(),
       deleteLocation: jest.fn(),
       getLocationByEntity: jest.fn(),
     };
@@ -1427,7 +1497,12 @@ describe('createRouter readonly and raw json enabled', () => {
   describe('GET /locations', () => {
     it('happy path: lists locations', async () => {
       const locations: Location[] = [
-        { id: 'foo', type: 'url', target: 'example.com' },
+        {
+          id: 'foo',
+          type: 'url',
+          target: 'example.com',
+          entityRef: 'location:default/generated-foo',
+        },
       ];
       locationService.listLocations.mockResolvedValueOnce(locations);
 
@@ -1439,7 +1514,14 @@ describe('createRouter readonly and raw json enabled', () => {
 
       expect(response.status).toEqual(200);
       expect(response.body).toEqual([
-        { data: { id: 'foo', target: 'example.com', type: 'url' } },
+        {
+          data: {
+            id: 'foo',
+            target: 'example.com',
+            type: 'url',
+            entityRef: 'location:default/generated-foo',
+          },
+        },
       ]);
     });
   });
@@ -1450,6 +1532,7 @@ describe('createRouter readonly and raw json enabled', () => {
         id: 'foo',
         type: 'url',
         target: 'example.com',
+        entityRef: 'location:default/generated-foo',
       };
       locationService.getLocation.mockResolvedValueOnce(location);
 
@@ -1464,6 +1547,7 @@ describe('createRouter readonly and raw json enabled', () => {
         id: 'foo',
         target: 'example.com',
         type: 'url',
+        entityRef: 'location:default/generated-foo',
       });
     });
   });
@@ -1492,7 +1576,11 @@ describe('createRouter readonly and raw json enabled', () => {
       };
 
       locationService.createLocation.mockResolvedValue({
-        location: { id: 'a', ...spec },
+        location: {
+          id: 'a',
+          ...spec,
+          entityRef: 'location:default/generated-a',
+        },
         entities: [],
       });
 
@@ -1508,7 +1596,11 @@ describe('createRouter readonly and raw json enabled', () => {
       expect(response.status).toEqual(201);
       expect(response.body).toEqual(
         expect.objectContaining({
-          location: { id: 'a', ...spec },
+          location: {
+            id: 'a',
+            ...spec,
+            entityRef: 'location:default/generated-a',
+          },
         }),
       );
     });
@@ -1528,6 +1620,7 @@ describe('createRouter readonly and raw json enabled', () => {
         id: 'foo',
         type: 'url',
         target: 'example.com',
+        entityRef: 'location:default/generated-foo',
       };
       locationService.getLocationByEntity.mockResolvedValueOnce(location);
 
@@ -1545,6 +1638,7 @@ describe('createRouter readonly and raw json enabled', () => {
         id: 'foo',
         target: 'example.com',
         type: 'url',
+        entityRef: 'location:default/generated-foo',
       });
     });
   });
@@ -1610,26 +1704,36 @@ describe('POST /locations/by-query works end to end', () => {
           id: '00000000-0000-0000-0000-000000000001',
           type: 'url',
           target: 'https://example.com/a.yaml',
+          entityRef:
+            'location:default/generated-17fb6f13ffb6251438be1e4f37c6482b83ede45c',
         },
         {
           id: '00000000-0000-0000-0000-000000000002',
           type: 'url',
           target: 'https://example.com/b.yaml',
+          entityRef:
+            'location:default/generated-50316008e1cdf0dfc8740b7691661615a3588ae5',
         },
         {
           id: '00000000-0000-0000-0000-000000000003',
           type: 'url',
           target: 'https://example.com/c.yaml',
+          entityRef:
+            'location:default/generated-f50fac82cafdc5ec095faee0a33ced6d9286fe08',
         },
         {
           id: '00000000-0000-0000-0000-000000000004',
           type: 'url',
           target: 'https://example.com/d.yaml',
+          entityRef:
+            'location:default/generated-45aa6e8abd2e13841ddf91bd04249460cbe55a47',
         },
         {
           id: '00000000-0000-0000-0000-000000000005',
           type: 'url',
           target: 'https://example.com/e.yaml',
+          entityRef:
+            'location:default/generated-c991bf07f54891933929eadce219b11fd32eaa5a',
         },
       ];
 
@@ -1637,11 +1741,10 @@ describe('POST /locations/by-query works end to end', () => {
       await knex<DbLocationsRow>('locations').delete();
       for (const location of locations) {
         await knex<DbLocationsRow>('locations').insert({
-          ...location,
-          location_entity_ref: computeLocationEntityRef(
-            location.type,
-            location.target,
-          ),
+          id: location.id,
+          type: location.type,
+          target: location.target,
+          location_entity_ref: location.entityRef,
         });
       }
 
@@ -1694,16 +1797,22 @@ describe('POST /locations/by-query works end to end', () => {
           id: '00000000-0000-0000-0000-000000000001',
           type: 'url',
           target: 'https://example.com/a.yaml',
+          entityRef:
+            'location:default/generated-17fb6f13ffb6251438be1e4f37c6482b83ede45c',
         },
         {
           id: '00000000-0000-0000-0000-000000000002',
           type: 'file',
           target: '/tmp/b.yaml',
+          entityRef:
+            'location:default/generated-49cac033ce5406c6fefc6ac16cf70f90852d9257',
         },
         {
           id: '00000000-0000-0000-0000-000000000003',
           type: 'url',
           target: 'https://example.com/c.yaml',
+          entityRef:
+            'location:default/generated-f50fac82cafdc5ec095faee0a33ced6d9286fe08',
         },
       ];
 
@@ -1711,11 +1820,10 @@ describe('POST /locations/by-query works end to end', () => {
       await knex<DbLocationsRow>('locations').delete();
       for (const location of locations) {
         await knex<DbLocationsRow>('locations').insert({
-          ...location,
-          location_entity_ref: computeLocationEntityRef(
-            location.type,
-            location.target,
-          ),
+          id: location.id,
+          type: location.type,
+          target: location.target,
+          location_entity_ref: location.entityRef,
         });
       }
 

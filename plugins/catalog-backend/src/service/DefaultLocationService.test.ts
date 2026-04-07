@@ -29,6 +29,7 @@ describe('DefaultLocationServiceTest', () => {
     listLocations: jest.fn(),
     queryLocations: jest.fn(),
     getLocation: jest.fn(),
+    updateLocation: jest.fn(),
     getLocationByEntity: jest.fn(),
   };
   const locationService = new DefaultLocationService(store, orchestrator);
@@ -144,7 +145,11 @@ describe('DefaultLocationServiceTest', () => {
       });
 
       store.listLocations.mockResolvedValueOnce([
-        { id: '137', ...locationSpec },
+        {
+          id: '137',
+          ...locationSpec,
+          entityRef: 'location:default/generated-137',
+        },
       ]);
 
       const result = await locationService.createLocation(
@@ -226,7 +231,12 @@ describe('DefaultLocationServiceTest', () => {
       });
 
       store.listLocations.mockResolvedValueOnce([
-        { id: '987', type: 'url', target: 'https://example.com' },
+        {
+          id: '987',
+          type: 'url',
+          target: 'https://example.com',
+          entityRef: 'location:default/generated-987',
+        },
       ]);
 
       const result = await locationService.createLocation(
@@ -245,6 +255,7 @@ describe('DefaultLocationServiceTest', () => {
       store.createLocation.mockResolvedValue({
         ...locationSpec,
         id: '123',
+        entityRef: 'location:default/generated-123',
       });
 
       await expect(
@@ -255,6 +266,7 @@ describe('DefaultLocationServiceTest', () => {
           id: '123',
           target: 'https://backstage.io/catalog-info.yaml',
           type: 'url',
+          entityRef: 'location:default/generated-123',
         },
       });
       expect(store.createLocation).toHaveBeenCalledWith(
@@ -275,6 +287,7 @@ describe('DefaultLocationServiceTest', () => {
       store.createLocation.mockResolvedValue({
         ...locationSpec,
         id: '123',
+        entityRef: 'location:default/generated-123',
       });
 
       const locationServiceAllowingUnknownType = new DefaultLocationService(
@@ -293,6 +306,7 @@ describe('DefaultLocationServiceTest', () => {
           id: '123',
           target: 'https://backstage.io/catalog-info.yaml',
           type: 'unknown',
+          entityRef: 'location:default/generated-123',
         },
       });
       expect(store.createLocation).toHaveBeenCalledWith(
@@ -325,6 +339,7 @@ describe('DefaultLocationServiceTest', () => {
       store.createLocation.mockResolvedValueOnce({
         id: 'existing-id',
         ...locationSpec,
+        entityRef: 'location:default/generated-existing-id',
       });
 
       const result = await locationService.createLocation(locationSpec, false, {
@@ -333,7 +348,11 @@ describe('DefaultLocationServiceTest', () => {
       });
 
       expect(result).toEqual({
-        location: { id: 'existing-id', ...locationSpec },
+        location: {
+          id: 'existing-id',
+          ...locationSpec,
+          entityRef: 'location:default/generated-existing-id',
+        },
         entities: [],
       });
       expect(store.createLocation).toHaveBeenCalledWith(locationSpec, {

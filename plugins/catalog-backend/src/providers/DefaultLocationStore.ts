@@ -133,15 +133,23 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
         });
     }
 
-    return { id: location.id, type: location.type, target: location.target };
+    return {
+      id: location.id,
+      type: location.type,
+      target: location.target,
+      entityRef: location.location_entity_ref,
+    };
   }
 
   async listLocations(): Promise<Location[]> {
-    return (await this.locations()).map(({ id, type, target }) => ({
-      id,
-      type,
-      target,
-    }));
+    return (await this.locations()).map(
+      ({ id, type, target, location_entity_ref }) => ({
+        id,
+        type,
+        target,
+        entityRef: location_entity_ref,
+      }),
+    );
   }
 
   async queryLocations(options: {
@@ -179,6 +187,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
         id: item.id,
         target: item.target,
         type: item.type,
+        entityRef: item.location_entity_ref,
       })),
       totalItems: Number(count),
     };
@@ -192,8 +201,60 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
     if (!items.length) {
       throw new NotFoundError(`Found no location with ID ${id}`);
     }
-    const { id: rowId, type, target } = items[0];
-    return { id: rowId, type, target };
+    const { id: rowId, type, target, location_entity_ref } = items[0];
+    return { id: rowId, type, target, entityRef: location_entity_ref };
+  }
+
+  async updateLocation(id: string, location: LocationInput): Promise<Location> {
+    if (!this.connection) {
+      throw new Error('location store is not initialized');
+    }
+
+    const updated = await this.db.transaction(async tx => {
+      const [old] = await tx<DbLocationsRow>('locations')
+        .where({ id })
+        .select();
+
+      if (!old) {
+        throw new NotFoundError(`Found no location with ID ${id}`);
+      }
+
+      await tx<DbLocationsRow>('locations').where({ id }).update({
+        type: location.type,
+        target: location.target,
+      });
+
+      const [row] = await tx<DbLocationsRow>('locations')
+        .where({ id })
+        .select();
+      return { old, row };
+    });
+
+    const oldEntity = locationSpecToLocationEntity({
+      location: updated.old,
+      locationEntityRef: updated.old.location_entity_ref,
+    });
+    const newEntity = locationSpecToLocationEntity({
+      location: updated.row,
+      locationEntityRef: updated.row.location_entity_ref,
+    });
+
+    await this.connection.applyMutation({
+      type: 'delta',
+      added: [
+        { entity: newEntity, locationKey: getEntityLocationRef(newEntity) },
+      ],
+      removed: [
+        { entity: oldEntity, locationKey: getEntityLocationRef(oldEntity) },
+      ],
+    });
+
+    return {
+      id: updated.row.id,
+      type: updated.row.type,
+      target: updated.row.target,
+      entityRef: updated.row.location_entity_ref,
+    };
   }
 
   async deleteLocation(id: string): Promise<void> {
@@ -264,6 +325,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
       id: locationRow.id,
       type: locationRow.type,
       target: locationRow.target,
+      entityRef: locationRow.location_entity_ref,
     };
   }
 
@@ -692,13 +754,15 @@ function applyLocationFilterToQuery(
 
   for (const [keyAnyCase, value] of entries) {
     const key = keyAnyCase.toLocaleLowerCase('en-US');
-    if (!['id', 'type', 'target'].includes(key)) {
+    if (!['id', 'type', 'target', 'entityref'].includes(key)) {
       throw new InputError(
-        `Invalid filter predicate, expected key to be 'id', 'type', or 'target', got '${keyAnyCase}'`,
+        `Invalid filter predicate, expected key to be 'id', 'type', 'target', or 'entityRef', got '${keyAnyCase}'`,
       );
     }
 
-    result = applyFilterValueToQuery(clientType, result, key, value);
+    // Map the API field name to the underlying column name
+    const column = key === 'entityref' ? 'location_entity_ref' : key;
+    result = applyFilterValueToQuery(clientType, result, column, value);
   }
 
   return result;

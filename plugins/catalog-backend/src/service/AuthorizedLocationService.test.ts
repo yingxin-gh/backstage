@@ -25,6 +25,7 @@ describe('AuthorizedLocationService', () => {
     listLocations: jest.fn(),
     queryLocations: jest.fn(),
     getLocation: jest.fn(),
+    updateLocation: jest.fn(),
     deleteLocation: jest.fn(),
     getLocationByEntity: jest.fn(),
   };

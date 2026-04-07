@@ -1529,9 +1529,7 @@ export const HeaderNavDefinition: {
     readonly active: 'bui-HeaderNavActive';
     readonly hovered: 'bui-HeaderNavHovered';
   };
-  readonly analytics: true;
   readonly propDefs: {
-    readonly noTrack: {};
     readonly tabs: {};
     readonly activeTabId: {};
     readonly children: {};
@@ -1560,7 +1558,16 @@ export const HeaderNavItemDefinition: {
   readonly classNames: {
     readonly root: 'bui-HeaderNavItem';
   };
+  readonly analytics: true;
+  readonly resolveHref: true;
   readonly propDefs: {
+    readonly noTrack: {};
+    readonly id: {};
+    readonly label: {};
+    readonly href: {};
+    readonly active: {};
+    readonly registerRef: {};
+    readonly onHighlight: {};
     readonly className: {};
   };
 };
@@ -1591,7 +1598,7 @@ export type HeaderNavTabItem = HeaderNavTab | HeaderNavTabGroup;
 // @public
 export interface HeaderOwnProps {
   // (undocumented)
-  activeTabId?: string;
+  activeTabId?: string | null;
   // (undocumented)
   breadcrumbs?: HeaderBreadcrumb[];
   // (undocumented)

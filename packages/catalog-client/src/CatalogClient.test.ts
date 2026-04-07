@@ -1136,11 +1136,13 @@ describe('CatalogClient', () => {
             id: '42',
             type: 'url',
             target: 'https://example.com',
+            entityRef: 'location:default/generated-42',
           },
           {
             id: '43',
             type: 'url',
             target: 'https://example.com',
+            entityRef: 'location:default/generated-43',
           },
         ],
       });

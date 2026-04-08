@@ -15,8 +15,9 @@
  */
 
 import { Progress, WarningPanel } from '@backstage/core-components';
+import { appThemeApiRef, useApi } from '@backstage/core-plugin-api';
 import { Alert, Box, Text } from '@backstage/ui';
-import { useTheme } from '@material-ui/core/styles';
+import useObservable from 'react-use/esm/useObservable';
 import ReactJson from 'react-json-view';
 import { useConfig } from '../../../hooks';
 import { ConfigError } from '@backstage/plugin-devtools-common';
@@ -41,17 +42,25 @@ export const WarningContent = ({ error }: { error: ConfigError }) => {
 
 /** @public */
 export const ConfigContent = () => {
-  const theme = useTheme();
+  const appThemeApi = useApi(appThemeApiRef);
+  const activeThemeId = useObservable(
+    appThemeApi.activeThemeId$(),
+    appThemeApi.getActiveThemeId(),
+  );
+  const activeTheme = appThemeApi
+    .getInstalledThemes()
+    .find(t => t.id === activeThemeId);
+  const isDark = activeTheme?.variant === 'dark';
   const { configInfo, loading, error } = useConfig();
 
   if (loading) {
     return <Progress />;
   } else if (error) {
-    return <Alert status="danger" title={error.message} />;
+    return <Alert status="danger" description={error.message} />;
   }
 
   if (!configInfo) {
-    return <Alert status="danger" title="Unable to load config data" />;
+    return <Alert status="danger" description="Unable to load config data" />;
   }
 
   return (
@@ -68,7 +77,7 @@ export const ConfigContent = () => {
           src={configInfo.config as object}
           name="config"
           enableClipboard={false}
-          theme={theme.palette.type === 'dark' ? 'chalk' : 'rjv-default'}
+          theme={isDark ? 'chalk' : 'rjv-default'}
         />
       </Box>
     </Box>

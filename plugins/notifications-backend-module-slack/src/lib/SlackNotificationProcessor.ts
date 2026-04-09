@@ -547,10 +547,11 @@ export class SlackNotificationProcessor implements NotificationProcessor {
     ts: string,
   ): Promise<void> {
     try {
+      const now = this.db!.fn.now();
       await this.db!('slack_message_timestamps')
-        .insert({ origin, scope, channel, ts, created_at: new Date() })
+        .insert({ origin, scope, channel, ts, created_at: now })
         .onConflict(['origin', 'scope', 'channel'])
-        .merge({ ts, created_at: new Date() });
+        .merge({ ts, created_at: now });
     } catch (error) {
       this.logger.warn('Failed to persist Slack message timestamp', {
         origin,

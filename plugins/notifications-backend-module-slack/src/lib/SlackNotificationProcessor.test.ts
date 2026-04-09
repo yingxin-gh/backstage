@@ -1688,6 +1688,7 @@ describe('SlackNotificationProcessor', () => {
       const db = jest
         .fn()
         .mockImplementation(() => createQueryBuilder()) as unknown as Knex;
+      (db as any).fn = { now: jest.fn().mockReturnValue(new Date()) };
       return { db, store, storeKey };
     }
 

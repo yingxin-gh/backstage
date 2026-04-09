@@ -18,6 +18,7 @@ import {
   createBackendModule,
   resolvePackagePath,
 } from '@backstage/backend-plugin-api';
+import { Knex } from 'knex';
 import { metricsServiceRef } from '@backstage/backend-plugin-api/alpha';
 import { notificationsProcessingExtensionPoint } from '@backstage/plugin-notifications-node';
 import { SlackNotificationProcessor } from './lib/SlackNotificationProcessor';
@@ -32,7 +33,17 @@ const MIGRATIONS_DIR = resolvePackagePath(
   'migrations',
 );
 
-const CLEANUP_RETENTION_MS = 24 * 60 * 60 * 1000; // 24 hours
+const DB_MIGRATIONS_TABLE = 'notifications_module_slack__knex_migrations';
+const CLEANUP_RETENTION_SECONDS = 24 * 60 * 60; // 24 hours
+
+function nowMinus(knex: Knex, seconds: number): Knex.Raw {
+  if (knex.client.config.client.includes('sqlite3')) {
+    return knex.raw(`datetime('now', ?)`, [`-${seconds} seconds`]);
+  } else if (knex.client.config.client.includes('mysql')) {
+    return knex.raw(`now() - interval ${seconds} second`);
+  }
+  return knex.raw(`now() - interval '${seconds} seconds'`);
+}
 
 /**
  * The Slack notification processor for use with the notifications plugin.
@@ -92,6 +103,7 @@ export const notificationsModuleSlack = createBackendModule({
         if (!database.migrations?.skip) {
           await db.migrate.latest({
             directory: MIGRATIONS_DIR,
+            tableName: DB_MIGRATIONS_TABLE,
           });
         }
 
@@ -112,9 +124,12 @@ export const notificationsModuleSlack = createBackendModule({
           initialDelay: { hours: 2 },
           scope: 'global',
           fn: async () => {
-            const cutoff = new Date(Date.now() - CLEANUP_RETENTION_MS);
             const deleted = await db('slack_message_timestamps')
-              .where('created_at', '<=', cutoff)
+              .where(
+                'created_at',
+                '<=',
+                nowMinus(db, CLEANUP_RETENTION_SECONDS),
+              )
               .delete();
             logger.info('Cleaned up old Slack message timestamps', {
               deleted,

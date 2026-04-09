@@ -358,11 +358,11 @@ metadata:
 spec:
   type: openapi
   definition: |
-    openapi: "3.0.0"                                         
-    info:       
+    openapi: "3.0.0"
+    info:
       title: My API
       version: v1
-    servers:                                                 
+    servers:
       - url: https://api.example.com/v1   # ← specify your api base URL
 ```
 

@@ -125,6 +125,35 @@ describe('AuthorizedLocationService', () => {
     });
   });
 
+  describe('updateLocation', () => {
+    it('calls underlying service to update location on ALLOW', async () => {
+      mockAllow();
+      const service = createService();
+
+      const spec = { type: 'type', target: 'target' };
+      await service.updateLocation('id', spec, mockOptions);
+
+      expect(fakeLocationService.updateLocation).toHaveBeenCalledWith(
+        'id',
+        spec,
+        mockOptions,
+      );
+    });
+
+    it('throws NotAllowedError on DENY', async () => {
+      mockDeny();
+      const service = createService();
+
+      await expect(() =>
+        service.updateLocation(
+          'id',
+          { type: 'type', target: 'target' },
+          mockOptions,
+        ),
+      ).rejects.toThrow(NotAllowedError);
+    });
+  });
+
   describe('deleteLocation', () => {
     it('calls underlying service to delete location on ALLOW', async () => {
       mockAllow();

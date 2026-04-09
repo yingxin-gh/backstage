@@ -218,18 +218,42 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
     if (this.db.client.config.client.includes('mysql')) {
       await this.db.transaction(async tx => {
         [row] = await tx<DbLocationsRow>('locations').where({ id }).select();
-        if (row) {
-          await tx<DbLocationsRow>('locations')
-            .where({ id })
-            .update({ type: location.type, target: location.target });
-          row = { ...row, type: location.type, target: location.target };
+        if (!row) {
+          return;
         }
+
+        const [conflict] = await tx<DbLocationsRow>('locations')
+          .where({ type: location.type, target: location.target })
+          .whereNot({ id })
+          .select();
+        if (conflict) {
+          throw new ConflictError(
+            `Location ${location.type}:${location.target} already exists`,
+          );
+        }
+
+        await tx<DbLocationsRow>('locations')
+          .where({ id })
+          .update({ type: location.type, target: location.target });
+        row = { ...row, type: location.type, target: location.target };
       });
     } else {
-      [row] = await this.db<DbLocationsRow>('locations')
-        .where({ id })
-        .update({ type: location.type, target: location.target })
-        .returning('*');
+      await this.db.transaction(async tx => {
+        const [conflict] = await tx<DbLocationsRow>('locations')
+          .where({ type: location.type, target: location.target })
+          .whereNot({ id })
+          .select();
+        if (conflict) {
+          throw new ConflictError(
+            `Location ${location.type}:${location.target} already exists`,
+          );
+        }
+
+        [row] = await tx<DbLocationsRow>('locations')
+          .where({ id })
+          .update({ type: location.type, target: location.target })
+          .returning('*');
+      });
     }
 
     if (!row) {

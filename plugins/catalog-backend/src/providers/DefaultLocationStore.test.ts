@@ -288,6 +288,29 @@ describe('DefaultLocationStore', () => {
     );
 
     it.each(databases.eachSupportedId())(
+      'throws ConflictError when updating to a type+target already used by another location, %p',
+      async databaseId => {
+        const { store } = await createLocationStore(databaseId);
+
+        await store.createLocation({
+          type: 'url',
+          target: 'https://example.com/a',
+        });
+        const b = await store.createLocation({
+          type: 'url',
+          target: 'https://example.com/b',
+        });
+
+        await expect(() =>
+          store.updateLocation(b.id, {
+            type: 'url',
+            target: 'https://example.com/a',
+          }),
+        ).rejects.toThrow(/already exists/);
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
       'updates type and target and issues a delta mutation with the new entity, %p',
       async databaseId => {
         const { store, connection } = await createLocationStore(databaseId);

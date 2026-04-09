@@ -28,6 +28,7 @@ import { ExtensionDataRef, ExtensionDataValue } from './createExtensionDataRef';
 import { ExtensionInput } from './createExtensionInput';
 import type { z } from 'zod/v3';
 import { createSchemaFromZod } from '../schema/createSchemaFromZod';
+import type { ConfigFieldSchema } from '../schema/createPortableSchema';
 import { OpaqueExtensionDefinition } from '@internal/frontend';
 import { ExtensionDataContainer } from './types';
 import {
@@ -166,7 +167,7 @@ export type CreateExtensionOptions<
   TName extends string | undefined,
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key: string]: (zImpl: typeof z) => z.ZodType },
+  TConfigSchema extends { [key: string]: ConfigFieldSchema },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   UParentInputs extends ExtensionDataRef,
 > = {
@@ -185,7 +186,9 @@ export type CreateExtensionOptions<
     node: AppNode;
     apis: ApiHolder;
     config: {
-      [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+      [key in keyof TConfigSchema]: z.infer<
+        ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+      >;
     };
     inputs: Expand<ResolvedExtensionInputs<TInputs>>;
   }): Iterable<UFactoryOutput>;
@@ -239,7 +242,7 @@ export interface OverridableExtensionDefinition<
 
   override<
     TExtensionConfigSchema extends {
-      [key in string]: (zImpl: typeof z) => z.ZodType;
+      [key in string]: ConfigFieldSchema;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -295,7 +298,9 @@ export interface OverridableExtensionDefinition<
             apis: ApiHolder;
             config: T['config'] & {
               [key in keyof TExtensionConfigSchema]: z.infer<
-                ReturnType<TExtensionConfigSchema[key]>
+                ReturnType<
+                  ((...args: any[]) => any) & TExtensionConfigSchema[key]
+                >
               >;
             };
             inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
@@ -324,14 +329,14 @@ export interface OverridableExtensionDefinition<
     inputs: T['inputs'] & TExtraInputs;
     config: T['config'] & {
       [key in keyof TExtensionConfigSchema]: z.infer<
-        ReturnType<TExtensionConfigSchema[key]>
+        ReturnType<((...args: any[]) => any) & TExtensionConfigSchema[key]>
       >;
     };
     configInput: T['configInput'] &
       z.input<
         z.ZodObject<{
           [key in keyof TExtensionConfigSchema]: ReturnType<
-            TExtensionConfigSchema[key]
+            ((...args: any[]) => any) & TExtensionConfigSchema[key]
           >;
         }>
       >;
@@ -400,7 +405,7 @@ function bindInputs(
 export function createExtension<
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key: string]: (zImpl: typeof z) => z.ZodType },
+  TConfigSchema extends { [key: string]: ConfigFieldSchema },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   const TKind extends string | undefined = undefined,
   const TName extends string | undefined = undefined,
@@ -419,16 +424,19 @@ export function createExtension<
   config: string extends keyof TConfigSchema
     ? {}
     : {
-        [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
       };
   configInput: string extends keyof TConfigSchema
     ? {}
     : z.input<
         z.ZodObject<{
-          [key in keyof TConfigSchema]: ReturnType<TConfigSchema[key]>;
+          [key in keyof TConfigSchema]: ReturnType<
+            ((...args: any[]) => any) & TConfigSchema[key]
+          >;
         }>
       >;
-  // This inference and remapping back to ExtensionDataRef eliminates any occurrences ConfigurationExtensionDataRef
   output: UOutput extends ExtensionDataRef<
     infer IData,
     infer IId,
@@ -447,8 +455,11 @@ export function createExtension<
     createSchemaFromZod(innerZ =>
       innerZ.object(
         Object.fromEntries(
-          Object.entries(schemaDeclaration).map(([k, v]) => [k, v(innerZ)]),
-        ),
+          Object.entries(schemaDeclaration).map(([k, v]) => [
+            k,
+            typeof v === 'function' ? v(innerZ) : v,
+          ]),
+        ) as Record<string, z.ZodTypeAny>,
       ),
     );
 
@@ -458,14 +469,16 @@ export function createExtension<
         ? {}
         : {
             [key in keyof TConfigSchema]: z.infer<
-              ReturnType<TConfigSchema[key]>
+              ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
             >;
           };
       configInput: string extends keyof TConfigSchema
         ? {}
         : z.input<
             z.ZodObject<{
-              [key in keyof TConfigSchema]: ReturnType<TConfigSchema[key]>;
+              [key in keyof TConfigSchema]: ReturnType<
+                ((...args: any[]) => any) & TConfigSchema[key]
+              >;
             }>
           >;
       output: UOutput;

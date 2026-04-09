@@ -23,7 +23,8 @@ import { Observable } from '@backstage/types';
 import { PropsWithChildren } from 'react';
 import { ReactNode } from 'react';
 import { SwappableComponentRef as SwappableComponentRef_2 } from '@backstage/frontend-plugin-api';
-import type { z } from 'zod/v3';
+import { z } from 'zod/v3';
+import { ZodType } from 'zod/v3';
 
 // @public @deprecated
 export type AlertApi = {
@@ -388,6 +389,16 @@ export const configApiRef: ApiRef_2<Config, 'core.config'> & {
   readonly $$type: '@backstage/ApiRef';
 };
 
+// @public
+export type ConfigFieldSchema =
+  | StandardSchemaV1
+  | ((zImpl: typeof z) => ZodType);
+
+// @public
+export type ConfigSchemaRecord = {
+  [key: string]: ConfigFieldSchema;
+};
+
 // @public (undocumented)
 export interface ConfigurableExtensionDataRef<
   TData,
@@ -464,7 +475,7 @@ export function createExtension<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key: string]: (zImpl: typeof z) => z.ZodType;
+    [key: string]: ConfigFieldSchema;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   const TKind extends string | undefined = undefined,
@@ -484,13 +495,17 @@ export function createExtension<
   config: string extends keyof TConfigSchema
     ? {}
     : {
-        [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
       };
   configInput: string extends keyof TConfigSchema
     ? {}
     : z.input<
         z.ZodObject<{
-          [key in keyof TConfigSchema]: ReturnType<TConfigSchema[key]>;
+          [key in keyof TConfigSchema]: ReturnType<
+            ((...args: any[]) => any) & TConfigSchema[key]
+          >;
         }>
       >;
   output: UOutput extends ExtensionDataRef<
@@ -514,7 +529,7 @@ export function createExtensionBlueprint<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key in string]: (zImpl: typeof z) => z.ZodType;
+    [key in string]: ConfigFieldSchema;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TKind extends string,
@@ -547,13 +562,17 @@ export function createExtensionBlueprint<
   config: string extends keyof TConfigSchema
     ? {}
     : {
-        [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
       };
   configInput: string extends keyof TConfigSchema
     ? {}
     : z.input<
         z.ZodObject<{
-          [key in keyof TConfigSchema]: ReturnType<TConfigSchema[key]>;
+          [key in keyof TConfigSchema]: ReturnType<
+            ((...args: any[]) => any) & TConfigSchema[key]
+          >;
         }>
       >;
   dataRefs: TDataRefs;
@@ -568,7 +587,7 @@ export type CreateExtensionBlueprintOptions<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key in string]: (zImpl: typeof z) => z.ZodType;
+    [key in string]: ConfigFieldSchema;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TDataRefs extends {
@@ -597,7 +616,9 @@ export type CreateExtensionBlueprintOptions<
       node: AppNode;
       apis: ApiHolder;
       config: {
-        [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
       };
       inputs: Expand<ResolvedExtensionInputs<TInputs>>;
     },
@@ -657,7 +678,7 @@ export type CreateExtensionOptions<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key: string]: (zImpl: typeof z) => z.ZodType;
+    [key: string]: ConfigFieldSchema;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   UParentInputs extends ExtensionDataRef,
@@ -677,7 +698,9 @@ export type CreateExtensionOptions<
     node: AppNode;
     apis: ApiHolder;
     config: {
-      [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+      [key in keyof TConfigSchema]: z.infer<
+        ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+      >;
     };
     inputs: Expand<ResolvedExtensionInputs<TInputs>>;
   }): Iterable<UFactoryOutput>;
@@ -1042,7 +1065,7 @@ export interface ExtensionBlueprint<
   makeWithOverrides<
     TName extends string | undefined,
     TExtensionConfigSchema extends {
-      [key in string]: (zImpl: typeof z) => z.ZodType;
+      [key in string]: ConfigFieldSchema;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -1091,7 +1114,7 @@ export interface ExtensionBlueprint<
         apis: ApiHolder;
         config: T['config'] & {
           [key in keyof TExtensionConfigSchema]: z.infer<
-            ReturnType<TExtensionConfigSchema[key]>
+            ReturnType<((...args: any[]) => any) & TExtensionConfigSchema[key]>
           >;
         };
         inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
@@ -1109,7 +1132,9 @@ export interface ExtensionBlueprint<
         ? {}
         : {
             [key in keyof TExtensionConfigSchema]: z.infer<
-              ReturnType<TExtensionConfigSchema[key]>
+              ReturnType<
+                ((...args: any[]) => any) & TExtensionConfigSchema[key]
+              >
             >;
           }) &
         T['config']
@@ -1120,7 +1145,7 @@ export interface ExtensionBlueprint<
         : z.input<
             z.ZodObject<{
               [key in keyof TExtensionConfigSchema]: ReturnType<
-                TExtensionConfigSchema[key]
+                ((...args: any[]) => any) & TExtensionConfigSchema[key]
               >;
             }>
           >) &
@@ -1682,7 +1707,7 @@ export interface OverridableExtensionDefinition<
   // (undocumented)
   override<
     TExtensionConfigSchema extends {
-      [key in string]: (zImpl: typeof z) => z.ZodType;
+      [key in string]: ConfigFieldSchema;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -1740,7 +1765,9 @@ export interface OverridableExtensionDefinition<
             apis: ApiHolder;
             config: T['config'] & {
               [key in keyof TExtensionConfigSchema]: z.infer<
-                ReturnType<TExtensionConfigSchema[key]>
+                ReturnType<
+                  ((...args: any[]) => any) & TExtensionConfigSchema[key]
+                >
               >;
             };
             inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
@@ -1769,14 +1796,14 @@ export interface OverridableExtensionDefinition<
     inputs: T['inputs'] & TExtraInputs;
     config: T['config'] & {
       [key in keyof TExtensionConfigSchema]: z.infer<
-        ReturnType<TExtensionConfigSchema[key]>
+        ReturnType<((...args: any[]) => any) & TExtensionConfigSchema[key]>
       >;
     };
     configInput: T['configInput'] &
       z.input<
         z.ZodObject<{
           [key in keyof TExtensionConfigSchema]: ReturnType<
-            TExtensionConfigSchema[key]
+            ((...args: any[]) => any) & TExtensionConfigSchema[key]
           >;
         }>
       >;
@@ -2117,6 +2144,76 @@ export namespace SessionState {
   export type SignedIn = typeof SessionState.SignedIn;
   // (undocumented)
   export type SignedOut = typeof SessionState.SignedOut;
+}
+
+// @public
+export interface StandardSchemaV1<Input = unknown, Output = Input> {
+  // (undocumented)
+  readonly '~standard': StandardSchemaV1.Props<Input, Output>;
+}
+
+// @public (undocumented)
+export namespace StandardSchemaV1 {
+  // (undocumented)
+  export interface FailureResult {
+    // (undocumented)
+    readonly issues: ReadonlyArray<Issue>;
+  }
+  // (undocumented)
+  export type InferInput<Schema extends StandardSchemaV1> = NonNullable<
+    Schema['~standard']['types']
+  >['input'];
+  // (undocumented)
+  export type InferOutput<Schema extends StandardSchemaV1> = NonNullable<
+    Schema['~standard']['types']
+  >['output'];
+  // (undocumented)
+  export interface Issue {
+    // (undocumented)
+    readonly message: string;
+    // (undocumented)
+    readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined;
+  }
+  // (undocumented)
+  export interface Options {
+    // (undocumented)
+    readonly libraryOptions?: Record<string, unknown> | undefined;
+  }
+  // (undocumented)
+  export interface PathSegment {
+    // (undocumented)
+    readonly key: PropertyKey;
+  }
+  // (undocumented)
+  export interface Props<Input = unknown, Output = Input> {
+    // (undocumented)
+    readonly types?: Types<Input, Output> | undefined;
+    // (undocumented)
+    readonly validate: (
+      value: unknown,
+      options?: Options | undefined,
+    ) => Result<Output> | Promise<Result<Output>>;
+    // (undocumented)
+    readonly vendor: string;
+    // (undocumented)
+    readonly version: 1;
+  }
+  // (undocumented)
+  export type Result<Output> = SuccessResult<Output> | FailureResult;
+  // (undocumented)
+  export interface SuccessResult<Output> {
+    // (undocumented)
+    readonly issues?: undefined;
+    // (undocumented)
+    readonly value: Output;
+  }
+  // (undocumented)
+  export interface Types<Input = unknown, Output = Input> {
+    // (undocumented)
+    readonly input: Input;
+    // (undocumented)
+    readonly output: Output;
+  }
 }
 
 // @public

@@ -44,13 +44,19 @@ import { PortableSchema } from './types';
 //  See: https://github.com/standard-schema/standard-schema
 // ---------------------------------------------------------------------------
 
-/** The Standard Schema interface. */
-interface StandardSchemaV1<Input = unknown, Output = Input> {
+/**
+ * The Standard Schema interface.
+ * @public
+ */
+export interface StandardSchemaV1<Input = unknown, Output = Input> {
   readonly '~standard': StandardSchemaV1.Props<Input, Output>;
 }
 
+/**
+ * @public
+ */
 // eslint-disable-next-line @typescript-eslint/no-namespace
-namespace StandardSchemaV1 {
+export namespace StandardSchemaV1 {
   export interface Props<Input = unknown, Output = Input> {
     readonly version: 1;
     readonly vendor: string;
@@ -106,38 +112,82 @@ namespace StandardSchemaV1 {
 /**
  * A single config field schema. Accepts any Standard Schema implementation,
  * or the legacy factory form for backward compat and zod-based composition.
+ * @public
  */
-type ConfigFieldSchema = StandardSchemaV1 | ((zImpl: typeof zodV3) => ZodType);
+export type ConfigFieldSchema =
+  | StandardSchemaV1
+  | ((zImpl: typeof zodV3) => ZodType);
 
-/** A record of per-field config schemas. */
-type ConfigSchemaRecord = { [key: string]: ConfigFieldSchema };
-
-/** Resolves a field entry to its StandardSchemaV1 form for type inference. */
-type ResolveField<T extends ConfigFieldSchema> = T extends (
-  ...args: any[]
-) => infer R
-  ? R extends StandardSchemaV1
-    ? R
-    : never
-  : T extends StandardSchemaV1
-  ? T
-  : never;
+/**
+ * A record of per-field config schemas.
+ * @public
+ */
+export type ConfigSchemaRecord = { [key: string]: ConfigFieldSchema };
 
 /**
  * Infers the parsed output type of a config schema record.
  * Replaces: `{ [key in keyof T]: z.infer<ReturnType<T[key]>> }`
+ *
+ * Split into two mapped types joined by intersection to avoid conditional
+ * types in the value position, which TypeScript defers in declaration emit.
+ * Factory-form fields use `ReturnType<...>['_output']` (eagerly evaluated),
+ * Standard Schema fields use `['~standard']['types']['output']`.
+ * @ignore
  */
 type InferConfigOutput<T extends ConfigSchemaRecord> = {
-  [K in keyof T]: StandardSchemaV1.InferOutput<ResolveField<T[K]>>;
+  [K in keyof T as T[K] extends (...args: any[]) => any
+    ? K
+    : never]: ReturnType<T[K] & ((...args: any[]) => any)>['_output'];
+} & {
+  [K in keyof T as T[K] extends (...args: any[]) => any
+    ? never
+    : K]: NonNullable<
+    (T[K] & StandardSchemaV1)['~standard']['types']
+  >['output'];
 };
 
 /**
  * Infers the raw input type (before defaults/transforms) of a config
  * schema record.
  * Replaces: `z.input<z.ZodObject<{ ... }>>`
+ *
+ * Fields whose input type includes `undefined` are made optional keys,
+ * matching the behavior of `z.input<z.ZodObject<...>>` for ZodDefault
+ * and ZodOptional fields.
+ * @ignore
  */
-type InferConfigInput<T extends ConfigSchemaRecord> = {
-  [K in keyof T]: StandardSchemaV1.InferInput<ResolveField<T[K]>>;
+type InferConfigInput<T extends ConfigSchemaRecord> = _RequiredInput<T> &
+  _OptionalInput<T>;
+
+type _FactoryInput<T extends (...args: any[]) => any> = ReturnType<T>['_input'];
+type _SchemaInput<T extends StandardSchemaV1> = NonNullable<
+  T['~standard']['types']
+>['input'];
+
+/** @ignore */
+type _RequiredInput<T extends ConfigSchemaRecord> = {
+  [K in keyof T as T[K] extends (...args: any[]) => any
+    ? undefined extends _FactoryInput<T[K] & ((...args: any[]) => any)>
+      ? never
+      : K
+    : undefined extends _SchemaInput<T[K] & StandardSchemaV1>
+    ? never
+    : K]: T[K] extends (...args: any[]) => any
+    ? _FactoryInput<T[K] & ((...args: any[]) => any)>
+    : _SchemaInput<T[K] & StandardSchemaV1>;
+};
+
+/** @ignore */
+type _OptionalInput<T extends ConfigSchemaRecord> = {
+  [K in keyof T as T[K] extends (...args: any[]) => any
+    ? undefined extends _FactoryInput<T[K] & ((...args: any[]) => any)>
+      ? K
+      : never
+    : undefined extends _SchemaInput<T[K] & StandardSchemaV1>
+    ? K
+    : never]?: T[K] extends (...args: any[]) => any
+    ? _FactoryInput<T[K] & ((...args: any[]) => any)>
+    : _SchemaInput<T[K] & StandardSchemaV1>;
 };
 
 // ---------------------------------------------------------------------------
@@ -161,7 +211,7 @@ interface FieldValidator {
  * public PortableSchema surface. The brand field is used to detect whether
  * a PortableSchema came from this utility (and thus supports merging).
  */
-interface MergeablePortableSchema<TOutput = any, TInput = any>
+export interface MergeablePortableSchema<TOutput = any, TInput = any>
   extends PortableSchema<TOutput, TInput> {
   /** @internal */
   readonly _fields: Record<string, FieldValidator>;
@@ -171,7 +221,7 @@ interface MergeablePortableSchema<TOutput = any, TInput = any>
 //  createPortableSchema — builds from a field record
 // ---------------------------------------------------------------------------
 
-function createPortableSchema<T extends ConfigSchemaRecord>(
+export function createPortableSchema<T extends ConfigSchemaRecord>(
   fields: T,
 ): MergeablePortableSchema<InferConfigOutput<T>, InferConfigInput<T>> {
   const fieldValidators: Record<string, FieldValidator> = {};
@@ -193,7 +243,7 @@ function createPortableSchema<T extends ConfigSchemaRecord>(
 //  no need to mix schema types within a single validator.
 // ---------------------------------------------------------------------------
 
-function mergePortableSchemas<A, B>(
+export function mergePortableSchemas<A, B>(
   a: MergeablePortableSchema<A> | undefined,
   b: MergeablePortableSchema<B> | undefined,
 ): MergeablePortableSchema<A & B> | undefined {
@@ -437,18 +487,3 @@ function formatStandardIssue(
     : fieldKey;
   return `${message} at '${path}'`;
 }
-
-// ---------------------------------------------------------------------------
-//  Exports
-// ---------------------------------------------------------------------------
-
-export {
-  createPortableSchema,
-  mergePortableSchemas,
-  type MergeablePortableSchema,
-  type ConfigFieldSchema,
-  type ConfigSchemaRecord,
-  type InferConfigOutput,
-  type InferConfigInput,
-  type StandardSchemaV1,
-};

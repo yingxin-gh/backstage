@@ -28,6 +28,7 @@ import {
 } from './createExtension';
 import type { z } from 'zod/v3';
 import { ExtensionInput } from './createExtensionInput';
+import type { ConfigFieldSchema } from '../schema/createPortableSchema';
 import { ExtensionDataRef, ExtensionDataValue } from './createExtensionDataRef';
 import { createExtensionDataContainer } from '@internal/frontend';
 import {
@@ -106,7 +107,7 @@ export type CreateExtensionBlueprintOptions<
   TParams extends object | ExtensionBlueprintDefineParams,
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key in string]: (zImpl: typeof z) => z.ZodType },
+  TConfigSchema extends { [key in string]: ConfigFieldSchema },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TDataRefs extends { [name in string]: ExtensionDataRef },
   UParentInputs extends ExtensionDataRef,
@@ -170,7 +171,9 @@ export type CreateExtensionBlueprintOptions<
       node: AppNode;
       apis: ApiHolder;
       config: {
-        [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
       };
       inputs: Expand<ResolvedExtensionInputs<TInputs>>;
     },
@@ -248,7 +251,7 @@ export interface ExtensionBlueprint<
   makeWithOverrides<
     TName extends string | undefined,
     TExtensionConfigSchema extends {
-      [key in string]: (zImpl: typeof z) => z.ZodType;
+      [key in string]: ConfigFieldSchema;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -295,7 +298,7 @@ export interface ExtensionBlueprint<
         apis: ApiHolder;
         config: T['config'] & {
           [key in keyof TExtensionConfigSchema]: z.infer<
-            ReturnType<TExtensionConfigSchema[key]>
+            ReturnType<((...args: any[]) => any) & TExtensionConfigSchema[key]>
           >;
         };
         inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
@@ -313,7 +316,9 @@ export interface ExtensionBlueprint<
         ? {}
         : {
             [key in keyof TExtensionConfigSchema]: z.infer<
-              ReturnType<TExtensionConfigSchema[key]>
+              ReturnType<
+                ((...args: any[]) => any) & TExtensionConfigSchema[key]
+              >
             >;
           }) &
         T['config']
@@ -324,7 +329,7 @@ export interface ExtensionBlueprint<
         : z.input<
             z.ZodObject<{
               [key in keyof TExtensionConfigSchema]: ReturnType<
-                TExtensionConfigSchema[key]
+                ((...args: any[]) => any) & TExtensionConfigSchema[key]
               >;
             }>
           >) &
@@ -461,7 +466,7 @@ export function createExtensionBlueprint<
   TParams extends object | ExtensionBlueprintDefineParams,
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key in string]: (zImpl: typeof z) => z.ZodType },
+  TConfigSchema extends { [key in string]: ConfigFieldSchema },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TKind extends string,
   UParentInputs extends ExtensionDataRef,
@@ -491,12 +496,18 @@ export function createExtensionBlueprint<
   inputs: string extends keyof TInputs ? {} : TInputs;
   config: string extends keyof TConfigSchema
     ? {}
-    : { [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>> };
+    : {
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
+      };
   configInput: string extends keyof TConfigSchema
     ? {}
     : z.input<
         z.ZodObject<{
-          [key in keyof TConfigSchema]: ReturnType<TConfigSchema[key]>;
+          [key in keyof TConfigSchema]: ReturnType<
+            ((...args: any[]) => any) & TConfigSchema[key]
+          >;
         }>
       >;
   dataRefs: TDataRefs;
@@ -592,13 +603,17 @@ export function createExtensionBlueprint<
     config: string extends keyof TConfigSchema
       ? {}
       : {
-          [key in keyof TConfigSchema]: z.infer<ReturnType<TConfigSchema[key]>>;
+          [key in keyof TConfigSchema]: z.infer<
+            ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+          >;
         };
     configInput: string extends keyof TConfigSchema
       ? {}
       : z.input<
           z.ZodObject<{
-            [key in keyof TConfigSchema]: ReturnType<TConfigSchema[key]>;
+            [key in keyof TConfigSchema]: ReturnType<
+              ((...args: any[]) => any) & TConfigSchema[key]
+            >;
           }>
         >;
     dataRefs: TDataRefs;

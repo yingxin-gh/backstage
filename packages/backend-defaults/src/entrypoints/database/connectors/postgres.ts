@@ -323,18 +323,20 @@ export async function ensurePgDatabaseExists(
   dbConfig: Config,
   ...databases: Array<string>
 ) {
-  const admin = await createPgDatabaseClient(dbConfig, {
-    connection: {
-      database: 'postgres',
-    },
-    pool: {
-      min: 0,
-      acquireTimeoutMillis: 10000,
-    },
-  });
+  // Implements a single existence check attempt
+  const ensureDatabase = async (database: string) => {
+    const admin = await createPgDatabaseClient(dbConfig, {
+      connection: {
+        database: 'postgres',
+      },
+      pool: {
+        min: 0,
+        max: 1,
+        acquireTimeoutMillis: 10000,
+      },
+    });
 
-  try {
-    const ensureDatabase = async (database: string) => {
+    try {
       const result = await admin
         .from('pg_database')
         .where('datname', database)
@@ -345,28 +347,30 @@ export async function ensurePgDatabaseExists(
       }
 
       await admin.raw(`CREATE DATABASE ??`, [database]);
-    };
+    } finally {
+      await admin.destroy();
+    }
+  };
 
-    await Promise.all(
-      databases.map(async database => {
-        // For initial setup we use a smaller timeout but several retries. Given that this
-        // is a separate connection pool we should never really run into issues with connection
-        // acquisition timeouts, but we do anyway. This might be a bug in knex or some other dependency.
-        let lastErr: Error | undefined = undefined;
-        for (let i = 0; i < 3; i++) {
-          try {
-            return await ddlLimiter(() => ensureDatabase(database));
-          } catch (err) {
-            lastErr = err;
+  await Promise.all(
+    databases.map(async database => {
+      // For initial setup we use a smaller timeout but several retries. Given that this
+      // is a separate connection pool we should never really run into issues with connection
+      // acquisition timeouts, but we do anyway. This might be a bug in knex or some other dependency.
+      const maxAttempts = 3;
+      for (let attempt = 1; ; attempt++) {
+        try {
+          return await ddlLimiter(() => ensureDatabase(database));
+        } catch (err) {
+          if (attempt >= maxAttempts) {
+            throw err;
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 100));
           }
-          await new Promise(resolve => setTimeout(resolve, 100));
         }
-        throw lastErr;
-      }),
-    );
-  } finally {
-    await admin.destroy();
-  }
+      }
+    }),
+  );
 }
 
 /**

@@ -20,6 +20,7 @@ import {
   ServiceRef,
   ServiceFactory,
 } from '@backstage/backend-plugin-api';
+import { OpaqueExtensionPointFactoryMiddleware } from '@internal/backend';
 
 /**
  * A middleware entry that reimplements a specific extension point's output.
@@ -28,9 +29,8 @@ import {
  *
  * @public
  */
-export interface ExtensionPointFactoryMiddleware<T = unknown> {
-  extensionPoint: ExtensionPoint<T>;
-  middleware: (original: T) => T;
+export interface ExtensionPointFactoryMiddleware<_T = unknown> {
+  $$type: '@backstage/ExtensionPointFactoryMiddleware';
 }
 
 /**
@@ -39,14 +39,14 @@ export interface ExtensionPointFactoryMiddleware<T = unknown> {
  *
  * @public
  */
-export function createExtensionPointFactoryMiddleware<T>(
-  extensionPoint: ExtensionPoint<T>,
-  middleware: (original: T) => T,
-): ExtensionPointFactoryMiddleware {
-  return {
-    extensionPoint: extensionPoint as ExtensionPoint<unknown>,
-    middleware: middleware as (original: unknown) => unknown,
-  };
+export function createExtensionPointFactoryMiddleware<T>(options: {
+  extensionPoint: ExtensionPoint<T>;
+  middleware: (original: T) => Promise<T>;
+}): ExtensionPointFactoryMiddleware<T> {
+  return OpaqueExtensionPointFactoryMiddleware.createInstance('v1', {
+    extensionPointId: options.extensionPoint.id,
+    middleware: options.middleware as (original: unknown) => Promise<unknown>,
+  });
 }
 
 /**

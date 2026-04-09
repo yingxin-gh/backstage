@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  Backend,
-  createSpecializedBackend,
-  ExtensionPointFactoryMiddleware,
-} from '@backstage/backend-app-api';
+import { Backend, createSpecializedBackend } from '@backstage/backend-app-api';
+import { ServiceFactory } from '@backstage/backend-plugin-api';
 import { auditorServiceFactory } from '@backstage/backend-defaults/auditor';
 import { authServiceFactory } from '@backstage/backend-defaults/auth';
 import { cacheServiceFactory } from '@backstage/backend-defaults/cache';
@@ -46,7 +43,8 @@ import {
 } from '@backstage/backend-defaults/alpha';
 import { instanceMetadataServiceFactory } from './alpha/entrypoints/instanceMetadata/instanceMetadataServiceFactory';
 
-export const defaultServiceFactories = [
+/** @public */
+export const defaultServiceFactories: ServiceFactory[] = [
   auditorServiceFactory,
   authServiceFactory,
   cacheServiceFactory,
@@ -80,11 +78,6 @@ export const defaultServiceFactories = [
 /**
  * @public
  */
-export function createBackend(options?: {
-  extensionPointFactoryMiddleware?: ExtensionPointFactoryMiddleware[];
-}): Backend {
-  return createSpecializedBackend({
-    defaultServiceFactories,
-    extensionPointFactoryMiddleware: options?.extensionPointFactoryMiddleware,
-  });
+export function createBackend(): Backend {
+  return createSpecializedBackend({ defaultServiceFactories });
 }

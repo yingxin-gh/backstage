@@ -44,10 +44,10 @@ export interface BackendStartupResult {
 }
 
 // @public
-export function createExtensionPointFactoryMiddleware<T>(
-  extensionPoint: ExtensionPoint<T>,
-  middleware: (original: T) => T,
-): ExtensionPointFactoryMiddleware;
+export function createExtensionPointFactoryMiddleware<T>(options: {
+  extensionPoint: ExtensionPoint<T>;
+  middleware: (original: T) => Promise<T>;
+}): ExtensionPointFactoryMiddleware<T>;
 
 // @public (undocumented)
 export function createSpecializedBackend(
@@ -63,11 +63,9 @@ export interface CreateSpecializedBackendOptions {
 }
 
 // @public
-export interface ExtensionPointFactoryMiddleware<T = unknown> {
+export interface ExtensionPointFactoryMiddleware<_T = unknown> {
   // (undocumented)
-  extensionPoint: ExtensionPoint<T>;
-  // (undocumented)
-  middleware: (original: T) => T;
+  $$type: '@backstage/ExtensionPointFactoryMiddleware';
 }
 
 // @public

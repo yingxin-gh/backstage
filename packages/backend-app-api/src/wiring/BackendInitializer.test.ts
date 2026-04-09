@@ -2122,10 +2122,13 @@ describe('BackendInitializer', () => {
       });
 
       const init = new BackendInitializer(baseFactories, [
-        createExtensionPointFactoryMiddleware(extensionPoint, original => ({
-          ...original,
-          values: [...original.values, 'from-middleware'],
-        })),
+        createExtensionPointFactoryMiddleware({
+          extensionPoint,
+          middleware: async original => ({
+            ...original,
+            values: [...original.values, 'from-middleware'],
+          }),
+        }),
       ]);
 
       init.add(testPlugin);
@@ -2170,10 +2173,13 @@ describe('BackendInitializer', () => {
       });
 
       const init = new BackendInitializer(baseFactories, [
-        createExtensionPointFactoryMiddleware(extensionPointA, original => ({
-          ...original,
-          values: [...original.values, 'wrapped'],
-        })),
+        createExtensionPointFactoryMiddleware({
+          extensionPoint: extensionPointA,
+          middleware: async original => ({
+            ...original,
+            values: [...original.values, 'wrapped'],
+          }),
+        }),
       ]);
 
       init.add(testPlugin);
@@ -2215,14 +2221,20 @@ describe('BackendInitializer', () => {
       });
 
       const init = new BackendInitializer(baseFactories, [
-        createExtensionPointFactoryMiddleware(extensionPoint, original => ({
-          ...original,
-          values: [...original.values, 'first'],
-        })),
-        createExtensionPointFactoryMiddleware(extensionPoint, original => ({
-          ...original,
-          values: [...original.values, 'second'],
-        })),
+        createExtensionPointFactoryMiddleware({
+          extensionPoint,
+          middleware: async original => ({
+            ...original,
+            values: [...original.values, 'first'],
+          }),
+        }),
+        createExtensionPointFactoryMiddleware({
+          extensionPoint,
+          middleware: async original => ({
+            ...original,
+            values: [...original.values, 'second'],
+          }),
+        }),
       ]);
 
       init.add(testPlugin);
@@ -2262,13 +2274,13 @@ describe('BackendInitializer', () => {
       });
 
       const init = new BackendInitializer(baseFactories, [
-        createExtensionPointFactoryMiddleware(
-          unregisteredExtensionPoint,
-          original => ({
+        createExtensionPointFactoryMiddleware({
+          extensionPoint: unregisteredExtensionPoint,
+          middleware: async original => ({
             ...original,
             values: [...original.values, 'never-applied'],
           }),
-        ),
+        }),
       ]);
 
       init.add(testPlugin);

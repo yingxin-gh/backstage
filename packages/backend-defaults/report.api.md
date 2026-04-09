@@ -5,18 +5,14 @@
 ```ts
 import { Backend } from '@backstage/backend-app-api';
 import { BackendFeature } from '@backstage/backend-plugin-api';
-import { createExtensionPointFactoryMiddleware } from '@backstage/backend-app-api';
-import { ExtensionPointFactoryMiddleware } from '@backstage/backend-app-api';
+import { ServiceFactory } from '@backstage/backend-plugin-api';
 
 // @public (undocumented)
-export function createBackend(options?: {
-  extensionPointFactoryMiddleware?: ExtensionPointFactoryMiddleware[];
-}): Backend;
+export function createBackend(): Backend;
 
-export { createExtensionPointFactoryMiddleware };
+// @public (undocumented)
+export const defaultServiceFactories: ServiceFactory[];
 
 // @public
 export const discoveryFeatureLoader: BackendFeature;
-
-export { ExtensionPointFactoryMiddleware };
 ```

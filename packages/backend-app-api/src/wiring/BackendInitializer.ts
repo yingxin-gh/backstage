@@ -29,6 +29,7 @@ import {
   ExtensionPointFactoryMiddleware,
   ServiceOrExtensionPoint,
 } from './types';
+import { OpaqueExtensionPointFactoryMiddleware } from '@internal/backend';
 // Direct internal import to avoid duplication
 // eslint-disable-next-line @backstage/no-relative-monorepo-imports
 import type {
@@ -210,8 +211,9 @@ export class BackendInitializer {
           },
         });
         for (const mw of this.#extensionPointFactoryMiddleware) {
-          if (mw.extensionPoint.id === ref.id) {
-            epImpl = (mw.middleware as (original: unknown) => unknown)(epImpl);
+          const internal = OpaqueExtensionPointFactoryMiddleware.toInternal(mw);
+          if (internal.extensionPointId === ref.id) {
+            epImpl = await internal.middleware(epImpl);
           }
         }
         result.set(name, epImpl);

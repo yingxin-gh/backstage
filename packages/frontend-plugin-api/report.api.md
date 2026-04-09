@@ -22,6 +22,7 @@ import { JSX as JSX_3 } from 'react/jsx-runtime';
 import { Observable } from '@backstage/types';
 import { PropsWithChildren } from 'react';
 import { ReactNode } from 'react';
+import { StandardSchemaV1 } from '@standard-schema/spec';
 import { SwappableComponentRef as SwappableComponentRef_2 } from '@backstage/frontend-plugin-api';
 import { z } from 'zod/v3';
 import { ZodType } from 'zod/v3';
@@ -2146,75 +2147,7 @@ export namespace SessionState {
   export type SignedOut = typeof SessionState.SignedOut;
 }
 
-// @public
-export interface StandardSchemaV1<Input = unknown, Output = Input> {
-  // (undocumented)
-  readonly '~standard': StandardSchemaV1.Props<Input, Output>;
-}
-
-// @public (undocumented)
-export namespace StandardSchemaV1 {
-  // (undocumented)
-  export interface FailureResult {
-    // (undocumented)
-    readonly issues: ReadonlyArray<Issue>;
-  }
-  // (undocumented)
-  export type InferInput<Schema extends StandardSchemaV1> = NonNullable<
-    Schema['~standard']['types']
-  >['input'];
-  // (undocumented)
-  export type InferOutput<Schema extends StandardSchemaV1> = NonNullable<
-    Schema['~standard']['types']
-  >['output'];
-  // (undocumented)
-  export interface Issue {
-    // (undocumented)
-    readonly message: string;
-    // (undocumented)
-    readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined;
-  }
-  // (undocumented)
-  export interface Options {
-    // (undocumented)
-    readonly libraryOptions?: Record<string, unknown> | undefined;
-  }
-  // (undocumented)
-  export interface PathSegment {
-    // (undocumented)
-    readonly key: PropertyKey;
-  }
-  // (undocumented)
-  export interface Props<Input = unknown, Output = Input> {
-    // (undocumented)
-    readonly types?: Types<Input, Output> | undefined;
-    // (undocumented)
-    readonly validate: (
-      value: unknown,
-      options?: Options | undefined,
-    ) => Result<Output> | Promise<Result<Output>>;
-    // (undocumented)
-    readonly vendor: string;
-    // (undocumented)
-    readonly version: 1;
-  }
-  // (undocumented)
-  export type Result<Output> = SuccessResult<Output> | FailureResult;
-  // (undocumented)
-  export interface SuccessResult<Output> {
-    // (undocumented)
-    readonly issues?: undefined;
-    // (undocumented)
-    readonly value: Output;
-  }
-  // (undocumented)
-  export interface Types<Input = unknown, Output = Input> {
-    // (undocumented)
-    readonly input: Input;
-    // (undocumented)
-    readonly output: Output;
-  }
-}
+export { StandardSchemaV1 };
 
 // @public
 export interface StorageApi {

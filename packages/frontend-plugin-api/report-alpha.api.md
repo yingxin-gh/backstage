@@ -14,6 +14,7 @@ import { FilterPredicate } from '@backstage/filter-predicates';
 import { JsonObject } from '@backstage/types';
 import { JSX as JSX_2 } from 'react';
 import { ReactNode } from 'react';
+import { StandardSchemaV1 } from '@standard-schema/spec';
 import { z } from 'zod/v3';
 import { ZodType } from 'zod/v3';
 
@@ -84,6 +85,11 @@ export interface AppTree {
   readonly orphans: Iterable<AppNode>;
   readonly root: AppNode;
 }
+
+// @public
+export type ConfigFieldSchema =
+  | StandardSchemaV1
+  | ((zImpl: typeof z) => ZodType);
 
 // @public (undocumented)
 export interface ConfigurableExtensionDataRef<
@@ -161,7 +167,6 @@ export interface ExtensionBlueprint<
     inputs: T['inputs'];
     params: T['params'];
   }>;
-  // Warning: (ae-forgotten-export) The symbol "ConfigFieldSchema" needs to be exported by the entry point alpha.d.ts
   makeWithOverrides<
     TName extends string | undefined,
     TExtensionConfigSchema extends {
@@ -649,6 +654,8 @@ export interface RouteRef<
   // (undocumented)
   readonly T: TParams;
 }
+
+export { StandardSchemaV1 };
 
 // @public
 export interface SubRouteRef<

@@ -47,7 +47,11 @@ export type {
   AppNodeSpec,
   AppTree,
 } from './apis';
-export type { PortableSchema } from './schema';
+export type {
+  PortableSchema,
+  StandardSchemaV1,
+  ConfigFieldSchema,
+} from './schema';
 export type {
   AnyRouteRefParams,
   RouteRef,

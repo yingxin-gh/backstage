@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-import { cli } from 'cleye';
-import { CliAuth, type CliCommandContext } from '@backstage/cli-node';
-import { pluginSourcesSchema } from '../lib/pluginSources';
+// @types/marked-terminal only covers v6 and is incompatible with
+// marked-terminal v7 + marked v15. This declaration covers our usage.
+declare module 'marked-terminal' {
+  import type { MarkedExtension } from 'marked';
 
-export default async ({ args, info }: CliCommandContext) => {
-  cli({ help: info }, undefined, args);
-
-  const auth = await CliAuth.create();
-  const sources = pluginSourcesSchema.parse(
-    await auth.getMetadata('pluginSources'),
-  );
-
-  if (!sources.length) {
-    process.stderr.write('No plugin sources configured.\n');
-    return;
-  }
-
-  for (const source of sources) {
-    process.stdout.write(`${source}\n`);
-  }
-};
+  export function markedTerminal(): MarkedExtension;
+}

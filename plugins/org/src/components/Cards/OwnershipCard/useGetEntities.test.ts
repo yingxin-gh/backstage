@@ -50,7 +50,6 @@ jest.mock('@backstage/plugin-catalog-react', () => {
   return {
     catalogApiRef: {},
     entityPresentationSnapshot: actual.entityPresentationSnapshot,
-    humanizeEntityRef: actual.humanizeEntityRef,
     getEntityRelations: jest.fn(entity => {
       return getEntityRelationsMock(entity);
     }) as any,
@@ -291,6 +290,7 @@ describe('useGetEntities', () => {
     afterEach(() => {
       getEntityRelationsMock.mockRestore();
       catalogApi.getEntities.mockRestore();
+      catalogApi.getEntitiesByRefs.mockRestore();
     });
 
     it('should produce query params with humanized entity refs as owners', async () => {

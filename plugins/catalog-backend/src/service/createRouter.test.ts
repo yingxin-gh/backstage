@@ -1175,6 +1175,43 @@ describe('createRouter readonly disabled', () => {
     });
   });
 
+  describe('PUT /locations/:id', () => {
+    it('rejects malformed body', async () => {
+      const response = await request(app)
+        .put('/locations/foo')
+        .send({ typez: 'url', target: 'https://example.com' });
+
+      expect(locationService.updateLocation).not.toHaveBeenCalled();
+      expect(response.status).toEqual(400);
+    });
+
+    it('updates the location and returns it', async () => {
+      const spec: LocationInput = {
+        type: 'url',
+        target: 'https://example.com/new',
+      };
+
+      locationService.updateLocation.mockResolvedValue({
+        id: 'foo',
+        ...spec,
+        entityRef: 'location:default/generated-foo',
+      });
+
+      const response = await request(app).put('/locations/foo').send(spec);
+
+      expect(locationService.updateLocation).toHaveBeenCalledTimes(1);
+      expect(locationService.updateLocation).toHaveBeenCalledWith('foo', spec, {
+        credentials: mockCredentials.user(),
+      });
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual({
+        id: 'foo',
+        ...spec,
+        entityRef: 'location:default/generated-foo',
+      });
+    });
+  });
+
   describe('GET /locations/by-entity/:kind/:namespace/:name', () => {
     it('happy path: gets location by entity ref', async () => {
       const location: Location = {

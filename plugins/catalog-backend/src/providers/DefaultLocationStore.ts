@@ -210,16 +210,19 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
       throw new Error('location store is not initialized');
     }
 
-    // MySQL doesn't support UPDATE ... RETURNING, so we fall back to checking
-    // the affected row count and then doing a separate SELECT.
+    // MySQL doesn't support UPDATE ... RETURNING. MySQL also reports 0 affected
+    // rows when the new values are identical to the old ones, so we can't rely
+    // on the row count to detect existence. Instead we SELECT to check existence
+    // first and then UPDATE inside a transaction.
     let row: DbLocationsRow | undefined;
     if (this.db.client.config.client.includes('mysql')) {
       await this.db.transaction(async tx => {
-        const count = await tx<DbLocationsRow>('locations')
-          .where({ id })
-          .update({ type: location.type, target: location.target });
-        if (Number(count) > 0) {
-          [row] = await tx<DbLocationsRow>('locations').where({ id }).select();
+        [row] = await tx<DbLocationsRow>('locations').where({ id }).select();
+        if (row) {
+          await tx<DbLocationsRow>('locations')
+            .where({ id })
+            .update({ type: location.type, target: location.target });
+          row = { ...row, type: location.type, target: location.target };
         }
       });
     } else {

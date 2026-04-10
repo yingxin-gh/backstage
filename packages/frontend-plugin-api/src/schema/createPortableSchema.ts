@@ -26,10 +26,6 @@ import { PortableSchema } from './types';
 export type { StandardSchemaV1 } from '@standard-schema/spec';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 
-// ---------------------------------------------------------------------------
-//  Internal types
-// ---------------------------------------------------------------------------
-
 /**
  * Per-field resolved schema — validation is eager, JSON Schema is lazy.
  * @internal
@@ -51,14 +47,11 @@ export interface MergeablePortableSchema<TOutput = any, TInput = any>
   readonly _fields: Record<string, ResolvedField>;
 }
 
-// ---------------------------------------------------------------------------
-//  createConfigSchema — the primary entry point
-//
-//  Resolves each field, eagerly validates JSON Schema support, and returns
-//  a PortableSchema whose JSON Schema conversion is lazy.
-// ---------------------------------------------------------------------------
-
-/** @internal */
+/**
+ * Resolves each field, eagerly validates JSON Schema support, and returns
+ * a PortableSchema whose JSON Schema conversion is lazy.
+ * @internal
+ */
 export function createConfigSchema(
   fields: Record<string, StandardSchemaV1 | ((zImpl: typeof zodV3) => ZodType)>,
 ): MergeablePortableSchema {
@@ -72,15 +65,13 @@ export function createConfigSchema(
   return buildPortableSchema(resolved);
 }
 
-// ---------------------------------------------------------------------------
-//  mergePortableSchemas — combines schemas from different sources
-//
-//  Blueprint + override composition. Each source may use a completely
-//  different schema library. Because we track per-field resolvers,
-//  merging is just combining the field maps.
-// ---------------------------------------------------------------------------
-
-/** @internal */
+/**
+ * Combines schemas from different sources for blueprint + override
+ * composition. Each source may use a completely different schema library.
+ * Because we track per-field resolvers, merging is just combining the
+ * field maps.
+ * @internal
+ */
 export function mergePortableSchemas<A, B>(
   a: MergeablePortableSchema<A> | undefined,
   b: MergeablePortableSchema<B> | undefined,
@@ -101,11 +92,10 @@ export function mergePortableSchemas<A, B>(
   });
 }
 
-// ---------------------------------------------------------------------------
-//  buildPortableSchema — assembles resolved fields into a PortableSchema
-//  with per-field validation (eager) and lazy JSON Schema generation.
-// ---------------------------------------------------------------------------
-
+/**
+ * Assembles resolved fields into a PortableSchema with per-field
+ * validation (eager) and lazy JSON Schema generation.
+ */
 function buildPortableSchema<TOutput = unknown>(
   fields: Record<string, ResolvedField>,
 ): MergeablePortableSchema<TOutput> {
@@ -136,9 +126,7 @@ function buildPortableSchema<TOutput = unknown>(
     _fields: fields,
   };
 
-  // schema — lazy getter that produces a callable with JSON Schema
-  // properties. On first access it computes the JSON Schema once,
-  // then caches it for subsequent accesses.
+  // Lazy getter — computes JSON Schema on first access, then caches it.
   let cached: PortableSchema['schema'] | undefined;
   Object.defineProperty(result, 'schema', {
     get() {
@@ -159,13 +147,11 @@ function buildPortableSchema<TOutput = unknown>(
   return result;
 }
 
-// ---------------------------------------------------------------------------
-//  resolveField — wraps a single schema into a ResolvedField.
-//
-//  Eagerly validates that JSON Schema conversion will be possible,
-//  but defers the actual conversion until toJsonSchema() is called.
-// ---------------------------------------------------------------------------
-
+/**
+ * Wraps a single schema into a ResolvedField. Eagerly validates that
+ * JSON Schema conversion will be possible, but defers the actual
+ * conversion until toJsonSchema() is called.
+ */
 function resolveField(key: string, schema: unknown): ResolvedField {
   if (isZodV3Type(schema)) {
     return resolveZodField(key, schema);
@@ -238,11 +224,7 @@ function resolveStandardField(
   };
 }
 
-// ---------------------------------------------------------------------------
-//  buildObjectJsonSchema — assembles per-field JSON Schemas into a
-//  single object-level JSON Schema (called lazily)
-// ---------------------------------------------------------------------------
-
+/** Assembles per-field JSON Schemas into a single object-level JSON Schema. */
 function buildObjectJsonSchema(
   fields: Record<string, ResolvedField>,
 ): JsonObject {
@@ -268,10 +250,6 @@ function buildObjectJsonSchema(
 
   return schema as JsonObject;
 }
-
-// ---------------------------------------------------------------------------
-//  Detection helpers
-// ---------------------------------------------------------------------------
 
 function isZodV3Type(value: unknown): value is ZodType {
   return (
@@ -307,10 +285,6 @@ function isFieldRequired(schema: StandardSchemaV1): boolean {
   }
   return (result.issues?.length ?? 0) > 0;
 }
-
-// ---------------------------------------------------------------------------
-//  Error formatting
-// ---------------------------------------------------------------------------
 
 function formatZodIssue(issue: {
   code: string;
@@ -348,10 +322,6 @@ function formatStandardIssue(
     : fieldKey;
   return `${message} at '${path}'`;
 }
-
-// ---------------------------------------------------------------------------
-//  Deprecation warning
-// ---------------------------------------------------------------------------
 
 let hasWarnedConfigSchemaProp = false;
 

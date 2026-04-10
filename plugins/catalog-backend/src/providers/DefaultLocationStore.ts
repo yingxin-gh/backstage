@@ -23,6 +23,7 @@ import {
   DbRefreshStateRow,
   DbSearchRow,
 } from '../database/tables';
+import { getEntityLocationRef } from '../processing/util';
 import {
   EntityProvider,
   EntityProviderConnection,
@@ -116,7 +117,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
     });
     await this.connection.applyMutation({
       type: 'delta',
-      added: [{ entity, locationKey: location.location_entity_ref }],
+      added: [{ entity, locationKey: getEntityLocationRef(entity) }],
       removed: [],
     });
 
@@ -266,7 +267,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
 
     await this.connection.applyMutation({
       type: 'delta',
-      added: [{ entity, locationKey: row.location_entity_ref }],
+      added: [{ entity, locationKey: getEntityLocationRef(entity) }],
       removed: [],
     });
 
@@ -302,7 +303,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
     await this.connection.applyMutation({
       type: 'delta',
       added: [],
-      removed: [{ entity, locationKey: deleted.location_entity_ref }],
+      removed: [{ entity, locationKey: getEntityLocationRef(entity) }],
     });
   }
 
@@ -368,7 +369,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
         location,
         locationEntityRef: location.location_entity_ref,
       });
-      return { entity, locationKey: location.location_entity_ref };
+      return { entity, locationKey: getEntityLocationRef(entity) };
     });
 
     await this.connection.applyMutation({
@@ -499,7 +500,7 @@ export class DefaultLocationStore implements LocationStore, EntityProvider {
               location,
               locationEntityRef: location.location_entity_ref,
             });
-            return { entity, locationKey: location.location_entity_ref };
+            return { entity, locationKey: getEntityLocationRef(entity) };
           }),
           removed: [],
         });

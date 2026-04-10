@@ -32,6 +32,7 @@ import {
 } from '@backstage/filter-predicates';
 import { resolveEntityFilterData } from './resolveEntityFilterData';
 import { Entity } from '@backstage/catalog-model';
+import { z } from 'zod/v3';
 
 /**
  * @alpha
@@ -51,12 +52,11 @@ export const EntityCardBlueprint = createExtensionBlueprint({
     filterExpression: entityFilterExpressionDataRef,
     type: entityCardTypeDataRef,
   },
-  config: {
-    schema: {
-      filter: z =>
-        z.union([z.string(), createZodV3FilterPredicateSchema(z)]).optional(),
-      type: z => z.enum(entityCardTypes).optional(),
-    },
+  configSchema: {
+    filter: z
+      .union([z.string(), createZodV3FilterPredicateSchema(z)])
+      .optional(),
+    type: z.enum(entityCardTypes).optional(),
   },
   *factory(
     {

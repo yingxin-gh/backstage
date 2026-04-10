@@ -87,9 +87,10 @@ export interface AppTree {
 }
 
 // @public
-export type ConfigFieldSchema =
-  | StandardSchemaV1
-  | ((zImpl: typeof z) => ZodType);
+export type ConfigFieldSchema = StandardSchemaV1 | ConfigFieldSchemaFactory;
+
+// @public @deprecated
+export type ConfigFieldSchemaFactory = (zImpl: typeof z) => ZodType;
 
 // @public (undocumented)
 export interface ConfigurableExtensionDataRef<
@@ -178,6 +179,9 @@ export interface ExtensionBlueprint<
     TExtraInputs extends {
       [inputName in string]: ExtensionInput;
     } = {},
+    TNewExtensionConfigSchema extends {
+      [key in string]: StandardSchemaV1;
+    } = {},
   >(args: {
     name?: TName;
     attachTo?: ExtensionDefinitionAttachTo<UParentInputs> &
@@ -194,6 +198,10 @@ export interface ExtensionBlueprint<
         string}' is already defined in parent definition`;
     };
     output?: Array<UNewOutput>;
+    configSchema?: TNewExtensionConfigSchema & {
+      [KName in keyof T['config']]?: `Error: Config key '${KName &
+        string}' is already defined in parent schema`;
+    };
     config?: {
       schema: TExtensionConfigSchema & {
         [KName in keyof T['config']]?: `Error: Config key '${KName &
@@ -218,6 +226,10 @@ export interface ExtensionBlueprint<
         node: AppNode;
         apis: ApiHolder;
         config: T['config'] & {
+          [key in keyof TNewExtensionConfigSchema]: NonNullable<
+            TNewExtensionConfigSchema[key]['~standard']['types']
+          >['output'];
+        } & {
           [key in keyof TExtensionConfigSchema]: z.infer<
             ReturnType<((...args: any[]) => any) & TExtensionConfigSchema[key]>
           >;
@@ -233,7 +245,11 @@ export interface ExtensionBlueprint<
       >;
   }): OverridableExtensionDefinition<{
     config: Expand<
-      (string extends keyof TExtensionConfigSchema
+      {
+        [key in keyof TNewExtensionConfigSchema]: NonNullable<
+          TNewExtensionConfigSchema[key]['~standard']['types']
+        >['output'];
+      } & (string extends keyof TExtensionConfigSchema
         ? {}
         : {
             [key in keyof TExtensionConfigSchema]: z.infer<
@@ -245,7 +261,11 @@ export interface ExtensionBlueprint<
         T['config']
     >;
     configInput: Expand<
-      (string extends keyof TExtensionConfigSchema
+      {
+        [key in keyof TNewExtensionConfigSchema]?: NonNullable<
+          TNewExtensionConfigSchema[key]['~standard']['types']
+        >['input'];
+      } & (string extends keyof TExtensionConfigSchema
         ? {}
         : z.input<
             z.ZodObject<{
@@ -491,6 +511,9 @@ export interface OverridableExtensionDefinition<
     },
     TParamsInput extends AnyParamsInput_2<NonNullable<T['params']>>,
     UParentInputs extends ExtensionDataRef,
+    TNewExtensionConfigSchema extends {
+      [key in string]: StandardSchemaV1;
+    } = {},
   >(
     args: Expand<
       {
@@ -508,6 +531,10 @@ export interface OverridableExtensionDefinition<
             string}' is already defined in parent definition`;
         };
         output?: Array<UNewOutput>;
+        configSchema?: TNewExtensionConfigSchema & {
+          [KName in keyof T['config']]?: `Error: Config key '${KName &
+            string}' is already defined in parent schema`;
+        };
         config?: {
           schema: TExtensionConfigSchema & {
             [KName in keyof T['config']]?: `Error: Config key '${KName &
@@ -539,6 +566,10 @@ export interface OverridableExtensionDefinition<
             node: AppNode;
             apis: ApiHolder;
             config: T['config'] & {
+              [key in keyof TNewExtensionConfigSchema]: NonNullable<
+                TNewExtensionConfigSchema[key]['~standard']['types']
+              >['output'];
+            } & {
               [key in keyof TExtensionConfigSchema]: z.infer<
                 ReturnType<
                   ((...args: any[]) => any) & TExtensionConfigSchema[key]
@@ -570,12 +601,19 @@ export interface OverridableExtensionDefinition<
     output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
     inputs: T['inputs'] & TExtraInputs;
     config: T['config'] & {
+      [key in keyof TNewExtensionConfigSchema]: NonNullable<
+        TNewExtensionConfigSchema[key]['~standard']['types']
+      >['output'];
+    } & {
       [key in keyof TExtensionConfigSchema]: z.infer<
         ReturnType<((...args: any[]) => any) & TExtensionConfigSchema[key]>
       >;
     };
-    configInput: T['configInput'] &
-      z.input<
+    configInput: T['configInput'] & {
+      [key in keyof TNewExtensionConfigSchema]?: NonNullable<
+        TNewExtensionConfigSchema[key]['~standard']['types']
+      >['input'];
+    } & z.input<
         z.ZodObject<{
           [key in keyof TExtensionConfigSchema]: ReturnType<
             ((...args: any[]) => any) & TExtensionConfigSchema[key]
@@ -668,6 +706,9 @@ export interface SubRouteRef<
   // (undocumented)
   readonly T: TParams;
 }
+
+// @public @deprecated
+export function zodField<T extends ZodType>(factory: (zImpl: typeof z) => T): T;
 
 // (No @packageDocumentation comment for this package)
 ```

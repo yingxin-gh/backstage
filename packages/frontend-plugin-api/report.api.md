@@ -469,7 +469,69 @@ export function createApiRef<T>(): {
   };
 };
 
+// Warning: (ae-forgotten-export) The symbol "VerifyExtensionFactoryOutput" needs to be exported by the entry point index.d.ts
+//
 // @public
+export function createExtension<
+  UOutput extends ExtensionDataRef,
+  TInputs extends {
+    [inputName in string]: ExtensionInput;
+  },
+  UFactoryOutput extends ExtensionDataValue<any, any>,
+  const TKind extends string | undefined = undefined,
+  const TName extends string | undefined = undefined,
+  UParentInputs extends ExtensionDataRef = ExtensionDataRef,
+  TNewConfigSchema extends {
+    [key: string]: StandardSchemaV1;
+  } = {},
+>(
+  options: {
+    kind?: TKind;
+    name?: TName;
+    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<UOutput, UParentInputs>;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TInputs;
+    output: Array<UOutput>;
+    config?: never;
+    configSchema?: TNewConfigSchema;
+    factory(context: {
+      node: AppNode;
+      apis: ApiHolder;
+      config: {
+        [key in keyof TNewConfigSchema]: NonNullable<
+          TNewConfigSchema[key]['~standard']['types']
+        >['output'];
+      };
+      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
+    }): Iterable<UFactoryOutput>;
+  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+): OverridableExtensionDefinition<{
+  config: {
+    [key in keyof TNewConfigSchema]: NonNullable<
+      TNewConfigSchema[key]['~standard']['types']
+    >['output'];
+  };
+  configInput: {
+    [key in keyof TNewConfigSchema]?: NonNullable<
+      TNewConfigSchema[key]['~standard']['types']
+    >['input'];
+  };
+  output: UOutput extends ExtensionDataRef<
+    infer IData,
+    infer IId,
+    infer IConfig
+  >
+    ? ExtensionDataRef<IData, IId, IConfig>
+    : never;
+  inputs: TInputs;
+  params: never;
+  kind: string | undefined extends TKind ? undefined : TKind;
+  name: string | undefined extends TName ? undefined : TName;
+}>;
+
+// @public @deprecated (undocumented)
 export function createExtension<
   UOutput extends ExtensionDataRef,
   TInputs extends {
@@ -483,15 +545,30 @@ export function createExtension<
   const TName extends string | undefined = undefined,
   UParentInputs extends ExtensionDataRef = ExtensionDataRef,
 >(
-  options: CreateExtensionOptions<
-    TKind,
-    TName,
-    UOutput,
-    TInputs,
-    TConfigSchema,
-    UFactoryOutput,
-    UParentInputs
-  >,
+  options: {
+    kind?: TKind;
+    name?: TName;
+    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<UOutput, UParentInputs>;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TInputs;
+    output: Array<UOutput>;
+    configSchema?: never;
+    config?: {
+      schema: TConfigSchema;
+    };
+    factory(context: {
+      node: AppNode;
+      apis: ApiHolder;
+      config: {
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
+      };
+      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
+    }): Iterable<UFactoryOutput>;
+  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
 ): OverridableExtensionDefinition<{
   config: string extends keyof TConfigSchema
     ? {}
@@ -522,7 +599,80 @@ export function createExtension<
   name: string | undefined extends TName ? undefined : TName;
 }>;
 
+// Warning: (ae-unresolved-link) The @link reference could not be resolved: The reference is ambiguous because "createExtension" has more than one declaration; you need to add a TSDoc member reference selector
+//
 // @public
+export function createExtensionBlueprint<
+  TParams extends object | ExtensionBlueprintDefineParams,
+  UOutput extends ExtensionDataRef,
+  TInputs extends {
+    [inputName in string]: ExtensionInput;
+  },
+  UFactoryOutput extends ExtensionDataValue<any, any>,
+  TKind extends string,
+  UParentInputs extends ExtensionDataRef,
+  TDataRefs extends {
+    [name in string]: ExtensionDataRef;
+  } = never,
+  TNewConfigSchema extends {
+    [key in string]: StandardSchemaV1;
+  } = {},
+>(
+  options: {
+    kind: TKind;
+    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<UOutput, UParentInputs>;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TInputs;
+    output: Array<UOutput>;
+    config?: never;
+    configSchema?: TNewConfigSchema;
+    defineParams?: TParams extends ExtensionBlueprintDefineParams
+      ? TParams
+      : 'The defineParams option must be a function if provided, see the docs for details';
+    factory(
+      params: TParams extends ExtensionBlueprintDefineParams
+        ? ReturnType<TParams>['T']
+        : TParams,
+      context: {
+        node: AppNode;
+        apis: ApiHolder;
+        config: {
+          [key in keyof TNewConfigSchema]: NonNullable<
+            TNewConfigSchema[key]['~standard']['types']
+          >['output'];
+        };
+        inputs: Expand<ResolvedExtensionInputs<TInputs>>;
+      },
+    ): Iterable<UFactoryOutput>;
+    dataRefs?: TDataRefs;
+  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+): ExtensionBlueprint<{
+  kind: TKind;
+  params: TParams;
+  output: UOutput extends ExtensionDataRef<
+    infer IData,
+    infer IId,
+    infer IConfig
+  >
+    ? ExtensionDataRef<IData, IId, IConfig>
+    : never;
+  inputs: string extends keyof TInputs ? {} : TInputs;
+  config: {
+    [key in keyof TNewConfigSchema]: NonNullable<
+      TNewConfigSchema[key]['~standard']['types']
+    >['output'];
+  };
+  configInput: {
+    [key in keyof TNewConfigSchema]?: NonNullable<
+      TNewConfigSchema[key]['~standard']['types']
+    >['input'];
+  };
+  dataRefs: TDataRefs;
+}>;
+
+// @public @deprecated (undocumented)
 export function createExtensionBlueprint<
   TParams extends object | ExtensionBlueprintDefineParams,
   UOutput extends ExtensionDataRef,
@@ -539,16 +689,38 @@ export function createExtensionBlueprint<
     [name in string]: ExtensionDataRef;
   } = never,
 >(
-  options: CreateExtensionBlueprintOptions<
-    TKind,
-    TParams,
-    UOutput,
-    TInputs,
-    TConfigSchema,
-    UFactoryOutput,
-    TDataRefs,
-    UParentInputs
-  >,
+  options: {
+    kind: TKind;
+    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<UOutput, UParentInputs>;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TInputs;
+    output: Array<UOutput>;
+    configSchema?: never;
+    config?: {
+      schema: TConfigSchema;
+    };
+    defineParams?: TParams extends ExtensionBlueprintDefineParams
+      ? TParams
+      : 'The defineParams option must be a function if provided, see the docs for details';
+    factory(
+      params: TParams extends ExtensionBlueprintDefineParams
+        ? ReturnType<TParams>['T']
+        : TParams,
+      context: {
+        node: AppNode;
+        apis: ApiHolder;
+        config: {
+          [key in keyof TConfigSchema]: z.infer<
+            ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+          >;
+        };
+        inputs: Expand<ResolvedExtensionInputs<TInputs>>;
+      },
+    ): Iterable<UFactoryOutput>;
+    dataRefs?: TDataRefs;
+  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
 ): ExtensionBlueprint<{
   kind: TKind;
   params: TParams;
@@ -595,6 +767,9 @@ export type CreateExtensionBlueprintOptions<
     [name in string]: ExtensionDataRef;
   },
   UParentInputs extends ExtensionDataRef,
+  TNewConfigSchema extends {
+    [key in string]: StandardSchemaV1;
+  } = {},
 > = {
   kind: TKind;
   attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
@@ -603,6 +778,7 @@ export type CreateExtensionBlueprintOptions<
   if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
+  configSchema?: TNewConfigSchema;
   config?: {
     schema: TConfigSchema;
   };
@@ -617,6 +793,10 @@ export type CreateExtensionBlueprintOptions<
       node: AppNode;
       apis: ApiHolder;
       config: {
+        [key in keyof TNewConfigSchema]: NonNullable<
+          TNewConfigSchema[key]['~standard']['types']
+        >['output'];
+      } & {
         [key in keyof TConfigSchema]: z.infer<
           ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
         >;
@@ -683,6 +863,9 @@ export type CreateExtensionOptions<
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   UParentInputs extends ExtensionDataRef,
+  TNewConfigSchema extends {
+    [key: string]: StandardSchemaV1;
+  } = {},
 > = {
   kind?: TKind;
   name?: TName;
@@ -692,6 +875,7 @@ export type CreateExtensionOptions<
   if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
+  configSchema?: TNewConfigSchema;
   config?: {
     schema: TConfigSchema;
   };
@@ -699,6 +883,10 @@ export type CreateExtensionOptions<
     node: AppNode;
     apis: ApiHolder;
     config: {
+      [key in keyof TNewConfigSchema]: NonNullable<
+        TNewConfigSchema[key]['~standard']['types']
+      >['output'];
+    } & {
       [key in keyof TConfigSchema]: z.infer<
         ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
       >;
@@ -1065,6 +1253,91 @@ export interface ExtensionBlueprint<
   }>;
   makeWithOverrides<
     TName extends string | undefined,
+    UFactoryOutput extends ExtensionDataValue<any, any>,
+    UNewOutput extends ExtensionDataRef,
+    UParentInputs extends ExtensionDataRef,
+    TExtraInputs extends {
+      [inputName in string]: ExtensionInput;
+    } = {},
+    TNewExtensionConfigSchema extends {
+      [key in string]: StandardSchemaV1;
+    } = {},
+  >(args: {
+    name?: TName;
+    attachTo?: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<
+        ExtensionDataRef extends UNewOutput
+          ? NonNullable<T['output']>
+          : UNewOutput,
+        UParentInputs
+      >;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TExtraInputs & {
+      [KName in keyof T['inputs']]?: `Error: Input '${KName &
+        string}' is already defined in parent definition`;
+    };
+    output?: Array<UNewOutput>;
+    config?: never;
+    configSchema?: TNewExtensionConfigSchema & {
+      [KName in keyof T['config']]?: `Error: Config key '${KName &
+        string}' is already defined in parent schema`;
+    };
+    factory(
+      originalFactory: <
+        TParamsInput extends AnyParamsInput_2<NonNullable<T['params']>>,
+      >(
+        params: TParamsInput extends ExtensionBlueprintDefineParams
+          ? TParamsInput
+          : T['params'] extends ExtensionBlueprintDefineParams
+          ? 'Error: This blueprint uses advanced parameter types and requires you to pass parameters as using the following callback syntax: `originalFactory(defineParams => defineParams(<params>))`'
+          : T['params'],
+        context?: {
+          config?: T['config'];
+          inputs?: ResolvedInputValueOverrides<NonNullable<T['inputs']>>;
+        },
+      ) => ExtensionDataContainer<NonNullable<T['output']>>,
+      context: {
+        node: AppNode;
+        apis: ApiHolder;
+        config: T['config'] & {
+          [key in keyof TNewExtensionConfigSchema]: NonNullable<
+            TNewExtensionConfigSchema[key]['~standard']['types']
+          >['output'];
+        };
+        inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
+      },
+    ): Iterable<UFactoryOutput> &
+      VerifyExtensionFactoryOutput<
+        ExtensionDataRef extends UNewOutput
+          ? NonNullable<T['output']>
+          : UNewOutput,
+        UFactoryOutput
+      >;
+  }): OverridableExtensionDefinition<{
+    config: Expand<
+      {
+        [key in keyof TNewExtensionConfigSchema]: NonNullable<
+          TNewExtensionConfigSchema[key]['~standard']['types']
+        >['output'];
+      } & T['config']
+    >;
+    configInput: Expand<
+      {
+        [key in keyof TNewExtensionConfigSchema]?: NonNullable<
+          TNewExtensionConfigSchema[key]['~standard']['types']
+        >['input'];
+      } & T['configInput']
+    >;
+    output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
+    inputs: Expand<T['inputs'] & TExtraInputs>;
+    kind: T['kind'];
+    name: string | undefined extends TName ? undefined : TName;
+    params: T['params'];
+  }>;
+  // @deprecated (undocumented)
+  makeWithOverrides<
+    TName extends string | undefined,
     TExtensionConfigSchema extends {
       [key in string]: ConfigFieldSchema;
     },
@@ -1090,6 +1363,7 @@ export interface ExtensionBlueprint<
         string}' is already defined in parent definition`;
     };
     output?: Array<UNewOutput>;
+    configSchema?: never;
     config?: {
       schema: TExtensionConfigSchema & {
         [KName in keyof T['config']]?: `Error: Config key '${KName &
@@ -1707,6 +1981,104 @@ export interface OverridableExtensionDefinition<
   };
   // (undocumented)
   override<
+    UFactoryOutput extends ExtensionDataValue<any, any>,
+    UNewOutput extends ExtensionDataRef,
+    TExtraInputs extends {
+      [inputName in string]: ExtensionInput;
+    },
+    TParamsInput extends AnyParamsInput<NonNullable<T['params']>>,
+    UParentInputs extends ExtensionDataRef,
+    TNewExtensionConfigSchema extends {
+      [key in string]: StandardSchemaV1;
+    } = {},
+  >(
+    args: Expand<
+      {
+        attachTo?: ExtensionDefinitionAttachTo<UParentInputs> &
+          VerifyExtensionAttachTo<
+            ExtensionDataRef extends UNewOutput
+              ? NonNullable<T['output']>
+              : UNewOutput,
+            UParentInputs
+          >;
+        disabled?: boolean;
+        if?: FilterPredicate;
+        inputs?: TExtraInputs & {
+          [KName in keyof T['inputs']]?: `Error: Input '${KName &
+            string}' is already defined in parent definition`;
+        };
+        output?: Array<UNewOutput>;
+        config?: never;
+        configSchema?: TNewExtensionConfigSchema & {
+          [KName in keyof T['config']]?: `Error: Config key '${KName &
+            string}' is already defined in parent schema`;
+        };
+        factory?(
+          originalFactory: <
+            TFactoryParamsReturn extends AnyParamsInput<
+              NonNullable<T['params']>
+            >,
+          >(
+            context?: Expand<
+              {
+                config?: T['config'];
+                inputs?: ResolvedInputValueOverrides<NonNullable<T['inputs']>>;
+              } & ([T['params']] extends [never]
+                ? {}
+                : {
+                    params?: TFactoryParamsReturn extends ExtensionBlueprintDefineParams
+                      ? TFactoryParamsReturn
+                      : T['params'] extends ExtensionBlueprintDefineParams
+                      ? 'Error: This blueprint uses advanced parameter types and requires you to pass parameters as using the following callback syntax: `originalFactory(defineParams => defineParams(<params>))`'
+                      : Partial<T['params']>;
+                  })
+            >,
+          ) => ExtensionDataContainer<NonNullable<T['output']>>,
+          context: {
+            node: AppNode;
+            apis: ApiHolder;
+            config: T['config'] & {
+              [key in keyof TNewExtensionConfigSchema]: NonNullable<
+                TNewExtensionConfigSchema[key]['~standard']['types']
+              >['output'];
+            };
+            inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
+          },
+        ): Iterable<UFactoryOutput>;
+      } & ([T['params']] extends [never]
+        ? {}
+        : {
+            params?: TParamsInput extends ExtensionBlueprintDefineParams
+              ? TParamsInput
+              : T['params'] extends ExtensionBlueprintDefineParams
+              ? 'Error: This blueprint uses advanced parameter types and requires you to pass parameters as using the following callback syntax: `originalFactory(defineParams => defineParams(<params>))`'
+              : Partial<T['params']>;
+          })
+    > &
+      VerifyExtensionFactoryOutput<
+        ExtensionDataRef extends UNewOutput
+          ? NonNullable<T['output']>
+          : UNewOutput,
+        UFactoryOutput
+      >,
+  ): OverridableExtensionDefinition<{
+    kind: T['kind'];
+    name: T['name'];
+    output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
+    inputs: T['inputs'] & TExtraInputs;
+    config: T['config'] & {
+      [key in keyof TNewExtensionConfigSchema]: NonNullable<
+        TNewExtensionConfigSchema[key]['~standard']['types']
+      >['output'];
+    };
+    configInput: T['configInput'] & {
+      [key in keyof TNewExtensionConfigSchema]?: NonNullable<
+        TNewExtensionConfigSchema[key]['~standard']['types']
+      >['input'];
+    };
+  }>;
+  // @deprecated (undocumented)
+  override<
     TExtensionConfigSchema extends {
       [key in string]: ConfigFieldSchema;
     },
@@ -1734,6 +2106,7 @@ export interface OverridableExtensionDefinition<
             string}' is already defined in parent definition`;
         };
         output?: Array<UNewOutput>;
+        configSchema?: never;
         config?: {
           schema: TExtensionConfigSchema & {
             [KName in keyof T['config']]?: `Error: Config key '${KName &
@@ -2519,4 +2892,9 @@ export function withApis<T extends {}>(
   (props: PropsWithChildren<Omit<TProps, keyof T>>): JSX_3.Element;
   displayName: string;
 };
+
+// Warnings were encountered during analysis:
+//
+// src/wiring/createExtension.d.ts:280:5 - (ae-forgotten-export) The symbol "VerifyExtensionAttachTo" needs to be exported by the entry point index.d.ts
+// src/wiring/createExtension.d.ts:293:9 - (ae-forgotten-export) The symbol "ResolvedExtensionInputs" needs to be exported by the entry point index.d.ts
 ```

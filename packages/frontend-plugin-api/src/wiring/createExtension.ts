@@ -29,6 +29,8 @@ import { ExtensionInput } from './createExtensionInput';
 import type { z } from 'zod/v3';
 import { createSchemaFromZod } from '../schema/createSchemaFromZod';
 import type { ConfigFieldSchema } from '../schema/createPortableSchema';
+import { warnConfigSchemaPropDeprecation } from '../schema/createPortableSchema';
+import { type StandardSchemaV1 } from '@standard-schema/spec';
 import { OpaqueExtensionDefinition } from '@internal/frontend';
 import { ExtensionDataContainer } from './types';
 import {
@@ -170,6 +172,7 @@ export type CreateExtensionOptions<
   TConfigSchema extends { [key: string]: ConfigFieldSchema },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   UParentInputs extends ExtensionDataRef,
+  TNewConfigSchema extends { [key: string]: StandardSchemaV1 } = {},
 > = {
   kind?: TKind;
   name?: TName;
@@ -179,13 +182,24 @@ export type CreateExtensionOptions<
   if?: FilterPredicate;
   inputs?: TInputs;
   output: Array<UOutput>;
+  configSchema?: TNewConfigSchema;
+  /**
+   * @deprecated Use {@link CreateExtensionOptions.configSchema} instead.
+   */
   config?: {
+    /**
+     * @deprecated Use {@link CreateExtensionOptions.configSchema} instead.
+     */
     schema: TConfigSchema;
   };
   factory(context: {
     node: AppNode;
     apis: ApiHolder;
     config: {
+      [key in keyof TNewConfigSchema]: NonNullable<
+        TNewConfigSchema[key]['~standard']['types']
+      >['output'];
+    } & {
       [key in keyof TConfigSchema]: z.infer<
         ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
       >;
@@ -241,6 +255,105 @@ export interface OverridableExtensionDefinition<
   };
 
   override<
+    UFactoryOutput extends ExtensionDataValue<any, any>,
+    UNewOutput extends ExtensionDataRef,
+    TExtraInputs extends { [inputName in string]: ExtensionInput },
+    TParamsInput extends AnyParamsInput<NonNullable<T['params']>>,
+    UParentInputs extends ExtensionDataRef,
+    TNewExtensionConfigSchema extends {
+      [key in string]: StandardSchemaV1;
+    } = {},
+  >(
+    args: Expand<
+      {
+        attachTo?: ExtensionDefinitionAttachTo<UParentInputs> &
+          VerifyExtensionAttachTo<
+            ExtensionDataRef extends UNewOutput
+              ? NonNullable<T['output']>
+              : UNewOutput,
+            UParentInputs
+          >;
+        disabled?: boolean;
+        if?: FilterPredicate;
+        inputs?: TExtraInputs & {
+          [KName in keyof T['inputs']]?: `Error: Input '${KName &
+            string}' is already defined in parent definition`;
+        };
+        output?: Array<UNewOutput>;
+        config?: never;
+        configSchema?: TNewExtensionConfigSchema & {
+          [KName in keyof T['config']]?: `Error: Config key '${KName &
+            string}' is already defined in parent schema`;
+        };
+        factory?(
+          originalFactory: <
+            TFactoryParamsReturn extends AnyParamsInput<
+              NonNullable<T['params']>
+            >,
+          >(
+            context?: Expand<
+              {
+                config?: T['config'];
+                inputs?: ResolvedInputValueOverrides<NonNullable<T['inputs']>>;
+              } & ([T['params']] extends [never]
+                ? {}
+                : {
+                    params?: TFactoryParamsReturn extends ExtensionBlueprintDefineParams
+                      ? TFactoryParamsReturn
+                      : T['params'] extends ExtensionBlueprintDefineParams
+                      ? 'Error: This blueprint uses advanced parameter types and requires you to pass parameters as using the following callback syntax: `originalFactory(defineParams => defineParams(<params>))`'
+                      : Partial<T['params']>;
+                  })
+            >,
+          ) => ExtensionDataContainer<NonNullable<T['output']>>,
+          context: {
+            node: AppNode;
+            apis: ApiHolder;
+            config: T['config'] & {
+              [key in keyof TNewExtensionConfigSchema]: NonNullable<
+                TNewExtensionConfigSchema[key]['~standard']['types']
+              >['output'];
+            };
+            inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
+          },
+        ): Iterable<UFactoryOutput>;
+      } & ([T['params']] extends [never]
+        ? {}
+        : {
+            params?: TParamsInput extends ExtensionBlueprintDefineParams
+              ? TParamsInput
+              : T['params'] extends ExtensionBlueprintDefineParams
+              ? 'Error: This blueprint uses advanced parameter types and requires you to pass parameters as using the following callback syntax: `originalFactory(defineParams => defineParams(<params>))`'
+              : Partial<T['params']>;
+          })
+    > &
+      VerifyExtensionFactoryOutput<
+        ExtensionDataRef extends UNewOutput
+          ? NonNullable<T['output']>
+          : UNewOutput,
+        UFactoryOutput
+      >,
+  ): OverridableExtensionDefinition<{
+    kind: T['kind'];
+    name: T['name'];
+    output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
+    inputs: T['inputs'] & TExtraInputs;
+    config: T['config'] & {
+      [key in keyof TNewExtensionConfigSchema]: NonNullable<
+        TNewExtensionConfigSchema[key]['~standard']['types']
+      >['output'];
+    };
+    configInput: T['configInput'] & {
+      [key in keyof TNewExtensionConfigSchema]?: NonNullable<
+        TNewExtensionConfigSchema[key]['~standard']['types']
+      >['input'];
+    };
+  }>;
+
+  /**
+   * @deprecated Use the `configSchema` option instead of `config.schema`.
+   */
+  override<
     TExtensionConfigSchema extends {
       [key in string]: ConfigFieldSchema;
     },
@@ -266,6 +379,7 @@ export interface OverridableExtensionDefinition<
             string}' is already defined in parent definition`;
         };
         output?: Array<UNewOutput>;
+        configSchema?: never;
         config?: {
           schema: TExtensionConfigSchema & {
             [KName in keyof T['config']]?: `Error: Config key '${KName &
@@ -405,21 +519,95 @@ function bindInputs(
 export function createExtension<
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
+  UFactoryOutput extends ExtensionDataValue<any, any>,
+  const TKind extends string | undefined = undefined,
+  const TName extends string | undefined = undefined,
+  UParentInputs extends ExtensionDataRef = ExtensionDataRef,
+  TNewConfigSchema extends { [key: string]: StandardSchemaV1 } = {},
+>(
+  options: {
+    kind?: TKind;
+    name?: TName;
+    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<UOutput, UParentInputs>;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TInputs;
+    output: Array<UOutput>;
+    config?: never;
+    configSchema?: TNewConfigSchema;
+    factory(context: {
+      node: AppNode;
+      apis: ApiHolder;
+      config: {
+        [key in keyof TNewConfigSchema]: NonNullable<
+          TNewConfigSchema[key]['~standard']['types']
+        >['output'];
+      };
+      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
+    }): Iterable<UFactoryOutput>;
+  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+): OverridableExtensionDefinition<{
+  config: {
+    [key in keyof TNewConfigSchema]: NonNullable<
+      TNewConfigSchema[key]['~standard']['types']
+    >['output'];
+  };
+  configInput: {
+    [key in keyof TNewConfigSchema]?: NonNullable<
+      TNewConfigSchema[key]['~standard']['types']
+    >['input'];
+  };
+  output: UOutput extends ExtensionDataRef<
+    infer IData,
+    infer IId,
+    infer IConfig
+  >
+    ? ExtensionDataRef<IData, IId, IConfig>
+    : never;
+  inputs: TInputs;
+  params: never;
+  kind: string | undefined extends TKind ? undefined : TKind;
+  name: string | undefined extends TName ? undefined : TName;
+}>;
+
+/**
+ * @deprecated Use the top-level `configSchema` option instead of `config.schema`.
+ * @public
+ */
+export function createExtension<
+  UOutput extends ExtensionDataRef,
+  TInputs extends { [inputName in string]: ExtensionInput },
   TConfigSchema extends { [key: string]: ConfigFieldSchema },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   const TKind extends string | undefined = undefined,
   const TName extends string | undefined = undefined,
   UParentInputs extends ExtensionDataRef = ExtensionDataRef,
 >(
-  options: CreateExtensionOptions<
-    TKind,
-    TName,
-    UOutput,
-    TInputs,
-    TConfigSchema,
-    UFactoryOutput,
-    UParentInputs
-  >,
+  options: {
+    kind?: TKind;
+    name?: TName;
+    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
+      VerifyExtensionAttachTo<UOutput, UParentInputs>;
+    disabled?: boolean;
+    if?: FilterPredicate;
+    inputs?: TInputs;
+    output: Array<UOutput>;
+    configSchema?: never;
+    config?: {
+      schema: TConfigSchema;
+    };
+    factory(context: {
+      node: AppNode;
+      apis: ApiHolder;
+      config: {
+        [key in keyof TConfigSchema]: z.infer<
+          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
+        >;
+      };
+      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
+    }): Iterable<UFactoryOutput>;
+  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
 ): OverridableExtensionDefinition<{
   config: string extends keyof TConfigSchema
     ? {}
@@ -448,9 +636,18 @@ export function createExtension<
   params: never;
   kind: string | undefined extends TKind ? undefined : TKind;
   name: string | undefined extends TName ? undefined : TName;
-}> {
-  const schemaDeclaration = options.config?.schema;
-  const configSchema =
+}>;
+
+/** @internal */
+export function createExtension(
+  options: any,
+): OverridableExtensionDefinition<any> {
+  const schemaDeclaration =
+    options.configSchema ?? (options.config?.schema as any);
+  if (options.config?.schema) {
+    warnConfigSchemaPropDeprecation();
+  }
+  const resolvedConfigSchema =
     schemaDeclaration &&
     createSchemaFromZod(innerZ =>
       innerZ.object(
@@ -464,28 +661,7 @@ export function createExtension<
     );
 
   return OpaqueExtensionDefinition.createInstance('v2', {
-    T: undefined as unknown as {
-      config: string extends keyof TConfigSchema
-        ? {}
-        : {
-            [key in keyof TConfigSchema]: z.infer<
-              ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
-            >;
-          };
-      configInput: string extends keyof TConfigSchema
-        ? {}
-        : z.input<
-            z.ZodObject<{
-              [key in keyof TConfigSchema]: ReturnType<
-                ((...args: any[]) => any) & TConfigSchema[key]
-              >;
-            }>
-          >;
-      output: UOutput;
-      inputs: TInputs;
-      kind: string | undefined extends TKind ? undefined : TKind;
-      name: string | undefined extends TName ? undefined : TName;
-    },
+    T: undefined as any,
     kind: options.kind,
     name: options.name,
     attachTo: options.attachTo,
@@ -493,7 +669,7 @@ export function createExtension<
     if: options.if,
     inputs: bindInputs(options.inputs, options.kind, options.name),
     output: options.output,
-    configSchema,
+    configSchema: resolvedConfigSchema,
     factory: options.factory,
     toString() {
       const parts: string[] = [];
@@ -540,7 +716,7 @@ export function createExtension<
       parts.push(`attachTo=${attachTo}`);
       return `ExtensionDefinition{${parts.join(',')}}`;
     },
-    override(overrideOptions) {
+    override(overrideOptions: any) {
       if (!Array.isArray(options.output)) {
         throw new Error(
           'Cannot override an extension that is not declared using the new format with outputs as an array',
@@ -585,11 +761,16 @@ export function createExtension<
         output: (overrideOptions.output ??
           options.output) as ExtensionDataRef[],
         config:
-          options.config || overrideOptions.config
+          options.config ||
+          options.configSchema ||
+          overrideOptions.config ||
+          overrideOptions.configSchema
             ? {
                 schema: {
                   ...options.config?.schema,
+                  ...options.configSchema,
                   ...overrideOptions.config?.schema,
+                  ...overrideOptions.configSchema,
                 },
               }
             : undefined,
@@ -604,8 +785,8 @@ export function createExtension<
             });
           }
           const parentResult = overrideOptions.factory(
-            (innerContext): ExtensionDataContainer<UOutput> => {
-              return createExtensionDataContainer<UOutput>(
+            (innerContext: any): ExtensionDataContainer<any> => {
+              return createExtensionDataContainer<any>(
                 options.factory({
                   node,
                   apis,

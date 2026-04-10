@@ -46,7 +46,7 @@ import { type StandardSchemaV1 } from '@standard-schema/spec';
 
 /**
  * A single config field schema. Accepts any Standard Schema implementation,
- * or the legacy factory form for backward compat and zod-based composition.
+ * or the legacy factory form for backward compat.
  * @public
  */
 export type ConfigFieldSchema =
@@ -421,4 +421,23 @@ function formatStandardIssue(
         .join('.')}`
     : fieldKey;
   return `${message} at '${path}'`;
+}
+
+// ---------------------------------------------------------------------------
+//  Deprecation warning
+// ---------------------------------------------------------------------------
+
+let hasWarnedConfigSchemaProp = false;
+
+/** @internal */
+export function warnConfigSchemaPropDeprecation() {
+  if (!hasWarnedConfigSchemaProp) {
+    hasWarnedConfigSchemaProp = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      'DEPRECATION WARNING: The `config.schema` option for extension config is deprecated. ' +
+        'Use the `configSchema` option instead with Standard Schema values, for example ' +
+        '`configSchema: { title: z.string() }` using zod v3.25+ or v4.',
+    );
+  }
 }

@@ -248,6 +248,7 @@ describe('createExtensionBlueprint', () => {
       },
     });
 
+    // @ts-expect-error: overlapping config key 'text'
     TestExtensionBlueprint.makeWithOverrides({
       name: 'my-extension',
       params: {
@@ -255,9 +256,8 @@ describe('createExtensionBlueprint', () => {
       },
       config: {
         schema: {
-          // @ts-expect-error
-          text: z => z.number(),
-          something: z => z.string(),
+          text: (z: any) => z.number(),
+          something: (z: any) => z.string(),
         },
       },
     });

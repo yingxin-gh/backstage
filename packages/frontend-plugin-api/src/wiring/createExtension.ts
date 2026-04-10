@@ -31,6 +31,7 @@ import {
   createConfigSchema,
   warnConfigSchemaPropDeprecation,
 } from '../schema/createPortableSchema';
+import { describeParentCallSite } from '../routing/describeParentCallSite';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 import { OpaqueExtensionDefinition } from '@internal/frontend';
 import { ExtensionDataContainer } from './types';
@@ -646,7 +647,7 @@ export function createExtension(
   const schemaDeclaration =
     options.configSchema ?? (options.config?.schema as any);
   if (options.config?.schema) {
-    warnConfigSchemaPropDeprecation();
+    warnConfigSchemaPropDeprecation(describeParentCallSite());
   }
   const resolvedConfigSchema =
     schemaDeclaration && createConfigSchema(schemaDeclaration);

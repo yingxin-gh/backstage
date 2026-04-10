@@ -323,17 +323,13 @@ function formatStandardIssue(
   return `${message} at '${path}'`;
 }
 
-let hasWarnedConfigSchemaProp = false;
-
 /** @internal */
-export function warnConfigSchemaPropDeprecation() {
-  if (!hasWarnedConfigSchemaProp) {
-    hasWarnedConfigSchemaProp = true;
-    // eslint-disable-next-line no-console
-    console.warn(
-      'DEPRECATION WARNING: The `config.schema` option for extension config is deprecated. ' +
-        'Use the `configSchema` option instead with Standard Schema values, for example ' +
-        '`configSchema: { title: z.string() }` using zod v3.25+ or v4.',
-    );
-  }
+export function warnConfigSchemaPropDeprecation(callSite: string) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `DEPRECATION WARNING: The \`config.schema\` option for extension config is deprecated. ` +
+      `Use the \`configSchema\` option instead with Standard Schema values, for example ` +
+      `\`configSchema: { title: z.string() }\` using zod v3.25+ or v4. ` +
+      `Declared at ${callSite}`,
+  );
 }

@@ -689,6 +689,10 @@ export function createExtension(
         );
       }
 
+      if (overrideOptions.config?.schema) {
+        warnConfigSchemaPropDeprecation(describeParentCallSite());
+      }
+
       // TODO(Rugvip): Making this a type check would be optimal, but it seems
       //               like it's tricky to add that and still have the type
       //               inference work correctly for the factory output.

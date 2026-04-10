@@ -38,6 +38,8 @@ import {
 import { ExtensionDataContainer } from './types';
 import { PageBlueprint } from '../blueprints/PageBlueprint';
 import { FilterPredicate } from '@backstage/filter-predicates';
+import { warnConfigSchemaPropDeprecation } from '../schema/createPortableSchema';
+import { describeParentCallSite } from '../routing/describeParentCallSite';
 
 /**
  * A function used to define a parameter mapping function in order to facilitate
@@ -729,6 +731,9 @@ export function createExtensionBlueprint(options: any): any {
       }) as OverridableExtensionDefinition;
     },
     makeWithOverrides(args: any) {
+      if (args.config?.schema) {
+        warnConfigSchemaPropDeprecation(describeParentCallSite());
+      }
       return createExtension({
         kind: options.kind,
         name: args.name,

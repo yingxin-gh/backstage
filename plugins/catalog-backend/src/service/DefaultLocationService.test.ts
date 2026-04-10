@@ -18,6 +18,7 @@ import { DefaultLocationService } from './DefaultLocationService';
 import { CatalogProcessingOrchestrator } from '../processing/types';
 import { LocationStore } from './types';
 import { InputError } from '@backstage/errors';
+import { mockCredentials } from '@backstage/backend-test-utils';
 
 describe('DefaultLocationServiceTest', () => {
   const orchestrator: jest.Mocked<CatalogProcessingOrchestrator> = {
@@ -414,6 +415,41 @@ describe('DefaultLocationServiceTest', () => {
     it('should call locationStore.getLocation', async () => {
       await locationService.getLocation('123');
       expect(store.getLocation).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('updateLocation', () => {
+    it('should not allow locations of disallowed types', async () => {
+      await expect(
+        locationService.updateLocation(
+          'some-id',
+          { type: 'unknown', target: 'https://backstage.io/catalog-info.yaml' },
+          { credentials: mockCredentials.none() },
+        ),
+      ).rejects.toThrow(InputError);
+    });
+
+    it('should delegate to store for allowed types', async () => {
+      const updated = {
+        id: 'some-id',
+        type: 'url',
+        target: 'https://backstage.io/catalog-info.yaml',
+        entityRef: 'location:default/generated-abc',
+      };
+      store.updateLocation.mockResolvedValue(updated);
+
+      await expect(
+        locationService.updateLocation(
+          'some-id',
+          { type: 'url', target: 'https://backstage.io/catalog-info.yaml' },
+          { credentials: mockCredentials.none() },
+        ),
+      ).resolves.toEqual(updated);
+
+      expect(store.updateLocation).toHaveBeenCalledWith('some-id', {
+        type: 'url',
+        target: 'https://backstage.io/catalog-info.yaml',
+      });
     });
   });
 

@@ -103,11 +103,18 @@ export class DefaultLocationService implements LocationService {
     return this.store.getLocation(id);
   }
 
-  updateLocation(
+  async updateLocation(
     id: string,
     location: LocationInput,
     _options: { credentials: BackstageCredentials },
   ): Promise<Location> {
+    if (!this.options.allowedLocationTypes.includes(location.type)) {
+      throw new InputError(
+        `Registered locations must be of an allowed type ${JSON.stringify(
+          this.options.allowedLocationTypes,
+        )}`,
+      );
+    }
     return this.store.updateLocation(id, location);
   }
 

@@ -78,17 +78,16 @@ _Example creating a custom `TechDocsSearchResultItemExtension`_
 ```tsx
 // plugins/techdocs/alpha.tsx
 import { createSearchResultListItemExtension } from '@backstage/plugin-search-react/alpha';
+import { z } from 'zod';
 
 /** @alpha */
 export const TechDocsSearchResultListItemExtension =
   createSearchResultListItemExtension({
     id: 'techdocs',
-    configSchema: createSchemaFromZod(z =>
-      z.object({
-        noTrack: z.boolean().default(false),
-        lineClamp: z.number().default(5),
-      }),
-    ),
+    configSchema: {
+      noTrack: z.boolean().default(false),
+      lineClamp: z.number().default(5),
+    },
     predicate: result => result.type === 'techdocs',
     component: async ({ config }) => {
       const { TechDocsSearchResultListItem } = await import(
@@ -188,17 +187,16 @@ Here is the `plugins/techdocs/alpha/index.tsx` final version, and you can also t
 // plugins/techdocs/alpha.tsx
 import { createPlugin } from '@backstage/frontend-plugin-api';
 import { createSearchResultListItemExtension } from '@backstage/plugin-search-react/alpha';
+import { z } from 'zod';
 
 /** @alpha */
 export const TechDocsSearchResultListItemExtension =
   createSearchResultListItemExtension({
     id: 'techdocs',
-    configSchema: createSchemaFromZod(z =>
-      z.object({
-        noTrack: z.boolean().default(false),
-        lineClamp: z.number().default(5),
-      }),
-    ),
+    configSchema: {
+      noTrack: z.boolean().default(false),
+      lineClamp: z.number().default(5),
+    },
     predicate: result => result.type === 'techdocs',
     component: async ({ config }) => {
       const { TechDocsSearchResultListItem } = await import(

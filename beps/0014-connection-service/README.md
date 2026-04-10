@@ -87,6 +87,7 @@ The current integrations system in Backstage has served the project well, but se
 - This BEP does not cover content-level operations like URL resolution or edit URL generation — those are higher-level concerns that build on top of connections.
 - This BEP does not propose changes to the URL reader service, though it will be updated to consume connections.
 - This BEP does not cover dynamic credential rotation or external secrets management.
+- This BEP does not cover user-level authentication or access delegation.
 - Connection types are not extensible by ecosystem plugins. New connection types can only be added to the central Backstage package or by adopters in their own app. This ensures a single canonical set of definitions with a predictable evolution path.
 
 ## Proposal
@@ -201,14 +202,17 @@ export const coreServices = {
 
 #### Connection Declarations
 
-Before a plugin or module can access connections at runtime, it must declare which connection types it consumes. This is done by calling `env.registerConnections` during the `register` phase:
+Before a plugin or module can access connections at runtime, it must declare which connection types it consumes. This is done by calling `env.registerConnection` for each type during the `register` phase:
 
 ```typescript
 export default createBackendModule({
   pluginId: 'catalog',
   moduleId: 'github-provider',
   register(env) {
-    env.registerConnections(['github']);
+    env.registerConnection('github', {
+      required: true,
+      description: 'We need this to be able to display your stuff',
+    });
 
     env.registerInit({
       deps: { connections: coreServices.connections },
@@ -229,9 +233,16 @@ export default createBackendModule({
 });
 ```
 
+The second argument is an optional options object with metadata about the declaration:
+
+- **`required`** — Whether this connection is required for the module to function. When `true`, the framework can surface clear warnings or errors when no matching connection is configured. Defaults to `false`.
+- **`description`** — A human-readable description of what the connection is used for, surfaced in documentation and management interfaces.
+
+When no options are needed, the second argument can be omitted entirely, as shown in the multi-module example below.
+
 The framework enforces declarations at two levels:
 
-- **Startup validation.** If a module depends on `coreServices.connections` but did not call `env.registerConnections`, the framework throws at startup before any init code runs.
+- **Startup validation.** If a module depends on `coreServices.connections` but did not call `env.registerConnection`, the framework throws at startup before any init code runs.
 - **Runtime validation.** If a module calls `find` with a type that was not declared, the service throws immediately.
 
 Each module declares its own connection requirements independently. The plugin's total set of declared types is the union of all its modules' declarations. This means a catalog plugin with a GitHub provider module and a GitLab provider module each declare only the types they need:
@@ -239,13 +250,13 @@ Each module declares its own connection requirements independently. The plugin's
 ```typescript
 // catalog-backend-module-github
 register(env) {
-  env.registerConnections(['github']);
+  env.registerConnection('github');
   // ...
 }
 
 // catalog-backend-module-gitlab
 register(env) {
-  env.registerConnections(['gitlab']);
+  env.registerConnection('gitlab');
   // ...
 }
 ```
@@ -313,6 +324,8 @@ The `createConnectionType` function produces a `ConnectionType` object that the 
 - **`configSchema`** — a Zod schema for the base connection fields shared across all auth methods (e.g. `host`, `apiBaseUrl`). The pre-transform shape defines the config input; `.transform()` derives computed defaults. Must include `host` in both input and output.
 - **`authMethods`** — an array of auth method definitions, each with a `method` string discriminator and its own `configSchema` (Zod). Auth methods can also provide a `matchUrl` function for auth-specific URL scoring (e.g. matching `allowedOwners` on a GitHub App).
 - **`matchUrl(connection, url)`** — optional, at the connection level. Scores a connection against a URL for `find()` ranking among same-host, same-type candidates. Returns a number: `0` for host-only match, higher for more specific matches, `-1` to explicitly reject. When omitted, the default implementation returns `0` (host-only matching). Auth-level `matchUrl` is evaluated separately to select the best auth method within a connection.
+
+**Guidance: always include base URLs.** Connection type definitions should include one or more base URL fields on the output type (e.g. `apiBaseUrl`, `rawBaseUrl`), even for services that are typically accessed via a single well-known domain. Deriving sensible defaults from the `host` via `.transform()` makes it zero-configuration for the common case while allowing adopters to override any base URL — for example, to route traffic through a reverse proxy or an internal gateway. Consumers of connections should always use the connection's base URLs for HTTP requests, never construct URLs from `host` directly. The specific base URL fields vary by connection type, but every type should provide at least one.
 
 #### Full Example: GitHub Connection Type
 
@@ -875,6 +888,10 @@ The rollout is split into phases:
 
 None.
 
+## TODO
+
+- **User-level auth and access delegation.** Connections are service-level configuration — how the backend authenticates to external services. Acting on behalf of a signed-in user (OAuth token exchange, user-scoped access tokens, forwarding user identity) is a distinct concern handled by auth providers. However, the two share underlying configuration: a GitHub App's client ID lives in a connection, and the same client ID is used for user OAuth. This section needs to articulate the boundary clearly, explain where the concerns overlap, and sketch how connections and auth providers could relate in the future. Currently listed as a non-goal but needs more thought.
+
 ## Alternatives
 
 ### Single-Layer Design with `getCredentials` on `Connection`
@@ -911,7 +928,21 @@ Wrap existing types in services without changing config format. Simpler to imple
 
 ### Per-Provider Service Refs for Connections
 
-One connection service per type (`coreServices.githubConnections`, etc.). Better type safety but leads to service ref proliferation and makes generic code harder to write. The single `coreServices.connections` with a typed `find` method provides sufficient type safety through the `type` option, while `registerConnections` provides the declaration guarantee.
+One connection service per type (`coreServices.githubConnections`, etc.). Better type safety but leads to service ref proliferation and makes generic code harder to write. The single `coreServices.connections` with a typed `find` method provides sufficient type safety through the `type` option, while `registerConnection` provides the declaration guarantee.
+
+### Permission Declarations on Connection Registrations
+
+The `env.registerConnection` options object could be extended with a `permissions` field — an informational list of permissions or scopes the module needs from the connection:
+
+```typescript
+env.registerConnection('github', {
+  required: true,
+  description: 'Used to discover and ingest repository data',
+  permissions: ['repo:read', 'actions:read'],
+});
+```
+
+This would help administrators understand what level of access each module expects and could be surfaced in connection management interfaces. Left out of the initial proposal to keep the declaration lightweight, but could be added as a backward-compatible extension if there is demand for permission-aware connection governance.
 
 ### `findAll` Method
 

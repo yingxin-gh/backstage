@@ -71,7 +71,6 @@ describe('EntityContextMenuItemBlueprint', () => {
             },
           },
           "parse": [Function],
-          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

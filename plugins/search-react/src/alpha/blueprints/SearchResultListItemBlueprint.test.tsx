@@ -53,7 +53,6 @@ describe('SearchResultListItemBlueprint', () => {
             },
           },
           "parse": [Function],
-          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

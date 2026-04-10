@@ -58,7 +58,6 @@ describe('EntityCardBlueprint', () => {
             },
           },
           "parse": [Function],
-          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

@@ -75,7 +75,6 @@ describe('EntityContentBlueprint', () => {
             },
           },
           "parse": [Function],
-          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

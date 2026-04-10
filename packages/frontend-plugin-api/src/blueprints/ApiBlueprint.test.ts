@@ -190,7 +190,6 @@ describe('ApiBlueprint', () => {
             },
           },
           "parse": [Function],
-          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

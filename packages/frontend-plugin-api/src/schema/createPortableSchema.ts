@@ -119,7 +119,7 @@ function buildPortableSchema<TOutput = unknown>(
       const validated = field.validate(inputObj[key]);
       if ('errors' in validated) {
         errors.push(...validated.errors);
-      } else {
+      } else if (validated.value !== undefined || key in inputObj) {
         result[key] = validated.value;
       }
     }
@@ -152,7 +152,7 @@ function buildPortableSchema<TOutput = unknown>(
       return cached;
     },
     configurable: true,
-    enumerable: true,
+    enumerable: false,
   });
 
   return result;

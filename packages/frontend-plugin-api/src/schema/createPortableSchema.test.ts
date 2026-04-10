@@ -367,6 +367,18 @@ describe('createConfigSchema', () => {
       );
     });
 
+    it('should not produce undefined keys for absent optional fields', () => {
+      const schema = createConfigSchema({
+        name: z => z.string(),
+        title: z => z.string().optional(),
+        count: z => z.number().default(42),
+      });
+
+      const result = schema.parse({ name: 'hello' });
+      expect(result).toEqual({ name: 'hello', count: 42 });
+      expect(Object.keys(result as object)).toEqual(['name', 'count']);
+    });
+
     it('should not mark defaulted zod v3 fields as required in JSON Schema', () => {
       const schema = createConfigSchema({
         name: z => z.string(),

@@ -349,5 +349,36 @@ describe('createConfigSchema', () => {
         additionalProperties: false,
       });
     });
+
+    it('should throw a clear error for non-object input', () => {
+      const schema = createConfigSchema({ title: z => z.string() });
+
+      expect(() => schema.parse('not an object')).toThrow(
+        'Invalid config input, expected object but got string',
+      );
+      expect(() => schema.parse(42)).toThrow(
+        'Invalid config input, expected object but got number',
+      );
+      expect(() => schema.parse([1, 2])).toThrow(
+        'Invalid config input, expected object but got array',
+      );
+      expect(() => schema.parse(true)).toThrow(
+        'Invalid config input, expected object but got boolean',
+      );
+    });
+
+    it('should not mark defaulted zod v3 fields as required in JSON Schema', () => {
+      const schema = createConfigSchema({
+        name: z => z.string(),
+        title: z => z.string().default('hello'),
+        count: z => z.number().optional(),
+      });
+
+      const result = schema.schema();
+      expect(result.schema).toMatchObject({
+        type: 'object',
+        required: ['name'],
+      });
+    });
   });
 });

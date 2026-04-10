@@ -726,18 +726,16 @@ export function createExtension(
         ),
         output: (overrideOptions.output ??
           options.output) as ExtensionDataRef[],
-        config:
+        configSchema:
           options.config ||
           options.configSchema ||
           overrideOptions.config ||
           overrideOptions.configSchema
             ? {
-                schema: {
-                  ...options.config?.schema,
-                  ...options.configSchema,
-                  ...overrideOptions.config?.schema,
-                  ...overrideOptions.configSchema,
-                },
+                ...options.config?.schema,
+                ...options.configSchema,
+                ...overrideOptions.config?.schema,
+                ...overrideOptions.configSchema,
               }
             : undefined,
         factory: ({ node, apis, config, inputs }) => {

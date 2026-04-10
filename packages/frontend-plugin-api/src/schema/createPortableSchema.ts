@@ -100,6 +100,17 @@ function buildPortableSchema<TOutput = unknown>(
   fields: Record<string, ResolvedField>,
 ): MergeablePortableSchema<TOutput> {
   function parse(input: unknown) {
+    if (
+      input !== undefined &&
+      input !== null &&
+      (typeof input !== 'object' || Array.isArray(input))
+    ) {
+      throw new Error(
+        `Invalid config input, expected object but got ${
+          Array.isArray(input) ? 'array' : typeof input
+        }`,
+      );
+    }
     const inputObj = (input ?? {}) as Record<string, unknown>;
     const result: Record<string, unknown> = {};
     const errors: string[] = [];

@@ -14,102 +14,324 @@
  * limitations under the License.
  */
 
+import { z as zodV4 } from 'zod';
 import {
   createConfigSchema,
   mergePortableSchemas,
 } from './createPortableSchema';
 
 describe('createConfigSchema', () => {
-  it('should provide nice parse errors', () => {
-    const schema = createConfigSchema({
-      foo: z => z.union([z.string(), z.number()]),
-      derp: z => z.object({ bar: z.number() }),
+  describe('zod v3 schemas', () => {
+    it('should report a missing required field', () => {
+      const schema = createConfigSchema({ name: z => z.string() });
+
+      expect(() => schema.parse({})).toThrow(
+        "Missing required value at 'name'",
+      );
+      expect(() => schema.parse(undefined)).toThrow(
+        "Missing required value at 'name'",
+      );
     });
 
-    expect(() => {
-      return schema.parse({ derp: { bar: 'derp' } });
-    }).toThrow(
-      `Missing required value at 'foo'; Expected number, received string at 'derp.bar'`,
-    );
-    expect(() => {
-      return schema.parse(undefined);
-    }).toThrow(`Missing required value at 'foo'`);
-  });
+    it('should report a type mismatch', () => {
+      const schema = createConfigSchema({ count: z => z.number() });
 
-  it('should parse valid config', () => {
-    const schema = createConfigSchema({
-      name: z => z.string(),
-      count: z => z.number().default(0),
+      expect(() => schema.parse({ count: 'not a number' })).toThrow(
+        "Expected number, received string at 'count'",
+      );
     });
 
-    expect(schema.parse({ name: 'hello' })).toEqual({
-      name: 'hello',
-      count: 0,
-    });
-    expect(schema.parse({ name: 'hi', count: 5 })).toEqual({
-      name: 'hi',
-      count: 5,
-    });
-  });
+    it('should report nested object errors with the full path', () => {
+      const schema = createConfigSchema({
+        settings: z => z.object({ port: z.number() }),
+      });
 
-  it('should generate JSON Schema lazily via schema()', () => {
-    const schema = createConfigSchema({
-      title: z => z.string(),
-      count: z => z.number().optional(),
+      expect(() => schema.parse({ settings: { port: 'abc' } })).toThrow(
+        "Expected number, received string at 'settings.port'",
+      );
     });
 
-    const result = schema.schema();
-    expect(result).toHaveProperty('schema');
-    expect(result.schema).toMatchObject({
-      type: 'object',
-      properties: {
-        title: { type: 'string' },
-        count: { type: 'number' },
-      },
-      required: ['title'],
-      additionalProperties: false,
-    });
-  });
+    it('should report errors for union types', () => {
+      const schema = createConfigSchema({
+        value: z => z.union([z.string(), z.number()]),
+      });
 
-  it('should support backward-compatible property access on schema', () => {
-    const schema = createConfigSchema({
-      title: z => z.string(),
+      expect(() => schema.parse({})).toThrow(
+        "Missing required value at 'value'",
+      );
     });
 
-    expect(schema.schema.type).toBe('object');
-    expect(schema.schema.properties).toBeDefined();
-  });
+    it('should combine errors from multiple fields', () => {
+      const schema = createConfigSchema({
+        name: z => z.string(),
+        count: z => z.number(),
+      });
 
-  it('should support merging schemas', () => {
-    const a = createConfigSchema({
-      name: z => z.string(),
-    });
-    const b = createConfigSchema({
-      count: z => z.number().default(0),
-    });
-
-    const merged = mergePortableSchemas(a, b)!;
-    expect(merged.parse({ name: 'hello' })).toEqual({
-      name: 'hello',
-      count: 0,
+      expect(() => schema.parse({})).toThrow(
+        "Missing required value at 'name'; Missing required value at 'count'",
+      );
     });
 
-    const result = merged.schema();
-    expect(result.schema).toMatchObject({
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        count: { type: 'number' },
-      },
-      required: ['name'],
+    it('should apply defaults for optional fields with defaults', () => {
+      const schema = createConfigSchema({
+        name: z => z.string(),
+        mode: z => z.enum(['fast', 'slow']).default('fast'),
+      });
+
+      expect(schema.parse({ name: 'test' })).toEqual({
+        name: 'test',
+        mode: 'fast',
+      });
     });
   });
 
-  it('should handle merge with undefined', () => {
-    const a = createConfigSchema({ name: z => z.string() });
+  describe('zod v4 schemas', () => {
+    it('should report a missing required field', () => {
+      const schema = createConfigSchema({ name: zodV4.string() });
 
-    expect(mergePortableSchemas(a, undefined)).toBe(a);
-    expect(mergePortableSchemas(undefined, a)).toBe(a);
-    expect(mergePortableSchemas(undefined, undefined)).toBeUndefined();
+      expect(() => schema.parse({})).toThrow(
+        "Invalid input: expected string, received undefined at 'name'",
+      );
+    });
+
+    it('should report a type mismatch', () => {
+      const schema = createConfigSchema({ count: zodV4.number() });
+
+      expect(() => schema.parse({ count: 'not a number' })).toThrow(
+        "Invalid input: expected number, received string at 'count'",
+      );
+    });
+
+    it('should report nested object errors with the full path', () => {
+      const schema = createConfigSchema({
+        settings: zodV4.object({ port: zodV4.number() }),
+      });
+
+      expect(() => schema.parse({ settings: { port: 'abc' } })).toThrow(
+        "Invalid input: expected number, received string at 'settings.port'",
+      );
+    });
+
+    it('should combine errors from multiple fields', () => {
+      const schema = createConfigSchema({
+        name: zodV4.string(),
+        count: zodV4.number(),
+      });
+
+      expect(() => schema.parse({})).toThrow(
+        "Invalid input: expected string, received undefined at 'name'; " +
+          "Invalid input: expected number, received undefined at 'count'",
+      );
+    });
+
+    it('should apply defaults for optional fields with defaults', () => {
+      const schema = createConfigSchema({
+        name: zodV4.string(),
+        mode: zodV4.enum(['fast', 'slow']).default('fast'),
+      });
+
+      expect(schema.parse({ name: 'test' })).toEqual({
+        name: 'test',
+        mode: 'fast',
+      });
+    });
+
+    it('should parse valid config', () => {
+      const schema = createConfigSchema({
+        name: zodV4.string(),
+        count: zodV4.number().optional(),
+      });
+
+      expect(schema.parse({ name: 'hello' })).toEqual({ name: 'hello' });
+      expect(schema.parse({ name: 'hello', count: 5 })).toEqual({
+        name: 'hello',
+        count: 5,
+      });
+    });
+  });
+
+  describe('mixed zod v3 and v4 schemas', () => {
+    it('should validate fields from both schema versions', () => {
+      const schema = createConfigSchema({
+        v3field: z => z.string(),
+        v4field: zodV4.number(),
+      });
+
+      expect(schema.parse({ v3field: 'hello', v4field: 42 })).toEqual({
+        v3field: 'hello',
+        v4field: 42,
+      });
+    });
+
+    it('should report errors from both schema versions', () => {
+      const schema = createConfigSchema({
+        v3field: z => z.string(),
+        v4field: zodV4.number(),
+      });
+
+      expect(() => schema.parse({})).toThrow(
+        "Missing required value at 'v3field'; " +
+          "Invalid input: expected number, received undefined at 'v4field'",
+      );
+    });
+
+    it('should produce correct JSON Schema for mixed schemas', () => {
+      const schema = createConfigSchema({
+        v3field: z => z.string(),
+        v4field: zodV4.number().optional(),
+      });
+
+      const result = schema.schema();
+      expect(result.schema).toMatchObject({
+        type: 'object',
+        properties: {
+          v3field: { type: 'string' },
+          v4field: { type: 'number' },
+        },
+        required: ['v3field'],
+        additionalProperties: false,
+      });
+    });
+  });
+
+  describe('schema creation errors', () => {
+    it('should reject a schema that is not a valid Standard Schema or zod schema', () => {
+      expect(() =>
+        createConfigSchema({ bad: { notASchema: true } as any }),
+      ).toThrow(
+        "Config schema for field 'bad' is not a valid Standard Schema or zod schema",
+      );
+    });
+
+    it('should reject a Standard Schema without JSON Schema support', () => {
+      const fakeStandardSchema = {
+        '~standard': {
+          version: 1,
+          vendor: 'fake',
+          validate: () => ({ value: 'ok' }),
+        },
+      };
+
+      expect(() =>
+        createConfigSchema({ field: fakeStandardSchema as any }),
+      ).toThrow(
+        "Config schema for field 'field' does not support JSON Schema conversion",
+      );
+    });
+  });
+
+  describe('JSON Schema generation', () => {
+    it('should generate JSON Schema lazily via schema()', () => {
+      const schema = createConfigSchema({
+        title: z => z.string(),
+        count: z => z.number().optional(),
+      });
+
+      const result = schema.schema();
+      expect(result).toHaveProperty('schema');
+      expect(result.schema).toMatchObject({
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          count: { type: 'number' },
+        },
+        required: ['title'],
+        additionalProperties: false,
+      });
+    });
+
+    it('should support backward-compatible property access on schema', () => {
+      const schema = createConfigSchema({
+        title: z => z.string(),
+      });
+
+      expect(schema.schema.type).toBe('object');
+      expect(schema.schema.properties).toBeDefined();
+    });
+  });
+
+  describe('merging schemas', () => {
+    it('should merge two zod v3 schemas and parse correctly', () => {
+      const a = createConfigSchema({ name: z => z.string() });
+      const b = createConfigSchema({ count: z => z.number().default(0) });
+
+      const merged = mergePortableSchemas(a, b)!;
+      expect(merged.parse({ name: 'hello' })).toEqual({
+        name: 'hello',
+        count: 0,
+      });
+    });
+
+    it('should merge zod v3 and v4 schemas', () => {
+      const a = createConfigSchema({ name: z => z.string() });
+      const b = createConfigSchema({ count: zodV4.number().default(0) });
+
+      const merged = mergePortableSchemas(a, b)!;
+      expect(merged.parse({ name: 'hello' })).toEqual({
+        name: 'hello',
+        count: 0,
+      });
+    });
+
+    it('should produce combined errors after merge', () => {
+      const a = createConfigSchema({ name: z => z.string() });
+      const b = createConfigSchema({ count: zodV4.number() });
+
+      const merged = mergePortableSchemas(a, b)!;
+
+      expect(() => merged.parse({})).toThrow(
+        "Missing required value at 'name'; " +
+          "Invalid input: expected number, received undefined at 'count'",
+      );
+    });
+
+    it('should produce combined errors for type mismatches after merge', () => {
+      const a = createConfigSchema({ name: z => z.string() });
+      const b = createConfigSchema({ count: zodV4.number() });
+
+      const merged = mergePortableSchemas(a, b)!;
+
+      expect(() => merged.parse({ name: 123, count: 'not a number' })).toThrow(
+        "Expected string, received number at 'name'; " +
+          "Invalid input: expected number, received string at 'count'",
+      );
+    });
+
+    it('should produce correct JSON Schema after merge', () => {
+      const a = createConfigSchema({ name: z => z.string() });
+      const b = createConfigSchema({ count: zodV4.number().optional() });
+
+      const merged = mergePortableSchemas(a, b)!;
+      const result = merged.schema();
+
+      expect(result.schema).toMatchObject({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          count: { type: 'number' },
+        },
+        required: ['name'],
+        additionalProperties: false,
+      });
+    });
+
+    it('should handle merge with undefined', () => {
+      const a = createConfigSchema({ name: z => z.string() });
+
+      expect(mergePortableSchemas(a, undefined)).toBe(a);
+      expect(mergePortableSchemas(undefined, a)).toBe(a);
+      expect(mergePortableSchemas(undefined, undefined)).toBeUndefined();
+    });
+
+    it('should let later fields win when merging overlapping keys', () => {
+      const a = createConfigSchema({ x: z => z.string() });
+      const b = createConfigSchema({ x: zodV4.number() });
+
+      const merged = mergePortableSchemas(a, b)!;
+      expect(merged.parse({ x: 42 })).toEqual({ x: 42 });
+      expect(() => merged.parse({ x: 'hello' })).toThrow(
+        "Invalid input: expected number, received string at 'x'",
+      );
+    });
   });
 });

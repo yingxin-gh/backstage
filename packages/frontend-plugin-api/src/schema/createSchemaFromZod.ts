@@ -21,24 +21,42 @@ import { PortableSchema } from './types';
 
 /**
  * @internal
+ * @deprecated Use {@link createConfigSchema} instead.
  */
 export function createSchemaFromZod<TSchema extends ZodType>(
   schemaCreator: (zImpl: typeof z) => TSchema,
 ): PortableSchema<z.output<TSchema>, z.input<TSchema>> {
   const schema = schemaCreator(z);
-  return {
-    // TODO: Types allow z.array etc here but it will break stuff
-    parse: input => {
-      const result = schema.safeParse(input);
-      if (result.success) {
-        return result.data;
-      }
 
-      throw new Error(result.error.issues.map(formatIssue).join('; '));
+  let cached: PortableSchema['schema'] | undefined;
+
+  const result: PortableSchema<z.output<TSchema>, z.input<TSchema>> = {
+    parse: input => {
+      const parseResult = schema.safeParse(input);
+      if (parseResult.success) {
+        return parseResult.data;
+      }
+      throw new Error(parseResult.error.issues.map(formatIssue).join('; '));
     },
-    // TODO: Verify why we are not compatible with the latest zodToJsonSchema.
-    schema: zodToJsonSchema(schema) as JsonObject,
+    schema: undefined as any,
   };
+
+  Object.defineProperty(result, 'schema', {
+    get() {
+      if (!cached) {
+        const jsonSchema = zodToJsonSchema(schema) as JsonObject;
+        cached = Object.assign(
+          () => ({ schema: jsonSchema }),
+          jsonSchema,
+        ) as PortableSchema['schema'];
+      }
+      return cached;
+    },
+    configurable: true,
+    enumerable: true,
+  });
+
+  return result;
 }
 
 function formatIssue(issue: ZodIssue): string {

@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-// -----------------------------------------------------------------------
-//  Mock / exploration file — not wired into anything.
-//
-//  Shows what a central, reusable Standard-Schema-based utility could
-//  look like, covering:
-//
-//    1. Public types for APIs that accept per-field schema records
-//    2. Type-level inference (output & input) without any zod types
-//    3. Runtime validation with good error messages
-//    4. JSON Schema generation from any supported source
-//    5. Backward compat with the current (zImpl) => ZodType factory form
-//    6. Merging schemas from different sources (blueprint + override)
-// -----------------------------------------------------------------------
-
 import { JsonObject } from '@backstage/types';
 import { z as zodV3, type ZodType } from 'zod/v3';
 import zodToJsonSchema from 'zod-to-json-schema';
@@ -41,64 +27,60 @@ export type { StandardSchemaV1 } from '@standard-schema/spec';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 
 // ---------------------------------------------------------------------------
-//  Internal type for the field record accepted by createPortableSchema
-// ---------------------------------------------------------------------------
-
-type FieldSchema = StandardSchemaV1 | ((zImpl: typeof zodV3) => ZodType);
-
-// ---------------------------------------------------------------------------
-//  The PortableSchema — now with per-field tracking for mergeability
+//  Internal types
 // ---------------------------------------------------------------------------
 
 /**
- * Internally, each PortableSchema tracks which keys it owns and how to
- * validate each one individually. This is the unit of composition: when a
- * blueprint defines config fields and an override adds more, each produces
- * its own PortableSchema and they're merged at the end.
+ * Per-field resolved schema — validation is eager, JSON Schema is lazy.
+ * @internal
  */
-interface FieldValidator {
+interface ResolvedField {
   validate(value: unknown): { value: unknown } | { errors: string[] };
-  jsonSchema: JsonObject;
+  toJsonSchema(): JsonObject;
   required: boolean;
 }
 
 /**
- * Internal representation that carries per-field validators alongside the
- * public PortableSchema surface. The brand field is used to detect whether
- * a PortableSchema came from this utility (and thus supports merging).
+ * Internal representation that carries per-field resolvers alongside the
+ * public PortableSchema surface, enabling schema merging.
+ * @internal
  */
 export interface MergeablePortableSchema<TOutput = any, TInput = any>
   extends PortableSchema<TOutput, TInput> {
   /** @internal */
-  readonly _fields: Record<string, FieldValidator>;
+  readonly _fields: Record<string, ResolvedField>;
 }
 
 // ---------------------------------------------------------------------------
-//  createPortableSchema — builds from a field record
+//  createConfigSchema — the primary entry point
+//
+//  Resolves each field, eagerly validates JSON Schema support, and returns
+//  a PortableSchema whose JSON Schema conversion is lazy.
 // ---------------------------------------------------------------------------
 
-export function createPortableSchema(
-  fields: Record<string, FieldSchema>,
+/** @internal */
+export function createConfigSchema(
+  fields: Record<string, StandardSchemaV1 | ((zImpl: typeof zodV3) => ZodType)>,
 ): MergeablePortableSchema {
-  const fieldValidators: Record<string, FieldValidator> = {};
+  const resolved: Record<string, ResolvedField> = {};
 
   for (const [key, field] of Object.entries(fields)) {
-    const resolved = typeof field === 'function' ? field(zodV3) : field;
-    fieldValidators[key] = buildFieldValidator(key, resolved);
+    const schema = typeof field === 'function' ? field(zodV3) : field;
+    resolved[key] = resolveField(key, schema);
   }
 
-  return buildPortableSchema(fieldValidators);
+  return buildPortableSchema(resolved);
 }
 
 // ---------------------------------------------------------------------------
 //  mergePortableSchemas — combines schemas from different sources
 //
-//  This is the key operation for blueprint + override composition. Each
-//  source may use a completely different schema library. Because we track
-//  per-field validators, merging is just combining the field maps —
-//  no need to mix schema types within a single validator.
+//  Blueprint + override composition. Each source may use a completely
+//  different schema library. Because we track per-field resolvers,
+//  merging is just combining the field maps.
 // ---------------------------------------------------------------------------
 
+/** @internal */
 export function mergePortableSchemas<A, B>(
   a: MergeablePortableSchema<A> | undefined,
   b: MergeablePortableSchema<B> | undefined,
@@ -120,66 +102,91 @@ export function mergePortableSchemas<A, B>(
 }
 
 // ---------------------------------------------------------------------------
-//  buildPortableSchema — internal: produces a PortableSchema from a
-//  field validator map. This is the shared implementation for both
-//  createPortableSchema and mergePortableSchemas.
+//  buildPortableSchema — assembles resolved fields into a PortableSchema
+//  with per-field validation (eager) and lazy JSON Schema generation.
 // ---------------------------------------------------------------------------
 
-function buildPortableSchema<TOutput>(
-  fieldValidators: Record<string, FieldValidator>,
+function buildPortableSchema<TOutput = unknown>(
+  fields: Record<string, ResolvedField>,
 ): MergeablePortableSchema<TOutput> {
-  const jsonSchema = buildObjectJsonSchema(fieldValidators);
+  function parse(input: unknown) {
+    const inputObj = (input ?? {}) as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+    const errors: string[] = [];
 
-  return {
-    parse(input) {
-      const inputObj = (input ?? {}) as Record<string, unknown>;
-      const result: Record<string, unknown> = {};
-      const errors: string[] = [];
-
-      for (const [key, validator] of Object.entries(fieldValidators)) {
-        const validated = validator.validate(inputObj[key]);
-        if ('errors' in validated) {
-          errors.push(...validated.errors);
-        } else {
-          result[key] = validated.value;
-        }
+    for (const [key, field] of Object.entries(fields)) {
+      const validated = field.validate(inputObj[key]);
+      if ('errors' in validated) {
+        errors.push(...validated.errors);
+      } else {
+        result[key] = validated.value;
       }
+    }
 
-      if (errors.length > 0) {
-        throw new Error(errors.join('; '));
-      }
+    if (errors.length > 0) {
+      throw new Error(errors.join('; '));
+    }
 
-      return result as TOutput;
-    },
+    return result as TOutput;
+  }
 
-    schema: jsonSchema,
-
-    _fields: fieldValidators,
+  const result: MergeablePortableSchema<TOutput> = {
+    parse,
+    schema: undefined as any,
+    _fields: fields,
   };
+
+  // schema — lazy getter that produces a callable with JSON Schema
+  // properties. On first access it computes the JSON Schema once,
+  // then caches it for subsequent accesses.
+  let cached: PortableSchema['schema'] | undefined;
+  Object.defineProperty(result, 'schema', {
+    get() {
+      if (!cached) {
+        const jsonSchema = buildObjectJsonSchema(fields);
+        const callable = Object.assign(
+          () => ({ schema: jsonSchema }),
+          jsonSchema,
+        );
+        cached = callable as PortableSchema['schema'];
+      }
+      return cached;
+    },
+    configurable: true,
+    enumerable: true,
+  });
+
+  return result;
 }
 
 // ---------------------------------------------------------------------------
-//  buildFieldValidator — wraps a single schema (any type) into a
-//  normalized FieldValidator with validation, JSON Schema, and required.
+//  resolveField — wraps a single schema into a ResolvedField.
+//
+//  Eagerly validates that JSON Schema conversion will be possible,
+//  but defers the actual conversion until toJsonSchema() is called.
 // ---------------------------------------------------------------------------
 
-function buildFieldValidator(key: string, schema: unknown): FieldValidator {
+function resolveField(key: string, schema: unknown): ResolvedField {
   if (isZodV3Type(schema)) {
-    return buildZodFieldValidator(key, schema);
+    return resolveZodField(key, schema);
   }
   if (isStandardSchema(schema)) {
-    return buildStandardFieldValidator(key, schema);
+    if (!hasJsonSchemaConverter(schema)) {
+      throw new Error(
+        `Config schema for field '${key}' does not support JSON Schema ` +
+          `conversion. Use a schema library that implements the Standard ` +
+          `JSON Schema interface (like zod v4+), or use a zod v3 schema.`,
+      );
+    }
+    return resolveStandardField(key, schema);
   }
   throw new Error(
     `Config schema for field '${key}' is not a valid Standard Schema or zod schema`,
   );
 }
 
-function buildZodFieldValidator(key: string, schema: ZodType): FieldValidator {
-  // Wrap the single field in a one-key z.object so we get proper zod
-  // object-level behavior (default application, optional handling, etc.)
+function resolveZodField(key: string, schema: ZodType): ResolvedField {
   const wrapper = zodV3.object({ [key]: schema });
-  const wholeJsonSchema = zodToJsonSchema(wrapper) as Record<string, any>;
 
   return {
     validate(value) {
@@ -189,26 +196,20 @@ function buildZodFieldValidator(key: string, schema: ZodType): FieldValidator {
       }
       return { errors: result.error.issues.map(formatZodIssue) };
     },
-    jsonSchema: (wholeJsonSchema.properties?.[key] ?? {}) as JsonObject,
-    required: (wholeJsonSchema.required ?? []).includes(key),
+    toJsonSchema() {
+      const wholeJsonSchema = zodToJsonSchema(wrapper) as Record<string, any>;
+      return (wholeJsonSchema.properties?.[key] ?? {}) as JsonObject;
+    },
+    required: !schema.isOptional(),
   };
 }
 
-function buildStandardFieldValidator(
+function resolveStandardField(
   key: string,
-  schema: StandardSchemaV1,
-): FieldValidator {
-  let fieldJsonSchema: JsonObject;
-  if (hasJsonSchemaConverter(schema)) {
-    const raw = schema['~standard'].jsonSchema.input({ target: 'draft-07' });
-    const { $schema: _, ...rest } = raw;
-    fieldJsonSchema = rest as JsonObject;
-  } else {
-    throw new Error(
-      `Config schema for field '${key}' does not support JSON Schema conversion`,
-    );
-  }
-
+  schema: StandardSchemaV1 & {
+    '~standard': { jsonSchema: { input: Function } };
+  },
+): ResolvedField {
   const required = isFieldRequired(schema);
 
   return {
@@ -228,25 +229,29 @@ function buildStandardFieldValidator(
       }
       return { value: result.value };
     },
-    jsonSchema: fieldJsonSchema,
+    toJsonSchema() {
+      const raw = schema['~standard'].jsonSchema.input({ target: 'draft-07' });
+      const { $schema: _, ...rest } = raw;
+      return rest as JsonObject;
+    },
     required,
   };
 }
 
 // ---------------------------------------------------------------------------
 //  buildObjectJsonSchema — assembles per-field JSON Schemas into a
-//  single object-level JSON Schema
+//  single object-level JSON Schema (called lazily)
 // ---------------------------------------------------------------------------
 
 function buildObjectJsonSchema(
-  fieldValidators: Record<string, FieldValidator>,
+  fields: Record<string, ResolvedField>,
 ): JsonObject {
   const properties: Record<string, JsonObject> = {};
   const required: string[] = [];
 
-  for (const [key, validator] of Object.entries(fieldValidators)) {
-    properties[key] = validator.jsonSchema;
-    if (validator.required) {
+  for (const [key, field] of Object.entries(fields)) {
+    properties[key] = field.toJsonSchema();
+    if (field.required) {
       required.push(key);
     }
   }

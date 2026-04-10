@@ -27,8 +27,10 @@ import {
 import { ExtensionDataRef, ExtensionDataValue } from './createExtensionDataRef';
 import { ExtensionInput } from './createExtensionInput';
 import type { z } from 'zod/v3';
-import { createSchemaFromZod } from '../schema/createSchemaFromZod';
-import { warnConfigSchemaPropDeprecation } from '../schema/createPortableSchema';
+import {
+  createConfigSchema,
+  warnConfigSchemaPropDeprecation,
+} from '../schema/createPortableSchema';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 import { OpaqueExtensionDefinition } from '@internal/frontend';
 import { ExtensionDataContainer } from './types';
@@ -647,17 +649,7 @@ export function createExtension(
     warnConfigSchemaPropDeprecation();
   }
   const resolvedConfigSchema =
-    schemaDeclaration &&
-    createSchemaFromZod(innerZ =>
-      innerZ.object(
-        Object.fromEntries(
-          Object.entries(schemaDeclaration).map(([k, v]) => [
-            k,
-            typeof v === 'function' ? v(innerZ) : v,
-          ]),
-        ) as Record<string, z.ZodTypeAny>,
-      ),
-    );
+    schemaDeclaration && createConfigSchema(schemaDeclaration);
 
   return OpaqueExtensionDefinition.createInstance('v2', {
     T: undefined as any,

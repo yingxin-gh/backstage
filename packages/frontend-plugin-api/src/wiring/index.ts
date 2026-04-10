@@ -22,10 +22,6 @@ export {
   type ExtensionDefinitionParameters,
   type CreateExtensionOptions,
   type OverridableExtensionDefinition,
-  type ResolvedExtensionInputs,
-  type RequiredExtensionIds,
-  type VerifyExtensionFactoryOutput,
-  type VerifyExtensionAttachTo,
 } from './createExtension';
 export {
   createExtensionInput,

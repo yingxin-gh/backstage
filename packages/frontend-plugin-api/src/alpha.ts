@@ -37,10 +37,6 @@ export type {
   ExtensionInput,
   FrontendPlugin,
   OverridableExtensionDefinition,
-  ResolvedExtensionInputs,
-  RequiredExtensionIds,
-  VerifyExtensionFactoryOutput,
-  VerifyExtensionAttachTo,
 } from './wiring';
 export type {
   ApiHolder,

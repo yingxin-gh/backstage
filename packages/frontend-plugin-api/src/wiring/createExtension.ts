@@ -60,7 +60,7 @@ type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
 /**
  * Converts an extension input map into a matching collection of resolved inputs.
  *
- * @public
+ * @ignore
  */
 export type ResolvedExtensionInputs<
   TInputs extends {
@@ -97,7 +97,7 @@ type JoinStringUnion<
     : JoinStringUnion<IRest, TDiv, `${TResult}${TDiv}${INext}`>
   : TResult;
 
-/** @public */
+/** @ignore */
 export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
   UExtensionData extends any
     ? UExtensionData['config']['optional'] extends true
@@ -105,7 +105,7 @@ export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
       : UExtensionData['id']
     : never;
 
-/** @public */
+/** @ignore */
 export type VerifyExtensionFactoryOutput<
   UDeclaredOutput extends ExtensionDataRef,
   UFactoryOutput extends ExtensionDataValue<any, any>,
@@ -119,7 +119,7 @@ export type VerifyExtensionFactoryOutput<
       Exclude<RequiredExtensionIds<UDeclaredOutput>, UFactoryOutput['id']>
     >}`;
 
-/** @public */
+/** @ignore */
 export type VerifyExtensionAttachTo<
   UOutput extends ExtensionDataRef,
   UParentInput extends ExtensionDataRef,
@@ -527,28 +527,16 @@ export function createExtension<
   UParentInputs extends ExtensionDataRef = ExtensionDataRef,
   TNewConfigSchema extends { [key: string]: StandardSchemaV1 } = {},
 >(
-  options: {
-    kind?: TKind;
-    name?: TName;
-    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
-      VerifyExtensionAttachTo<UOutput, UParentInputs>;
-    disabled?: boolean;
-    if?: FilterPredicate;
-    inputs?: TInputs;
-    output: Array<UOutput>;
-    config?: never;
-    configSchema?: TNewConfigSchema;
-    factory(context: {
-      node: AppNode;
-      apis: ApiHolder;
-      config: {
-        [key in keyof TNewConfigSchema]: NonNullable<
-          TNewConfigSchema[key]['~standard']['types']
-        >['output'];
-      };
-      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
-    }): Iterable<UFactoryOutput>;
-  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+  options: CreateExtensionOptions<
+    TKind,
+    TName,
+    UOutput,
+    TInputs,
+    {},
+    UFactoryOutput,
+    UParentInputs,
+    TNewConfigSchema
+  > & { config?: never },
 ): OverridableExtensionDefinition<{
   config: {
     [key in keyof TNewConfigSchema]: NonNullable<
@@ -586,30 +574,16 @@ export function createExtension<
   const TName extends string | undefined = undefined,
   UParentInputs extends ExtensionDataRef = ExtensionDataRef,
 >(
-  options: {
-    kind?: TKind;
-    name?: TName;
-    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
-      VerifyExtensionAttachTo<UOutput, UParentInputs>;
-    disabled?: boolean;
-    if?: FilterPredicate;
-    inputs?: TInputs;
-    output: Array<UOutput>;
-    configSchema?: never;
-    config?: {
-      schema: TConfigSchema;
-    };
-    factory(context: {
-      node: AppNode;
-      apis: ApiHolder;
-      config: {
-        [key in keyof TConfigSchema]: z.infer<
-          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
-        >;
-      };
-      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
-    }): Iterable<UFactoryOutput>;
-  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+  options: CreateExtensionOptions<
+    TKind,
+    TName,
+    UOutput,
+    TInputs,
+    TConfigSchema,
+    UFactoryOutput,
+    UParentInputs,
+    {}
+  > & { configSchema?: never },
 ): OverridableExtensionDefinition<{
   config: string extends keyof TConfigSchema
     ? {}

@@ -829,27 +829,6 @@ export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
   };
 };
 
-// @public (undocumented)
-export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
-  UExtensionData extends any
-    ? UExtensionData['config']['optional'] extends true
-      ? never
-      : UExtensionData['id']
-    : never;
-
-// @public
-export type ResolvedExtensionInputs<
-  TInputs extends {
-    [name in string]: ExtensionInput;
-  },
-> = {
-  [InputName in keyof TInputs]: false extends TInputs[InputName]['config']['singleton']
-    ? Array<Expand<ResolvedExtensionInput<TInputs[InputName]>>>
-    : false extends TInputs[InputName]['config']['optional']
-    ? Expand<ResolvedExtensionInput<TInputs[InputName]>>
-    : Expand<ResolvedExtensionInput<TInputs[InputName]> | undefined>;
-};
-
 // @public
 export interface RouteRef<
   TParams extends AnyRouteRefParams = AnyRouteRefParams,
@@ -873,32 +852,6 @@ export interface SubRouteRef<
   // (undocumented)
   readonly T: TParams;
 }
-
-// @public (undocumented)
-export type VerifyExtensionAttachTo<
-  UOutput extends ExtensionDataRef,
-  UParentInput extends ExtensionDataRef,
-> = ExtensionDataRef extends UParentInput
-  ? {}
-  : [RequiredExtensionIds<UParentInput>] extends [RequiredExtensionIds<UOutput>]
-  ? {}
-  : `Error: This parent extension input requires the following extension data, but it is not declared as guaranteed output of this extension: ${JoinStringUnion<
-      Exclude<RequiredExtensionIds<UParentInput>, RequiredExtensionIds<UOutput>>
-    >}`;
-
-// @public (undocumented)
-export type VerifyExtensionFactoryOutput<
-  UDeclaredOutput extends ExtensionDataRef,
-  UFactoryOutput extends ExtensionDataValue<any, any>,
-> = [RequiredExtensionIds<UDeclaredOutput>] extends [UFactoryOutput['id']]
-  ? [UFactoryOutput['id']] extends [UDeclaredOutput['id']]
-    ? {}
-    : `Error: The extension factory has undeclared output(s): ${JoinStringUnion<
-        Exclude<UFactoryOutput['id'], UDeclaredOutput['id']>
-      >}`
-  : `Error: The extension factory is missing the following output(s): ${JoinStringUnion<
-      Exclude<RequiredExtensionIds<UDeclaredOutput>, UFactoryOutput['id']>
-    >}`;
 
 // (No @packageDocumentation comment for this package)
 ```

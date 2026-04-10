@@ -472,28 +472,18 @@ export function createExtension<
     [key: string]: StandardSchemaV1;
   } = {},
 >(
-  options: {
-    kind?: TKind;
-    name?: TName;
-    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
-      VerifyExtensionAttachTo<UOutput, UParentInputs>;
-    disabled?: boolean;
-    if?: FilterPredicate;
-    inputs?: TInputs;
-    output: Array<UOutput>;
+  options: CreateExtensionOptions<
+    TKind,
+    TName,
+    UOutput,
+    TInputs,
+    {},
+    UFactoryOutput,
+    UParentInputs,
+    TNewConfigSchema
+  > & {
     config?: never;
-    configSchema?: TNewConfigSchema;
-    factory(context: {
-      node: AppNode;
-      apis: ApiHolder;
-      config: {
-        [key in keyof TNewConfigSchema]: NonNullable<
-          TNewConfigSchema[key]['~standard']['types']
-        >['output'];
-      };
-      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
-    }): Iterable<UFactoryOutput>;
-  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+  },
 ): OverridableExtensionDefinition<{
   config: {
     [key in keyof TNewConfigSchema]: NonNullable<
@@ -532,30 +522,18 @@ export function createExtension<
   const TName extends string | undefined = undefined,
   UParentInputs extends ExtensionDataRef = ExtensionDataRef,
 >(
-  options: {
-    kind?: TKind;
-    name?: TName;
-    attachTo: ExtensionDefinitionAttachTo<UParentInputs> &
-      VerifyExtensionAttachTo<UOutput, UParentInputs>;
-    disabled?: boolean;
-    if?: FilterPredicate;
-    inputs?: TInputs;
-    output: Array<UOutput>;
+  options: CreateExtensionOptions<
+    TKind,
+    TName,
+    UOutput,
+    TInputs,
+    TConfigSchema,
+    UFactoryOutput,
+    UParentInputs,
+    {}
+  > & {
     configSchema?: never;
-    config?: {
-      schema: TConfigSchema;
-    };
-    factory(context: {
-      node: AppNode;
-      apis: ApiHolder;
-      config: {
-        [key in keyof TConfigSchema]: z.infer<
-          ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
-        >;
-      };
-      inputs: Expand<ResolvedExtensionInputs<TInputs>>;
-    }): Iterable<UFactoryOutput>;
-  } & VerifyExtensionFactoryOutput<UOutput, UFactoryOutput>,
+  },
 ): OverridableExtensionDefinition<{
   config: string extends keyof TConfigSchema
     ? {}
@@ -2449,27 +2427,6 @@ export const Progress: {
 // @public (undocumented)
 export type ProgressProps = {};
 
-// @public (undocumented)
-export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
-  UExtensionData extends any
-    ? UExtensionData['config']['optional'] extends true
-      ? never
-      : UExtensionData['id']
-    : never;
-
-// @public
-export type ResolvedExtensionInputs<
-  TInputs extends {
-    [name in string]: ExtensionInput;
-  },
-> = {
-  [InputName in keyof TInputs]: false extends TInputs[InputName]['config']['singleton']
-    ? Array<Expand<ResolvedExtensionInput<TInputs[InputName]>>>
-    : false extends TInputs[InputName]['config']['optional']
-    ? Expand<ResolvedExtensionInput<TInputs[InputName]>>
-    : Expand<ResolvedExtensionInput<TInputs[InputName]> | undefined>;
-};
-
 // @public
 export type RouteFunc<TParams extends AnyRouteRefParams> = (
   ...input: TParams extends undefined ? readonly [] : readonly [params: TParams]
@@ -2881,32 +2838,6 @@ export const useTranslationRef: <TMessages extends { [key in string]: string }>(
 ) => {
   t: TranslationFunction<TMessages>;
 };
-
-// @public (undocumented)
-export type VerifyExtensionAttachTo<
-  UOutput extends ExtensionDataRef,
-  UParentInput extends ExtensionDataRef,
-> = ExtensionDataRef extends UParentInput
-  ? {}
-  : [RequiredExtensionIds<UParentInput>] extends [RequiredExtensionIds<UOutput>]
-  ? {}
-  : `Error: This parent extension input requires the following extension data, but it is not declared as guaranteed output of this extension: ${JoinStringUnion<
-      Exclude<RequiredExtensionIds<UParentInput>, RequiredExtensionIds<UOutput>>
-    >}`;
-
-// @public (undocumented)
-export type VerifyExtensionFactoryOutput<
-  UDeclaredOutput extends ExtensionDataRef,
-  UFactoryOutput extends ExtensionDataValue<any, any>,
-> = [RequiredExtensionIds<UDeclaredOutput>] extends [UFactoryOutput['id']]
-  ? [UFactoryOutput['id']] extends [UDeclaredOutput['id']]
-    ? {}
-    : `Error: The extension factory has undeclared output(s): ${JoinStringUnion<
-        Exclude<UFactoryOutput['id'], UDeclaredOutput['id']>
-      >}`
-  : `Error: The extension factory is missing the following output(s): ${JoinStringUnion<
-      Exclude<RequiredExtensionIds<UDeclaredOutput>, UFactoryOutput['id']>
-    >}`;
 
 // @public
 export const vmwareCloudAuthApiRef: ApiRef_2<

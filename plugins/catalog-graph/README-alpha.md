@@ -289,7 +289,6 @@ import {
   createFrontendModule,
   PageBlueprint,
 } from '@backstage/frontend-plugin-api';
-import { convertLegacyRouteRef } from '@backstage/core-compat-api';
 import { catalogGraphRouteRef } from '@backstage/plugin-catalog-graph';
 
 export default createFrontendModule({
@@ -298,7 +297,7 @@ export default createFrontendModule({
     PageBlueprint.make({
       params: {
         path: '/catalog-graph',
-        routeRef: convertLegacyRouteRef(catalogGraphRouteRef),
+        routeRef: catalogGraphRouteRef,
         loader: () =>
           import('./components').then(m => <m.CustomEntityRelationsPage />),
       },

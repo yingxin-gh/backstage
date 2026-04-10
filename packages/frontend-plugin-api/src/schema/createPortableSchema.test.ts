@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { z as zodV4 } from 'zod';
+import { z as zodV4 } from 'zod/v4';
 import {
   createConfigSchema,
   mergePortableSchemas,

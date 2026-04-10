@@ -334,4 +334,20 @@ describe('createConfigSchema', () => {
       );
     });
   });
+
+  describe('edge cases', () => {
+    it('should handle an empty configSchema', () => {
+      const schema = createConfigSchema({});
+
+      expect(schema.parse({})).toEqual({});
+      expect(schema.parse(undefined)).toEqual({});
+
+      const result = schema.schema();
+      expect(result.schema).toEqual({
+        type: 'object',
+        properties: {},
+        additionalProperties: false,
+      });
+    });
+  });
 });

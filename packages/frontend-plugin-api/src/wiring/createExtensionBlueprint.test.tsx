@@ -309,6 +309,70 @@ describe('createExtensionBlueprint', () => {
     );
   });
 
+  it('should merge configSchema from blueprint with deprecated config.schema from override', () => {
+    const TestBlueprint = createExtensionBlueprint({
+      kind: 'test-extension',
+      attachTo: { id: 'test', input: 'default' },
+      output: [coreExtensionData.reactElement],
+      configSchema: {
+        title: z => z.string().default('default title'),
+      },
+      factory(_, { config }) {
+        return [coreExtensionData.reactElement(<div>{config.title}</div>)];
+      },
+    });
+
+    const extension = TestBlueprint.makeWithOverrides({
+      name: 'my-extension',
+      config: {
+        schema: {
+          extra: z => z.string(),
+        },
+      },
+      factory(origFactory, { config }) {
+        expect(config.title).toBe('default title');
+        expect(config.extra).toBe('extra value');
+        return origFactory({});
+      },
+    });
+
+    expect.assertions(2);
+
+    renderInTestApp(
+      createExtensionTester(extension, {
+        config: { extra: 'extra value' },
+      }).reactElement(),
+    );
+  });
+
+  it('should emit a deprecation warning when using config.schema', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      createExtension({
+        name: 'test-deprecated-warning',
+        attachTo: { id: 'test', input: 'default' },
+        output: [coreExtensionData.reactElement],
+        config: {
+          schema: {
+            title: z => z.string().default('hello'),
+          },
+        },
+        factory() {
+          return [coreExtensionData.reactElement(<div />)];
+        },
+      });
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'DEPRECATION WARNING: The `config.schema` option for extension config is deprecated',
+        ),
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('should allow getting inputs properly', () => {
     createExtensionBlueprint({
       kind: 'test-extension',

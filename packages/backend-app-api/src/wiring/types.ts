@@ -29,7 +29,7 @@ import { OpaqueExtensionPointFactoryMiddleware } from '@internal/backend';
  *
  * @public
  */
-export interface ExtensionPointFactoryMiddleware<_T = unknown> {
+export interface ExtensionPointFactoryMiddleware {
   $$type: '@backstage/ExtensionPointFactoryMiddleware';
 }
 
@@ -42,7 +42,7 @@ export interface ExtensionPointFactoryMiddleware<_T = unknown> {
 export function createExtensionPointFactoryMiddleware<T>(options: {
   extensionPoint: ExtensionPoint<T>;
   middleware: (original: T) => Promise<T>;
-}): ExtensionPointFactoryMiddleware<T> {
+}): ExtensionPointFactoryMiddleware {
   return OpaqueExtensionPointFactoryMiddleware.createInstance('v1', {
     extensionPointId: options.extensionPoint.id,
     middleware: options.middleware as (original: unknown) => Promise<unknown>,

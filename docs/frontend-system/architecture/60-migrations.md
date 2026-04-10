@@ -11,6 +11,83 @@ This section provides migration guides for different versions of the frontend sy
 
 This guide is intended for app and plugin authors who have already migrated their code to the new frontend system, and are looking to keep it up to date with the latest changes. These guides do not cover trivial migrations that can be explained in a deprecation message, such as a renamed export.
 
+## 1.50
+
+### New `configSchema` option for extension config
+
+The `config.schema` option for `createExtension` and `createExtensionBlueprint` is now deprecated in favor of a new top-level `configSchema` option. The new option accepts direct schema values from any [Standard Schema](https://github.com/standard-schema/standard-schema) compatible library, rather than requiring factory functions. The `createSchemaFromZod` helper has also been removed.
+
+The recommended migration target is [zod v4](https://zod.dev/), but any Standard Schema compatible library or version works, including zod v3.25+.
+
+For example, an extension previously declared like this:
+
+```tsx
+createExtension({
+  // ...
+  config: {
+    schema: {
+      title: z => z.string().default('Hello'),
+      count: z => z.number().optional(),
+    },
+  },
+  factory({ config }) {
+    // ...
+  },
+});
+```
+
+Should now look like this:
+
+```tsx
+import { z } from 'zod';
+
+createExtension({
+  // ...
+  configSchema: {
+    title: z.string().default('Hello'),
+    count: z.number().optional(),
+  },
+  factory({ config }) {
+    // ...
+  },
+});
+```
+
+The same applies to `createExtensionBlueprint`:
+
+```tsx
+import { z } from 'zod';
+
+const MyBlueprint = createExtensionBlueprint({
+  // ...
+  configSchema: {
+    title: z.string().default('Hello'),
+  },
+  factory(params, { config }) {
+    // ...
+  },
+});
+```
+
+And when adding config through `makeWithOverrides`:
+
+```tsx
+import { z } from 'zod';
+
+MyBlueprint.makeWithOverrides({
+  configSchema: {
+    extra: z.string(),
+  },
+  factory(originalFactory, { config }) {
+    return originalFactory({
+      // ...
+    });
+  },
+});
+```
+
+Each field in the `configSchema` record is a standalone schema value rather than a factory function. This decouples the config schema declaration from any specific zod version, and lets you use any schema library that implements the Standard Schema interface.
+
 ## 1.31
 
 ### `namespace` parameter should be removed

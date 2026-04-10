@@ -28,7 +28,6 @@ import {
 } from './createExtension';
 import type { z } from 'zod/v3';
 import { ExtensionInput } from './createExtensionInput';
-import type { ConfigFieldSchema } from '../schema/createPortableSchema';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 import { ExtensionDataRef, ExtensionDataValue } from './createExtensionDataRef';
 import { createExtensionDataContainer } from '@internal/frontend';
@@ -108,7 +107,7 @@ export type CreateExtensionBlueprintOptions<
   TParams extends object | ExtensionBlueprintDefineParams,
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key in string]: ConfigFieldSchema },
+  TConfigSchema extends { [key in string]: (zImpl: typeof z) => z.ZodType },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TDataRefs extends { [name in string]: ExtensionDataRef },
   UParentInputs extends ExtensionDataRef,
@@ -350,7 +349,7 @@ export interface ExtensionBlueprint<
   makeWithOverrides<
     TName extends string | undefined,
     TExtensionConfigSchema extends {
-      [key in string]: ConfigFieldSchema;
+      [key in string]: (zImpl: typeof z) => z.ZodType;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -524,7 +523,7 @@ function unwrapParams<TParams extends object>(
  * in the frontend system documentation.
  *
  * Extension blueprints make it much easier for users to create new extensions
- * for your plugin. Rather than letting them use {@link createExtension}
+ * for your plugin. Rather than letting them use `createExtension`
  * directly, you can define a set of parameters and default factory for your
  * blueprint, removing a lot of the boilerplate and complexity that is otherwise
  * needed to create an extension.
@@ -634,7 +633,7 @@ export function createExtensionBlueprint<
   TParams extends object | ExtensionBlueprintDefineParams,
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key in string]: ConfigFieldSchema },
+  TConfigSchema extends { [key in string]: (zImpl: typeof z) => z.ZodType },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TKind extends string,
   UParentInputs extends ExtensionDataRef,

@@ -41,89 +41,10 @@ export type { StandardSchemaV1 } from '@standard-schema/spec';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 
 // ---------------------------------------------------------------------------
-//  Public types
+//  Internal type for the field record accepted by createPortableSchema
 // ---------------------------------------------------------------------------
 
-/**
- * A single config field schema. Accepts any Standard Schema implementation,
- * or the legacy factory form for backward compat.
- * @public
- */
-export type ConfigFieldSchema =
-  | StandardSchemaV1
-  | ((zImpl: typeof zodV3) => ZodType);
-
-/**
- * A record of per-field config schemas.
- * @public
- */
-export type ConfigSchemaRecord = { [key: string]: ConfigFieldSchema };
-
-/**
- * Infers the parsed output type of a config schema record.
- * Replaces: `{ [key in keyof T]: z.infer<ReturnType<T[key]>> }`
- *
- * Split into two mapped types joined by intersection to avoid conditional
- * types in the value position, which TypeScript defers in declaration emit.
- * Factory-form fields use `ReturnType<...>['_output']` (eagerly evaluated),
- * Standard Schema fields use `['~standard']['types']['output']`.
- * @ignore
- */
-type InferConfigOutput<T extends ConfigSchemaRecord> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any
-    ? K
-    : never]: ReturnType<T[K] & ((...args: any[]) => any)>['_output'];
-} & {
-  [K in keyof T as T[K] extends (...args: any[]) => any
-    ? never
-    : K]: NonNullable<
-    (T[K] & StandardSchemaV1)['~standard']['types']
-  >['output'];
-};
-
-/**
- * Infers the raw input type (before defaults/transforms) of a config
- * schema record.
- * Replaces: `z.input<z.ZodObject<{ ... }>>`
- *
- * Fields whose input type includes `undefined` are made optional keys,
- * matching the behavior of `z.input<z.ZodObject<...>>` for ZodDefault
- * and ZodOptional fields.
- * @ignore
- */
-type InferConfigInput<T extends ConfigSchemaRecord> = _RequiredInput<T> &
-  _OptionalInput<T>;
-
-type _FactoryInput<T extends (...args: any[]) => any> = ReturnType<T>['_input'];
-type _SchemaInput<T extends StandardSchemaV1> = NonNullable<
-  T['~standard']['types']
->['input'];
-
-/** @ignore */
-type _RequiredInput<T extends ConfigSchemaRecord> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any
-    ? undefined extends _FactoryInput<T[K] & ((...args: any[]) => any)>
-      ? never
-      : K
-    : undefined extends _SchemaInput<T[K] & StandardSchemaV1>
-    ? never
-    : K]: T[K] extends (...args: any[]) => any
-    ? _FactoryInput<T[K] & ((...args: any[]) => any)>
-    : _SchemaInput<T[K] & StandardSchemaV1>;
-};
-
-/** @ignore */
-type _OptionalInput<T extends ConfigSchemaRecord> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any
-    ? undefined extends _FactoryInput<T[K] & ((...args: any[]) => any)>
-      ? K
-      : never
-    : undefined extends _SchemaInput<T[K] & StandardSchemaV1>
-    ? K
-    : never]?: T[K] extends (...args: any[]) => any
-    ? _FactoryInput<T[K] & ((...args: any[]) => any)>
-    : _SchemaInput<T[K] & StandardSchemaV1>;
-};
+type FieldSchema = StandardSchemaV1 | ((zImpl: typeof zodV3) => ZodType);
 
 // ---------------------------------------------------------------------------
 //  The PortableSchema — now with per-field tracking for mergeability
@@ -156,9 +77,9 @@ export interface MergeablePortableSchema<TOutput = any, TInput = any>
 //  createPortableSchema — builds from a field record
 // ---------------------------------------------------------------------------
 
-export function createPortableSchema<T extends ConfigSchemaRecord>(
-  fields: T,
-): MergeablePortableSchema<InferConfigOutput<T>, InferConfigInput<T>> {
+export function createPortableSchema(
+  fields: Record<string, FieldSchema>,
+): MergeablePortableSchema {
   const fieldValidators: Record<string, FieldValidator> = {};
 
   for (const [key, field] of Object.entries(fields)) {

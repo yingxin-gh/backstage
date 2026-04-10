@@ -15,8 +15,4 @@
  */
 
 export { type PortableSchema } from './types';
-export {
-  type StandardSchemaV1,
-  type ConfigFieldSchema,
-  type ConfigSchemaRecord,
-} from './createPortableSchema';
+export { type StandardSchemaV1 } from './createPortableSchema';

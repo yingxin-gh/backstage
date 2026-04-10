@@ -22,11 +22,11 @@ const examplePlugin: OverridableFrontendPlugin<
     'page:example': OverridableExtensionDefinition<{
       kind: 'page';
       name: undefined;
-      config: {} & {
+      config: {
         path: string | undefined;
         title: string | undefined;
       };
-      configInput: {} & {
+      configInput: {
         title?: string | undefined;
         path?: string | undefined;
       };

@@ -24,8 +24,7 @@ import { PropsWithChildren } from 'react';
 import { ReactNode } from 'react';
 import { StandardSchemaV1 } from '@standard-schema/spec';
 import { SwappableComponentRef as SwappableComponentRef_2 } from '@backstage/frontend-plugin-api';
-import { z } from 'zod/v3';
-import { ZodType } from 'zod/v3';
+import type { z } from 'zod/v3';
 
 // @public @deprecated
 export type AlertApi = {
@@ -390,16 +389,6 @@ export const configApiRef: ApiRef_2<Config, 'core.config'> & {
   readonly $$type: '@backstage/ApiRef';
 };
 
-// @public
-export type ConfigFieldSchema =
-  | StandardSchemaV1
-  | ((zImpl: typeof z) => ZodType);
-
-// @public
-export type ConfigSchemaRecord = {
-  [key: string]: ConfigFieldSchema;
-};
-
 // @public (undocumented)
 export interface ConfigurableExtensionDataRef<
   TData,
@@ -469,8 +458,6 @@ export function createApiRef<T>(): {
   };
 };
 
-// Warning: (ae-forgotten-export) The symbol "VerifyExtensionFactoryOutput" needs to be exported by the entry point index.d.ts
-//
 // @public
 export function createExtension<
   UOutput extends ExtensionDataRef,
@@ -538,7 +525,7 @@ export function createExtension<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key: string]: ConfigFieldSchema;
+    [key: string]: (zImpl: typeof z) => z.ZodType;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   const TKind extends string | undefined = undefined,
@@ -599,8 +586,6 @@ export function createExtension<
   name: string | undefined extends TName ? undefined : TName;
 }>;
 
-// Warning: (ae-unresolved-link) The @link reference could not be resolved: The reference is ambiguous because "createExtension" has more than one declaration; you need to add a TSDoc member reference selector
-//
 // @public
 export function createExtensionBlueprint<
   TParams extends object | ExtensionBlueprintDefineParams,
@@ -680,7 +665,7 @@ export function createExtensionBlueprint<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key in string]: ConfigFieldSchema;
+    [key in string]: (zImpl: typeof z) => z.ZodType;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TKind extends string,
@@ -760,7 +745,7 @@ export type CreateExtensionBlueprintOptions<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key in string]: ConfigFieldSchema;
+    [key in string]: (zImpl: typeof z) => z.ZodType;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   TDataRefs extends {
@@ -859,7 +844,7 @@ export type CreateExtensionOptions<
     [inputName in string]: ExtensionInput;
   },
   TConfigSchema extends {
-    [key: string]: ConfigFieldSchema;
+    [key: string]: (zImpl: typeof z) => z.ZodType;
   },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   UParentInputs extends ExtensionDataRef,
@@ -1339,7 +1324,7 @@ export interface ExtensionBlueprint<
   makeWithOverrides<
     TName extends string | undefined,
     TExtensionConfigSchema extends {
-      [key in string]: ConfigFieldSchema;
+      [key in string]: (zImpl: typeof z) => z.ZodType;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -2080,7 +2065,7 @@ export interface OverridableExtensionDefinition<
   // @deprecated (undocumented)
   override<
     TExtensionConfigSchema extends {
-      [key in string]: ConfigFieldSchema;
+      [key in string]: (zImpl: typeof z) => z.ZodType;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -2458,6 +2443,27 @@ export const Progress: {
 
 // @public (undocumented)
 export type ProgressProps = {};
+
+// @public (undocumented)
+export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
+  UExtensionData extends any
+    ? UExtensionData['config']['optional'] extends true
+      ? never
+      : UExtensionData['id']
+    : never;
+
+// @public
+export type ResolvedExtensionInputs<
+  TInputs extends {
+    [name in string]: ExtensionInput;
+  },
+> = {
+  [InputName in keyof TInputs]: false extends TInputs[InputName]['config']['singleton']
+    ? Array<Expand<ResolvedExtensionInput<TInputs[InputName]>>>
+    : false extends TInputs[InputName]['config']['optional']
+    ? Expand<ResolvedExtensionInput<TInputs[InputName]>>
+    : Expand<ResolvedExtensionInput<TInputs[InputName]> | undefined>;
+};
 
 // @public
 export type RouteFunc<TParams extends AnyRouteRefParams> = (
@@ -2871,6 +2877,32 @@ export const useTranslationRef: <TMessages extends { [key in string]: string }>(
   t: TranslationFunction<TMessages>;
 };
 
+// @public (undocumented)
+export type VerifyExtensionAttachTo<
+  UOutput extends ExtensionDataRef,
+  UParentInput extends ExtensionDataRef,
+> = ExtensionDataRef extends UParentInput
+  ? {}
+  : [RequiredExtensionIds<UParentInput>] extends [RequiredExtensionIds<UOutput>]
+  ? {}
+  : `Error: This parent extension input requires the following extension data, but it is not declared as guaranteed output of this extension: ${JoinStringUnion<
+      Exclude<RequiredExtensionIds<UParentInput>, RequiredExtensionIds<UOutput>>
+    >}`;
+
+// @public (undocumented)
+export type VerifyExtensionFactoryOutput<
+  UDeclaredOutput extends ExtensionDataRef,
+  UFactoryOutput extends ExtensionDataValue<any, any>,
+> = [RequiredExtensionIds<UDeclaredOutput>] extends [UFactoryOutput['id']]
+  ? [UFactoryOutput['id']] extends [UDeclaredOutput['id']]
+    ? {}
+    : `Error: The extension factory has undeclared output(s): ${JoinStringUnion<
+        Exclude<UFactoryOutput['id'], UDeclaredOutput['id']>
+      >}`
+  : `Error: The extension factory is missing the following output(s): ${JoinStringUnion<
+      Exclude<RequiredExtensionIds<UDeclaredOutput>, UFactoryOutput['id']>
+    >}`;
+
 // @public
 export const vmwareCloudAuthApiRef: ApiRef_2<
   OAuthApi &
@@ -2892,9 +2924,4 @@ export function withApis<T extends {}>(
   (props: PropsWithChildren<Omit<TProps, keyof T>>): JSX_3.Element;
   displayName: string;
 };
-
-// Warnings were encountered during analysis:
-//
-// src/wiring/createExtension.d.ts:280:5 - (ae-forgotten-export) The symbol "VerifyExtensionAttachTo" needs to be exported by the entry point index.d.ts
-// src/wiring/createExtension.d.ts:293:9 - (ae-forgotten-export) The symbol "ResolvedExtensionInputs" needs to be exported by the entry point index.d.ts
 ```

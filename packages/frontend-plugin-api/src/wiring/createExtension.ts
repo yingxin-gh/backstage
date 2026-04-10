@@ -28,7 +28,6 @@ import { ExtensionDataRef, ExtensionDataValue } from './createExtensionDataRef';
 import { ExtensionInput } from './createExtensionInput';
 import type { z } from 'zod/v3';
 import { createSchemaFromZod } from '../schema/createSchemaFromZod';
-import type { ConfigFieldSchema } from '../schema/createPortableSchema';
 import { warnConfigSchemaPropDeprecation } from '../schema/createPortableSchema';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 import { OpaqueExtensionDefinition } from '@internal/frontend';
@@ -58,7 +57,7 @@ type ResolvedExtensionInput<TExtensionInput extends ExtensionInput> =
 /**
  * Converts an extension input map into a matching collection of resolved inputs.
  *
- * @ignore
+ * @public
  */
 export type ResolvedExtensionInputs<
   TInputs extends {
@@ -95,7 +94,7 @@ type JoinStringUnion<
     : JoinStringUnion<IRest, TDiv, `${TResult}${TDiv}${INext}`>
   : TResult;
 
-/** @ignore */
+/** @public */
 export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
   UExtensionData extends any
     ? UExtensionData['config']['optional'] extends true
@@ -103,7 +102,7 @@ export type RequiredExtensionIds<UExtensionData extends ExtensionDataRef> =
       : UExtensionData['id']
     : never;
 
-/** @ignore */
+/** @public */
 export type VerifyExtensionFactoryOutput<
   UDeclaredOutput extends ExtensionDataRef,
   UFactoryOutput extends ExtensionDataValue<any, any>,
@@ -117,7 +116,7 @@ export type VerifyExtensionFactoryOutput<
       Exclude<RequiredExtensionIds<UDeclaredOutput>, UFactoryOutput['id']>
     >}`;
 
-/** @ignore */
+/** @public */
 export type VerifyExtensionAttachTo<
   UOutput extends ExtensionDataRef,
   UParentInput extends ExtensionDataRef,
@@ -169,7 +168,7 @@ export type CreateExtensionOptions<
   TName extends string | undefined,
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key: string]: ConfigFieldSchema },
+  TConfigSchema extends { [key: string]: (zImpl: typeof z) => z.ZodType },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   UParentInputs extends ExtensionDataRef,
   TNewConfigSchema extends { [key: string]: StandardSchemaV1 } = {},
@@ -355,7 +354,7 @@ export interface OverridableExtensionDefinition<
    */
   override<
     TExtensionConfigSchema extends {
-      [key in string]: ConfigFieldSchema;
+      [key in string]: (zImpl: typeof z) => z.ZodType;
     },
     UFactoryOutput extends ExtensionDataValue<any, any>,
     UNewOutput extends ExtensionDataRef,
@@ -578,7 +577,7 @@ export function createExtension<
 export function createExtension<
   UOutput extends ExtensionDataRef,
   TInputs extends { [inputName in string]: ExtensionInput },
-  TConfigSchema extends { [key: string]: ConfigFieldSchema },
+  TConfigSchema extends { [key: string]: (zImpl: typeof z) => z.ZodType },
   UFactoryOutput extends ExtensionDataValue<any, any>,
   const TKind extends string | undefined = undefined,
   const TName extends string | undefined = undefined,

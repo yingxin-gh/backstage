@@ -31,6 +31,7 @@ import {
 import { createExtensionInput } from './createExtensionInput';
 import { RouteRef } from '../routing';
 import { createExtension, ExtensionDefinition } from './createExtension';
+import { z as zodV3 } from 'zod/v3';
 import {
   createExtensionDataContainer,
   OpaqueExtensionDefinition,
@@ -315,10 +316,12 @@ describe('createExtensionBlueprint', () => {
       attachTo: { id: 'test', input: 'default' },
       output: [coreExtensionData.reactElement],
       configSchema: {
-        title: z => z.string().default('default title'),
+        title: zodV3.string().default('default title'),
       },
       factory(_, { config }) {
-        return [coreExtensionData.reactElement(<div>{config.title}</div>)];
+        return [
+          coreExtensionData.reactElement(<div>{String(config.title)}</div>),
+        ];
       },
     });
 
@@ -330,8 +333,9 @@ describe('createExtensionBlueprint', () => {
         },
       },
       factory(origFactory, { config }) {
-        expect(config.title).toBe('default title');
-        expect(config.extra).toBe('extra value');
+        const c = config as { title: string; extra: string };
+        expect(c.title).toBe('default title');
+        expect(c.extra).toBe('extra value');
         return origFactory({});
       },
     });

@@ -211,9 +211,9 @@ export interface ExtensionBlueprint<
         node: AppNode;
         apis: ApiHolder;
         config: T['config'] & {
-          [key in keyof TNewExtensionConfigSchema]: NonNullable<
-            TNewExtensionConfigSchema[key]['~standard']['types']
-          >['output'];
+          [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+            TNewExtensionConfigSchema[key]
+          >;
         };
         inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
       },
@@ -227,16 +227,16 @@ export interface ExtensionBlueprint<
   }): OverridableExtensionDefinition<{
     config: Expand<
       {
-        [key in keyof TNewExtensionConfigSchema]: NonNullable<
-          TNewExtensionConfigSchema[key]['~standard']['types']
-        >['output'];
+        [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+          TNewExtensionConfigSchema[key]
+        >;
       } & T['config']
     >;
     configInput: Expand<
       {
-        [key in keyof TNewExtensionConfigSchema]?: NonNullable<
-          TNewExtensionConfigSchema[key]['~standard']['types']
-        >['input'];
+        [key in keyof TNewExtensionConfigSchema]?: StandardSchemaV1.InferInput<
+          TNewExtensionConfigSchema[key]
+        >;
       } & T['configInput']
     >;
     output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
@@ -618,9 +618,9 @@ export interface OverridableExtensionDefinition<
             node: AppNode;
             apis: ApiHolder;
             config: T['config'] & {
-              [key in keyof TNewExtensionConfigSchema]: NonNullable<
-                TNewExtensionConfigSchema[key]['~standard']['types']
-              >['output'];
+              [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+                TNewExtensionConfigSchema[key]
+              >;
             };
             inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
           },
@@ -647,14 +647,14 @@ export interface OverridableExtensionDefinition<
     output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
     inputs: T['inputs'] & TExtraInputs;
     config: T['config'] & {
-      [key in keyof TNewExtensionConfigSchema]: NonNullable<
-        TNewExtensionConfigSchema[key]['~standard']['types']
-      >['output'];
+      [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+        TNewExtensionConfigSchema[key]
+      >;
     };
     configInput: T['configInput'] & {
-      [key in keyof TNewExtensionConfigSchema]?: NonNullable<
-        TNewExtensionConfigSchema[key]['~standard']['types']
-      >['input'];
+      [key in keyof TNewExtensionConfigSchema]?: StandardSchemaV1.InferInput<
+        TNewExtensionConfigSchema[key]
+      >;
     };
   }>;
   // @deprecated (undocumented)

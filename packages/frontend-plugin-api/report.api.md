@@ -486,14 +486,14 @@ export function createExtension<
   },
 ): OverridableExtensionDefinition<{
   config: {
-    [key in keyof TNewConfigSchema]: NonNullable<
-      TNewConfigSchema[key]['~standard']['types']
-    >['output'];
+    [key in keyof TNewConfigSchema]: StandardSchemaV1.InferOutput<
+      TNewConfigSchema[key]
+    >;
   };
   configInput: {
-    [key in keyof TNewConfigSchema]?: NonNullable<
-      TNewConfigSchema[key]['~standard']['types']
-    >['input'];
+    [key in keyof TNewConfigSchema]?: StandardSchemaV1.InferInput<
+      TNewConfigSchema[key]
+    >;
   };
   output: UOutput extends ExtensionDataRef<
     infer IData,
@@ -602,9 +602,9 @@ export function createExtensionBlueprint<
         node: AppNode;
         apis: ApiHolder;
         config: {
-          [key in keyof TNewConfigSchema]: NonNullable<
-            TNewConfigSchema[key]['~standard']['types']
-          >['output'];
+          [key in keyof TNewConfigSchema]: StandardSchemaV1.InferOutput<
+            TNewConfigSchema[key]
+          >;
         };
         inputs: Expand<ResolvedExtensionInputs<TInputs>>;
       },
@@ -623,14 +623,14 @@ export function createExtensionBlueprint<
     : never;
   inputs: string extends keyof TInputs ? {} : TInputs;
   config: {
-    [key in keyof TNewConfigSchema]: NonNullable<
-      TNewConfigSchema[key]['~standard']['types']
-    >['output'];
+    [key in keyof TNewConfigSchema]: StandardSchemaV1.InferOutput<
+      TNewConfigSchema[key]
+    >;
   };
   configInput: {
-    [key in keyof TNewConfigSchema]?: NonNullable<
-      TNewConfigSchema[key]['~standard']['types']
-    >['input'];
+    [key in keyof TNewConfigSchema]?: StandardSchemaV1.InferInput<
+      TNewConfigSchema[key]
+    >;
   };
   dataRefs: TDataRefs;
 }>;
@@ -756,9 +756,9 @@ export type CreateExtensionBlueprintOptions<
       node: AppNode;
       apis: ApiHolder;
       config: {
-        [key in keyof TNewConfigSchema]: NonNullable<
-          TNewConfigSchema[key]['~standard']['types']
-        >['output'];
+        [key in keyof TNewConfigSchema]: StandardSchemaV1.InferOutput<
+          TNewConfigSchema[key]
+        >;
       } & {
         [key in keyof TConfigSchema]: z.infer<
           ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
@@ -846,9 +846,9 @@ export type CreateExtensionOptions<
     node: AppNode;
     apis: ApiHolder;
     config: {
-      [key in keyof TNewConfigSchema]: NonNullable<
-        TNewConfigSchema[key]['~standard']['types']
-      >['output'];
+      [key in keyof TNewConfigSchema]: StandardSchemaV1.InferOutput<
+        TNewConfigSchema[key]
+      >;
     } & {
       [key in keyof TConfigSchema]: z.infer<
         ReturnType<((...args: any[]) => any) & TConfigSchema[key]>
@@ -1264,9 +1264,9 @@ export interface ExtensionBlueprint<
         node: AppNode;
         apis: ApiHolder;
         config: T['config'] & {
-          [key in keyof TNewExtensionConfigSchema]: NonNullable<
-            TNewExtensionConfigSchema[key]['~standard']['types']
-          >['output'];
+          [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+            TNewExtensionConfigSchema[key]
+          >;
         };
         inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
       },
@@ -1280,16 +1280,16 @@ export interface ExtensionBlueprint<
   }): OverridableExtensionDefinition<{
     config: Expand<
       {
-        [key in keyof TNewExtensionConfigSchema]: NonNullable<
-          TNewExtensionConfigSchema[key]['~standard']['types']
-        >['output'];
+        [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+          TNewExtensionConfigSchema[key]
+        >;
       } & T['config']
     >;
     configInput: Expand<
       {
-        [key in keyof TNewExtensionConfigSchema]?: NonNullable<
-          TNewExtensionConfigSchema[key]['~standard']['types']
-        >['input'];
+        [key in keyof TNewExtensionConfigSchema]?: StandardSchemaV1.InferInput<
+          TNewExtensionConfigSchema[key]
+        >;
       } & T['configInput']
     >;
     output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
@@ -2001,9 +2001,9 @@ export interface OverridableExtensionDefinition<
             node: AppNode;
             apis: ApiHolder;
             config: T['config'] & {
-              [key in keyof TNewExtensionConfigSchema]: NonNullable<
-                TNewExtensionConfigSchema[key]['~standard']['types']
-              >['output'];
+              [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+                TNewExtensionConfigSchema[key]
+              >;
             };
             inputs: Expand<ResolvedExtensionInputs<T['inputs'] & TExtraInputs>>;
           },
@@ -2030,14 +2030,14 @@ export interface OverridableExtensionDefinition<
     output: ExtensionDataRef extends UNewOutput ? T['output'] : UNewOutput;
     inputs: T['inputs'] & TExtraInputs;
     config: T['config'] & {
-      [key in keyof TNewExtensionConfigSchema]: NonNullable<
-        TNewExtensionConfigSchema[key]['~standard']['types']
-      >['output'];
+      [key in keyof TNewExtensionConfigSchema]: StandardSchemaV1.InferOutput<
+        TNewExtensionConfigSchema[key]
+      >;
     };
     configInput: T['configInput'] & {
-      [key in keyof TNewExtensionConfigSchema]?: NonNullable<
-        TNewExtensionConfigSchema[key]['~standard']['types']
-      >['input'];
+      [key in keyof TNewExtensionConfigSchema]?: StandardSchemaV1.InferInput<
+        TNewExtensionConfigSchema[key]
+      >;
     };
   }>;
   // @deprecated (undocumented)

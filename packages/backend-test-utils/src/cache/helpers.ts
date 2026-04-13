@@ -31,10 +31,22 @@ export async function attemptKeyvConnection(
 
   await waitForReady(async () => {
     const store = createStore(connection);
-    keyv = new Keyv({ store });
-    const value = uuid();
-    await keyv.set('test', value);
-    return (await keyv.get('test')) === value;
+    const attemptKeyv = new Keyv({ store });
+    let succeeded = false;
+
+    try {
+      const value = uuid();
+      await attemptKeyv.set('test', value);
+      succeeded = (await attemptKeyv.get('test')) === value;
+      if (succeeded) {
+        keyv = attemptKeyv;
+      }
+      return succeeded;
+    } finally {
+      if (!succeeded) {
+        await attemptKeyv.disconnect();
+      }
+    }
   }, label);
 
   return keyv!;

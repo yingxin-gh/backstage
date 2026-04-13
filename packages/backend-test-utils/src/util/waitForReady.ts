@@ -31,7 +31,7 @@ export async function waitForReady(
 ): Promise<void> {
   const startTime = Date.now();
 
-  let lastError: Error | undefined;
+  let lastError: unknown;
   let attempts = 0;
   for (;;) {
     attempts += 1;

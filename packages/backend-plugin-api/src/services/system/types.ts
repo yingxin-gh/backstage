@@ -50,7 +50,7 @@ export type ServiceRef<
 
   /**
    * Utility for getting the type of the service, using `typeof serviceRef.T`.
-   * Attempting to actually read this value will result in an exception.
+   * Reading this value will always return `null`. It is only intended for use with `typeof serviceRef.T`.
    */
   T: TService;
 

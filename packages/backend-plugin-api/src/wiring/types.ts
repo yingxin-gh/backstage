@@ -27,7 +27,7 @@ export type ExtensionPoint<T> = {
 
   /**
    * Utility for getting the type of the extension point, using `typeof extensionPoint.T`.
-   * Attempting to actually read this value will result in an exception.
+   * Reading this value will always return `null`. It is only intended for use with `typeof extensionPoint.T`.
    */
   T: T;
 

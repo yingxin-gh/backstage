@@ -43,9 +43,7 @@ export function createExtensionPoint<T>(
 ): ExtensionPoint<T> {
   return {
     id: options.id,
-    get T(): T {
-      return null as T;
-    },
+    T: null as T,
     toString() {
       return `extensionPoint{${options.id}}`;
     },

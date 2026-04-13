@@ -143,9 +143,7 @@ export function createServiceRef<
     id,
     scope,
     multiton,
-    get T(): TService {
-      return null as TService;
-    },
+    T: null as TService,
     toString() {
       return `serviceRef{${options.id}}`;
     },

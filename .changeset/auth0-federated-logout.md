@@ -2,4 +2,6 @@
 '@backstage/plugin-auth-backend-module-auth0-provider': minor
 ---
 
-Added federated logout support. Set `federatedLogout: true` in the Auth0 provider config to clear both the Auth0 session and any upstream IdP session on sign-out. The authenticator returns a logout URL that redirects the browser to Auth0's `/v2/logout?federated` endpoint, ensuring users must fully re-authenticate after signing out.
+Sign-out now redirects the browser to Auth0's `/v2/logout` endpoint, clearing the Auth0 session cookie so that users must re-authenticate on next sign-in. Previously, only the Backstage session was cleared, allowing users to sign back in without re-entering credentials.
+
+Set `federatedLogout: true` in the Auth0 provider config to additionally clear the upstream IdP session (e.g. Okta, Google), requiring full re-authentication across the entire SSO chain.

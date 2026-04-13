@@ -144,13 +144,12 @@ export function createServiceRef<
     scope,
     multiton,
     get T(): TService {
-      throw new Error(`tried to read ServiceRef.T of ${this}`);
+      return null as TService;
     },
     toString() {
       return `serviceRef{${options.id}}`;
     },
     toJSON() {
-      // This avoids accidental calls to T happening e.g. in tests
       return {
         $$type: '@backstage/ServiceRef',
         id,

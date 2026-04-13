@@ -743,15 +743,19 @@ export function createExtensionBlueprint(options: any): any {
         if: args.if ?? options.if,
         inputs: { ...args.inputs, ...options.inputs },
         output: (args.output ?? options.output) as ExtensionDataRef[],
-        configSchema:
-          options.configSchema ||
-          args.configSchema ||
-          options.config?.schema ||
-          args.config?.schema
+        config:
+          options.config?.schema || args.config?.schema
             ? {
-                ...options.config?.schema,
+                schema: {
+                  ...options.config?.schema,
+                  ...args.config?.schema,
+                },
+              }
+            : undefined,
+        configSchema:
+          options.configSchema || args.configSchema
+            ? {
                 ...options.configSchema,
-                ...args.config?.schema,
                 ...args.configSchema,
               }
             : (undefined as any),

@@ -40,7 +40,7 @@ import {
   resolveExtensionDefinition,
 } from '../../../frontend-plugin-api/src/wiring/resolveExtensionDefinition';
 // eslint-disable-next-line @backstage/no-relative-monorepo-imports
-import { createConfigSchema } from '../../../frontend-plugin-api/src/schema/createPortableSchema';
+import { createDeprecatedConfigSchema } from '../../../frontend-plugin-api/src/schema/createPortableSchema';
 import { TestApiRegistry, withLogCollector } from '@backstage/test-utils';
 import { createErrorCollector } from '../wiring/createErrorCollector';
 
@@ -181,7 +181,7 @@ describe('instantiateAppNodeTree', () => {
         test: testDataRef,
         other: otherDataRef.optional(),
       },
-      configSchema: createConfigSchema({
+      configSchema: createDeprecatedConfigSchema({
         output: z => z.string().default('test'),
         other: z => z.number().optional(),
       }),

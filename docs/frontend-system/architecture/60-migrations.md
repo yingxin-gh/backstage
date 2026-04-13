@@ -15,9 +15,9 @@ This guide is intended for app and plugin authors who have already migrated thei
 
 ### New `configSchema` option for extension config
 
-The `config.schema` option for `createExtension` and `createExtensionBlueprint` is now deprecated in favor of a new top-level `configSchema` option. The new option accepts direct schema values from any [Standard Schema](https://github.com/standard-schema/standard-schema) compatible library, rather than requiring factory functions. The `createSchemaFromZod` helper has also been removed.
+The `config.schema` option for `createExtension` and `createExtensionBlueprint` is now deprecated in favor of a new top-level `configSchema` option. The new option accepts direct schema values from any [Standard Schema](https://github.com/standard-schema/standard-schema) compatible library with JSON Schema support, rather than requiring factory functions. The `createSchemaFromZod` helper has also been removed.
 
-The recommended migration target is [zod v4](https://zod.dev/), but any Standard Schema compatible library or version works, including zod v3.25+.
+The `configSchema` option requires schemas that implement the Standard Schema interface with JSON Schema support. This means you need to use [zod v4](https://zod.dev/) or the `zod/v4` subpath export from the zod v3 package (v3.25+). Direct zod v3 schemas are **not** supported by the new `configSchema` option — they are only supported through the deprecated `config.schema` callback format.
 
 For example, an extension previously declared like this:
 
@@ -36,10 +36,13 @@ createExtension({
 });
 ```
 
-Should now look like this:
+Should now look like this, using zod v4 or the `zod/v4` subpath:
 
 ```tsx
+// Either import from zod v4 directly:
 import { z } from 'zod';
+// Or use the v4 subpath from the zod v3 package:
+// import { z } from 'zod/v4';
 
 createExtension({
   // ...
@@ -86,7 +89,7 @@ MyBlueprint.makeWithOverrides({
 });
 ```
 
-Each field in the `configSchema` record is a standalone schema value rather than a factory function. This decouples the config schema declaration from any specific zod version, and lets you use any schema library that implements the Standard Schema interface.
+Each field in the `configSchema` record is a standalone schema value rather than a factory function. This decouples the config schema declaration from any specific zod version, and lets you use any schema library that implements the Standard Schema interface with JSON Schema support.
 
 ## 1.31
 

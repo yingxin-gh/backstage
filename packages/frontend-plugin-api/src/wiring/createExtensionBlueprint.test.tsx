@@ -31,7 +31,7 @@ import {
 import { createExtensionInput } from './createExtensionInput';
 import { RouteRef } from '../routing';
 import { createExtension, ExtensionDefinition } from './createExtension';
-import { z as zodV3 } from 'zod/v3';
+import { z as zodV4 } from 'zod/v4';
 import {
   createExtensionDataContainer,
   OpaqueExtensionDefinition,
@@ -316,7 +316,7 @@ describe('createExtensionBlueprint', () => {
       attachTo: { id: 'test', input: 'default' },
       output: [coreExtensionData.reactElement],
       configSchema: {
-        title: zodV3.string().default('default title'),
+        title: zodV4.string().default('default title'),
       },
       factory(_, { config }) {
         return [

@@ -30,12 +30,12 @@ import {
 } from './extensionData';
 import {
   FilterPredicate,
-  createZodV3FilterPredicateSchema,
+  createZodV4FilterPredicateSchema,
 } from '@backstage/filter-predicates';
 import { resolveEntityFilterData } from './resolveEntityFilterData';
 import { Entity } from '@backstage/catalog-model';
 import { ReactElement } from 'react';
-import { z } from 'zod/v3';
+import { z } from 'zod/v4';
 
 /**
  * @alpha
@@ -65,7 +65,7 @@ export const EntityContentBlueprint = createExtensionBlueprint({
     path: z.string().optional(),
     title: z.string().optional(),
     filter: z
-      .union([z.string(), createZodV3FilterPredicateSchema(z)])
+      .union([z.string(), createZodV4FilterPredicateSchema()])
       .optional(),
     group: z.literal(false).or(z.string()).optional(),
     icon: z.string().optional(),

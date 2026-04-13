@@ -29,6 +29,8 @@ import { ExtensionInput } from './createExtensionInput';
 import type { z } from 'zod/v3';
 import {
   createConfigSchema,
+  createDeprecatedConfigSchema,
+  mergePortableSchemas,
   warnConfigSchemaPropDeprecation,
 } from '../schema/createPortableSchema';
 import { describeParentCallSite } from '../routing/describeParentCallSite';
@@ -618,13 +620,15 @@ export function createExtension<
 export function createExtension(
   options: any,
 ): OverridableExtensionDefinition<any> {
-  const schemaDeclaration =
-    options.configSchema ?? (options.config?.schema as any);
   if (options.config?.schema) {
     warnConfigSchemaPropDeprecation(describeParentCallSite());
   }
-  const resolvedConfigSchema =
-    schemaDeclaration && createConfigSchema(schemaDeclaration);
+  const resolvedConfigSchema = mergePortableSchemas(
+    options.config?.schema
+      ? createDeprecatedConfigSchema(options.config.schema)
+      : undefined,
+    options.configSchema ? createConfigSchema(options.configSchema) : undefined,
+  );
 
   return OpaqueExtensionDefinition.createInstance('v2', {
     T: undefined as any,
@@ -730,15 +734,19 @@ export function createExtension(
         ),
         output: (overrideOptions.output ??
           options.output) as ExtensionDataRef[],
-        configSchema:
-          options.config ||
-          options.configSchema ||
-          overrideOptions.config ||
-          overrideOptions.configSchema
+        config:
+          options.config?.schema || overrideOptions.config?.schema
             ? {
-                ...options.config?.schema,
+                schema: {
+                  ...options.config?.schema,
+                  ...overrideOptions.config?.schema,
+                },
+              }
+            : undefined,
+        configSchema:
+          options.configSchema || overrideOptions.configSchema
+            ? {
                 ...options.configSchema,
-                ...overrideOptions.config?.schema,
                 ...overrideOptions.configSchema,
               }
             : undefined,

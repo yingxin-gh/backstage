@@ -26,6 +26,19 @@ import { PortableSchema } from './types';
 export type { StandardSchemaV1 } from '@standard-schema/spec';
 import { type StandardSchemaV1 } from '@standard-schema/spec';
 
+/** @internal */
+export function createDeprecatedConfigSchema(
+  fields: Record<string, (zImpl: typeof zodV3) => ZodType>,
+): MergeablePortableSchema {
+  const resolved: Record<string, ResolvedField> = {};
+
+  for (const [key, field] of Object.entries(fields)) {
+    resolved[key] = resolveZodField(key, field(zodV3));
+  }
+
+  return buildPortableSchema(resolved);
+}
+
 /**
  * Per-field resolved schema — validation is eager, JSON Schema is lazy.
  * @internal
@@ -53,13 +66,12 @@ export interface MergeablePortableSchema<TOutput = any, TInput = any>
  * @internal
  */
 export function createConfigSchema(
-  fields: Record<string, StandardSchemaV1 | ((zImpl: typeof zodV3) => ZodType)>,
+  fields: Record<string, StandardSchemaV1>,
 ): MergeablePortableSchema {
   const resolved: Record<string, ResolvedField> = {};
 
   for (const [key, field] of Object.entries(fields)) {
-    const schema = typeof field === 'function' ? field(zodV3) : field;
-    resolved[key] = resolveField(key, schema);
+    resolved[key] = resolveField(key, field);
   }
 
   return buildPortableSchema(resolved);
@@ -165,20 +177,25 @@ function buildPortableSchema<TOutput = unknown>(
  */
 function resolveField(key: string, schema: unknown): ResolvedField {
   if (isZodV3Type(schema)) {
-    return resolveZodField(key, schema);
+    throw new Error(
+      `Config schema for field '${key}' uses a Zod v3 schema, which is ` +
+        `not supported by the \`configSchema\` option. Either use ` +
+        `\`import { z } from 'zod/v4'\` from the zod v3 package, or ` +
+        `upgrade to zod v4.`,
+    );
   }
   if (isStandardSchema(schema)) {
     if (!hasJsonSchemaConverter(schema)) {
       throw new Error(
         `Config schema for field '${key}' does not support JSON Schema ` +
           `conversion. Use a schema library that implements the Standard ` +
-          `JSON Schema interface (like zod v4+), or use a zod v3 schema.`,
+          `JSON Schema interface (like zod v4+).`,
       );
     }
     return resolveStandardField(key, schema);
   }
   throw new Error(
-    `Config schema for field '${key}' is not a valid Standard Schema or zod schema`,
+    `Config schema for field '${key}' is not a valid Standard Schema`,
   );
 }
 
@@ -340,7 +357,8 @@ export function warnConfigSchemaPropDeprecation(callSite: string) {
   console.warn(
     `DEPRECATION WARNING: The \`config.schema\` option for extension config is deprecated. ` +
       `Use the \`configSchema\` option instead with Standard Schema values, for example ` +
-      `\`configSchema: { title: z.string() }\` using zod v3.25+ or v4. ` +
+      `\`configSchema: { title: z.string() }\` using zod v4 ` +
+      `(or \`import { z } from 'zod/v4'\` from the zod v3 package). ` +
       `Declared at ${callSite}`,
   );
 }

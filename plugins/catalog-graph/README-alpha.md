@@ -199,7 +199,7 @@ export default createFrontendModule({
   pluginId: 'catalog-graph',
   extensions: [
     EntityCardBlueprint.make({
-      name: 'entity-relations',
+      name: 'relations',
       params: {
         loader: () =>
           import('./components').then(m => <m.MyEntityRelationsCard />),

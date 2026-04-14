@@ -68,7 +68,7 @@ export class ModelHolder {
             }
             return ls;
           } finally {
-            await iter.return(undefined as void);
+            await iter.return(undefined);
           }
         }),
       );

@@ -395,7 +395,7 @@ export function createCatalogModelLayerBuilder(options: {
   build(): CatalogModelLayer;
 };
 
-// @alpha (undocumented)
+// @alpha
 export const defaultCatalogEntityModel: CatalogModelLayer;
 
 // @alpha

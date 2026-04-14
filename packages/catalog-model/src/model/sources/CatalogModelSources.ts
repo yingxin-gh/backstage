@@ -19,7 +19,6 @@ import { defaultCatalogEntityModel } from '../defaultCatalogEntityModel';
 import { StaticCatalogModelSource } from './StaticCatalogModelSource';
 import { CatalogModelSource } from './types';
 import { CatalogModelLayer } from '../types';
-import uniqBy from 'lodash/uniqBy';
 
 /**
  * A helper for creating common catalog model sources.
@@ -39,9 +38,21 @@ export class CatalogModelSources {
    * included automatically).
    */
   static static(layers: CatalogModelLayer[]): CatalogModelSource {
-    return new StaticCatalogModelSource(
-      uniqBy([...layers, defaultCatalogEntityModel], 'layerId'),
-    );
+    const allLayers = [...layers, defaultCatalogEntityModel];
+    const seen = new Set<string>();
+    const deduped: CatalogModelLayer[] = [];
+    for (const layer of allLayers) {
+      if (seen.has(layer.layerId)) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Duplicate catalog model layer ID "${layer.layerId}" detected; only the first occurrence will be used`,
+        );
+      } else {
+        seen.add(layer.layerId);
+        deduped.push(layer);
+      }
+    }
+    return new StaticCatalogModelSource(deduped);
   }
 
   private constructor() {

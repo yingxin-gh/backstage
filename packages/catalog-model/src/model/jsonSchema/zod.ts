@@ -25,8 +25,13 @@ export const jsonObjectSchema = z
     message: 'Invalid JSON schema',
   });
 
-export const jsonSchemaSchema = z
-  .record(z.string(), z.unknown())
-  .refine((x): x is JsonObject => validateMetaSchema(x), {
-    message: 'Invalid JSON schema',
-  });
+export const jsonSchemaSchema = z.record(z.string(), z.unknown()).refine(
+  (x): x is JsonObject => {
+    try {
+      return validateMetaSchema(x);
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Invalid JSON schema' },
+);

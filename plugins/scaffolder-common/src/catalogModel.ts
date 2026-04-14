@@ -15,6 +15,7 @@
  */
 
 import { createCatalogModelLayer } from '@backstage/catalog-model/alpha';
+import { JsonObject } from '@backstage/types';
 import schema from './Template.v1beta3.schema.json';
 
 /**
@@ -47,7 +48,7 @@ export const templateModelLayer = createCatalogModelLayer({
             },
           ],
           schema: {
-            jsonSchema: schema as any,
+            jsonSchema: schema as JsonObject,
           },
         },
       ],

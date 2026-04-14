@@ -57,19 +57,20 @@ export class ModelHolder {
     // model source events during the lifetime of the plugin.
     try {
       const layers = await Promise.all(
-        sources.map(source =>
-          source
-            .read({ signal: shutdownController.signal })
-            .next()
-            .then(result => {
-              readyCount += 1;
-              const ls = result.value?.layers ?? [];
-              for (const layer of ls) {
-                logger.info(`Loaded catalog model layer: ${layer.layerId}`);
-              }
-              return ls;
-            }),
-        ),
+        sources.map(async source => {
+          const iter = source.read({ signal: shutdownController.signal });
+          try {
+            const result = await iter.next();
+            readyCount += 1;
+            const ls = result.value?.layers ?? [];
+            for (const layer of ls) {
+              logger.info(`Loaded catalog model layer: ${layer.layerId}`);
+            }
+            return ls;
+          } finally {
+            await iter.return(undefined as void);
+          }
+        }),
       );
       return new ModelHolder(compileCatalogModel(layers.flat()));
     } finally {

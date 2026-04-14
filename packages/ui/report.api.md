@@ -14,6 +14,8 @@ import type { ComponentProps } from 'react';
 import type { ComponentPropsWithoutRef } from 'react';
 import type { ComponentPropsWithRef } from 'react';
 import type { CSSProperties } from 'react';
+import type { DateRangePickerProps as DateRangePickerProps_2 } from 'react-aria-components';
+import type { DateValue } from '@internationalized/date';
 import type { DialogTriggerProps as DialogTriggerProps_2 } from 'react-aria-components';
 import type { DisclosureGroupProps } from 'react-aria-components';
 import type { DisclosurePanelProps } from 'react-aria-components';
@@ -1081,6 +1083,45 @@ export interface CursorResponse<T> {
   // (undocumented)
   totalCount?: number;
 }
+
+// @public
+export const DateRangePicker: ForwardRefExoticComponent<
+  DateRangePickerProps & RefAttributes<HTMLDivElement>
+>;
+
+// @public
+export const DateRangePickerDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly classNames: {
+    readonly root: 'bui-DateRangePicker';
+  };
+  readonly propDefs: {
+    readonly size: {
+      readonly dataAttribute: true;
+      readonly default: 'small';
+    };
+    readonly className: {};
+    readonly label: {};
+    readonly description: {};
+    readonly secondaryLabel: {};
+  };
+};
+
+// @public (undocumented)
+export type DateRangePickerOwnProps = {
+  size?: 'small' | 'medium' | Partial<Record<Breakpoint, 'small' | 'medium'>>;
+  className?: string;
+  label?: FieldLabelProps['label'];
+  description?: FieldLabelProps['description'];
+  secondaryLabel?: FieldLabelProps['secondaryLabel'];
+};
+
+// @public (undocumented)
+export interface DateRangePickerProps
+  extends Omit<DateRangePickerProps_2<DateValue>, 'className' | 'children'>,
+    DateRangePickerOwnProps {}
 
 // @public
 export const Dialog: ForwardRefExoticComponent<

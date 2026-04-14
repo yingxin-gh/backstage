@@ -24,6 +24,7 @@ import { ModelProcessor } from './ModelProcessor';
 import { ModelHolder } from '../model/ModelHolder';
 
 const componentKind: CatalogModelKind = {
+  description: 'A software component',
   apiVersions: ['backstage.io/v1alpha1'],
   names: { kind: 'Component', singular: 'component', plural: 'components' },
   relationFields: [
@@ -80,6 +81,15 @@ function createModel(overrides?: {
   getRelations?: CatalogModel['getRelations'];
 }): ModelHolder {
   return ModelHolder.modelPassthroughForTest({
+    listKinds: () => [
+      {
+        description: componentKind.description,
+        names: componentKind.names,
+        versions: componentKind.apiVersions.map(apiVersion => ({ apiVersion })),
+      },
+    ],
+    listRelations: () => [ownedByRelation, dependsOnRelation],
+    getMetadata: () => ({ annotations: [], labels: [], tags: [] }),
     getKind: overrides?.getKind ?? (() => componentKind),
     getRelations:
       overrides?.getRelations ?? (() => [ownedByRelation, dependsOnRelation]),

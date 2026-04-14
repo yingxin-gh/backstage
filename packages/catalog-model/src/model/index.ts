@@ -25,7 +25,12 @@ export * from './modelActions';
 export * from './sources';
 export type {
   CatalogModel,
-  CatalogModelLayer,
+  CatalogModelAnnotationSummary,
   CatalogModelKind,
+  CatalogModelKindSummary,
+  CatalogModelLabelSummary,
+  CatalogModelLayer,
   CatalogModelRelation,
+  CatalogModelRelationSummary,
+  CatalogModelTagSummary,
 } from './types';

@@ -73,6 +73,26 @@ export const OpaqueCatalogModelLayer = OpaqueType.create<{
  */
 export interface CatalogModel {
   /**
+   * Lists all kinds in the model.
+   */
+  listKinds(): CatalogModelKindSummary[];
+
+  /**
+   * Lists all relations in the model.
+   */
+  listRelations(): CatalogModelRelationSummary[];
+
+  /**
+   * Returns summaries of the shared metadata fields in the model, including
+   * all declared annotations, labels, and tags.
+   */
+  getMetadata(): {
+    annotations: CatalogModelAnnotationSummary[];
+    labels: CatalogModelLabelSummary[];
+    tags: CatalogModelTagSummary[];
+  };
+
+  /**
    * Look up a kind in the model.
    *
    * @returns The kind if found, or `undefined` if no matching kind exists.
@@ -104,6 +124,11 @@ export interface CatalogModel {
  * @alpha
  */
 export interface CatalogModelKind {
+  /**
+   * A human-readable description of the kind.
+   */
+  description: string;
+
   /**
    * The API version(s) of the kind that this schema applies to, e.g.
    * "backstage.io/v1alpha1".
@@ -171,6 +196,63 @@ export interface CatalogModelKind {
 
 // #endregion
 
+// #region CatalogModelKindSummary
+
+/**
+ * A summary of a catalog model kind, without version-specific details such as
+ * schemas and relation fields.
+ *
+ * @alpha
+ */
+export interface CatalogModelKindSummary {
+  /**
+   * A human-readable description of the kind.
+   */
+  description: string;
+
+  /**
+   * The names used for this kind.
+   */
+  names: {
+    /**
+     * The name of the kind with proper casing, e.g. "Component".
+     */
+    kind: string;
+
+    /**
+     * The singular form of the kind name, e.g. "component".
+     */
+    singular: string;
+
+    /**
+     * The plural form of the kind name, e.g. "components".
+     */
+    plural: string;
+  };
+
+  /**
+   * The available versions and spec types for this kind.
+   *
+   * @remarks
+   *
+   * Each entry represents a unique apiVersion/specType combination that can be
+   * passed to {@link CatalogModel.getKind} to retrieve the full kind details.
+   */
+  versions: Array<{
+    /**
+     * The API version, e.g. "backstage.io/v1alpha1".
+     */
+    apiVersion: string;
+    /**
+     * The spec type, if any, e.g. "service". Undefined means the default
+     * (untyped) version.
+     */
+    specType?: string;
+  }>;
+}
+
+// #endregion
+
 // #region CatalogModelRelation
 
 /**
@@ -179,6 +261,116 @@ export interface CatalogModelKind {
  * @alpha
  */
 export interface CatalogModelRelation {
+  /**
+   * The kinds that this relation can originate from.
+   */
+  fromKind: string[];
+  /**
+   * The kinds that this relation can point to.
+   */
+  toKind: string[];
+  /**
+   * A human-readable description of the relation.
+   */
+  description: string;
+  /**
+   * The forward direction of this relation.
+   */
+  forward: {
+    type: string;
+    title: string;
+  };
+  /**
+   * The reverse direction of this relation.
+   */
+  reverse: {
+    type: string;
+    title: string;
+  };
+}
+
+// #endregion
+
+// #region CatalogModelAnnotationSummary
+
+/**
+ * A summary of a catalog model annotation.
+ *
+ * @alpha
+ */
+export interface CatalogModelAnnotationSummary {
+  /**
+   * The annotation key, e.g. "backstage.io/managed-by-location".
+   */
+  name: string;
+  /**
+   * A short human-readable title for the annotation.
+   */
+  title?: string;
+  /**
+   * A human-readable description of the annotation.
+   */
+  description: string;
+}
+
+// #endregion
+
+// #region CatalogModelLabelSummary
+
+/**
+ * A summary of a catalog model label.
+ *
+ * @alpha
+ */
+export interface CatalogModelLabelSummary {
+  /**
+   * The label key, e.g. "backstage.io/orphan".
+   */
+  name: string;
+  /**
+   * A short human-readable title for the label.
+   */
+  title?: string;
+  /**
+   * A human-readable description of the label.
+   */
+  description: string;
+}
+
+// #endregion
+
+// #region CatalogModelTagSummary
+
+/**
+ * A summary of a catalog model tag.
+ *
+ * @alpha
+ */
+export interface CatalogModelTagSummary {
+  /**
+   * The tag value, e.g. "java".
+   */
+  name: string;
+  /**
+   * A short human-readable title for the tag.
+   */
+  title?: string;
+  /**
+   * A human-readable description of the tag.
+   */
+  description: string;
+}
+
+// #endregion
+
+// #region CatalogModelRelationSummary
+
+/**
+ * A summary of a catalog model relation.
+ *
+ * @alpha
+ */
+export interface CatalogModelRelationSummary {
   /**
    * The kinds that this relation can originate from.
    */

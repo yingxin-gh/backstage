@@ -287,6 +287,7 @@ export const catalogPlugin = createBackendPlugin({
         createCatalogActions({
           catalog,
           actionsRegistry,
+          modelHolder,
         });
 
         const scmEventsMessagesCounter = metrics.createCounter<{

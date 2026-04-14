@@ -316,6 +316,7 @@ describe('compileCatalogModel integration', () => {
       apiVersion: 'example.com/v1alpha1',
     });
     expect(kind1).toEqual({
+      description: 'A widget',
       apiVersions: ['example.com/v1alpha1'],
       names: { kind: 'Widget', singular: 'widget', plural: 'widgets' },
       relationFields: [
@@ -490,6 +491,7 @@ describe('compileCatalogModel integration', () => {
       apiVersion: 'example.com/v1alpha1',
     });
     expect(kind2).toEqual({
+      description: 'An updated widget',
       apiVersions: ['example.com/v1alpha1'],
       names: { kind: 'Widget', singular: 'gizmo', plural: 'gizmos' },
       relationFields: [
@@ -630,6 +632,7 @@ describe('compileCatalogModel integration', () => {
       apiVersion: 'example.com/v1alpha1',
     });
     expect(kind3).toEqual({
+      description: 'An updated widget',
       apiVersions: ['example.com/v1alpha1'],
       names: { kind: 'Widget', singular: 'gizmo', plural: 'gizmos' },
       relationFields: [

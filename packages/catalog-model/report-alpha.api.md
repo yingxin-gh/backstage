@@ -31,7 +31,14 @@ export interface CatalogModel {
       type?: string;
     };
   }): CatalogModelKind | undefined;
+  getMetadata(): {
+    annotations: CatalogModelAnnotationSummary[];
+    labels: CatalogModelLabelSummary[];
+    tags: CatalogModelTagSummary[];
+  };
   getRelations(options: { kind: string }): CatalogModelRelation[] | undefined;
+  listKinds(): CatalogModelKindSummary[];
+  listRelations(): CatalogModelRelationSummary[];
 }
 
 // @alpha
@@ -45,8 +52,16 @@ export interface CatalogModelAnnotationDefinition {
 }
 
 // @alpha
+export interface CatalogModelAnnotationSummary {
+  description: string;
+  name: string;
+  title?: string;
+}
+
+// @alpha
 export interface CatalogModelKind {
   apiVersions: string[];
+  description: string;
   jsonSchema: JsonObject;
   names: {
     kind: string;
@@ -132,6 +147,20 @@ export interface CatalogModelKindRootSchema extends JsonObject {
 }
 
 // @alpha
+export interface CatalogModelKindSummary {
+  description: string;
+  names: {
+    kind: string;
+    singular: string;
+    plural: string;
+  };
+  versions: Array<{
+    apiVersion: string;
+    specType?: string;
+  }>;
+}
+
+// @alpha
 export interface CatalogModelKindVersionDefinition {
   description?: string;
   name: string | string[];
@@ -150,6 +179,13 @@ export interface CatalogModelLabelDefinition {
   schema?: {
     jsonSchema: JsonObject;
   };
+  title?: string;
+}
+
+// @alpha
+export interface CatalogModelLabelSummary {
+  description: string;
+  name: string;
   title?: string;
 }
 
@@ -210,6 +246,21 @@ export interface CatalogModelRelationPairDefinition {
 }
 
 // @alpha
+export interface CatalogModelRelationSummary {
+  description: string;
+  forward: {
+    type: string;
+    title: string;
+  };
+  fromKind: string[];
+  reverse: {
+    type: string;
+    title: string;
+  };
+  toKind: string[];
+}
+
+// @alpha
 export interface CatalogModelRemoveAnnotationDefinition {
   name: string;
 }
@@ -250,6 +301,13 @@ export class CatalogModelSources {
 
 // @alpha
 export interface CatalogModelTagDefinition {
+  description: string;
+  name: string;
+  title?: string;
+}
+
+// @alpha
+export interface CatalogModelTagSummary {
   description: string;
   name: string;
   title?: string;

@@ -38,9 +38,14 @@ import { OpUpdateRelationV1 } from './operations/updateRelation';
 import { OpUpdateTagV1 } from './operations/updateTag';
 import {
   CatalogModel,
-  CatalogModelLayer,
+  CatalogModelAnnotationSummary,
   CatalogModelKind,
+  CatalogModelKindSummary,
+  CatalogModelLabelSummary,
+  CatalogModelLayer,
   CatalogModelRelation,
+  CatalogModelRelationSummary,
+  CatalogModelTagSummary,
   OpaqueCatalogModelLayer,
 } from './types';
 
@@ -604,6 +609,7 @@ export function compileCatalogModel(
       for (const [specType, specificKind] of version.specTypes) {
         const key = `${kindName}\0${version.apiVersion}\0${specType ?? ''}`;
         compiledKinds.set(key, {
+          description: specificKind.description ?? kindState.description,
           apiVersions: [version.apiVersion],
           names: {
             kind: kindName,
@@ -654,7 +660,85 @@ export function compileCatalogModel(
     );
   }
 
+  // Precompute kind summaries, one per unique kind (not per version/specType)
+  const kindSummaries: CatalogModelKindSummary[] = [...kinds.entries()].map(
+    ([kindName, kindState]) => ({
+      description: kindState.description,
+      names: {
+        kind: kindName,
+        singular: kindState.singular,
+        plural: kindState.plural,
+      },
+      versions: [...kindState.versions.values()].flatMap(version =>
+        [...version.specTypes.keys()].map(specType => ({
+          apiVersion: version.apiVersion,
+          ...(specType !== undefined ? { specType } : undefined),
+        })),
+      ),
+    }),
+  );
+
+  // Precompute annotation summaries
+  const annotationSummaries: CatalogModelAnnotationSummary[] = [
+    ...annotations.entries(),
+  ].map(([name, state]) => ({
+    name,
+    ...(state.title !== undefined ? { title: state.title } : undefined),
+    description: state.description,
+  }));
+
+  // Precompute label summaries
+  const labelSummaries: CatalogModelLabelSummary[] = [...labels.entries()].map(
+    ([name, state]) => ({
+      name,
+      ...(state.title !== undefined ? { title: state.title } : undefined),
+      description: state.description,
+    }),
+  );
+
+  // Precompute tag summaries
+  const tagSummaries: CatalogModelTagSummary[] = [...tags.entries()].map(
+    ([name, state]) => ({
+      name,
+      ...(state.title !== undefined ? { title: state.title } : undefined),
+      description: state.description,
+    }),
+  );
+
+  // Collect all unique relation summaries
+  const relationSummaries: CatalogModelRelationSummary[] = [
+    ...relations.values(),
+  ].map(r => {
+    const reverseEntry = relations.get(r.reverse.type);
+    return {
+      fromKind: [...r.fromKinds],
+      toKind: [...r.toKinds],
+      description: r.description,
+      forward: r.forward,
+      reverse: {
+        type: r.reverse.type,
+        title: reverseEntry?.forward.title ?? r.reverse.title,
+      },
+    };
+  });
+
   return {
+    listKinds() {
+      return kindSummaries;
+    },
+
+    listRelations() {
+      return relationSummaries;
+    },
+
+    getMetadata() {
+      return {
+        annotations: annotationSummaries,
+        labels: labelSummaries,
+        tags: tagSummaries,
+      };
+    },
+
     getKind(options) {
       const type = options.spec?.type;
 

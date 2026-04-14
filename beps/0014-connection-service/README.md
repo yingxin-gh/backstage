@@ -197,8 +197,8 @@ export default createBackendModule({
         });
 
         if (result.connection) {
-          const { host, apiBaseUrl, auth } = result.connection;
-          // auth is narrowed to GithubTokenAuth | GithubAppAuth
+          const { apiBaseUrl, auth } = result.connection;
+          // auth is narrowed to the declared authMethods
         }
       },
     });
@@ -248,11 +248,11 @@ const result = connections.find({
   authMethods: ['token', 'app'],
   url: 'https://github.com/my-org/my-repo',
 });
-// result.connection is GithubConnection | undefined
-// result.connection.auth is narrowed to GithubTokenAuth | GithubAppAuth
+// result.connection type is derived from the 'github' schema
+// result.connection.auth is narrowed to the declared authMethods
 ```
 
-The `find` method selects both the connection and the auth method in one step. If a GitHub connection has multiple auth entries (a PAT and two apps), `find` picks the connection whose host matches and the auth entry that best matches the URL, for example the app whose `allowedOwners` includes the URL's organization.
+The `find` method selects both the connection and the auth method in one step. The connection type's `match` function picks the right connection from all candidates (typically by host), and its `matchAuth` function picks the right auth method, for example the GitHub App whose `allowedOwners` includes the URL's organization.
 
 **Static selection.** A key constraint of `find` is that the connection and auth method are selected entirely from static configuration data. No API calls are made to external services during selection. This means the information available in the connection and auth method config must be sufficient to determine the best match. For example, when multiple GitHub Apps are configured, the `allowedOwners` field on each app auth entry is what `find` uses to pick the right one for a given URL. If the ownership information needed to select the correct app isn't available in the static config, `find` cannot make the right choice. This is a deliberate trade-off: selection is fast, predictable, and has no external dependencies, but it requires that adopters configure enough metadata for the selection logic to work.
 
@@ -296,16 +296,17 @@ The `createConnectionType` helper captures the full definition: base config vali
 **What each piece does:**
 
 - **`type`** - the discriminator string used in config and queries. The framework adds `type` to the output automatically.
-- **`configSchema`** - a Zod schema for the base connection fields shared across all auth methods (e.g. `host`, `apiBaseUrl`). The pre-transform shape defines the config input; `.transform()` derives computed defaults. Must include `host` in both input and output.
-- **`authMethods`** - an array of auth method definitions, each with a `method` string discriminator and its own `configSchema` (Zod). Auth methods can also provide a `matchUrl` function for auth-specific URL scoring (e.g. matching `allowedOwners` on a GitHub App).
-- **`matchUrl(connection, url)`** - optional, at the connection level. Scores a connection against a URL for `find()` ranking among same-host, same-type candidates. Returns a number: `0` for host-only match, higher for more specific matches, `-1` to explicitly reject. When omitted, the default implementation returns `0` (host-only matching). Auth-level `matchUrl` is evaluated separately to select the best auth method within a connection.
+- **`configSchema`** - a Zod schema for the base connection fields shared across all auth methods (e.g. `host`, `apiBaseUrl`). The pre-transform shape defines the config input; `.transform()` derives computed defaults. The `host` field is required on input but is not included in the output type, it is used internally for matching only. Consumers should use base URL fields like `apiBaseUrl` instead.
+- **`authMethods`** - an array of auth method definitions, each with a `method` string discriminator and its own `configSchema` (Zod).
+- **`match(connections, query)`** - optional, at the connection level. Receives all connections of this type and the query from `find()`, and returns a single connection or `undefined`. When omitted, the default implementation selects by matching the query URL's host against the connection's `host` field. This is a simple selection function, not a scoring function.
+- **`matchAuth(authMethods, query)`** - at the auth method level (defined per-type, not per-method). Receives all eligible auth methods for the selected connection and the query, and returns a single auth method or `undefined`. Required when the type defines more than one auth method. When omitted (single auth method types), the default returns the first eligible method. The connections package can provide shared match implementations for common patterns.
 
-**Guidance: always include base URLs.** Connection type definitions should include one or more base URL fields on the output type (e.g. `apiBaseUrl`, `rawBaseUrl`), even for services that are typically accessed via a single well-known domain. Deriving sensible defaults from the `host` via `.transform()` makes it zero-configuration for the common case while allowing adopters to override any base URL, for example to route traffic through a reverse proxy or an internal gateway. Consumers of connections should always use the connection's base URLs for HTTP requests, never construct URLs from `host` directly. The specific base URL fields vary by connection type, but every type should provide at least one.
+**Guidance: always include base URLs.** Since `host` is not exposed on the output type, connection type definitions must include one or more base URL fields (e.g. `apiBaseUrl`, `rawBaseUrl`) so that consumers have a way to construct HTTP requests. Deriving sensible defaults from the `host` via `.transform()` makes it zero-configuration for the common case while allowing adopters to override any base URL, for example to route traffic through a reverse proxy or an internal gateway. The specific base URL fields vary by connection type, but every type should provide at least one.
 
 #### Full Example: GitHub Connection Type
 
 ```typescript
-import { createConnectionType } from '@backstage/connections-node';
+import { createConnectionType, hostMatch } from '@backstage/connections-node';
 import { z } from 'zod';
 
 export const githubConnectionType = createConnectionType({
@@ -320,7 +321,6 @@ export const githubConnectionType = createConnectionType({
     .transform(input => {
       const isPublic = input.host === 'github.com';
       return {
-        ...input,
         apiBaseUrl:
           input.apiBaseUrl ??
           (isPublic
@@ -333,6 +333,24 @@ export const githubConnectionType = createConnectionType({
             : `https://${input.host}/raw`),
       };
     }),
+
+  // Select the best connection from all github connections.
+  // hostMatch is a shared helper provided by the connections package.
+  match: hostMatch(),
+
+  // Select the best auth method from the eligible methods.
+  matchAuth(authMethods, query) {
+    const url = query.url && new URL(query.url);
+    const owner = url?.pathname.split('/')[1];
+    if (!owner) {
+      return authMethods[0];
+    }
+    return (
+      authMethods.find(
+        auth => auth.method === 'app' && auth.allowedOwners?.includes(owner),
+      ) ?? authMethods[0]
+    );
+  },
 
   authMethods: [
     {
@@ -356,50 +374,24 @@ export const githubConnectionType = createConnectionType({
           ...app,
           appId: typeof app.appId === 'string' ? Number(app.appId) : app.appId,
         })),
-      matchUrl(auth, url) {
-        const owner = url.pathname.split('/')[1];
-        if (!owner || !auth.allowedOwners?.length) {
-          return 0;
-        }
-        if (auth.allowedOwners.includes(owner)) {
-          return 100;
-        }
-        return -1;
-      },
     },
   ],
 });
 
-// The output type that consumers receive from find():
-export interface GithubConnection extends ResolvedConnection {
-  readonly type: 'github';
-  readonly host: string;
-  readonly apiBaseUrl: string;
-  readonly rawBaseUrl: string;
-  readonly auth: GithubTokenAuth | GithubAppAuth;
-}
-
-export interface GithubTokenAuth {
-  readonly method: 'token';
-  readonly token: string;
-}
-
-export interface GithubAppAuth {
-  readonly method: 'app';
-  readonly appId: number;
-  readonly privateKey: string;
-  readonly clientId: string;
-  readonly clientSecret: string;
-  readonly webhookSecret?: string;
-  readonly allowedOwners?: readonly string[];
-}
+// Output types are derived from the schema declarations:
+export type GithubConnection = ConnectionOf<typeof githubConnectionType>;
+export type GithubTokenAuth = AuthMethodOf<
+  typeof githubConnectionType,
+  'token'
+>;
+export type GithubAppAuth = AuthMethodOf<typeof githubConnectionType, 'app'>;
 ```
 
-The base `configSchema` handles fields shared across all auth methods (`host`, `apiBaseUrl`, `rawBaseUrl`) with `.transform()` filling in defaults. Each auth method defines its own schema independently, validated and transformed in isolation.
+The base `configSchema` handles fields shared across all auth methods (`host`, `apiBaseUrl`, `rawBaseUrl`) with `.transform()` filling in defaults. Note that `host` is consumed in the transform to derive base URLs but is not included in the output. Each auth method defines its own schema independently, validated and transformed in isolation.
 
-When `find` is called, the registry selects the best connection by host, then selects the best auth method within that connection. The `matchUrl` on the `app` auth method uses `allowedOwners` to score, so when a URL's organization matches an app's allowed owners, that app is preferred. The result returned to the caller includes the base connection fields and a single `auth` object, the selected method.
+When `find` is called, the `match` function receives all github connections and the query, and selects one (here using the `hostMatch()` helper which matches by the internal `host` field). Then `matchAuth` receives all eligible auth methods for the selected connection and picks one, in this case preferring an `app` whose `allowedOwners` includes the URL's organization. The result returned to the caller includes the base connection fields and a single `auth` object, the selected method.
 
-Every connection output has a `matchUrl` method provided by the framework. The default implementation matches by host only. When a connection type or auth method provides its own `matchUrl`, it enables more specific scoring.
+The `hostMatch()` helper is a shared implementation provided by the connections package for the common pattern of selecting a connection by matching the query URL's host. Connection types with more complex matching needs can implement `match` directly.
 
 ### Connection Type Evolution
 
@@ -417,11 +409,13 @@ authMethods: [
       token: z.string(),
       repositories: z.array(z.string()),
     }),
-    matchUrl(auth, url) {
-      // Match based on repository list
-    },
   },
 ],
+
+// The matchAuth function is updated to handle the new method:
+matchAuth(authMethods, query) {
+  // ... existing logic, plus matching fine-grained-pat by repository list
+},
 ```
 
 Existing consumers that call `find` with `authMethods: ['token', 'app']` are unaffected as long as the connections they encounter don't resolve to the new method. If an adopter configures `fine-grained-pat` as the auth method for a connection that an existing consumer queries, `find` throws, forcing the consumer to either add `'fine-grained-pat'` to their `authMethods` list and handle it, or for the adopter to also configure a `token` or `app` entry that the consumer supports. This ensures new auth methods are never silently ignored.
@@ -586,8 +580,8 @@ const artifactoryConnectionType = createConnectionType({
       repository: z.string().optional(),
     })
     .transform(input => ({
-      ...input,
       apiBaseUrl: `https://${input.host}/artifactory/api`,
+      repository: input.repository,
     })),
 
   authMethods: [
@@ -662,12 +656,18 @@ interface ConnectionType<TOutput extends Connection = Connection> {
   readonly type: string;
   readonly jsonSchema: JsonObject;
   parse(data: unknown): TOutput;
-  matchUrl?(connection: TOutput, url: URL): number;
+  match?(
+    connections: TOutput[],
+    query: Record<string, unknown>,
+  ): TOutput | undefined;
+  matchAuth?(
+    authMethods: ConnectionAuth[],
+    query: Record<string, unknown>,
+  ): ConnectionAuth | undefined;
   readonly authMethods: ReadonlyArray<{
     readonly method: string;
     readonly jsonSchema: JsonObject;
     parseAuth(data: unknown): ConnectionAuth;
-    matchUrl?(auth: ConnectionAuth, url: URL): number;
   }>;
 }
 ```
@@ -675,8 +675,9 @@ interface ConnectionType<TOutput extends Connection = Connection> {
 - **`type`** - the discriminator string.
 - **`jsonSchema`** - automatically derived from the pre-transform shape of the base Zod `configSchema`. Merged into the overall config schema for validation and IDE support.
 - **`parse(data)`** - validates and transforms the base fields through the Zod schema. Returns the base connection object (with `type` added by the framework). Throws on invalid input.
-- **`matchUrl(connection, url)`** - optional. Scores a connection against a URL for `find()` ranking among same-host, same-type candidates.
-- **`authMethods`** - the registered auth method definitions. Each has its own `jsonSchema`, `parseAuth`, and optional `matchUrl` for auth-level scoring.
+- **`match(connections, query)`** - optional. Selects a single connection from all candidates of this type. The default implementation uses `hostMatch()`.
+- **`matchAuth(authMethods, query)`** - selects a single auth method from the eligible methods. Required when the type has more than one auth method. The default (for single-method types) returns the first eligible method.
+- **`authMethods`** - the registered auth method definitions. Each has its own `jsonSchema` and `parseAuth`.
 
 The `createConnectionType` helper wires these together:
 
@@ -684,11 +685,17 @@ The `createConnectionType` helper wires these together:
 function createConnectionType<TOutput extends Connection>(options: {
   type: string;
   configSchema: ZodType<unknown, unknown, TOutput>;
-  matchUrl?: (connection: TOutput, url: URL) => number;
+  match?: (
+    connections: TOutput[],
+    query: Record<string, unknown>,
+  ) => TOutput | undefined;
+  matchAuth?: (
+    authMethods: ConnectionAuth[],
+    query: Record<string, unknown>,
+  ) => ConnectionAuth | undefined;
   authMethods: Array<{
     method: string;
     configSchema: ZodType;
-    matchUrl?: (auth: any, url: URL) => number;
   }>;
 }): ConnectionType<TOutput>;
 ```
@@ -700,8 +707,6 @@ The Zod schemas are the source of truth. The base pre-transform shape produces t
 ```typescript
 interface Connection {
   readonly type: string;
-  readonly host: string;
-  matchUrl(url: string | URL): boolean;
 }
 
 interface ConnectionAuth {
@@ -713,13 +718,13 @@ interface ResolvedConnection extends Connection {
 }
 ```
 
-The base `Connection` interface requires `type` and `host`. The `ResolvedConnection` extends it with a single `auth` field, the selected auth method, which is a discriminated union with a `method` string and method-specific fields.
+The base `Connection` interface requires only `type`. Type-specific fields like `apiBaseUrl` are defined by each connection type's output interface. The `host` field is intentionally not part of the output type, it is used internally for matching and is not exposed to consumers.
+
+The `ResolvedConnection` extends `Connection` with a single `auth` field, the selected auth method, which is a discriminated union with a `method` string and method-specific fields.
 
 The `find` method returns a `ResolvedConnection`, a connection with the single best-matching auth method already selected.
 
 The `match` block is not part of the connection or auth output types. It is a framework-level config concern handled during auth method selection. The `match` key is reserved by the framework on auth config entries and is stripped before the auth object is returned to consumers.
-
-The `matchUrl` method lets callers check whether a given URL is covered by this connection. The default implementation matches by host. Connection types that provide a custom `matchUrl` in their definition get more specific logic.
 
 All output properties are `readonly`, connections are immutable snapshots of configuration.
 
@@ -736,51 +741,22 @@ interface ConnectionResult<
 
 Simple presence/absence. The caller decides how to handle a missing connection. The `connection` is a `ResolvedConnection`, it includes the base fields and the single selected `auth` method, narrowed to only the auth methods the caller declared.
 
-`ResolvedConnectionOfType<T, M>` maps known type strings to their resolved subtypes, narrowing the `auth` union to only methods matching `M`:
+`ResolvedConnectionOfType<T, M>` maps known type strings to their resolved subtypes. Since all output types are derived from the schema declarations via `ConnectionOf` and `AuthMethodOf`, this mapping is also generated from the registered connection types. The `M` type parameter narrows the `auth` union to only methods matching the caller's declared `authMethods`.
 
-```typescript
-type ResolvedConnectionOfType<
-  T extends string,
-  M extends string = string,
-> = T extends 'github'
-  ? GithubConnectionResolved<M>
-  : T extends 'gitlab'
-  ? GitlabConnectionResolved<M>
-  : T extends 'azure'
-  ? AzureConnectionResolved<M>
-  : ResolvedConnection;
-```
+### Connection and Auth Method Selection
 
-For example, `GithubConnectionResolved<'token' | 'app'>` has `auth: GithubTokenAuth | GithubAppAuth`, while `GithubConnectionResolved<'token'>` narrows to `auth: GithubTokenAuth`.
+When `find` is called, the registry delegates selection to the connection type's `match` and `matchAuth` functions:
 
-### URL Matching and Indexing
+1. Collect all connections of the requested type.
+2. Call the type's `match(connections, query)` function, which receives the full list of connections and the query object from `find`. The function returns a single connection or `undefined`. The default implementation (and the `hostMatch()` helper) uses the internal `host` field to match against the query URL.
+3. If a connection is selected, collect its auth methods and apply `match` criteria, excluding auth entries whose `match.plugins` does not include the requesting plugin. Auth methods without a `match` block are always eligible. Among eligible entries, those with an explicit `match` for the requesting plugin are preferred over unmatched ones.
+4. Call the type's `matchAuth(authMethods, query)` function with the eligible auth methods and the query. The function returns a single auth method or `undefined`. The default implementation returns the first eligible method.
+5. **Auth method enforcement.** If the selected auth method's `method` is not in the caller's `authMethods` list, throw an error. This is a configuration/code mismatch, the connection exists and has a matching auth method but the caller has not declared support for it.
+6. Return the connection with the selected auth method attached as `auth`.
 
-The `ConnectionsRegistry` maintains a `Map<string, Connection[]>` indexed by hostname.
+The `match` and `matchAuth` functions are simple selection functions, not scoring functions. They receive the full set of candidates and return one or none. This gives type authors full control over selection logic without imposing a particular scoring model. The connections package provides shared helpers like `hostMatch()` for common patterns.
 
-**Internal scoring (used by `find`).** When `find` is called with a URL:
-
-1. Parse the URL and extract the hostname.
-2. Look up all connections for that host, O(1).
-3. Filter to the requested type (always provided).
-4. For each candidate connection, score it using the connection-level `matchUrl` (default: `0` for host match).
-5. For the winning connection, apply `match` criteria, excluding auth entries whose `match.plugins` does not include the requesting plugin. Auth methods without a `match` block are always eligible. Among eligible entries, those with an explicit `match` for the requesting plugin are preferred over unmatched ones.
-6. Score each eligible auth method using the auth-level `matchUrl`. Auth methods without a `matchUrl` score `0`. Auth methods that return `-1` are excluded.
-7. Select the highest-scoring auth method.
-8. **Auth method enforcement.** If the selected auth method's `method` is not in the caller's `authMethods` list, throw an error. This is a configuration/code mismatch, the connection exists and has a matching auth method but the caller has not declared support for it.
-9. Return the connection with the selected auth method attached as `auth`.
-
-The scoring functions return:
-
-- `0` - matches by host only (fallback, and the default when no custom `matchUrl` is provided)
-- `1-99` - partial match (e.g. group-level GitLab matching)
-- `100+` - specific match (e.g. GitHub app whose `allowedOwners` includes the URL's owner segment)
-- `-1` - does not match this URL despite sharing the host
-
-For the common case of a single connection per host with a single auth method, no scoring is needed.
-
-**`connection.matchUrl()` (used by callers).** Each connection object also exposes a `matchUrl(url)` method that callers can use directly to check whether a URL is covered by this connection. The default implementation matches by host. Connection types with a custom connection-level `matchUrl` in their definition get type-specific logic. Note that auth-level matching (e.g. checking `allowedOwners` on a GitHub App) is handled internally by `find` during auth selection and does not affect the connection-level `matchUrl`.
-
-When `find` is called with type-specific parameters (e.g. `connections.find({ type: 'github', authMethods: ['token', 'app'], host: 'github.com', owner: 'my-org' })`) instead of a URL, the connection type handles the matching directly.
+When `find` is called with type-specific parameters (e.g. `connections.find({ type: 'github', authMethods: ['token', 'app'], owner: 'my-org' })`) instead of a URL, these are passed through as part of the query object that `match` and `matchAuth` receive.
 
 ### Configuration Schema
 

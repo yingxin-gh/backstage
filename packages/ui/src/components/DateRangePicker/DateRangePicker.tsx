@@ -15,18 +15,14 @@
  */
 
 import { forwardRef, useEffect } from 'react';
-import {
-  DateRangePicker as AriaDateRangePicker,
-  Popover,
-} from 'react-aria-components';
-import clsx from 'clsx';
+import { DateRangePicker as AriaDateRangePicker } from 'react-aria-components';
 import { FieldLabel } from '../FieldLabel';
 import { FieldError } from '../FieldError';
+import { Popover } from '../Popover';
 import { DateRangePickerGroup } from './DateRangePickerGroup';
 import { DateRangePickerCalendar } from './DateRangePickerCalendar';
 import { useDefinition } from '../../hooks/useDefinition';
 import { DateRangePickerDefinition } from './definition';
-import { PopoverDefinition } from '../Popover/definition';
 import type { DateRangePickerProps } from './types';
 
 /**
@@ -42,7 +38,6 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       DateRangePickerDefinition,
       props,
     );
-    const { ownProps: popoverOwnProps } = useDefinition(PopoverDefinition, {});
 
     const { classes, label, description, secondaryLabel } = ownProps;
 
@@ -75,7 +70,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         />
         <DateRangePickerGroup dataSize={dataAttributes['data-size']} />
         <FieldError />
-        <Popover className={clsx(popoverOwnProps.classes.root)}>
+        <Popover hideArrow>
           <DateRangePickerCalendar />
         </Popover>
       </AriaDateRangePicker>

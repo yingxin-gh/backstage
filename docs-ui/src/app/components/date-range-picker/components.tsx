@@ -5,13 +5,7 @@ import { Flex } from '../../../../../packages/ui/src/components/Flex/Flex';
 import { parseDate } from '@internationalized/date';
 
 export const WithLabel = () => {
-  return (
-    <DateRangePicker
-      label="Date range"
-      description="Select a start and end date for your event."
-      style={{ maxWidth: '360px' }}
-    />
-  );
+  return <DateRangePicker label="Date range" style={{ maxWidth: '280px' }} />;
 };
 
 export const Sizes = () => {

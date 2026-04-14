@@ -1,5 +1,17 @@
 # @backstage/plugin-search-backend-node
 
+## 1.4.3
+
+### Patch Changes
+
+- 482ceed: Migrated from `assertError` to `toError` for error handling.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.9.0
+  - @backstage/errors@1.3.0
+  - @backstage/config@1.3.7
+  - @backstage/plugin-permission-common@0.9.8
+  - @backstage/plugin-search-common@1.2.23
+
 ## 1.4.3-next.2
 
 ### Patch Changes

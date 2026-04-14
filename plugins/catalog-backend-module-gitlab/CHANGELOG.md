@@ -1,5 +1,22 @@
 # @backstage/plugin-catalog-backend-module-gitlab
 
+## 0.8.2
+
+### Patch Changes
+
+- 8df0796: Fixed GitLab project topic filtering by using correct API parameter 'topic' instead of 'topics'
+- 54a8300: Add GitLab SCM event translation layer for instant catalog reprocessing.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.9.0
+  - @backstage/backend-defaults@0.17.0
+  - @backstage/errors@1.3.0
+  - @backstage/catalog-model@1.8.0
+  - @backstage/plugin-catalog-node@2.2.0
+  - @backstage/integration@2.0.1
+  - @backstage/config@1.3.7
+  - @backstage/plugin-catalog-common@1.1.9
+  - @backstage/plugin-events-node@0.4.21
+
 ## 0.8.2-next.2
 
 ### Patch Changes

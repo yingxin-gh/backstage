@@ -1,5 +1,15 @@
 # @backstage/backend-app-api
 
+## 1.6.1
+
+### Patch Changes
+
+- 482ceed: Migrated from `assertError` to `toError` for error handling.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.9.0
+  - @backstage/errors@1.3.0
+  - @backstage/config@1.3.7
+
 ## 1.6.1-next.2
 
 ### Patch Changes

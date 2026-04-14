@@ -1,5 +1,15 @@
 # @backstage/config-loader
 
+## 1.10.10
+
+### Patch Changes
+
+- 482ceed: Migrated from `assertError` to `toError` for error handling.
+- Updated dependencies
+  - @backstage/errors@1.3.0
+  - @backstage/cli-common@0.2.1
+  - @backstage/config@1.3.7
+
 ## 1.10.10-next.1
 
 ### Patch Changes

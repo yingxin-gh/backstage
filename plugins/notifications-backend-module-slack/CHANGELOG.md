@@ -1,5 +1,19 @@
 # @backstage/plugin-notifications-backend-module-slack
 
+## 0.4.1
+
+### Patch Changes
+
+- 482ceed: Migrated from `assertError` to `toError` for error handling.
+- Updated dependencies
+  - @backstage/backend-plugin-api@1.9.0
+  - @backstage/errors@1.3.0
+  - @backstage/catalog-model@1.8.0
+  - @backstage/plugin-catalog-node@2.2.0
+  - @backstage/plugin-notifications-node@0.2.25
+  - @backstage/config@1.3.7
+  - @backstage/plugin-notifications-common@0.2.2
+
 ## 0.4.1-next.2
 
 ### Patch Changes

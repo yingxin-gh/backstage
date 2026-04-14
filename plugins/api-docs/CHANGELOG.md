@@ -1,5 +1,25 @@
 # @backstage/plugin-api-docs
 
+## 0.14.0
+
+### Minor Changes
+
+- b871d4e: Use Entity Presentation API for entity display in api-docs plugin
+
+### Patch Changes
+
+- da17844: Update readme to add instructions for custom api base URL
+- Updated dependencies
+  - @backstage/ui@0.14.0
+  - @backstage/plugin-catalog@2.0.2
+  - @backstage/catalog-model@1.8.0
+  - @backstage/plugin-catalog-react@2.1.2
+  - @backstage/frontend-plugin-api@0.16.0
+  - @backstage/core-components@0.18.9
+  - @backstage/plugin-permission-react@0.5.0
+  - @backstage/core-plugin-api@1.12.5
+  - @backstage/plugin-catalog-common@1.1.9
+
 ## 0.13.6-next.2
 
 ### Patch Changes

@@ -31,47 +31,37 @@ creation-date: 2026-03-30
 
 ## Summary
 
-This BEP proposes a **Connection Service** for Backstage, a centralized system for configuring and querying connections to external services. It replaces the current `integrations` configuration and `ScmIntegrations` API with a new `connections` configuration key and `coreServices.connections` backend service.
+Today, every Backstage plugin that talks to an external service defines its own configuration for hosts, credentials, and endpoints. There is no shared system for this, which leads to duplicated configuration, no cross-plugin reuse, and no single place for adopters to see or manage their external connections. The existing `integrations` config covers a handful of SCM providers but leaves the rest of the ecosystem to solve this independently.
 
-Connections provide static, typed data about configured external services: what they are, where they live (hosts, API endpoints, regions), and what authentication material is available (tokens, app credentials, service account keys). Connections are pure configuration data, they do not perform dynamic operations like token exchange or credential refresh. Dynamic credential resolution (e.g. GitHub App installation tokens, Azure OAuth flows) is left to type-specific APIs that can be built on top of connections separately.
+This BEP proposes a **Connection Service** - a centralized registry where all external service connections are defined, configured, and queried. Connection types are maintained collaboratively in a single `@backstage/connections-node` package, giving the ecosystem a shared foundation to build on rather than each plugin reinventing its own connection configuration. The framework proactively adds connection types for common services, and plugin authors consume them through a simple query API.
 
-Each connection type defines base fields (host, API endpoints) and one or more authentication methods as first-class primitives. The `find` method selects both the best connection and the best auth method in one step, returning a single connection with a single selected auth object. The service supports querying by URL with specificity beyond host matching, querying by type, and always returns a standardized result - a missing connection is never an error. The service can be overridden at the app level, and adopters can register custom connection types.
+The key trade-off is simplicity: connections are pure static data - hosts, API endpoints, and authentication material as it appears in config. There are no API clients, no token exchange, no credential caching. Dynamic operations like GitHub App installation token negotiation or OAuth flows are explicitly left to separate APIs that can be built on top of connections. This keeps the core system minimal and focused on the one thing every plugin needs: knowing where an external service lives and what credentials are available to reach it.
 
 ## Motivation
 
-The current integrations system in Backstage has served the project well, but several pain points have emerged as the ecosystem has grown.
+Backstage plugins that connect to external services each define their own configuration for hosts, credentials, and endpoints. A Jira plugin has `jira.host` and `jira.token`, a PagerDuty plugin has `pagerduty.apiUrl` and `pagerduty.eventsBaseUrl`, a Jenkins plugin has its own block, and so on. When multiple plugins need to talk to the same external service, each one requires its own configuration entry, duplicating the same host and credential information across plugin config schemas. There is no shared connection registry that plugins can draw from, no way for an adopter to see all configured external connections in one place, and no opportunity for connection reuse across plugins that talk to the same service.
 
-**Scattered initialization.** Every backend plugin that needs connection information independently calls `ScmIntegrations.fromConfig(config)`. There is no shared instance, which means the same configuration is parsed repeatedly, and there is no central point where connections can be augmented, filtered, or monitored.
+The existing `integrations` configuration and `ScmIntegrations` API partially address this for a handful of SCM and storage providers, but the vast majority of external service connections in the ecosystem are outside its scope. The problems with the current system go beyond coverage:
 
-**No override capability.** Adopters cannot customize how connections are provided to different plugins. For example, there is no way to restrict which GitHub organizations a particular plugin can access, or to inject additional credentials per plugin without forking the plugin itself.
+**Tangled static and dynamic concerns.** The current `ScmIntegrations` class mixes static configuration access with dynamic operations. Credential providers like `DefaultGithubCredentialsProvider` and `DefaultAzureDevOpsCredentialsProvider` handle token exchange separately but must be instantiated from the same config. There is no consistent pattern for where static config ends and dynamic credential resolution begins.
 
 **Primitive lookup.** The current `byHost` lookup is insufficient for real-world scenarios. When multiple GitHub Apps are configured for different organizations on the same host, or when different credentials should be used for different paths on the same GitLab instance, host-based matching alone cannot express the routing.
 
-**Tangled static and dynamic concerns.** The current `ScmIntegrations` class mixes static configuration access with dynamic operations. `DefaultGithubCredentialsProvider` handles installation token exchange separately from the integration object but must be instantiated from the same config. `DefaultAzureDevOpsCredentialsProvider` does the same for Azure OAuth/managed identity flows. `DefaultAwsCredentialsManager` reads from a separate `aws` config key entirely. There is no consistent pattern for where static config ends and dynamic credential resolution begins.
-
 **No path for evolution.** When an external service makes breaking changes to its API or authentication, there is no mechanism to roll out a new connection format alongside the old one.
-
-**Ecosystem fragmentation.** The current integrations system only covers a handful of SCM and storage providers. The vast majority of plugins in the Backstage ecosystem that connect to external services, such as Jira, PagerDuty, Datadog, SonarQube, Jenkins, and Sentry, each define their own connection configuration in their plugin-specific config schema. A Jira plugin has `jira.host` and `jira.token`, a PagerDuty plugin has `pagerduty.apiUrl` and `pagerduty.eventsBaseUrl`, and so on. There is no shared connection registry that these plugins can draw from, no way for an adopter to see all configured external connections in one place, and no opportunity for connection reuse across plugins that talk to the same service.
-
-**Misleading naming and scope.** The `ScmIntegrations` class includes non-SCM connections such as AWS S3, Google GCS, and Azure Blob Storage.
 
 ### Goals
 
-- Introduce a backend core service (`coreServices.connections`) that provides centralized access to static connection configuration.
-- Focus connections on identification and authentication material (hosts, API endpoints, resource identifiers, regions, tokens, app credentials, keys) as static data.
-- Provide a query API where connections can be looked up by URL (with specificity beyond host matching), by type, or with additional type-specific context.
-- Ensure querying is always safe, a missing connection returns a result indicating absence, never an error.
-- Allow connection type definitions to evolve over time.
-- Define all built-in connection types in a single central `@backstage/connections-node` package.
-- Allow adopters to override the connection service at the app level.
-- Allow adopters to register custom connection types internally, via the connection service override.
+- Replace the scattered, per-plugin pattern of configuring external service connections with a single centralized system that all plugins share.
+- Provide a clean separation between static connection data (hosts, endpoints, credentials) and dynamic credential resolution (token exchange, refresh, caching).
+- Enable connection lookup that goes beyond host matching, supporting selection by URL, type, and additional context.
+- Consolidate all built-in connection type definitions in one place to provide a predictable evolution path and consistent experience across the ecosystem.
+- Allow adopters to extend the system with custom connection types for their internal services.
 
 ### Non-Goals
 
 - This BEP does not define type-specific credential APIs (e.g. GitHub App token exchange, Azure OAuth flows). Those are built on top of connections and are outside the scope of this proposal.
 - This BEP does not cover content-level operations like URL resolution or edit URL generation. Those are higher-level concerns that build on top of connections.
 - This BEP does not propose changes to the URL reader service, though it will be updated to consume connections.
-- This BEP does not cover dynamic credential rotation or external secrets management.
 - This BEP does not cover user-level authentication or access delegation.
 - Connection types are not extensible by ecosystem plugins. New connection types can only be added to `@backstage/connections-node` or by adopters in their own app. This ensures a single canonical set of definitions with a predictable evolution path.
 

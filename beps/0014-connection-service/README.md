@@ -282,6 +282,8 @@ const result = connections.find({
 
 The `find` method selects both the connection and the auth method in one step. If a GitHub connection has multiple auth entries (a PAT and two apps), `find` picks the connection whose host matches and the auth entry that best matches the URL, for example the app whose `allowedOwners` includes the URL's organization.
 
+**Static selection.** A key constraint of `find` is that the connection and auth method are selected entirely from static configuration data. No API calls are made to external services during selection. This means the information available in the connection and auth method config must be sufficient to determine the best match. For example, when multiple GitHub Apps are configured, the `allowedOwners` field on each app auth entry is what `find` uses to pick the right one for a given URL. If the ownership information needed to select the correct app isn't available in the static config, `find` cannot make the right choice. This is a deliberate trade-off: selection is fast, predictable, and has no external dependencies, but it requires that adopters configure enough metadata for the selection logic to work.
+
 **Auth method enforcement.** The `authMethods` parameter is not a filter, it is a declaration of what the caller can handle. If the best-matching auth method for a connection is one the caller did not list, `find` throws an error rather than silently skipping it. This ensures that when a new auth method is configured, consumers that encounter it are forced to explicitly add support rather than silently losing access to the connection:
 
 ```typescript
@@ -946,4 +948,20 @@ This would help administrators understand what level of access each module expec
 
 ### `findAll` Method
 
-A `findAll` method that returns all connections of a given type could be useful for listing configured hosts or for credential services that need to enumerate connections. However, no current requirement is believed to need this, every known use case is a targeted lookup for a specific connection and auth method, which `find` handles. Leaving `findAll` out of the initial API keeps the surface minimal and preserves maximum freedom to evolve the internal representation, matching behavior, and auth selection model without being constrained by a listing contract. If a concrete need arises, `findAll` can be added as a backward-compatible extension.
+A `findAll` method that returns all matching connections and auth methods for a given type, rather than just the best match:
+
+```typescript
+const results = connections.findAll({
+  type: 'github',
+  authMethods: ['token', 'app'],
+  url: 'https://github.com/my-org/my-repo',
+});
+
+for (const { connection } of results) {
+  // Try each matching connection/auth until one works
+}
+```
+
+This would remove the requirement that static configuration data alone must be sufficient to select the correct connection and auth method. Instead of `find` making a single best-match decision based on `allowedOwners` and other static metadata, `findAll` would return all candidates and let the caller (or a credential layer on top) try each one. For example, a GitHub credential service could iterate through matching app auth entries, attempt an installation token exchange for each, and use the first one that succeeds, without requiring adopters to configure `allowedOwners` or other selection hints.
+
+However, no current requirement is believed to need this, and every known use case works with the single best-match that `find` provides. Leaving `findAll` out of the initial API keeps the surface minimal and preserves maximum freedom to evolve the internal representation, matching behavior, and auth selection model without being constrained by a listing contract. It also keeps the common path simple: callers get one connection and one auth method, no iteration or fallback logic needed. If a concrete need arises, `findAll` can be added as a backward-compatible extension.

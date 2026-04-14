@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { isError } from '@backstage/errors';
 import { JsonObject } from '@backstage/types';
 import { z } from 'zod/v3';
 import { isJsonObjectDeep } from './util';
@@ -33,7 +34,7 @@ export const jsonSchemaSchema = z
     } catch (error) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: error instanceof Error ? error.message : 'Invalid JSON schema',
+        message: isError(error) ? error.message : 'Invalid JSON schema',
       });
       return false;
     }

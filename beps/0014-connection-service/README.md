@@ -168,37 +168,9 @@ The `match` block is designed to evolve. Future selection criteria can be added 
 
 ### Connection Service
 
-A new core service provides access to connections:
+A new core service, `coreServices.connections`, provides access to connections. The service is scoped per-plugin so that auth method selection can apply `match` criteria based on the requesting plugin's identity. When `find` evaluates auth methods, entries whose `match.plugins` does not include the requesting plugin are excluded from selection. Auth methods without a `match` block are always eligible.
 
-```typescript
-export const connectionsServiceRef = createServiceRef<ConnectionsService>({
-  id: 'core.connections',
-  defaultFactory: async service =>
-    createServiceFactory({
-      service,
-      deps: {
-        config: coreServices.rootConfig,
-        plugin: coreServices.pluginMetadata,
-      },
-      factory({ config, plugin }) {
-        return ConnectionsRegistry.fromConfig(config, {
-          pluginId: plugin.getId(),
-        });
-      },
-    }),
-});
-```
-
-The service depends on `coreServices.pluginMetadata` so that auth method selection can apply `match` criteria. When `find` evaluates auth methods, entries whose `match.plugins` does not include the requesting plugin are excluded from selection. Auth methods without a `match` block are always eligible.
-
-Added to `coreServices`:
-
-```typescript
-export const coreServices = {
-  // ... existing services
-  connections: connectionsServiceRef,
-};
-```
+The service can be overridden at the app level to customize connection resolution, add custom connection types, or integrate with external configuration sources.
 
 #### Connection Declarations
 

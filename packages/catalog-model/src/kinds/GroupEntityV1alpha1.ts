@@ -16,7 +16,7 @@
 
 import { createCatalogModelLayer } from '../model/createCatalogModelLayer';
 import type { Entity } from '../entity/Entity';
-import schema from '../schema/kinds/Group.v1alpha1.schema.json';
+import jsonSchema from '../schema/kinds/Group.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
 /**
@@ -45,7 +45,7 @@ export interface GroupEntityV1alpha1 extends Entity {
  * @public
  */
 export const groupEntityV1alpha1Validator =
-  ajvCompiledJsonSchemaValidator(schema);
+  ajvCompiledJsonSchemaValidator(jsonSchema);
 
 /**
  * Extends the catalog model with the Group kind.
@@ -91,7 +91,7 @@ export const groupEntityModel = createCatalogModelLayer({
             },
           ],
           schema: {
-            jsonSchema: schema,
+            jsonSchema,
           },
         },
       ],

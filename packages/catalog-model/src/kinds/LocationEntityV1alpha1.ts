@@ -16,7 +16,7 @@
 
 import { createCatalogModelLayer } from '../model/createCatalogModelLayer';
 import type { Entity } from '../entity/Entity';
-import schema from '../schema/kinds/Location.v1alpha1.schema.json';
+import jsonSchema from '../schema/kinds/Location.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
 /**
@@ -41,7 +41,7 @@ export interface LocationEntityV1alpha1 extends Entity {
  * @public
  */
 export const locationEntityV1alpha1Validator =
-  ajvCompiledJsonSchemaValidator(schema);
+  ajvCompiledJsonSchemaValidator(jsonSchema);
 
 /**
  * Extends the catalog model with the Location kind.
@@ -64,7 +64,7 @@ export const locationEntityModel = createCatalogModelLayer({
         {
           name: ['v1alpha1', 'v1beta1'],
           schema: {
-            jsonSchema: schema,
+            jsonSchema,
           },
         },
       ],

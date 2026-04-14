@@ -15,8 +15,8 @@
  */
 
 import { createCatalogModelLayer } from '@backstage/catalog-model/alpha';
-import { JsonObject } from '@backstage/types';
-import schema from './Template.v1beta3.schema.json';
+import type { JsonObject } from '@backstage/types';
+import jsonSchema from './Template.v1beta3.schema.json';
 
 /**
  * Extends the catalog model with the Template kind.
@@ -48,7 +48,7 @@ export const scaffolderCatalogModelLayer = createCatalogModelLayer({
             },
           ],
           schema: {
-            jsonSchema: schema as JsonObject,
+            jsonSchema: jsonSchema as JsonObject,
           },
         },
       ],

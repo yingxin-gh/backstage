@@ -16,7 +16,7 @@
 
 import { createCatalogModelLayer } from '../model/createCatalogModelLayer';
 import type { Entity } from '../entity/Entity';
-import schema from '../schema/kinds/Domain.v1alpha1.schema.json';
+import jsonSchema from '../schema/kinds/Domain.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
 /**
@@ -44,7 +44,7 @@ export interface DomainEntityV1alpha1 extends Entity {
  * @public
  */
 export const domainEntityV1alpha1Validator =
-  ajvCompiledJsonSchemaValidator(schema);
+  ajvCompiledJsonSchemaValidator(jsonSchema);
 
 /**
  * Extends the catalog model with the Domain kind.
@@ -82,7 +82,7 @@ export const domainEntityModel = createCatalogModelLayer({
             },
           ],
           schema: {
-            jsonSchema: schema,
+            jsonSchema,
           },
         },
       ],

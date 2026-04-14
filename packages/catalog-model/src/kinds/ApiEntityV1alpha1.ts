@@ -16,7 +16,7 @@
 
 import { createCatalogModelLayer } from '../model/createCatalogModelLayer';
 import type { Entity } from '../entity/Entity';
-import schema from '../schema/kinds/API.v1alpha1.schema.json';
+import jsonSchema from '../schema/kinds/API.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
 /**
@@ -46,7 +46,7 @@ export interface ApiEntityV1alpha1 extends Entity {
  * @public
  */
 export const apiEntityV1alpha1Validator =
-  ajvCompiledJsonSchemaValidator(schema);
+  ajvCompiledJsonSchemaValidator(jsonSchema);
 
 /**
  * Extends the catalog model with the API kind.
@@ -84,7 +84,7 @@ export const apiEntityModel = createCatalogModelLayer({
             },
           ],
           schema: {
-            jsonSchema: schema,
+            jsonSchema,
           },
         },
       ],

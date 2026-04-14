@@ -37,6 +37,6 @@ export class StaticCatalogModelSource implements CatalogModelSource {
   async *read(
     _options?: CatalogModelSourceReadOptions,
   ): AsyncCatalogModelSourceGenerator {
-    yield { layers: this.#layers };
+    yield { data: this.#layers.map(layer => ({ layer })) };
   }
 }

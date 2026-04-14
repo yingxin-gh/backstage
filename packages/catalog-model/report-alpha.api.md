@@ -16,7 +16,9 @@ export interface AlphaEntity extends Entity {
 // @alpha
 export type AsyncCatalogModelSourceGenerator = AsyncGenerator<
   {
-    layers: CatalogModelLayer[];
+    data: Array<{
+      layer: CatalogModelLayer;
+    }>;
   },
   void,
   void

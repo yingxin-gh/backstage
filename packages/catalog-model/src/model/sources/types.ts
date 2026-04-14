@@ -31,7 +31,7 @@ export interface CatalogModelSourceReadOptions {
  * @alpha
  */
 export type AsyncCatalogModelSourceGenerator = AsyncGenerator<
-  { layers: CatalogModelLayer[] },
+  { data: Array<{ layer: CatalogModelLayer }> },
   void,
   void
 >;
@@ -49,7 +49,7 @@ export type AsyncCatalogModelSourceGenerator = AsyncGenerator<
  * class MyCatalogModelSource implements CatalogModelSource {
  *   async *read() {
  *     yield {
- *       layers: [defaultCatalogEntityModel]
+ *       data: [{ layer: defaultCatalogEntityModel }]
  *     };
  *   }
  * }

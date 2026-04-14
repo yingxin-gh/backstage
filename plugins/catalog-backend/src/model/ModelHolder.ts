@@ -62,11 +62,11 @@ export class ModelHolder {
           try {
             const result = await iter.next();
             readyCount += 1;
-            const ls = result.value?.layers ?? [];
-            for (const layer of ls) {
-              logger.info(`Loaded catalog model layer: ${layer.layerId}`);
+            const entries = result.value?.data ?? [];
+            for (const entry of entries) {
+              logger.info(`Loaded catalog model layer: ${entry.layer.layerId}`);
             }
-            return ls;
+            return entries.map(entry => entry.layer);
           } finally {
             await iter.return(undefined);
           }

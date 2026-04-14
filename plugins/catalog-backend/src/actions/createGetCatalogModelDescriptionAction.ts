@@ -42,7 +42,7 @@ export const createGetCatalogModelDescriptionAction = ({
     name: 'get-catalog-model-description',
     title: 'Get a Catalog Model Description',
     description:
-      'Returns a markdown formatted description of the current catalog model, including all registered entity kinds, their spec fields, and available relations.',
+      'Returns a markdown formatted description of the current catalog model, including all registered entity kinds, annotations, labels, tags, and relations.',
     attributes: {
       destructive: false,
       readOnly: true,

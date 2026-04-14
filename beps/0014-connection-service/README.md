@@ -75,7 +75,7 @@ The current integrations system in Backstage has served the project well, but se
 - Provide a query API where connections can be looked up by URL (with specificity beyond host matching), by type, or with additional type-specific context.
 - Ensure querying is always safe, a missing connection returns a result indicating absence, never an error.
 - Allow connection type definitions to evolve over time.
-- Define all built-in connection types in a single central `@backstage/*` package.
+- Define all built-in connection types in a single central `@backstage/connections-node` package.
 - Allow adopters to override the connection service at the app level.
 - Allow adopters to register custom connection types internally, via the connection service override.
 - Provide a backend API endpoint for frontend discovery of configured connection metadata.
@@ -88,7 +88,7 @@ The current integrations system in Backstage has served the project well, but se
 - This BEP does not propose changes to the URL reader service, though it will be updated to consume connections.
 - This BEP does not cover dynamic credential rotation or external secrets management.
 - This BEP does not cover user-level authentication or access delegation.
-- Connection types are not extensible by ecosystem plugins. New connection types can only be added to the central Backstage package or by adopters in their own app. This ensures a single canonical set of definitions with a predictable evolution path.
+- Connection types are not extensible by ecosystem plugins. New connection types can only be added to `@backstage/connections-node` or by adopters in their own app. This ensures a single canonical set of definitions with a predictable evolution path.
 
 ## Proposal
 
@@ -237,7 +237,7 @@ export default createBackendModule({
 The `type` field is required. All other fields are optional metadata about the declaration:
 
 - **`required`** - Whether this connection is required for the module to function. When `true`, the framework can surface clear warnings or errors when no matching connection is configured. Defaults to `false`.
-- **`description`** - A human-readable description of what the connection is used for, surfaced in documentation and management interfaces.
+- **`description`** - A human-readable description of what the connection is used for, surfaced in documentation.
 
 The framework enforces declarations at two levels:
 
@@ -315,9 +315,11 @@ if (!result.connection) {
 
 ### Defining Connection Types
 
-Each connection type is defined using `createConnectionType`, which captures the full definition: base config validation, auth methods, output shape, and URL matching. The definition uses Zod schemas as the source of truth for both base fields and auth methods.
+All built-in connection types are defined centrally in a single `@backstage/connections-node` package. This package owns the type definitions, output interfaces, and the internal machinery for parsing and validating connection config. Ecosystem plugins cannot define new connection types, they can only consume the output types exported from this package.
 
-The `createConnectionType` function produces a `ConnectionType` object that the registry uses internally. Consumers of the connection service never interact with this object, they work with the output type produced by the schema.
+The following illustrates a possible internal API for defining connection types using `createConnectionType`. This is an internal API within the connections package and can evolve independently over time. The package may also provide additional internal helpers to simplify common patterns. The only part of this that is public-facing is the output types that consumers work with and the ability for adopters to pass custom type definitions to the connection service factory override.
+
+The `createConnectionType` helper captures the full definition: base config validation, auth methods, output shape, and URL matching. It uses Zod schemas as the source of truth for both base fields and auth methods, and produces a `ConnectionType` object that the registry uses internally.
 
 **What each piece does:**
 
@@ -331,7 +333,7 @@ The `createConnectionType` function produces a `ConnectionType` object that the 
 #### Full Example: GitHub Connection Type
 
 ```typescript
-import { createConnectionType } from '@backstage/backend-plugin-api';
+import { createConnectionType } from '@backstage/connections-node';
 import { z } from 'zod';
 
 export const githubConnectionType = createConnectionType({
@@ -598,7 +600,7 @@ backend.add(
 
 ### Custom Connection Types
 
-All built-in connection types are defined in a single central `@backstage/*` package and shipped with the framework. Ecosystem plugins cannot define new connection types, they can only consume existing ones.
+All built-in connection types are defined in `@backstage/connections-node` and shipped with the framework. Ecosystem plugins cannot define new connection types, they can only consume existing ones.
 
 Adopters can define internal custom connection types for their own organization's needs using the same `createConnectionType` API:
 

@@ -26,8 +26,6 @@ creation-date: 2026-03-30
 - [Design Details](#design-details)
   - [Credential APIs on Top of Connections](#credential-apis-on-top-of-connections)
   - [Backward Compatibility](#backward-compatibility)
-- [Release Plan](#release-plan)
-- [Dependencies](#dependencies)
 - [Alternatives](#alternatives)
   - [Connection-Driven Proxy Endpoints](#connection-driven-proxy-endpoints)
 
@@ -530,26 +528,6 @@ Since the two formats use different top-level keys, they never conflict. When `i
 
 The existing `ScmIntegrations` and `ScmIntegrationRegistry` types are preserved as deprecated wrappers that delegate to `ConnectionsService`.
 
-## Release Plan
-
-The rollout is split into phases:
-
-**Phase 1: Connection service (non-breaking).** Introduce `ConnectionsRegistry`, `ConnectionsService`, `Connection`, and `coreServices.connections` with full backward compatibility for the old config format. `ScmIntegrations` is updated to delegate to the new service internally.
-
-**Phase 2: Plugin migration.** Core plugins are migrated to use `coreServices.connections`. The URL reader service and existing credential providers are updated to consume connections.
-
-**Phase 3: Deprecation.** `ScmIntegrations`, `ScmIntegrationRegistry`, and the `integrations` config key are formally deprecated.
-
-**Phase 4: Removal.** Deprecated APIs and old config format support are removed.
-
-## Dependencies
-
-None.
-
-## TODO
-
-- **User-level auth and access delegation.** Connections are service-level configuration, how the backend authenticates to external services. Acting on behalf of a signed-in user (OAuth token exchange, user-scoped access tokens, forwarding user identity) is a distinct concern handled by auth providers. However, the two share underlying configuration: a GitHub App's client ID lives in a connection, and the same client ID is used for user OAuth. This section needs to articulate the boundary clearly, explain where the concerns overlap, and sketch how connections and auth providers could relate in the future. Currently listed as a non-goal but needs more thought.
-
 ## Alternatives
 
 ### Single-Layer Design with `getCredentials` on `Connection`
@@ -686,3 +664,11 @@ if (connection) {
 The frontend plugin gets back the familiar connection fields (`apiBaseUrl`, `rawBaseUrl`, etc.) and uses them the same way backend code would, but the URLs transparently route through the backend proxy which handles auth injection. The plugin never sees credentials.
 
 This would eliminate the "add this to your proxy config" instructions that many plugins require today, and remove the duplication between proxy endpoint configuration and connection configuration. The exact integration with the existing proxy plugin and the credential layer needs further design, so this is left as a future extension.
+
+### User-Level Auth and Access Delegation
+
+Connections as proposed are service-level configuration - how the backend authenticates to external services. A related but distinct concern is acting on behalf of a signed-in user: OAuth token exchange, user-scoped access tokens, and forwarding user identity. Today this is handled by Backstage auth providers, which are configured separately from integrations.
+
+The two systems share underlying configuration. For example, a GitHub App's client ID and client secret live in a connection, and the same credentials are used for user-facing OAuth flows. This overlap suggests that connections could be extended to also serve as the configuration source for auth providers and access delegation, unifying the two into a single place where all external service credentials are managed.
+
+This is intentionally left out of the current proposal to keep the scope focused on service-level connections. The interaction between connections and auth providers can be explored as a backward-compatible extension once the connection service is established.

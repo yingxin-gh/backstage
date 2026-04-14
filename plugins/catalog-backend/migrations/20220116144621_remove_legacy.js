@@ -25,6 +25,9 @@ exports.up = async function up(knex) {
   await knex.schema.dropTable('entities');
 };
 
+/**
+ * @param {import('knex').Knex} knex
+ */
 exports.down = async function down(knex) {
   await knex.schema.createTable('entities', table => {
     table.comment('All entities currently stored in the catalog');

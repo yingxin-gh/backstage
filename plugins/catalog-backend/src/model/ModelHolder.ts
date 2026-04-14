@@ -53,7 +53,7 @@ export class ModelHolder {
       );
     }, 3000);
 
-    // TODO(freben): Obviopusly this needs to be extended to support dynamic
+    // TODO(freben): Obviously this needs to be extended to support dynamic
     // model source events during the lifetime of the plugin.
     try {
       const layers = await Promise.all(

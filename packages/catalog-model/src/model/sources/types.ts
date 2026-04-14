@@ -59,7 +59,7 @@ export type AsyncCatalogModelSourceGenerator = AsyncGenerator<
  */
 export interface CatalogModelSource {
   /**
-   * Retuns a stream of layers as epxressed by this particular source.
+   * Returns a stream of layers as expressed by this particular source.
    */
   read(
     options?: CatalogModelSourceReadOptions,

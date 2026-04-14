@@ -24,7 +24,7 @@ export function isJsonObject(value?: unknown): value is JsonObject {
 }
 
 /**
- * Asserts that the value is a JSON object recorsively containing only JSON safe
+ * Asserts that the value is a JSON object recursively containing only JSON safe
  * values and no circular references.
  */
 export function isJsonObjectDeep(value: unknown): value is JsonObject {

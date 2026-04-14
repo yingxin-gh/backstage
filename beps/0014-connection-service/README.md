@@ -323,21 +323,32 @@ export const githubConnectionType = createConnectionType({
   // hostMatch is a shared helper provided by the connections package.
   match: hostMatch(),
 
-  // Select the best auth method from the eligible methods.
+  // Priority: app with matching owners > any app > token > none
   matchAuth(authMethods, query) {
     const url = query.url && new URL(query.url);
     const owner = url?.pathname.split('/')[1];
-    if (!owner) {
-      return authMethods[0];
-    }
-    return (
+
+    const appWithOwner =
+      owner &&
       authMethods.find(
         auth => auth.method === 'app' && auth.allowedOwners?.includes(owner),
-      ) ?? authMethods[0]
+      );
+    if (appWithOwner) {
+      return appWithOwner;
+    }
+
+    return (
+      authMethods.find(auth => auth.method === 'app') ??
+      authMethods.find(auth => auth.method === 'token') ??
+      authMethods.find(auth => auth.method === 'none')
     );
   },
 
   authMethods: [
+    {
+      method: 'none',
+      configSchema: z.object({}),
+    },
     {
       method: 'token',
       configSchema: z.object({
@@ -362,19 +373,13 @@ export const githubConnectionType = createConnectionType({
     },
   ],
 });
-
-// Output types are derived from the schema declarations:
-export type GithubConnection = ConnectionOf<typeof githubConnectionType>;
-export type GithubTokenAuth = AuthMethodOf<
-  typeof githubConnectionType,
-  'token'
->;
-export type GithubAppAuth = AuthMethodOf<typeof githubConnectionType, 'app'>;
 ```
+
+All connection type definitions are collected into a single registry type. Helper types can be used to select slices from this registry, for example extracting the connection or auth method shape for a specific type. There are no individually exported types like `GithubConnection` or `GithubAppAuth`.
 
 The base `configSchema` handles fields shared across all auth methods (`host`, `apiBaseUrl`, `rawBaseUrl`) with `.transform()` filling in defaults. Note that `host` is consumed in the transform to derive base URLs but is not included in the output. Each auth method defines its own schema independently, validated and transformed in isolation.
 
-When `find` is called, the `match` function receives all github connections and the query, and selects one (here using the `hostMatch()` helper which matches by the internal `host` field). Then `matchAuth` receives all eligible auth methods for the selected connection and picks one, in this case preferring an `app` whose `allowedOwners` includes the URL's organization. The result returned to the caller includes the base connection fields and a single `auth` object, the selected method.
+When `find` is called, the `match` function receives all github connections and the query, and selects one (here using the `hostMatch()` helper which matches by the internal `host` field). Then `matchAuth` receives all eligible auth methods for the selected connection and picks one, following a priority chain: an app whose `allowedOwners` includes the URL's organization, then any app, then a token, then unauthenticated (`none`). This allows a connection to be configured with just a `none` entry for public API access, upgraded to a token or app when credentials are available. The result returned to the caller includes the base connection fields and a single `auth` object, the selected method.
 
 The `hostMatch()` helper is a shared implementation provided by the connections package for the common pattern of selecting a connection by matching the query URL's host. Connection types with more complex matching needs can implement `match` directly.
 
@@ -434,65 +439,7 @@ Plugins that need the new API register `github-v2`. Plugins that work with both 
 
 All built-in connection types are defined in `@backstage/connections-node` and shipped with the framework. Ecosystem plugins cannot define new connection types, they can only consume existing ones.
 
-Adopters can define internal custom connection types for their own organization's needs using the same `createConnectionType` API:
-
-```typescript
-const artifactoryConnectionType = createConnectionType({
-  type: 'artifactory',
-
-  configSchema: z
-    .object({
-      host: z.string(),
-      repository: z.string().optional(),
-    })
-    .transform(input => ({
-      apiBaseUrl: `https://${input.host}/artifactory/api`,
-      repository: input.repository,
-    })),
-
-  authMethods: [
-    {
-      method: 'token',
-      configSchema: z.object({
-        token: z.string(),
-      }),
-    },
-  ],
-});
-```
-
-Custom types are registered by passing them to the connection service factory as a single list of extra definitions. This naturally limits extension to a single point of control, there is no plugin-level extension mechanism:
-
-```typescript
-const backend = createBackend();
-
-backend.add(
-  createServiceFactory({
-    service: coreServices.connections,
-    deps: {
-      config: coreServices.rootConfig,
-      plugin: coreServices.pluginMetadata,
-    },
-    factory({ config, plugin }) {
-      return ConnectionsRegistry.fromConfig(config, {
-        pluginId: plugin.getId(),
-        extraTypes: [artifactoryConnectionType],
-      });
-    },
-  }),
-);
-```
-
-Configured as:
-
-```yaml
-connections:
-  - type: artifactory
-    host: artifactory.example.com
-    auth:
-      - method: token
-        token: ${ARTIFACTORY_TOKEN}
-```
+Adopters can define custom connection types for their own organization's internal services. The connection service provides a mechanism for registering additional type definitions at the backend level, using the same `createConnectionType` API used for built-in types. This is limited to a single point of control at the app level, there is no plugin-level extension mechanism for adding new types.
 
 ## Design Details
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-export type {
-  Backend,
-  CreateSpecializedBackendOptions,
-  ExtensionPointFactoryMiddleware,
-  BackendStartupResult,
-  PluginStartupResult,
-  ModuleStartupResult,
-} from './types';
-export { createExtensionPointFactoryMiddleware } from './types';
-export { createSpecializedBackend } from './createSpecializedBackend';
-export { BackendStartupError } from './BackendStartupError';
+import { OpaqueType } from '@internal/opaque';
+
+export const OpaqueExtensionPointFactoryMiddleware = OpaqueType.create<{
+  public: { $$type: '@backstage/ExtensionPointFactoryMiddleware' };
+  versions: {
+    readonly version: 'v1';
+    readonly extensionPointId: string;
+    readonly middleware: (original: unknown) => Promise<unknown>;
+  };
+}>({
+  type: '@backstage/ExtensionPointFactoryMiddleware',
+  versions: ['v1'],
+});

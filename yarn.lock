@@ -10089,6 +10089,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@internal/backend@workspace:packages/backend-internal":
+  version: 0.0.0-use.local
+  resolution: "@internal/backend@workspace:packages/backend-internal"
+  dependencies:
+    "@backstage/cli": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
 "@internal/cli@workspace:packages/cli-internal":
   version: 0.0.0-use.local
   resolution: "@internal/cli@workspace:packages/cli-internal"

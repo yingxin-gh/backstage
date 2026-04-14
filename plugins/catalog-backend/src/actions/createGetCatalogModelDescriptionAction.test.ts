@@ -79,7 +79,7 @@ describe('createGetCatalogModelDescriptionAction', () => {
       input: {},
     });
 
-    const description = result.output.description as string;
+    const description = (result as any).output.description as string;
 
     expect(description).toContain('# Catalog Model');
     expect(description).toContain('## Entity Kinds');
@@ -127,7 +127,7 @@ describe('createGetCatalogModelDescriptionAction', () => {
       input: {},
     });
 
-    const description = result.output.description as string;
+    const description = (result as any).output.description as string;
 
     expect(description).toContain('# Catalog Model');
     expect(description).toContain('## Entity Kinds');

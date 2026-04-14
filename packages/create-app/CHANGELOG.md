@@ -1,5 +1,18 @@
 # @backstage/create-app
 
+## 0.8.2
+
+### Patch Changes
+
+- a2cb332: Bumped create-app version.
+- 6c10d88: Bumped create-app version.
+- e8ffac1: Various fixes for the `create-app` template: reorganizing sidebar items, removing redundant config and code, and adding a documentation example.
+- 72a493a: Added the `mcp-actions-backend` and `plugin-auth` plugins
+- 4cf9f3a: Removed the unnecessary `@backstage/cli-module-new` dependency from the `next-app` template, since it is already included through `@backstage/cli-defaults`.
+- 2541837: Renamed the built-in template directories from `next-app` to `default-app` and `default-app` to `legacy-app`.
+- Updated dependencies
+  - @backstage/cli-common@0.2.1
+
 ## 0.8.2-next.2
 
 ### Patch Changes

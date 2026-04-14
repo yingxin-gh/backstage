@@ -1,5 +1,18 @@
 # @backstage/plugin-permission-react
 
+## 0.5.0
+
+### Minor Changes
+
+- 53954e1: **BREAKING**: Removed the deprecated `PermissionedRoute` component. Use `RequirePermission` instead.
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/config@1.3.7
+  - @backstage/core-plugin-api@1.12.5
+  - @backstage/plugin-permission-common@0.9.8
+
 ## 0.4.42-next.1
 
 ### Patch Changes

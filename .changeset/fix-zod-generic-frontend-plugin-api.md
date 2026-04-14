@@ -1,5 +1,5 @@
 ---
-'@backstage/frontend-plugin-api': patch
+'@backstage/frontend-plugin-api': minor
 ---
 
-Refactored the internal `createSchemaFromZod` helper to use a schema-first generic pattern, replacing the `ZodSchema<TOutput, ZodTypeDef, TInput>` constraint with `TSchema extends ZodType`. This avoids "excessively deep" type inference errors when multiple Zod copies are resolved.
+**BREAKING**: Removed the deprecated `createSchemaFromZod` helper. Use the new `configSchema` option instead. See the [1.50 migration documentation](https://backstage.io/docs/frontend-system/architecture/migrations#150) for more information.

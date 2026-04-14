@@ -339,9 +339,9 @@ export const EntityContentBlueprint: ExtensionBlueprint<{
     icon: string | undefined;
   };
   configInput: {
-    filter?: FilterPredicate | undefined;
-    title?: string | undefined;
     path?: string | undefined;
+    title?: string | undefined;
+    filter?: FilterPredicate | undefined;
     group?: string | false | undefined;
     icon?: string | undefined;
   };

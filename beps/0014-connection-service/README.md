@@ -29,6 +29,7 @@ creation-date: 2026-03-30
 - [Release Plan](#release-plan)
 - [Dependencies](#dependencies)
 - [Alternatives](#alternatives)
+  - [Connection-Driven Proxy Endpoints](#connection-driven-proxy-endpoints)
 
 ## Summary
 
@@ -621,3 +622,67 @@ for (const { connection } of results) {
 This would remove the requirement that static configuration data alone must be sufficient to select the correct connection and auth method. Instead of `find` making a single best-match decision based on `allowedOwners` and other static metadata, `findAll` would return all candidates and let the caller (or a credential layer on top) try each one. For example, a GitHub credential service could iterate through matching app auth entries, attempt an installation token exchange for each, and use the first one that succeeds, without requiring adopters to configure `allowedOwners` or other selection hints.
 
 However, no current requirement is believed to need this, and every known use case works with the single best-match that `find` provides. Leaving `findAll` out of the initial API keeps the surface minimal and preserves maximum freedom to evolve the internal representation, matching behavior, and auth selection model without being constrained by a listing contract. It also keeps the common path simple: callers get one connection and one auth method, no iteration or fallback logic needed. If a concrete need arises, `findAll` can be added as a backward-compatible extension.
+
+### Connection-Driven Proxy Endpoints
+
+Today, many frontend plugins instruct adopters to configure proxy endpoints manually to reach external services:
+
+```yaml
+proxy:
+  endpoints:
+    /circleci/api:
+      target: https://circleci.com/api/v1.1
+      headers:
+        Circle-Token: ${CIRCLECI_TOKEN}
+```
+
+This duplicates exactly the information that already lives in a connection: the base URL, the credential, and how to inject it into HTTP requests. A natural future extension would be to let connection types declare how their auth methods map to proxy headers, so that a proxy layer can consume connections directly instead of requiring separate configuration.
+
+Each auth method definition could include an optional `proxy` section describing how to translate the auth into HTTP headers:
+
+```typescript
+export const circleCiConnectionType = createConnectionType({
+  type: 'circleci',
+  configSchema: z
+    .object({
+      host: z.string().default('circleci.com'),
+      apiBaseUrl: z.string().optional(),
+    })
+    .transform(input => ({
+      apiBaseUrl: input.apiBaseUrl ?? `https://${input.host}/api/v1.1`,
+    })),
+  match: hostMatch(),
+  authMethods: [
+    {
+      method: 'token',
+      configSchema: z.object({ token: z.string() }),
+      proxy: {
+        headers: auth => ({ 'Circle-Token': auth.token }),
+      },
+    },
+  ],
+});
+```
+
+A proxy service or plugin could then use the connection service to look up a connection, check whether its auth method has a `proxy` declaration, and if so forward requests to the connection's base URL with the appropriate headers injected. Not all auth methods can be proxied with static header injection - GitHub Apps, for example, require dynamic installation token exchange first. Auth methods that lack a `proxy` section would need the credential layer to resolve a usable token before proxying.
+
+On the frontend side, plugins would not interact with connections directly. Instead, a connection proxy API would return the same connection shape as the backend, but without the `auth` field, and with the base URL fields rewritten to point through the proxy:
+
+```typescript
+// Frontend plugin code
+const connectionProxy = useApi(connectionProxyApiRef);
+const connection = await connectionProxy.find({
+  type: 'github',
+  url: 'https://github.com/my-org/my-repo',
+});
+
+if (connection) {
+  // connection.apiBaseUrl points through the proxy,
+  // e.g. /api/proxy/connections/github/abc123
+  const response = await fetch(`${connection.apiBaseUrl}/repos/my-org/my-repo`);
+}
+```
+
+The frontend plugin gets back the familiar connection fields (`apiBaseUrl`, `rawBaseUrl`, etc.) and uses them the same way backend code would, but the URLs transparently route through the backend proxy which handles auth injection. The plugin never sees credentials.
+
+This would eliminate the "add this to your proxy config" instructions that many plugins require today, and remove the duplication between proxy endpoint configuration and connection configuration. The exact integration with the existing proxy plugin and the credential layer needs further design, so this is left as a future extension.

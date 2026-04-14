@@ -36,7 +36,7 @@ import { catalogModelExtensionPoint } from './extensions';
  * ```ts
  * backend.add(
  *   provideStaticCatalogModel({
- *     layers: [templateModelLayer],
+ *     layers: [scaffolderCatalogModelLayer],
  *   }),
  * );
  * ```

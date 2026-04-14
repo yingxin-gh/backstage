@@ -15,4 +15,4 @@
  */
 
 export * from './permissions';
-export { templateModelLayer } from './catalogModel';
+export { scaffolderCatalogModelLayer } from './catalogModel';

@@ -23,7 +23,7 @@ import schema from './Template.v1beta3.schema.json';
  *
  * @alpha
  */
-export const templateModelLayer = createCatalogModelLayer({
+export const scaffolderCatalogModelLayer = createCatalogModelLayer({
   layerId: 'scaffolder.backstage.io/kind-template',
   builder: model => {
     model.addKind({

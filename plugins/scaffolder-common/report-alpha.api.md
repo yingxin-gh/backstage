@@ -23,6 +23,9 @@ export const RESOURCE_TYPE_SCAFFOLDER_TEMPLATE = 'scaffolder-template';
 export const scaffolderActionPermissions: ResourcePermission<'scaffolder-action'>[];
 
 // @alpha
+export const scaffolderCatalogModelLayer: CatalogModelLayer;
+
+// @alpha
 export const scaffolderPermissions: (
   | BasicPermission
   | ResourcePermission<'scaffolder-action'>
@@ -50,9 +53,6 @@ export const taskReadPermission: ResourcePermission<'scaffolder-task'>;
 
 // @alpha
 export const templateManagementPermission: BasicPermission;
-
-// @alpha
-export const templateModelLayer: CatalogModelLayer;
 
 // @alpha
 export const templateParameterReadPermission: ResourcePermission<'scaffolder-template'>;

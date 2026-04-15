@@ -3,4 +3,4 @@
 '@backstage/backend-test-utils': patch
 ---
 
-Deduplicated internal `isPromise` and `unwrapFeature` helpers.
+Internal refactor.

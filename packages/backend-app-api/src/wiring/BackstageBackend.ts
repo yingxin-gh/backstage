@@ -15,8 +15,8 @@
  */
 
 import { BackendFeature, ServiceFactory } from '@backstage/backend-plugin-api';
+import { isPromise, unwrapFeature } from '@internal/backend';
 import { BackendInitializer } from './BackendInitializer';
-import { isPromise, unwrapFeature } from './helpers';
 import {
   Backend,
   BackendStartupResult,

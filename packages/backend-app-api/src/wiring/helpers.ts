@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-// Direct internal import to avoid duplication
-// eslint-disable-next-line @backstage/no-relative-monorepo-imports
-export {
-  isPromise,
-  unwrapFeature,
-} from '../../../backend-internal/src/wiring/helpers';
-
 /** @internal */
 export type DeepReadonly<T> = {
   readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];

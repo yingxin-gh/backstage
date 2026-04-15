@@ -26,12 +26,7 @@ import {
 import { mockServices } from '../services';
 import { ConfigReader } from '@backstage/config';
 import express from 'express';
-// Direct internal import to avoid duplication
-// eslint-disable-next-line @backstage/no-relative-monorepo-imports
-import {
-  isPromise,
-  unwrapFeature,
-} from '../../../backend-internal/src/wiring/helpers';
+import { isPromise, unwrapFeature } from '@internal/backend';
 // eslint-disable-next-line @backstage/no-relative-monorepo-imports
 import {
   InternalBackendFeature,

@@ -476,20 +476,6 @@ The existing `ScmIntegrations` and `ScmIntegrationRegistry` types are preserved 
 
 The following are alternative designs that were considered and potential future extensions that are outside the scope of the current proposal but worth capturing for reference.
 
-### Single-Layer Design with `getCredentials` on `Connection`
-
-Each connection object could include a `getCredentials()` method directly, combining static config and dynamic credential resolution in one interface:
-
-```typescript
-interface Connection {
-  type: string;
-  host: string;
-  getCredentials(opts?: { url?: string }): Promise<ConnectionCredentials>;
-}
-```
-
-Simpler API surface, one object to work with instead of two. But this mixes static data with stateful operations (caching, refresh timers, SDK initialization), makes the connection object harder to serialize and test, and provides no way to override credential resolution independently of connection config.
-
 ### Named Entries Instead of Array
 
 Using an object with named keys instead of an array:
@@ -504,10 +490,6 @@ backend:
 ```
 
 Better config merging across sources since objects merge deeply while arrays replace. But adds structural complexity, and in practice different environments define entirely different sets of connections, making the merging benefit less important than the simplicity of a flat list.
-
-### Keep `ScmIntegrations` and Add Service Wrappers
-
-Wrap existing types in services without changing config format. Simpler to implement but misses the opportunity to separate static config from dynamic auth, fix the naming, and support config evolution.
 
 ### Per-Provider Service Refs for Connections
 

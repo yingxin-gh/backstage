@@ -39,14 +39,8 @@ describe('NavItemBlueprint', () => {
           "input": "items",
         },
         "configSchema": {
-          "_fields": {
-            "title": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

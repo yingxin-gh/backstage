@@ -63,14 +63,8 @@ describe('EntityContextMenuItemBlueprint', () => {
           "input": "contextMenuItems",
         },
         "configSchema": {
-          "_fields": {
-            "filter": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

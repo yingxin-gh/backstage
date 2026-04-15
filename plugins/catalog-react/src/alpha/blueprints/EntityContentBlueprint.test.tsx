@@ -47,34 +47,8 @@ describe('EntityContentBlueprint', () => {
           "input": "contents",
         },
         "configSchema": {
-          "_fields": {
-            "filter": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-            "group": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-            "icon": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-            "path": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-            "title": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

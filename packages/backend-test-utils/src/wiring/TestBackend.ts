@@ -29,6 +29,11 @@ import express from 'express';
 // Direct internal import to avoid duplication
 // eslint-disable-next-line @backstage/no-relative-monorepo-imports
 import {
+  isPromise,
+  unwrapFeature,
+} from '../../../backend-internal/src/wiring/helpers';
+// eslint-disable-next-line @backstage/no-relative-monorepo-imports
+import {
   InternalBackendFeature,
   InternalBackendRegistrations,
 } from '../../../backend-plugin-api/src/wiring/types';
@@ -216,30 +221,6 @@ function createExtensionPointTestModules(
   }
 
   return modules;
-}
-
-function isPromise<T>(value: unknown | Promise<T>): value is Promise<T> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'then' in value &&
-    typeof value.then === 'function'
-  );
-}
-
-// Same as in the backend-app-api, handles double defaults from dynamic imports
-function unwrapFeature(
-  feature: BackendFeature | { default: BackendFeature },
-): BackendFeature {
-  if ('$$type' in feature) {
-    return feature;
-  }
-
-  if ('default' in feature) {
-    return feature.default;
-  }
-
-  return feature;
 }
 
 const backendInstancesToCleanUp = new Array<Backend>();

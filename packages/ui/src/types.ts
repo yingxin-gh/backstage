@@ -121,6 +121,13 @@ export interface PaddingProps {
 export interface SpaceProps extends MarginProps, PaddingProps {}
 
 /** @public */
+export interface FlexItemProps {
+  grow?: Responsive<number | boolean>;
+  shrink?: Responsive<number | boolean>;
+  basis?: Responsive<string>;
+}
+
+/** @public */
 export type TextVariants =
   | 'title-large'
   | 'title-medium'

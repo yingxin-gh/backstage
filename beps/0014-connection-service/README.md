@@ -35,15 +35,15 @@ Today, every Backstage plugin that talks to an external service defines its own 
 
 This BEP proposes a **Connection Service** - a centralized registry where all external service connections are defined, configured, and queried. Connection types are maintained collaboratively in a single `@backstage/connections-node` package, giving the ecosystem a shared foundation to build on rather than each plugin reinventing its own connection configuration. The framework proactively adds connection types for common services, and plugin authors consume them through a simple query API.
 
-The key trade-off is simplicity: connections are pure static data - hosts, API endpoints, and authentication material as it appears in config. There are no API clients, no token exchange, no credential caching. Dynamic operations like GitHub App installation token negotiation or OAuth flows are explicitly left to separate APIs that can be built on top of connections. This keeps the core system minimal and focused on the one thing every plugin needs: knowing where an external service lives and what credentials are available to reach it.
+The key trade-off is simplicity: connections are pure static data - hosts, API endpoints, and authentication material as it appears in config. There are no API clients, no token exchange, no credential caching. Existing credential providers like `DefaultGithubCredentialsProvider` and `DefaultAzureDevOpsCredentialsProvider` continue to exist as a separate layer, but consume connections as their data source instead of parsing config independently. This keeps the connection service minimal and focused on the one thing every plugin needs - knowing where an external service lives and what credentials are available - while letting specialized credential APIs handle the dynamic parts on top.
 
 ## Motivation
 
-Backstage plugins that connect to external services each define their own configuration for hosts, credentials, and endpoints. A Jira plugin has `jira.host` and `jira.token`, a PagerDuty plugin has `pagerduty.apiUrl` and `pagerduty.eventsBaseUrl`, a Jenkins plugin has its own block, and so on. When multiple plugins need to talk to the same external service, each one requires its own configuration entry, duplicating the same host and credential information across plugin config schemas. There is no shared connection registry that plugins can draw from, no way for an adopter to see all configured external connections in one place, and no opportunity for connection reuse across plugins that talk to the same service.
+**Per-plugin connection configuration.** Backstage plugins that connect to external services each define their own configuration for hosts, credentials, and endpoints. A Jira plugin has `jira.host` and `jira.token`, a PagerDuty plugin has `pagerduty.apiUrl` and `pagerduty.eventsBaseUrl`, a Jenkins plugin has its own block, and so on. When multiple plugins need to talk to the same external service, each one requires its own configuration entry, duplicating the same host and credential information across plugin config schemas. There is no shared connection registry that plugins can draw from, no way for an adopter to see all configured external connections in one place, and no opportunity for connection reuse across plugins that talk to the same service.
 
-The existing `integrations` configuration and `ScmIntegrations` API partially address this for a handful of SCM and storage providers, but the vast majority of external service connections in the ecosystem are outside its scope. The problems with the current system go beyond coverage:
+**Limited scope of existing integrations.** The existing `integrations` configuration and `ScmIntegrations` API partially address this for a handful of SCM and storage providers, but the vast majority of external service connections in the ecosystem are outside its scope. The problems with the current system go beyond coverage:
 
-**Tangled static and dynamic concerns.** The current `ScmIntegrations` class mixes static configuration access with dynamic operations. Credential providers like `DefaultGithubCredentialsProvider` and `DefaultAzureDevOpsCredentialsProvider` handle token exchange separately but must be instantiated from the same config. There is no consistent pattern for where static config ends and dynamic credential resolution begins.
+**No clear layering between config and credentials.** Credential providers like `DefaultGithubCredentialsProvider` and `DefaultAzureDevOpsCredentialsProvider` handle dynamic operations like token exchange and caching, but they must independently parse the same config that `ScmIntegrations` reads. There is no shared data layer they can build on - each one re-reads config and constructs its own view of what connections exist. A clean separation where static connection data lives in one place and credential providers simply consume it would simplify both sides.
 
 **Primitive lookup.** The current `byHost` lookup is insufficient for real-world scenarios. When multiple GitHub Apps are configured for different organizations on the same host, or when different credentials should be used for different paths on the same GitLab instance, host-based matching alone cannot express the routing.
 
@@ -59,91 +59,96 @@ The existing `integrations` configuration and `ScmIntegrations` API partially ad
 
 ### Non-Goals
 
-- This BEP does not define type-specific credential APIs (e.g. GitHub App token exchange, Azure OAuth flows). Those are built on top of connections and are outside the scope of this proposal.
+- This BEP does not define type-specific credential APIs (e.g. GitHub App token exchange, Azure OAuth flows). Existing credential providers continue to exist as a separate layer that consumes connections as their data source. Their design is outside the scope of this proposal.
 - This BEP does not cover content-level operations like URL resolution or edit URL generation. Those are higher-level concerns that build on top of connections.
 - This BEP does not propose changes to the URL reader service, though it will be updated to consume connections.
 - This BEP does not cover user-level authentication or access delegation.
+- The connection service is backend-only. Frontend access to connections is not part of this proposal, though the [Connection-Driven Proxy Endpoints](#connection-driven-proxy-endpoints) alternative explores how connections could be surfaced to the frontend in the future.
 - Connection types are not extensible by ecosystem plugins. New connection types can only be added to `@backstage/connections-node` or by adopters in their own app. This ensures a single canonical set of definitions with a predictable evolution path.
 
 ## Proposal
 
 ### Configuration Format
 
-Connections are configured as a flat array under the `connections` key in `app-config.yaml`. Each entry has a `type` field that identifies the kind of external service:
+Connections are configured as a flat array under `backend.connections` in `app-config.yaml`. The `backend` namespace is the natural home since connections are a backend concern, and avoids adding another top-level configuration key. Plugins should always consume connections through the connection service rather than reading the config directly. To enforce this, the framework may introduce restrictions in the config reading service that prevent plugins from accessing `backend.connections` directly, ensuring that all connection access goes through the connection service and its validation, matching, and scoping logic.
+
+Each entry has a `type` field that identifies the kind of external service:
 
 ```yaml
-connections:
-  - type: github
-    host: github.com
-    apiBaseUrl: https://api.github.com
-    rawBaseUrl: https://raw.githubusercontent.com
-    auth:
-      - method: token
-        token: ${GITHUB_TOKEN}
-      - method: app
-        appId: 12345
-        privateKey: ${GH_APP_PRIVATE_KEY}
-        clientId: ${GH_APP_CLIENT_ID}
-        clientSecret: ${GH_APP_CLIENT_SECRET}
-        allowedOwners:
-          - my-org
-          - partner-org
-      - method: app
-        appId: 67890
-        privateKey: ${GH_APP_2_KEY}
-        clientId: ${GH_APP_2_CLIENT_ID}
-        clientSecret: ${GH_APP_2_CLIENT_SECRET}
-        allowedOwners:
-          - internal-org
-  - type: github
-    host: ghe.example.com
-    apiBaseUrl: https://ghe.example.com/api/v3
-    auth:
-      - method: token
-        token: ${GHE_TOKEN}
-  - type: gitlab
-    host: gitlab.com
-    auth:
-      - method: token
-        token: ${GITLAB_TOKEN}
-  - type: azure
-    host: dev.azure.com
-    auth:
-      - method: pat
-        personalAccessToken: ${AZURE_TOKEN}
+backend:
+  connections:
+    - type: github
+      host: github.com
+      apiBaseUrl: https://api.github.com
+      rawBaseUrl: https://raw.githubusercontent.com
+      auth:
+        - method: token
+          token: ${GITHUB_TOKEN}
+        - method: app
+          appId: 12345
+          privateKey: ${GH_APP_PRIVATE_KEY}
+          clientId: ${GH_APP_CLIENT_ID}
+          clientSecret: ${GH_APP_CLIENT_SECRET}
+          allowedOwners:
+            - my-org
+            - partner-org
+        - method: app
+          appId: 67890
+          privateKey: ${GH_APP_2_KEY}
+          clientId: ${GH_APP_2_CLIENT_ID}
+          clientSecret: ${GH_APP_2_CLIENT_SECRET}
+          allowedOwners:
+            - internal-org
+    - type: github
+      host: ghe.example.com
+      apiBaseUrl: https://ghe.example.com/api/v3
+      auth:
+        - method: token
+          token: ${GHE_TOKEN}
+    - type: gitlab
+      host: gitlab.com
+      auth:
+        - method: token
+          token: ${GITLAB_TOKEN}
+    - type: azure
+      host: dev.azure.com
+      auth:
+        - method: pat
+          personalAccessToken: ${AZURE_TOKEN}
 ```
 
-Each connection entry has a `type`, base fields like `host`, and an `auth` array listing one or more authentication methods. Each auth entry has a `method` discriminator and method-specific fields. The `find` method selects both the best connection and the best auth method for a given query, so consumers receive a single connection with a single selected auth object.
+Each connection entry has a `type`, base fields like `host`, and an `auth` array listing one or more authentication methods. Each auth entry has a `method` discriminator and method-specific fields. When a plugin queries for a connection, the service selects both the best connection and the best auth method, so the consumer receives a single connection with a single selected auth object.
 
 **Auth method matching.** Each auth entry can optionally include a `match` block that controls when the entry is eligible for selection. The `match` key is reserved by the framework, and auth method schemas cannot use it. Currently `match` supports `plugins`, which restricts the auth entry to specific plugin IDs:
 
 ```yaml
-connections:
-  - type: github
-    host: github.com
-    auth:
-      # Only the catalog plugin can select this auth method
-      - method: token
-        token: ${GITHUB_CATALOG_TOKEN}
-        match:
-          plugins: [catalog]
-      # All other plugins use the app
-      - method: app
-        appId: 12345
-        privateKey: ${GH_APP_KEY}
-        clientId: ${GH_APP_CLIENT_ID}
-        clientSecret: ${GH_APP_CLIENT_SECRET}
+backend:
+  connections:
+    - type: github
+      host: github.com
+      auth:
+        # Only the catalog plugin can select this auth method
+        - method: token
+          token: ${GITHUB_CATALOG_TOKEN}
+          match:
+            plugins: [catalog]
+        # All other plugins use the app
+        - method: app
+          appId: 12345
+          privateKey: ${GH_APP_KEY}
+          clientId: ${GH_APP_CLIENT_ID}
+          clientSecret: ${GH_APP_CLIENT_SECRET}
 ```
 
-When `find` selects an auth method, entries whose `match` criteria exclude the requesting plugin are removed from consideration. Auth methods without a `match` block are always eligible. Among eligible entries, those with a `match` that explicitly includes the requesting plugin are preferred over unmatched ones. This allows adopters to give different plugins different credentials or permission levels for the same connection without duplicating the connection entry or writing any code.
+When the service selects an auth method, entries whose `match` criteria exclude the requesting plugin are removed from consideration. Auth methods without a `match` block are always eligible. Among eligible entries, those with a `match` that explicitly includes the requesting plugin are preferred over unmatched ones. This allows adopters to give different plugins different credentials or permission levels for the same connection without duplicating the connection entry or writing any code.
 
 The `match` block is designed to evolve. Future selection criteria can be added alongside `plugins` without changing auth method schemas or the overall config structure.
 
-**Config merging.** Arrays in Backstage's config system are replaced wholesale when merging across config sources, they do not merge element-by-element. This means that if `connections` is defined in multiple config files, the last source wins. In practice this is acceptable because different environments (local dev, staging, production) typically define entirely different sets of connections. For the case where base config and secrets need to be split, the recommended approach is to use environment variable substitution within a single config file, or to use the `$include` directive.
+**Config merging.** Arrays in Backstage's config system are replaced wholesale when merging across config sources, they do not merge element-by-element. This means that if `backend.connections` is defined in multiple config files, the last source wins. In practice this is acceptable because different environments (local dev, staging, production) typically define entirely different sets of connections. For the case where base config and secrets need to be split, the recommended approach is to use environment variable substitution within a single config file, or to use the `$include` directive.
 
 ### Connection Service
 
-A new core service, `coreServices.connections`, provides access to connections. The service is scoped per-plugin so that auth method selection can apply `match` criteria based on the requesting plugin's identity. When `find` evaluates auth methods, entries whose `match.plugins` does not include the requesting plugin are excluded from selection. Auth methods without a `match` block are always eligible.
+A new core service, `coreServices.connections`, provides access to connections. The service is scoped per-plugin so that auth method selection can apply `match` criteria based on the requesting plugin's identity.
 
 The service can be overridden at the app level to customize connection resolution, add custom connection types, or integrate with external configuration sources.
 
@@ -405,20 +410,21 @@ Existing consumers that call `find` with `authMethods: ['token', 'app']` are una
 **New type for fundamentally different variants.** When a service evolves in a way that requires a fundamentally different base shape or consumer interaction pattern, it is better to introduce a new type:
 
 ```yaml
-connections:
-  - type: github
-    host: github.com
-    auth:
-      - method: token
-        token: ${GITHUB_TOKEN}
+backend:
+  connections:
+    - type: github
+      host: github.com
+      auth:
+        - method: token
+          token: ${GITHUB_TOKEN}
 
-  # Hypothetical new API version with different base fields
-  - type: github-v2
-    host: github.com
-    apiVersion: '2024-01-01'
-    auth:
-      - method: installation-token
-        installationToken: ${GITHUB_V2_TOKEN}
+    # Hypothetical new API version with different base fields
+    - type: github-v2
+      host: github.com
+      apiVersion: '2024-01-01'
+      auth:
+        - method: installation-token
+          installationToken: ${GITHUB_V2_TOKEN}
 ```
 
 Plugins that need the new API register `github-v2`. Plugins that work with both register both. The old `github` type is never broken.
@@ -443,7 +449,7 @@ The design of these credential APIs is outside the scope of this BEP and will be
 
 ### Backward Compatibility
 
-The old `integrations` configuration is still supported during a deprecation period. `ConnectionsRegistry.fromConfig` reads from `connections` when present, falling back to `integrations` when `connections` is absent.
+The old `integrations` configuration is still supported during a deprecation period. The connection service reads from `backend.connections` when present, falling back to `integrations` when `backend.connections` is absent.
 
 ```yaml
 # Old format (deprecated, still supported)
@@ -453,19 +459,22 @@ integrations:
       token: ${GITHUB_TOKEN}
 
 # New format
-connections:
-  - type: github
-    host: github.com
-    auth:
-      - method: token
-        token: ${GITHUB_TOKEN}
+backend:
+  connections:
+    - type: github
+      host: github.com
+      auth:
+        - method: token
+          token: ${GITHUB_TOKEN}
 ```
 
-Since the two formats use different top-level keys, they never conflict. When `integrations` is detected without a corresponding `connections` key, a deprecation warning is logged at startup.
+Since the two formats use different config paths, they never conflict. When `integrations` is detected without a corresponding `backend.connections` key, a deprecation warning is logged at startup.
 
 The existing `ScmIntegrations` and `ScmIntegrationRegistry` types are preserved as deprecated wrappers that delegate to `ConnectionsService`.
 
 ## Alternatives
+
+The following are alternative designs that were considered and potential future extensions that are outside the scope of the current proposal but worth capturing for reference.
 
 ### Single-Layer Design with `getCredentials` on `Connection`
 
@@ -486,11 +495,12 @@ Simpler API surface, one object to work with instead of two. But this mixes stat
 Using an object with named keys instead of an array:
 
 ```yaml
-connections:
-  github:
-    public:
-      host: github.com
-      token: ${GITHUB_TOKEN}
+backend:
+  connections:
+    github:
+      public:
+        host: github.com
+        token: ${GITHUB_TOKEN}
 ```
 
 Better config merging across sources since objects merge deeply while arrays replace. But adds structural complexity, and in practice different environments define entirely different sets of connections, making the merging benefit less important than the simplicity of a flat list.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { ReactNode } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
 import type { ButtonProps as RAButtonProps } from 'react-aria-components';
 import type { FlexItemProps } from '../../types';
 
@@ -22,6 +22,7 @@ import type { FlexItemProps } from '../../types';
 export type CardBaseProps = {
   children?: ReactNode;
   className?: string;
+  style?: CSSProperties;
 };
 
 /** @public */

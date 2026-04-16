@@ -646,6 +646,7 @@ export const Card: ForwardRefExoticComponent<
 export type CardBaseProps = {
   children?: ReactNode;
   className?: string;
+  style?: CSSProperties;
 };
 
 // @public

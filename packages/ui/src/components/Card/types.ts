@@ -16,9 +16,13 @@
 
 import type { ReactNode } from 'react';
 import type { ButtonProps as RAButtonProps } from 'react-aria-components';
+import type { FlexItemProps } from '../../types';
 
 /** @public */
-export type CardBaseProps = { children?: ReactNode; className?: string };
+export type CardBaseProps = {
+  children?: ReactNode;
+  className?: string;
+};
 
 /** @public */
 export type CardButtonVariant = {
@@ -63,6 +67,7 @@ export type CardStaticVariant = {
  * @public
  */
 export type CardProps = CardBaseProps &
+  FlexItemProps &
   Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> &
   (CardButtonVariant | CardLinkVariant | CardStaticVariant);
 

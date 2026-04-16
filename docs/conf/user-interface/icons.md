@@ -59,7 +59,7 @@ const customIconBundle = IconBundleBlueprint.make({
   name: 'custom-icons',
   params: {
     icons: {
-      github: ExampleIcon,
+      github: <ExampleIcon fontSize="inherit" />,
     },
   },
 });

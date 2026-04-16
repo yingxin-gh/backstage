@@ -283,9 +283,7 @@ export const FlexItems = meta.story({
       options: [undefined, '0%', '25%', '50%', '100%', 'auto'],
     },
   },
-  render: args => {
-    const Component = args.component;
-
+  render: ({ component: Component, ...args }) => {
     return (
       <Flex style={{ width: '100%', height: '256px' }}>
         <div

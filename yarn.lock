@@ -3493,7 +3493,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     msw: "npm:^1.0.0"
     parse5: "npm:^6.0.0"
-    pluralize: "npm:^8.0.0"
     qs: "npm:^6.9.4"
     rc-progress: "npm:3.5.1"
     react: "npm:^18.0.2"
@@ -4081,7 +4080,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     luxon: "npm:^3.0.0"
     supertest: "npm:^7.0.0"
-    yn: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -5011,7 +5009,6 @@ __metadata:
     "@types/lodash": "npm:^4.14.151"
     lodash: "npm:^4.17.21"
     msw: "npm:^1.0.0"
-    node-fetch: "npm:^2.7.0"
     uuid: "npm:^11.0.0"
   languageName: unknown
   linkType: soft
@@ -5030,7 +5027,6 @@ __metadata:
     "@backstage/plugin-catalog-backend": "workspace:^"
     "@backstage/plugin-catalog-node": "workspace:^"
     "@backstage/plugin-events-node": "workspace:^"
-    "@backstage/plugin-permission-common": "workspace:^"
     "@backstage/types": "workspace:^"
     "@types/express": "npm:^4.17.6"
     express: "npm:^4.22.0"
@@ -5262,7 +5258,6 @@ __metadata:
     "@types/react": "npm:^18.0.0"
     classnames: "npm:^2.3.1"
     lodash: "npm:^4.17.15"
-    p-limit: "npm:^3.1.0"
     qs: "npm:^6.9.4"
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"
@@ -5506,7 +5501,6 @@ __metadata:
     "@types/react": "npm:^18.0.0"
     classnames: "npm:^2.3.1"
     dataloader: "npm:^2.0.0"
-    history: "npm:^5.0.0"
     lodash: "npm:^4.17.21"
     pluralize: "npm:^8.0.0"
     react: "npm:^18.0.2"
@@ -5590,9 +5584,7 @@ __metadata:
     fs-extra: "npm:^11.0.0"
     lodash: "npm:^4.17.21"
     ping: "npm:^0.4.1"
-    semver: "npm:^7.5.3"
     supertest: "npm:^7.0.0"
-    yn: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6067,7 +6059,6 @@ __metadata:
     msw: "npm:^1.3.1"
     node-fetch: "npm:^2.7.0"
     supertest: "npm:^7.0.0"
-    winston: "npm:^3.2.1"
   languageName: unknown
   linkType: soft
 
@@ -6295,7 +6286,6 @@ __metadata:
     "@backstage/cli": "workspace:^"
     "@backstage/config": "workspace:^"
     "@backstage/types": "workspace:^"
-    "@material-ui/icons": "npm:^4.9.1"
   languageName: unknown
   linkType: soft
 
@@ -6305,15 +6295,10 @@ __metadata:
   dependencies:
     "@backstage/backend-plugin-api": "workspace:^"
     "@backstage/backend-test-utils": "workspace:^"
-    "@backstage/catalog-client": "workspace:^"
-    "@backstage/catalog-model": "workspace:^"
     "@backstage/cli": "workspace:^"
     "@backstage/plugin-notifications-common": "workspace:^"
-    "@backstage/plugin-signals-node": "workspace:^"
     "@backstage/test-utils": "workspace:^"
-    knex: "npm:^3.0.0"
     msw: "npm:^1.0.0"
-    uuid: "npm:^11.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6476,7 +6461,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     msw: "npm:^1.0.0"
     supertest: "npm:^7.0.0"
-    yn: "npm:^4.0.0"
     zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
@@ -6660,11 +6644,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@backstage/plugin-scaffolder-backend-module-cookiecutter@workspace:plugins/scaffolder-backend-module-cookiecutter"
   dependencies:
-    "@backstage/backend-defaults": "workspace:^"
     "@backstage/backend-plugin-api": "workspace:^"
     "@backstage/backend-test-utils": "workspace:^"
     "@backstage/cli": "workspace:^"
-    "@backstage/config": "workspace:^"
     "@backstage/errors": "workspace:^"
     "@backstage/integration": "workspace:^"
     "@backstage/plugin-scaffolder-node": "workspace:^"
@@ -6674,9 +6656,7 @@ __metadata:
     "@types/fs-extra": "npm:^11.0.0"
     command-exists: "npm:^1.2.9"
     fs-extra: "npm:^11.2.0"
-    winston: "npm:^3.2.1"
     yaml: "npm:^2.0.0"
-    yn: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -6840,7 +6820,6 @@ __metadata:
     "@backstage/plugin-scaffolder-node": "workspace:^"
     "@backstage/plugin-scaffolder-node-test-utils": "workspace:^"
     "@backstage/types": "workspace:^"
-    winston: "npm:^3.2.1"
     yaml: "npm:^2.0.0"
     yeoman-environment: "npm:^3.9.1"
   languageName: unknown
@@ -7297,7 +7276,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     qs: "npm:^6.10.1"
     supertest: "npm:^7.0.0"
-    yn: "npm:^4.0.0"
     zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
@@ -7430,14 +7408,9 @@ __metadata:
   dependencies:
     "@backstage/backend-plugin-api": "workspace:^"
     "@backstage/cli": "workspace:^"
-    "@backstage/config": "workspace:^"
-    "@backstage/plugin-auth-node": "workspace:^"
     "@backstage/plugin-events-node": "workspace:^"
     "@backstage/types": "workspace:^"
     "@types/express": "npm:^4.17.21"
-    express: "npm:^4.22.0"
-    uuid: "npm:^11.0.0"
-    ws: "npm:^8.18.0"
   languageName: unknown
   linkType: soft
 
@@ -7677,7 +7650,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"
-    react-helmet: "npm:6.1.0"
     react-router-dom: "npm:^6.30.2"
     react-use: "npm:^17.2.4"
   peerDependencies:
@@ -7765,7 +7737,6 @@ __metadata:
     "@backstage/types": "workspace:^"
     "@types/express": "npm:^4.17.6"
     "@types/supertest": "npm:^2.0.8"
-    already: "npm:^2.2.1"
     express: "npm:^4.22.0"
     express-promise-router: "npm:^4.1.0"
     knex: "npm:^3.0.0"
@@ -18737,7 +18708,6 @@ __metadata:
     commander: "npm:^14.0.3"
     find-process: "npm:^2.0.0"
     fs-extra: "npm:^11.0.0"
-    global-agent: "npm:^3.0.0"
     http-proxy: "npm:^1.18.1"
     nodemon: "npm:^3.0.1"
     react-dev-utils: "npm:^12.0.0-next.60"
@@ -22794,13 +22764,6 @@ __metadata:
   version: 1.0.2
   resolution: "alphanum-sort@npm:1.0.2"
   checksum: 10/e23264059c4cd35c7250fa5beee652e6935901845f58a73ecbf8d1a344b341952e9c268c81c05d4132216bf24d7e52640d66dca231a6a757cf7a0e756028e3f2
-  languageName: node
-  linkType: hard
-
-"already@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "already@npm:2.2.1"
-  checksum: 10/1c55b50667c3dbe9d40716454d4a870f5758143061a0e39c0a7077eab2c6dbec116edf081796afb6f441462096bf68ef72a4daad074843a0d970527f29037ffe
   languageName: node
   linkType: hard
 

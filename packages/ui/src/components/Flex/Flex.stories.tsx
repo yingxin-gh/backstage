@@ -16,7 +16,9 @@
 import preview from '../../../../../.storybook/preview';
 import { Flex } from './Flex';
 import { Text } from '../Text';
-import { Box } from '../Box';
+import { Box, BoxProps } from '../Box';
+import { Card, CardHeader, CardBody, CardFooter } from '../Card';
+import { Grid } from '../Grid';
 
 const meta = preview.meta({
   title: 'Backstage UI/Flex',
@@ -38,13 +40,7 @@ const meta = preview.meta({
   args: { children: null },
 });
 
-const DecorativeBox = ({
-  width = '48px',
-  height = '48px',
-}: {
-  width?: string;
-  height?: string;
-}) => {
+const DecorativeBox = (props: Omit<BoxProps, 'children'>) => {
   const diagonalStripePattern = (() => {
     const svg = `
       <svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
@@ -58,8 +54,8 @@ const DecorativeBox = ({
 
   return (
     <Box
-      width={width}
-      height={height}
+      width={props.width ?? '48px'}
+      height={props.height ?? '48px'}
       style={{
         background: '#eaf2fd',
         borderRadius: '4px',
@@ -71,6 +67,7 @@ const DecorativeBox = ({
         fontWeight: 'bold',
         color: '#2563eb',
       }}
+      {...props}
       children={null}
     />
   );
@@ -197,6 +194,124 @@ export const ResponsiveAlign = meta.story({
       <DecorativeBox height="48px" />
     </Flex>
   ),
+});
+
+export const FlexItems = meta.story({
+  args: {
+    component: 'Box',
+    grow: 1,
+    shrink: 0,
+    basis: 'auto',
+  },
+  argTypes: {
+    component: {
+      control: { type: 'select' },
+      options: ['Box', 'Card', 'Grid', 'Flex'],
+      mapping: {
+        Box: props => <DecorativeBox height="100%" width="256px" {...props} />,
+        Card: props => (
+          <Card style={{ height: '100%', width: '256px' }} {...props}>
+            <CardHeader>
+              <Text>Header</Text>
+            </CardHeader>
+            <CardBody>
+              <Text>
+                This is the first paragraph of a long body text that
+                demonstrates how the Card component handles extensive content.
+                The card should adjust accordingly to display all the text
+                properly while maintaining its structure.
+              </Text>
+              <Text>
+                Here's a second paragraph that adds more content to our card
+                body. Having multiple paragraphs helps to visualize how spacing
+                works within the card component.
+              </Text>
+              <Text>
+                This third paragraph continues to add more text to ensure we
+                have a proper demonstration of a card with significant content.
+                This makes it easier to test scrolling behavior and overall
+                layout when content exceeds the initial view.
+              </Text>
+            </CardBody>
+            <CardFooter>
+              <Text>Footer</Text>
+            </CardFooter>
+          </Card>
+        ),
+        Grid: props => (
+          <Grid.Root
+            {...props}
+            height="128px"
+            style={{ width: '256px' }}
+            columns="3"
+          >
+            <Grid.Item colSpan="1" rowSpan="2">
+              <DecorativeBox height="100%" width="100%" />
+            </Grid.Item>
+            <Grid.Item colSpan="2">
+              <DecorativeBox height="100%" width="100%" />
+            </Grid.Item>
+            <Grid.Item colSpan="2">
+              <DecorativeBox height="100%" width="100%" />
+            </Grid.Item>
+          </Grid.Root>
+        ),
+        Flex: props => (
+          <Flex
+            {...props}
+            height="128px"
+            style={{ width: '256px' }}
+            justify="between"
+          >
+            <DecorativeBox height="100%" />
+            <DecorativeBox height="100%" />
+            <DecorativeBox height="100%" />
+          </Flex>
+        ),
+      },
+    },
+    grow: {
+      control: 'radio',
+      options: [undefined, 0, 1, false, true],
+    },
+    shrink: {
+      control: 'radio',
+      options: [undefined, 0, 1, false, true],
+    },
+    basis: {
+      control: 'radio',
+      options: [undefined, '0%', '25%', '50%', '100%', 'auto'],
+    },
+  },
+  render: args => {
+    const Component = args.component;
+
+    return (
+      <Flex style={{ width: '100%', height: '256px' }}>
+        <div
+          style={{
+            width: '256px',
+            flex: '1 1 auto',
+            background:
+              'repeating-linear-gradient(-45deg, transparent 0px, transparent 5px, #e8e8e8 5px, #e8e8e8 10px)',
+            borderRadius: '12px',
+          }}
+        />
+
+        <Component {...args} />
+
+        <div
+          style={{
+            width: '256px',
+            flex: '1 1 auto',
+            background:
+              'repeating-linear-gradient(-45deg, transparent 0px, transparent 5px, #e8e8e8 5px, #e8e8e8 10px)',
+            borderRadius: '12px',
+          }}
+        />
+      </Flex>
+    );
+  },
 });
 
 export const ResponsiveGap = meta.story({

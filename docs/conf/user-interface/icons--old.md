@@ -1,30 +1,28 @@
 ---
-id: icons
-title: Customizing Icons
+id: icons--old
+title: Customizing Icons (Old Frontend System)
 sidebar_label: Icons
-description: Learn how to customize and add icons to your Backstage app.
+description: Learn how to customize and add icons to your Backstage app using the old frontend system.
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system,
-read the [old frontend system version of this guide](./icons--old.md) instead.
+This documentation is for Backstage apps that still use the old frontend
+system. If your app uses the new frontend system, read the
+[current guide](./icons.md) instead.
 ::::
 
 Backstage comes with a set of [default icons](https://github.com/backstage/backstage/blob/master/packages/app-defaults/src/defaults/icons.tsx) used throughout the app, for example in the sidebar, entity links, and catalog kind badges. You can override any of these icons or register additional ones to match your organization's visual identity.
 
-## Custom icons
+In the old frontend system, icons are supplied directly to the `createApp`
+call in `packages/app/src/App.tsx`.
 
-To override a default icon, create an icon bundle extension using
-`IconBundleBlueprint` from `@backstage/plugin-app-react`. Each entry in the
-`icons` object maps an icon key to a React component or JSX element that
-replaces the built-in icon with the same key.
+## Custom icons
 
 ### Requirements
 
 - Files in `.svg` format or any image format that can be rendered as a React
   component.
-- React components created for the icons, or `IconElement` JSX elements.
+- React components created for the icons.
 
 ### Create a React component
 
@@ -46,75 +44,43 @@ export const ExampleIcon = (props: SvgIconProps) => (
 
 ### Use the custom icon
 
-Supply your custom icon in `packages/app/src/App.tsx` by creating an icon
-bundle extension and installing it as a module for the `app` plugin:
+Supply your custom icon in `packages/app/src/App.tsx`:
 
 ```tsx title="packages/app/src/App.tsx"
-import { createApp } from '@backstage/frontend-defaults';
-import { createFrontendModule } from '@backstage/frontend-plugin-api';
-import { IconBundleBlueprint } from '@backstage/plugin-app-react';
 import { ExampleIcon } from './assets/icons/customIcons';
 
-const customIconBundle = IconBundleBlueprint.make({
-  name: 'custom-icons',
-  params: {
-    icons: {
-      github: <ExampleIcon fontSize="inherit" />,
-    },
+const app = createApp({
+  apis,
+  themes: [
+    /* ... */
+  ],
+  icons: {
+    github: ExampleIcon,
+  },
+  bindRoutes({ bind }) {
+    /* ... */
   },
 });
-
-const app = createApp({
-  features: [
-    createFrontendModule({
-      pluginId: 'app',
-      extensions: [customIconBundle],
-    }),
-  ],
-});
-
-export default app.createRoot();
 ```
-
-The `icons` object maps icon keys to React components or JSX elements. In this
-example, the built-in `github` icon is replaced with `ExampleIcon`. You can
-override multiple icons at once by adding more entries to the object.
-
-The module can also be declared in a separate module package if you prefer to
-keep icon customizations separate from your app setup.
 
 ## Adding icons
 
 If the [default icons](https://github.com/backstage/backstage/blob/master/packages/app-defaults/src/defaults/icons.tsx) do not cover your needs, you can register additional icons so that they
 can be referenced in places like entity links. For this example we use the
-`RiAlarmLine` icon from [Remix Icon](https://remixicon.com/), declared as a JSX
-element:
+`AlarmIcon` from [Material UI](https://v4.mui.com/components/material-icons/):
 
 ```tsx title="packages/app/src/App.tsx"
-import { createApp } from '@backstage/frontend-defaults';
-import { createFrontendModule } from '@backstage/frontend-plugin-api';
-import { RiAlarmLine } from '@remixicon/react';
-import { IconBundleBlueprint } from '@backstage/plugin-app-react';
-
-const extraIcons = IconBundleBlueprint.make({
-  name: 'extra-icons',
-  params: {
-    icons: {
-      alert: <RiAlarmLine />,
-    },
-  },
-});
+import AlarmIcon from '@material-ui/icons/Alarm';
 
 const app = createApp({
-  features: [
-    createFrontendModule({
-      pluginId: 'app',
-      extensions: [extraIcons],
-    }),
+  apis,
+  icons: {
+    alert: AlarmIcon,
+  },
+  themes: [
+    /* ... */
   ],
 });
-
-export default app.createRoot();
 ```
 
 You can then reference `alert` as the icon in entity links:
@@ -137,19 +103,19 @@ And this is the result:
 
 ### Using icons in plugin code
 
-To look up a registered icon at runtime, use the `IconsApi`:
+In the old frontend system, retrieve icons from the app context:
 
 ```ts
-import { useApi, iconsApiRef } from '@backstage/frontend-plugin-api';
+import { useApp } from '@backstage/core-plugin-api';
 
-const iconsApi = useApi(iconsApiRef);
-const alertIcon = iconsApi.icon('alert');
+const app = useApp();
+const alertIcon = app.getSystemIcon('alert');
 ```
 
 This is useful when you have an icon that you want to render in several
 locations within a plugin.
 
 :::note
-If an icon key is not available as a default icon or one you have added, a
-fallback icon is used instead.
+If an icon key is not available as a default icon or one you have added, it
+falls back to Material UI's `LanguageIcon`.
 :::

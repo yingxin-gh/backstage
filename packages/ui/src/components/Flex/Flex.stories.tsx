@@ -40,7 +40,12 @@ const meta = preview.meta({
   args: { children: null },
 });
 
-const DecorativeBox = (props: Omit<BoxProps, 'children'>) => {
+const DecorativeBox = ({
+  width = '48px',
+  height = '48px',
+  style,
+  ...props
+}: Omit<BoxProps, 'children'>) => {
   const diagonalStripePattern = (() => {
     const svg = `
       <svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
@@ -54,9 +59,11 @@ const DecorativeBox = (props: Omit<BoxProps, 'children'>) => {
 
   return (
     <Box
-      width={props.width ?? '48px'}
-      height={props.height ?? '48px'}
+      {...props}
+      width={width}
+      height={height}
       style={{
+        ...style,
         background: '#eaf2fd',
         borderRadius: '4px',
         border: '1px solid #2563eb',
@@ -67,7 +74,6 @@ const DecorativeBox = (props: Omit<BoxProps, 'children'>) => {
         fontWeight: 'bold',
         color: '#2563eb',
       }}
-      {...props}
       children={null}
     />
   );

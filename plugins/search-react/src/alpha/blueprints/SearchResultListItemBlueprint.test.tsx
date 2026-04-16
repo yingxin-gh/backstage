@@ -45,14 +45,8 @@ describe('SearchResultListItemBlueprint', () => {
           "input": "items",
         },
         "configSchema": {
-          "_fields": {
-            "noTrack": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

@@ -143,27 +143,20 @@ function buildPortableSchema<TOutput = unknown>(
     return result as TOutput;
   }
 
+  let cached: { schema: JsonObject } | undefined;
+
   const result: MergeablePortableSchema<TOutput> = {
     parse,
-    schema: undefined as any,
-    _fields: fields,
-  };
-
-  // Lazy getter — computes JSON Schema on first access, then caches it.
-  let cached: PortableSchema['schema'] | undefined;
-  Object.defineProperty(result, 'schema', {
-    get() {
+    schema() {
       if (!cached) {
-        const jsonSchema = buildObjectJsonSchema(fields);
-        const callable = Object.assign(
-          () => ({ schema: jsonSchema }),
-          jsonSchema,
-        );
-        cached = callable as PortableSchema['schema'];
+        cached = { schema: buildObjectJsonSchema(fields) };
       }
       return cached;
     },
-    configurable: true,
+  } as MergeablePortableSchema<TOutput>;
+
+  Object.defineProperty(result, '_fields', {
+    value: fields,
     enumerable: false,
   });
 

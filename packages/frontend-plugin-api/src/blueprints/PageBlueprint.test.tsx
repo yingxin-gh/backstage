@@ -48,19 +48,8 @@ describe('PageBlueprint', () => {
           "input": "routes",
         },
         "configSchema": {
-          "_fields": {
-            "path": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-            "title": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

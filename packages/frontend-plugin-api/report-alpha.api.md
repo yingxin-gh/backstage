@@ -821,11 +821,8 @@ export type PluginWrapperDefinition<TValue = unknown | never> = {
 // @public (undocumented)
 export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
   parse: (input: TInput) => TOutput;
-  schema: {
-    (): {
-      schema: JsonObject;
-    };
-    [key: string]: any;
+  schema: () => {
+    schema: JsonObject;
   };
 };
 

@@ -143,13 +143,14 @@ describe('createConfigSchema', () => {
       });
     });
 
-    it('should support backward-compatible property access on schema', () => {
+    it('should return the schema as a method', () => {
       const schema = createConfigSchema({
         title: zodV4.string(),
       });
 
-      expect(schema.schema.type).toBe('object');
-      expect(schema.schema.properties).toBeDefined();
+      const result = schema.schema();
+      expect(result.schema.type).toBe('object');
+      expect(result.schema.properties).toBeDefined();
     });
   });
 

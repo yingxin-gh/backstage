@@ -45,19 +45,8 @@ describe('EntityCardBlueprint', () => {
           "input": "cards",
         },
         "configSchema": {
-          "_fields": {
-            "filter": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-            "type": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

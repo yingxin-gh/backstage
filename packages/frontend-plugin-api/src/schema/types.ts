@@ -19,14 +19,5 @@ import { JsonObject } from '@backstage/types';
 /** @public */
 export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
   parse: (input: TInput) => TOutput;
-  /**
-   * The JSON Schema for this portable schema.
-   *
-   * @remarks
-   * Can be accessed as a property for backward compatibility (returns the
-   * JSON Schema object directly), or called as a method which returns
-   * `{ schema: JsonObject }`. Both forms compute the schema lazily on
-   * first access. The property form is deprecated — prefer `schema()`.
-   */
-  schema: { (): { schema: JsonObject }; [key: string]: any };
+  schema: () => { schema: JsonObject };
 };

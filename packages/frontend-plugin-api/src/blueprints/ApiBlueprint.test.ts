@@ -182,14 +182,8 @@ describe('ApiBlueprint', () => {
           "input": "apis",
         },
         "configSchema": {
-          "_fields": {
-            "test": {
-              "required": false,
-              "toJsonSchema": [Function],
-              "validate": [Function],
-            },
-          },
           "parse": [Function],
+          "schema": [Function],
         },
         "disabled": false,
         "factory": [Function],

@@ -98,7 +98,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
       {...dataAttributes}
       {...restProps}
       onClick={isInteractive ? handleClick : undefined}
-      style={{ ...ownProps.style, ...utilityStyle }}
+      style={{ ...utilityStyle, ...ownProps.style }}
     >
       {href && (
         <Link

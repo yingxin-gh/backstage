@@ -122,10 +122,17 @@ export interface PaddingProps {
 /** @public */
 export interface SpaceProps extends MarginProps, PaddingProps {}
 
-/** @public */
+/**
+ * Flex item properties.
+ *
+ * @public
+ */
 export interface FlexItemProps {
+  /** Controls the flex-grow property. Values of `true` or `false` are converted to `1` or `0` respectively. */
   grow?: Responsive<number | boolean>;
+  /** Controls the flex-shrink property. Values of `true` or `false` are converted to `1` or `0` respectively. */
   shrink?: Responsive<number | boolean>;
+  /** Controls the flex-basis property. */
   basis?: Responsive<CSSProperties['flexBasis']>;
 }
 

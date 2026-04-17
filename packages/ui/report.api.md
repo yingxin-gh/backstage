@@ -1333,13 +1333,10 @@ export const FlexDefinition: {
 // @public (undocumented)
 export type FlexDirection = 'row' | 'column';
 
-// @public (undocumented)
+// @public
 export interface FlexItemProps {
-  // (undocumented)
   basis?: Responsive<CSSProperties['flexBasis']>;
-  // (undocumented)
   grow?: Responsive<number | boolean>;
-  // (undocumented)
   shrink?: Responsive<number | boolean>;
 }
 

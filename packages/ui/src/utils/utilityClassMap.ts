@@ -212,6 +212,7 @@ export const utilityClassMap = {
     class: 'bui-basis',
     cssVar: '--basis',
     values: [],
+    transform: input => (typeof input === 'number' ? `${input}px` : input),
   },
 } as const satisfies Record<
   string,

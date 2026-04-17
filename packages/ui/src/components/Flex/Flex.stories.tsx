@@ -286,7 +286,7 @@ export const FlexItems = meta.story({
     },
     basis: {
       control: 'radio',
-      options: [undefined, '0%', '25%', '50%', '100%', 'auto'],
+      options: [undefined, '0%', '25%', '50%', '100%', 100, '250px', 'auto'],
     },
   },
   render: ({ component: Component, ...args }) => {

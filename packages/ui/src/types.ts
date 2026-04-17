@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { CSSProperties } from 'react';
+
 /** @public */
 export type Breakpoint = 'initial' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -124,7 +126,7 @@ export interface SpaceProps extends MarginProps, PaddingProps {}
 export interface FlexItemProps {
   grow?: Responsive<number | boolean>;
   shrink?: Responsive<number | boolean>;
-  basis?: Responsive<string>;
+  basis?: Responsive<CSSProperties['flexBasis']>;
 }
 
 /** @public */

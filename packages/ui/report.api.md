@@ -13,7 +13,7 @@ import type { ColumnStaticSize } from 'react-stately';
 import type { ComponentProps } from 'react';
 import type { ComponentPropsWithoutRef } from 'react';
 import type { ComponentPropsWithRef } from 'react';
-import type { CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 import type { DialogTriggerProps as DialogTriggerProps_2 } from 'react-aria-components';
 import type { DisclosureGroupProps } from 'react-aria-components';
 import type { DisclosurePanelProps } from 'react-aria-components';
@@ -1335,7 +1335,7 @@ export type FlexDirection = 'row' | 'column';
 // @public (undocumented)
 export interface FlexItemProps {
   // (undocumented)
-  basis?: Responsive<string>;
+  basis?: Responsive<CSSProperties['flexBasis']>;
   // (undocumented)
   grow?: Responsive<number | boolean>;
   // (undocumented)

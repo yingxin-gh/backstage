@@ -87,6 +87,7 @@ export type CardOwnProps = Pick<
   | 'target'
   | 'rel'
   | 'download'
+  | 'style'
 >;
 
 /** @public */

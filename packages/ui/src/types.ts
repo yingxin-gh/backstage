@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 /** @public */
 export type Breakpoint = 'initial' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';

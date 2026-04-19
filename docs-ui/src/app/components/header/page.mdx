@@ -5,6 +5,9 @@ import {
   WithEverything,
   WithLongBreadcrumbs,
   WithTabs,
+  WithTags,
+  WithDescription,
+  WithMetadata,
   WithCustomActions,
   WithMenu,
 } from './components';
@@ -13,6 +16,9 @@ import {
   usage,
   defaultSnippet,
   withTabs,
+  withTags,
+  withDescription,
+  withMetadata,
   withBreadcrumbs,
   withCustomActions,
   withMenu,
@@ -24,7 +30,7 @@ import { ChangelogComponent } from '@/components/ChangelogComponent';
 
 <PageTitle
   title="Header"
-  description="A secondary header with title, breadcrumbs, tabs, and actions."
+  description="A secondary header with title, tags, description, metadata, tabs, and actions."
 />
 
 <Snippet py={4} preview={<WithEverything />} code={defaultSnippet} />
@@ -39,11 +45,23 @@ import { ChangelogComponent } from '@/components/ChangelogComponent';
 
 ## Examples
 
-### Breadcrumbs
+### Tags
 
-Labels are truncated at 240px.
+Tags are rendered above the title. Each tag with an `href` renders as a link; tags without `href` render as plain text. Tags are separated by a small circle divider.
 
-<Snippet open preview={<WithLongBreadcrumbs />} code={withBreadcrumbs} />
+<Snippet open preview={<WithTags />} code={withTags} />
+
+### Description
+
+The description accepts a markdown string. Only inline elements are supported — links, bold, and italic.
+
+<Snippet open preview={<WithDescription />} code={withDescription} />
+
+### Metadata
+
+Key-value pairs displayed below the description.
+
+<Snippet open preview={<WithMetadata />} code={withMetadata} />
 
 ### Tabs
 
@@ -60,6 +78,12 @@ Tabs auto-detect the active tab from the current route when `activeTabId` is omi
 Use `customActions` to add a dropdown menu.
 
 <Snippet open preview={<WithMenu />} code={withMenu} />
+
+### Breadcrumbs (deprecated)
+
+The `breadcrumbs` prop is deprecated and will be removed in a future release. Labels are truncated at 240px.
+
+<Snippet open preview={<WithLongBreadcrumbs />} code={withBreadcrumbs} />
 
 <Theming definition={HeaderDefinition} />
 

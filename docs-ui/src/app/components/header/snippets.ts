@@ -4,9 +4,16 @@ export const usage = `import { Header } from '@backstage/ui';
 
 export const defaultSnippet = `<Header
   title="Page Title"
-  breadcrumbs={[
-    { label: 'Home', href: '/' },
-    { label: 'Dashboard', href: '/dashboard' },
+  tags={[
+    { label: 'TypeScript' },
+    { label: 'Platform', href: '/platform' },
+    { label: 'Gold' },
+  ]}
+  description="A short description. Supports [inline links](https://backstage.io) and **bold text**."
+  metadata={[
+    { label: 'Owner', value: 'platform-team' },
+    { label: 'Type', value: 'website' },
+    { label: 'Tier', value: 'gold' },
   ]}
   tabs={[
     { id: 'overview', label: 'Overview', href: '/overview' },
@@ -53,4 +60,27 @@ export const withMenu = `<Header
       </Menu>
     </MenuTrigger>
   }
+/>`;
+
+export const withTags = `<Header
+  title="Page Title"
+  tags={[
+    { label: 'TypeScript' },
+    { label: 'Platform', href: '/platform' },
+    { label: 'Gold' },
+  ]}
+/>`;
+
+export const withDescription = `<Header
+  title="Page Title"
+  description="A short description. Supports [inline links](https://backstage.io) and **bold text**."
+/>`;
+
+export const withMetadata = `<Header
+  title="Page Title"
+  metadata={[
+    { label: 'Owner', value: 'platform-team' },
+    { label: 'Type', value: 'website' },
+    { label: 'Tier', value: 'gold' },
+  ]}
 />`;

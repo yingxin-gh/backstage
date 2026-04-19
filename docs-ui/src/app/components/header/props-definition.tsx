@@ -5,6 +5,50 @@ export const headerPagePropDefs: Record<string, PropDef> = {
     type: 'string',
     description: 'Page heading displayed in the header.',
   },
+  tags: {
+    type: 'complex',
+    description:
+      'Items displayed above the title. Each tag renders as a link when href is provided, or as plain text otherwise. Tags are separated by a small circle divider.',
+    complexType: {
+      name: 'HeaderTag[]',
+      properties: {
+        label: {
+          type: 'string',
+          required: true,
+          description: 'Display text for the tag.',
+        },
+        href: {
+          type: 'string',
+          required: false,
+          description: 'URL to navigate to when the tag is clicked.',
+        },
+      },
+    },
+  },
+  description: {
+    type: 'string',
+    description:
+      'Markdown string rendered below the title. Only inline elements are supported: links, bold, and italic. Block-level markdown such as headings or lists is not rendered.',
+  },
+  metadata: {
+    type: 'complex',
+    description: 'Key-value pairs displayed below the description.',
+    complexType: {
+      name: 'HeaderMetadataItem[]',
+      properties: {
+        label: {
+          type: 'string',
+          required: true,
+          description: 'The key label, displayed in bold.',
+        },
+        value: {
+          type: 'ReactNode',
+          required: true,
+          description: 'The value to display alongside the label.',
+        },
+      },
+    },
+  },
   customActions: {
     type: 'enum',
     values: ['ReactNode'],
@@ -49,6 +93,7 @@ export const headerPagePropDefs: Record<string, PropDef> = {
   },
   breadcrumbs: {
     type: 'complex',
+    deprecated: true,
     description: 'Breadcrumb trail displayed above the title.',
     complexType: {
       name: 'HeaderBreadcrumb[]',

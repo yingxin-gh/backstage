@@ -29,10 +29,25 @@ const breadcrumbs = [
   },
 ];
 
+const tags = [
+  { label: 'TypeScript' },
+  { label: 'Platform', href: '/platform' },
+  { label: 'Gold' },
+];
+
+const metadata = [
+  { label: 'Owner', value: 'platform-team' },
+  { label: 'Type', value: 'website' },
+  { label: 'Tier', value: 'gold' },
+];
+
 export const WithEverything = () => (
   <MemoryRouter initialEntries={['/overview']}>
     <Header
       title="Page Title"
+      tags={tags}
+      description="A short description of this page. Supports [inline links](https://backstage.io) and **bold text**."
+      metadata={metadata}
       tabs={tabs.slice(0, 2)}
       breadcrumbs={breadcrumbs.slice(0, 2)}
       customActions={
@@ -42,6 +57,27 @@ export const WithEverything = () => (
         </>
       }
     />
+  </MemoryRouter>
+);
+
+export const WithTags = () => (
+  <MemoryRouter>
+    <Header title="Page Title" tags={tags} />
+  </MemoryRouter>
+);
+
+export const WithDescription = () => (
+  <MemoryRouter>
+    <Header
+      title="Page Title"
+      description="A short description of this page. Supports [inline links](https://backstage.io) and **bold text**."
+    />
+  </MemoryRouter>
+);
+
+export const WithMetadata = () => (
+  <MemoryRouter>
+    <Header title="Page Title" metadata={metadata} />
   </MemoryRouter>
 );
 

@@ -82,7 +82,12 @@
     &[data-size='medium'] {
       height: 2.5rem;
       min-width: 290px;
-      padding-inline-end: var(--bui-space-2);
+      padding-inline-end: var(--bui-space-1);
+
+      & .bui-DateRangePickerButton {
+        width: 2rem;
+        height: 2rem;
+      }
     }
   }
 
@@ -177,26 +182,28 @@
   ============================================================ */
 
   .bui-DateRangePickerButton {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
     background: none;
     border: none;
-    padding: var(--bui-space-1);
-    border-radius: var(--bui-radius-1);
+    border-radius: var(--bui-radius-2);
     color: var(--bui-fg-secondary);
     cursor: pointer;
     margin-left: auto;
     transition: color 0.15s ease-in-out;
+    outline: none;
 
     &[data-hovered] {
       color: var(--bui-fg-primary);
     }
 
     &[data-focus-visible] {
-      outline: 2px solid var(--bui-ring);
-      outline-offset: 1px;
+      box-shadow: inset 0 0 0 1px var(--bui-ring);
     }
 
     &[data-pressed] {

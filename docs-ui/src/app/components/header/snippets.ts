@@ -10,11 +10,6 @@ export const defaultSnippet = `<Header
     { label: 'Gold' },
   ]}
   description="A short description. Supports [inline links](https://backstage.io) and **bold text**."
-  metadata={[
-    { label: 'Owner', value: 'platform-team' },
-    { label: 'Type', value: 'website' },
-    { label: 'Tier', value: 'gold' },
-  ]}
   tabs={[
     { id: 'overview', label: 'Overview', href: '/overview' },
     { id: 'settings', label: 'Settings', href: '/settings' },

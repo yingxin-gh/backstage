@@ -47,7 +47,6 @@ export const WithEverything = () => (
       title="Page Title"
       tags={tags}
       description="A short description of this page. Supports [inline links](https://backstage.io) and **bold text**."
-      metadata={metadata}
       tabs={tabs.slice(0, 2)}
       breadcrumbs={breadcrumbs.slice(0, 2)}
       customActions={

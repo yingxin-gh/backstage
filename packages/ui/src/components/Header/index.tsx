@@ -21,6 +21,7 @@ export {
   HeaderNavGroupDefinition,
 } from './HeaderNavDefinition';
 export { HeaderMetadataUsers } from './HeaderMetadataUsers';
+export { HeaderMetadataStatus } from './HeaderMetadataStatus';
 export type {
   HeaderNavTab,
   HeaderNavTabGroup,
@@ -31,6 +32,7 @@ export type {
   HeaderTag,
   HeaderMetadataItem,
   HeaderMetadataUser,
+  HeaderMetadataStatusItem,
   HeaderPageOwnProps,
   HeaderPageProps,
   HeaderPageBreadcrumb,

@@ -2,6 +2,7 @@
 
 import { Header } from '../../../../../packages/ui/src/components/Header/Header';
 import { HeaderMetadataUsers } from '../../../../../packages/ui/src/components/Header/HeaderMetadataUsers';
+import { HeaderMetadataStatus } from '../../../../../packages/ui/src/components/Header/HeaderMetadataStatus';
 import { Button } from '../../../../../packages/ui/src/components/Button/Button';
 import { ButtonIcon } from '../../../../../packages/ui/src/components/ButtonIcon/ButtonIcon';
 import {
@@ -16,10 +17,23 @@ const users = {
   giles: {
     name: 'Giles Peyton-Nicoll',
     src: 'https://i.pravatar.cc/150?u=giles',
+    href: '/users/giles',
   },
-  alice: { name: 'Alice Johnson', src: 'https://i.pravatar.cc/150?u=alice42' },
-  bob: { name: 'Bob Smith', src: 'https://i.pravatar.cc/150?u=bob' },
-  carol: { name: 'Carol Williams', src: 'https://i.pravatar.cc/150?u=carol' },
+  alice: {
+    name: 'Alice Johnson',
+    src: 'https://i.pravatar.cc/150?u=alice42',
+    href: '/users/alice',
+  },
+  bob: {
+    name: 'Bob Smith',
+    src: 'https://i.pravatar.cc/150?u=bob',
+    href: '/users/bob',
+  },
+  carol: {
+    name: 'Carol Williams',
+    src: 'https://i.pravatar.cc/150?u=carol',
+    href: '/users/carol',
+  },
 };
 
 const tabs = [
@@ -43,11 +57,14 @@ const breadcrumbs = [
 const tags = [
   { label: 'TypeScript' },
   { label: 'Platform', href: '/platform' },
-  { label: 'Gold' },
 ];
 
 const metadataUsers = [
   { label: 'Type', value: 'website' },
+  {
+    label: 'Status',
+    value: <HeaderMetadataStatus label="Passing" color="success" />,
+  },
   {
     label: 'Owner',
     value: <HeaderMetadataUsers users={[users.giles]} />,
@@ -65,7 +82,7 @@ export const WithEverything = () => (
     <Header
       title="Page Title"
       tags={tags}
-      description="A short description of this page. Supports [inline links](https://backstage.io) and **bold text**."
+      description="A short description of this page. Supports [inline links](https://backstage.io)."
       metadata={metadataUsers}
       tabs={tabs.slice(0, 2)}
       customActions={
@@ -80,7 +97,24 @@ export const WithEverything = () => (
 
 export const WithMetadataUsers = () => (
   <MemoryRouter>
-    <Header title="Page Title" metadata={metadataUsers.slice(0, 2)} />
+    <Header
+      title="Page Title"
+      metadata={[
+        { label: 'Type', value: 'website' },
+        {
+          label: 'Owner',
+          value: <HeaderMetadataUsers users={[users.giles]} />,
+        },
+        {
+          label: 'Contributors',
+          value: (
+            <HeaderMetadataUsers
+              users={[users.alice, users.bob, users.carol]}
+            />
+          ),
+        },
+      ]}
+    />
   </MemoryRouter>
 );
 
@@ -94,7 +128,7 @@ export const WithDescription = () => (
   <MemoryRouter>
     <Header
       title="Page Title"
-      description="A short description of this page. Supports [inline links](https://backstage.io) and **bold text**."
+      description="A short description of this page. Supports [inline links](https://backstage.io)."
     />
   </MemoryRouter>
 );
@@ -106,7 +140,34 @@ export const WithMetadata = () => (
       metadata={[
         { label: 'Owner', value: 'platform-team' },
         { label: 'Type', value: 'website' },
-        { label: 'Tier', value: 'gold' },
+      ]}
+    />
+  </MemoryRouter>
+);
+
+export const WithMetadataStatus = () => (
+  <MemoryRouter>
+    <Header
+      title="Page Title"
+      metadata={[
+        {
+          label: 'Status',
+          value: <HeaderMetadataStatus label="Passing" color="success" />,
+        },
+        {
+          label: 'Build',
+          value: (
+            <HeaderMetadataStatus
+              label="Failed"
+              color="danger"
+              href="/builds/123"
+            />
+          ),
+        },
+        {
+          label: 'Coverage',
+          value: <HeaderMetadataStatus label="Warning" color="warning" />,
+        },
       ]}
     />
   </MemoryRouter>

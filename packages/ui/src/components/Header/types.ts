@@ -80,6 +80,18 @@ export interface HeaderMetadataItem {
 export interface HeaderMetadataUser {
   name: string;
   src?: string;
+  href?: string;
+}
+
+/**
+ * Represents a status item in the HeaderMetadataStatus component.
+ *
+ * @public
+ */
+export interface HeaderMetadataStatusItem {
+  label: string;
+  color: 'danger' | 'warning' | 'success' | 'info';
+  href?: string;
 }
 
 /**
@@ -97,8 +109,8 @@ export interface HeaderOwnProps {
    */
   breadcrumbs?: HeaderBreadcrumb[];
   /**
-   * Markdown string rendered below the title. Only inline elements are
-   * supported (links, bold, italic). Block-level markdown is not rendered.
+   * Markdown string rendered below the title. Only inline links are supported.
+   * Bold, italic, and block-level markdown are not rendered.
    */
   description?: string;
   tags?: HeaderTag[];

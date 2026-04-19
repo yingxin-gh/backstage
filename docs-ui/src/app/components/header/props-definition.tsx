@@ -28,7 +28,7 @@ export const headerPagePropDefs: Record<string, PropDef> = {
   description: {
     type: 'string',
     description:
-      'Markdown string rendered below the title. Only inline elements are supported: links, bold, and italic. Block-level markdown such as headings or lists is not rendered.',
+      'Markdown string rendered below the title. Only inline links are supported. Bold, italic, and block-level markdown are not rendered.',
   },
   metadata: {
     type: 'complex',
@@ -113,4 +113,34 @@ export const headerPagePropDefs: Record<string, PropDef> = {
     },
   },
   ...classNamePropDefs,
+};
+
+export const headerMetadataUsersPropDefs: Record<string, PropDef> = {
+  users: {
+    type: 'complex',
+    description:
+      'List of users to display. A single user shows the avatar with their name beside it. Multiple users show a row of avatars with names revealed on hover via tooltip.',
+    complexType: {
+      name: 'HeaderMetadataUser[]',
+      properties: {
+        name: {
+          type: 'string',
+          required: true,
+          description:
+            'Display name shown beside the avatar (single) or in the tooltip (multiple).',
+        },
+        src: {
+          type: 'string',
+          required: false,
+          description: 'URL for the avatar image.',
+        },
+        href: {
+          type: 'string',
+          required: false,
+          description:
+            'When provided, the avatar becomes a link and the name is rendered as a Link component.',
+        },
+      },
+    },
+  },
 };

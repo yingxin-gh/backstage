@@ -20,7 +20,6 @@ import { RiArrowRightSLine } from '@remixicon/react';
 import { HeaderNav } from './HeaderNav';
 import { useDefinition } from '../../hooks/useDefinition';
 import { HeaderDefinition } from './definition';
-import { Container } from '../Container';
 import { Link } from '../Link';
 import { Fragment } from 'react/jsx-runtime';
 import ReactMarkdown from 'react-markdown';
@@ -45,14 +44,19 @@ export const Header = (props: HeaderProps) => {
   } = ownProps;
 
   return (
-    <Container className={classes.root}>
+    <div className={classes.root}>
       {tags && tags.length > 0 && (
         <div className={classes.tags}>
           {tags.map((tag, i) => (
             <Fragment key={tag.label}>
               {i > 0 && <span className={classes.tagDivider} aria-hidden />}
               {tag.href ? (
-                <Link href={tag.href} variant="body-medium" standalone>
+                <Link
+                  href={tag.href}
+                  variant="body-medium"
+                  color="secondary"
+                  standalone
+                >
                   {tag.label}
                 </Link>
               ) : (
@@ -92,7 +96,7 @@ export const Header = (props: HeaderProps) => {
       {description && (
         <ReactMarkdown
           className={classes.description}
-          allowedElements={['p', 'a', 'strong', 'em']}
+          allowedElements={['p', 'a']}
           unwrapDisallowed
           components={{
             p: ({ children }) => (
@@ -127,7 +131,7 @@ export const Header = (props: HeaderProps) => {
           <HeaderNav tabs={tabs} activeTabId={activeTabId} />
         </div>
       )}
-    </Container>
+    </div>
   );
 };
 

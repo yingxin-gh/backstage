@@ -18,6 +18,7 @@ import type { HeaderMetadataUser } from './types';
 import { Avatar } from '../Avatar';
 import { Tooltip, TooltipTrigger } from '../Tooltip';
 import { Text } from '../Text';
+import { Link } from '../Link';
 import { Pressable } from 'react-aria';
 import styles from './HeaderMetadataUsers.module.css';
 
@@ -25,6 +26,7 @@ import styles from './HeaderMetadataUsers.module.css';
  * Displays a list of users as avatars inside a Header metadata value.
  * A single user shows the avatar with their name beside it.
  * Multiple users show overlapping avatars with the name revealed on hover via tooltip.
+ * When a user has an `href`, the avatar and name become links.
  *
  * @public
  */
@@ -37,15 +39,34 @@ export const HeaderMetadataUsers = ({
 
   if (users.length === 1) {
     const user = users[0];
+    const avatar = (
+      <Avatar
+        src={user.src ?? ''}
+        name={user.name}
+        size="small"
+        purpose="decoration"
+      />
+    );
     return (
       <div className={styles.single}>
-        <Avatar
-          src={user.src ?? ''}
-          name={user.name}
-          size="small"
-          purpose="decoration"
-        />
-        <Text variant="body-medium">{user.name}</Text>
+        {user.href ? (
+          <Link
+            href={user.href}
+            aria-label={user.name}
+            className={styles.avatarLink}
+          >
+            {avatar}
+          </Link>
+        ) : (
+          avatar
+        )}
+        {user.href ? (
+          <Link href={user.href} variant="body-medium" standalone>
+            {user.name}
+          </Link>
+        ) : (
+          <Text variant="body-medium">{user.name}</Text>
+        )}
       </div>
     );
   }
@@ -54,14 +75,29 @@ export const HeaderMetadataUsers = ({
     <div className={styles.stack}>
       {users.map(user => (
         <TooltipTrigger key={user.name}>
-          <Pressable>
-            <Avatar
-              src={user.src ?? ''}
-              name={user.name}
-              size="small"
-              purpose="informative"
-            />
-          </Pressable>
+          {user.href ? (
+            <Link
+              href={user.href}
+              aria-label={user.name}
+              className={styles.avatarLink}
+            >
+              <Avatar
+                src={user.src ?? ''}
+                name={user.name}
+                size="small"
+                purpose="decoration"
+              />
+            </Link>
+          ) : (
+            <Pressable>
+              <Avatar
+                src={user.src ?? ''}
+                name={user.name}
+                size="small"
+                purpose="informative"
+              />
+            </Pressable>
+          )}
           <Tooltip>{user.name}</Tooltip>
         </TooltipTrigger>
       ))}

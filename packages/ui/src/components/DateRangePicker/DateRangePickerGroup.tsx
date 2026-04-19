@@ -53,8 +53,8 @@ export const DateRangePickerGroup = ({ dataSize }: { dataSize?: string }) => {
           )}
         </DateInput>
       </div>
-      <Button className={classes.button}>
-        <RiCalendarLine size={16} />
+      <Button className={classes.button} aria-label="Open calendar">
+        <RiCalendarLine size={16} aria-hidden="true" />
       </Button>
     </Group>
   );

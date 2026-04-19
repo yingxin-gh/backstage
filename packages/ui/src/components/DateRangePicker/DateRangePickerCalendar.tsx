@@ -42,11 +42,11 @@ export const DateRangePickerCalendar = () => {
     <RangeCalendar className={classes.root}>
       <header className={classes.header}>
         <Button slot="previous" className={classes.navButton}>
-          <RiArrowLeftSLine size={16} />
+          <RiArrowLeftSLine size={16} aria-hidden="true" />
         </Button>
         <Heading className={classes.heading} />
         <Button slot="next" className={classes.navButton}>
-          <RiArrowRightSLine size={16} />
+          <RiArrowRightSLine size={16} aria-hidden="true" />
         </Button>
       </header>
       <CalendarGrid className={classes.grid}>

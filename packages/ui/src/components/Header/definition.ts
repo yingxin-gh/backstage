@@ -30,6 +30,10 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
     breadcrumbs: 'bui-HeaderBreadcrumbs',
     tabsWrapper: 'bui-HeaderTabsWrapper',
     controls: 'bui-HeaderControls',
+    tags: 'bui-HeaderTags',
+    tagDivider: 'bui-HeaderTagDivider',
+    description: 'bui-HeaderDescription',
+    metaRow: 'bui-HeaderMetaRow',
   },
   propDefs: {
     title: {},
@@ -37,6 +41,9 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
     tabs: {},
     activeTabId: {},
     breadcrumbs: {},
+    description: {},
+    tags: {},
+    metadata: {},
     className: {},
   },
 });

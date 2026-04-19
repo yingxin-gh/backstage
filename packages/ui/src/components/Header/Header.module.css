@@ -47,4 +47,28 @@
     align-items: center;
     gap: var(--bui-space-2);
   }
+
+  .bui-HeaderTags {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--bui-space-2);
+    flex-wrap: wrap;
+  }
+
+  .bui-HeaderTagDivider {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: var(--bui-fg-secondary);
+    flex-shrink: 0;
+  }
+
+  .bui-HeaderMetaRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
 }

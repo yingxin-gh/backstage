@@ -23,6 +23,7 @@ import { HeaderDefinition } from './definition';
 import { Container } from '../Container';
 import { Link } from '../Link';
 import { Fragment } from 'react/jsx-runtime';
+import ReactMarkdown from 'react-markdown';
 
 /**
  * A secondary header with title, breadcrumbs, tabs, and actions.
@@ -31,11 +32,38 @@ import { Fragment } from 'react/jsx-runtime';
  */
 export const Header = (props: HeaderProps) => {
   const { ownProps } = useDefinition(HeaderDefinition, props);
-  const { classes, title, tabs, activeTabId, customActions, breadcrumbs } =
-    ownProps;
+  const {
+    classes,
+    title,
+    tabs,
+    activeTabId,
+    customActions,
+    breadcrumbs,
+    description,
+    tags,
+    metadata,
+  } = ownProps;
 
   return (
     <Container className={classes.root}>
+      {tags && tags.length > 0 && (
+        <div className={classes.tags}>
+          {tags.map((tag, i) => (
+            <Fragment key={tag.label}>
+              {i > 0 && <span className={classes.tagDivider} aria-hidden />}
+              {tag.href ? (
+                <Link href={tag.href} variant="body-small" standalone>
+                  {tag.label}
+                </Link>
+              ) : (
+                <Text variant="body-small" color="secondary">
+                  {tag.label}
+                </Text>
+              )}
+            </Fragment>
+          ))}
+        </div>
+      )}
       <div className={classes.content}>
         <div className={classes.breadcrumbs}>
           {breadcrumbs &&
@@ -61,6 +89,36 @@ export const Header = (props: HeaderProps) => {
         </div>
         <div className={classes.controls}>{customActions}</div>
       </div>
+      {description && (
+        <ReactMarkdown
+          className={classes.description}
+          allowedElements={['p', 'a', 'strong', 'em']}
+          unwrapDisallowed
+          components={{
+            p: ({ children }) => (
+              <Text variant="body-medium" color="secondary">
+                {children}
+              </Text>
+            ),
+            a: ({ href, children }) => (
+              <Link href={href ?? ''} standalone>
+                {children}
+              </Link>
+            ),
+          }}
+        >
+          {description}
+        </ReactMarkdown>
+      )}
+      {metadata && metadata.length > 0 && (
+        <div className={classes.metaRow}>
+          {metadata.map(item => (
+            <Text key={item.label} variant="body-small" color="secondary">
+              <strong>{item.label}:</strong> {item.value}
+            </Text>
+          ))}
+        </div>
+      )}
       {tabs && (
         <div className={classes.tabsWrapper}>
           <HeaderNav tabs={tabs} activeTabId={activeTabId} />

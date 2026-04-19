@@ -152,6 +152,58 @@ export const WithLongBreadcrumbs = meta.story({
   },
 });
 
+export const WithDescription = meta.story({
+  decorators: [withRouter],
+  args: {
+    ...Default.input.args,
+    description:
+      'This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**.',
+  },
+});
+
+export const WithTags = meta.story({
+  decorators: [withRouter],
+  args: {
+    ...Default.input.args,
+    tags: [
+      { label: 'TypeScript' },
+      { label: 'Platform', href: '/platform' },
+      { label: 'Gold' },
+    ],
+  },
+});
+
+export const WithMetadata = meta.story({
+  decorators: [withRouter],
+  args: {
+    ...Default.input.args,
+    metadata: [
+      { label: 'Owner', value: 'platform-team' },
+      { label: 'Type', value: 'website' },
+      { label: 'Tier', value: 'gold' },
+    ],
+  },
+});
+
+export const WithDescriptionTagsAndMetadata = meta.story({
+  decorators: [withRouter],
+  args: {
+    ...Default.input.args,
+    description:
+      'This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**.',
+    tags: [
+      { label: 'TypeScript' },
+      { label: 'Platform', href: '/platform' },
+      { label: 'Gold' },
+    ],
+    metadata: [
+      { label: 'Owner', value: 'platform-team' },
+      { label: 'Type', value: 'website' },
+      { label: 'Tier', value: 'gold' },
+    ],
+  },
+});
+
 export const WithEverything = meta.story({
   decorators: [withRouter],
   args: {
@@ -159,6 +211,18 @@ export const WithEverything = meta.story({
     tabs,
     customActions: <Button>Custom action</Button>,
     breadcrumbs: [{ label: 'Home', href: '/' }],
+    description:
+      'This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**.',
+    tags: [
+      { label: 'TypeScript' },
+      { label: 'Platform', href: '/platform' },
+      { label: 'Gold' },
+    ],
+    metadata: [
+      { label: 'Owner', value: 'platform-team' },
+      { label: 'Type', value: 'website' },
+      { label: 'Tier', value: 'gold' },
+    ],
   },
 });
 

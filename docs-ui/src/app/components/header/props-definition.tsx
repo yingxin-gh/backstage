@@ -39,12 +39,13 @@ export const headerPagePropDefs: Record<string, PropDef> = {
         label: {
           type: 'string',
           required: true,
-          description: 'The key label, displayed in bold.',
+          description: 'The key label, displayed in secondary color.',
         },
         value: {
-          type: 'ReactNode',
+          type: 'string | ReactNode',
           required: true,
-          description: 'The value to display alongside the label.',
+          description:
+            'The value to display alongside the label. Pass a string for plain text or a ReactNode for custom content such as HeaderMetadataUsers.',
         },
       },
     },

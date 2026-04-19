@@ -52,11 +52,11 @@ export const Header = (props: HeaderProps) => {
             <Fragment key={tag.label}>
               {i > 0 && <span className={classes.tagDivider} aria-hidden />}
               {tag.href ? (
-                <Link href={tag.href} variant="body-small" standalone>
+                <Link href={tag.href} variant="body-medium" standalone>
                   {tag.label}
                 </Link>
               ) : (
-                <Text variant="body-small" color="secondary">
+                <Text variant="body-medium" color="secondary">
                   {tag.label}
                 </Text>
               )}
@@ -113,9 +113,12 @@ export const Header = (props: HeaderProps) => {
       {metadata && metadata.length > 0 && (
         <div className={classes.metaRow}>
           {metadata.map(item => (
-            <Text key={item.label} variant="body-small" color="secondary">
-              <strong>{item.label}:</strong> {item.value}
-            </Text>
+            <div key={item.label} className={classes.metaItem}>
+              <Text variant="body-medium" color="secondary">
+                {item.label}
+              </Text>
+              <Text variant="body-medium">{item.value}</Text>
+            </div>
           ))}
         </div>
       )}

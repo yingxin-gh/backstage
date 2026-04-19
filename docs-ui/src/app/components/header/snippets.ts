@@ -2,7 +2,9 @@ export const usage = `import { Header } from '@backstage/ui';
 
 <Header title="Page Title" />`;
 
-export const defaultSnippet = `<Header
+export const defaultSnippet = `import { Header, HeaderMetadataUsers } from '@backstage/ui';
+
+<Header
   title="Page Title"
   tags={[
     { label: 'TypeScript' },
@@ -10,9 +12,28 @@ export const defaultSnippet = `<Header
     { label: 'Gold' },
   ]}
   description="A short description. Supports [inline links](https://backstage.io) and **bold text**."
+  metadata={[
+    { label: 'Type', value: 'website' },
+    {
+      label: 'Owner',
+      value: <HeaderMetadataUsers users={[{ name: 'Giles Peyton-Nicoll', src: '...' }]} />,
+    },
+    {
+      label: 'Contributors',
+      value: (
+        <HeaderMetadataUsers
+          users={[
+            { name: 'Alice Johnson', src: '...' },
+            { name: 'Bob Smith', src: '...' },
+            { name: 'Carol Williams', src: '...' },
+          ]}
+        />
+      ),
+    },
+  ]}
   tabs={[
     { id: 'overview', label: 'Overview', href: '/overview' },
-    { id: 'settings', label: 'Settings', href: '/settings' },
+    { id: 'checks', label: 'Checks', href: '/checks' },
   ]}
   customActions={
     <>
@@ -77,5 +98,29 @@ export const withMetadata = `<Header
     { label: 'Owner', value: 'platform-team' },
     { label: 'Type', value: 'website' },
     { label: 'Tier', value: 'gold' },
+  ]}
+/>`;
+
+export const withMetadataUsers = `import { Header, HeaderMetadataUsers } from '@backstage/ui';
+
+<Header
+  title="Page Title"
+  metadata={[
+    {
+      label: 'Owner',
+      value: <HeaderMetadataUsers users={[{ name: 'Giles Peyton-Nicoll', src: '...' }]} />,
+    },
+    {
+      label: 'Contributors',
+      value: (
+        <HeaderMetadataUsers
+          users={[
+            { name: 'Alice Johnson', src: '...' },
+            { name: 'Bob Smith', src: '...' },
+            { name: 'Carol Williams', src: '...' },
+          ]}
+        />
+      ),
+    },
   ]}
 />`;

@@ -3,11 +3,11 @@ import { CodeBlock } from '@/components/CodeBlock';
 import { Snippet } from '@/components/Snippet';
 import {
   WithEverything,
-  WithLongBreadcrumbs,
   WithTabs,
   WithTags,
   WithDescription,
   WithMetadata,
+  WithMetadataUsers,
   WithCustomActions,
   WithMenu,
 } from './components';
@@ -19,7 +19,7 @@ import {
   withTags,
   withDescription,
   withMetadata,
-  withBreadcrumbs,
+  withMetadataUsers,
   withCustomActions,
   withMenu,
 } from './snippets';
@@ -63,6 +63,12 @@ Key-value pairs displayed below the description.
 
 <Snippet open preview={<WithMetadata />} code={withMetadata} />
 
+### Metadata with users
+
+Use `HeaderMetadataUsers` as the metadata value to display users as avatars. A single user shows the avatar with their name beside it. Multiple users show a row of avatars — hover to reveal each name via tooltip.
+
+<Snippet open preview={<WithMetadataUsers />} code={withMetadataUsers} />
+
 ### Tabs
 
 Tabs auto-detect the active tab from the current route when `activeTabId` is omitted. Pass an explicit `activeTabId` to override, or `null` for no active tab.
@@ -78,12 +84,6 @@ Tabs auto-detect the active tab from the current route when `activeTabId` is omi
 Use `customActions` to add a dropdown menu.
 
 <Snippet open preview={<WithMenu />} code={withMenu} />
-
-### Breadcrumbs (deprecated)
-
-The `breadcrumbs` prop is deprecated and will be removed in a future release. Labels are truncated at 240px.
-
-<Snippet open preview={<WithLongBreadcrumbs />} code={withBreadcrumbs} />
 
 <Theming definition={HeaderDefinition} />
 

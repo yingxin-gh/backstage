@@ -34,6 +34,7 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
     tagDivider: 'bui-HeaderTagDivider',
     description: 'bui-HeaderDescription',
     metaRow: 'bui-HeaderMetaRow',
+    metaItem: 'bui-HeaderMetaItem',
   },
   propDefs: {
     title: {},

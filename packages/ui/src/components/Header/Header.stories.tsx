@@ -17,6 +17,7 @@
 import preview from '../../../../../.storybook/preview';
 import type { StoryFn } from '@storybook/react-vite';
 import { Header } from './Header';
+import { HeaderMetadataUsers } from './HeaderMetadataUsers';
 import type { HeaderNavTabItem } from './types';
 import { MemoryRouter } from 'react-router-dom';
 import { BUIProvider } from '../../provider';
@@ -180,50 +181,105 @@ export const WithMetadata = meta.story({
     metadata: [
       { label: 'Owner', value: 'platform-team' },
       { label: 'Type', value: 'website' },
-      { label: 'Tier', value: 'gold' },
     ],
   },
+});
+
+const users = {
+  giles: {
+    name: 'Giles Peyton-Nicoll',
+    src: 'https://i.pravatar.cc/150?u=giles',
+  },
+  alice: { name: 'Alice Johnson', src: 'https://i.pravatar.cc/150?u=alicej' },
+  bob: { name: 'Bob Smith', src: 'https://i.pravatar.cc/150?u=bob' },
+  carol: { name: 'Carol Williams', src: 'https://i.pravatar.cc/150?u=carol' },
+};
+
+export const WithMetadataUsers = meta.story({
+  decorators: [withRouter],
+  render: () => (
+    <Header
+      {...Default.input.args}
+      metadata={[
+        {
+          label: 'Owner',
+          value: <HeaderMetadataUsers users={[users.giles]} />,
+        },
+        {
+          label: 'Contributors',
+          value: (
+            <HeaderMetadataUsers
+              users={[users.alice, users.bob, users.carol]}
+            />
+          ),
+        },
+      ]}
+    />
+  ),
 });
 
 export const WithDescriptionTagsAndMetadata = meta.story({
   decorators: [withRouter],
-  args: {
-    ...Default.input.args,
-    description:
-      'This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**.',
-    tags: [
-      { label: 'TypeScript' },
-      { label: 'Platform', href: '/platform' },
-      { label: 'Gold' },
-    ],
-    metadata: [
-      { label: 'Owner', value: 'platform-team' },
-      { label: 'Type', value: 'website' },
-      { label: 'Tier', value: 'gold' },
-    ],
-  },
+  render: () => (
+    <Header
+      {...Default.input.args}
+      description="This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**."
+      tags={[
+        { label: 'TypeScript' },
+        { label: 'Platform', href: '/platform' },
+        { label: 'Gold' },
+      ]}
+      metadata={[
+        {
+          label: 'Owner',
+          value: <HeaderMetadataUsers users={[users.giles]} />,
+        },
+        {
+          label: 'Contributors',
+          value: (
+            <HeaderMetadataUsers
+              users={[users.alice, users.bob, users.carol]}
+            />
+          ),
+        },
+        { label: 'Type', value: 'website' },
+        { label: 'Tier', value: 'gold' },
+      ]}
+    />
+  ),
 });
 
 export const WithEverything = meta.story({
   decorators: [withRouter],
-  args: {
-    ...Default.input.args,
-    tabs,
-    customActions: <Button>Custom action</Button>,
-    breadcrumbs: [{ label: 'Home', href: '/' }],
-    description:
-      'This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**.',
-    tags: [
-      { label: 'TypeScript' },
-      { label: 'Platform', href: '/platform' },
-      { label: 'Gold' },
-    ],
-    metadata: [
-      { label: 'Owner', value: 'platform-team' },
-      { label: 'Type', value: 'website' },
-      { label: 'Tier', value: 'gold' },
-    ],
-  },
+  render: () => (
+    <Header
+      {...Default.input.args}
+      tabs={tabs}
+      customActions={<Button>Custom action</Button>}
+      breadcrumbs={[{ label: 'Home', href: '/' }]}
+      description="This is a description of the page. It can include [inline links](https://backstage.io) and **bold text**."
+      tags={[
+        { label: 'TypeScript' },
+        { label: 'Platform', href: '/platform' },
+        { label: 'Gold' },
+      ]}
+      metadata={[
+        { label: 'Type', value: 'website' },
+        {
+          label: 'Owner',
+          value: <HeaderMetadataUsers users={[users.giles]} />,
+        },
+        {
+          label: 'Contributors',
+          value: (
+            <HeaderMetadataUsers
+              users={[users.alice, users.bob, users.carol]}
+            />
+          ),
+        },
+      ]}
+    />
+  ),
 });
 
 const groupedTabs: HeaderNavTabItem[] = [

@@ -71,4 +71,11 @@
     gap: 20px;
     flex-wrap: wrap;
   }
+
+  .bui-HeaderMetaItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--bui-space-2);
+  }
 }

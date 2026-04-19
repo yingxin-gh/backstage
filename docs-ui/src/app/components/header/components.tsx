@@ -1,6 +1,7 @@
 'use client';
 
 import { Header } from '../../../../../packages/ui/src/components/Header/Header';
+import { HeaderMetadataUsers } from '../../../../../packages/ui/src/components/Header/HeaderMetadataUsers';
 import { Button } from '../../../../../packages/ui/src/components/Button/Button';
 import { ButtonIcon } from '../../../../../packages/ui/src/components/ButtonIcon/ButtonIcon';
 import {
@@ -10,6 +11,16 @@ import {
 } from '../../../../../packages/ui/src/components/Menu/Menu';
 import { MemoryRouter } from 'react-router-dom';
 import { RiMore2Line } from '@remixicon/react';
+
+const users = {
+  giles: {
+    name: 'Giles Peyton-Nicoll',
+    src: 'https://i.pravatar.cc/150?u=giles',
+  },
+  alice: { name: 'Alice Johnson', src: 'https://i.pravatar.cc/150?u=alice42' },
+  bob: { name: 'Bob Smith', src: 'https://i.pravatar.cc/150?u=bob' },
+  carol: { name: 'Carol Williams', src: 'https://i.pravatar.cc/150?u=carol' },
+};
 
 const tabs = [
   { id: 'overview', label: 'Overview', href: '/overview' },
@@ -35,10 +46,18 @@ const tags = [
   { label: 'Gold' },
 ];
 
-const metadata = [
-  { label: 'Owner', value: 'platform-team' },
+const metadataUsers = [
   { label: 'Type', value: 'website' },
-  { label: 'Tier', value: 'gold' },
+  {
+    label: 'Owner',
+    value: <HeaderMetadataUsers users={[users.giles]} />,
+  },
+  {
+    label: 'Contributors',
+    value: (
+      <HeaderMetadataUsers users={[users.alice, users.bob, users.carol]} />
+    ),
+  },
 ];
 
 export const WithEverything = () => (
@@ -47,8 +66,8 @@ export const WithEverything = () => (
       title="Page Title"
       tags={tags}
       description="A short description of this page. Supports [inline links](https://backstage.io) and **bold text**."
+      metadata={metadataUsers}
       tabs={tabs.slice(0, 2)}
-      breadcrumbs={breadcrumbs.slice(0, 2)}
       customActions={
         <>
           <Button variant="secondary">Secondary</Button>
@@ -56,6 +75,12 @@ export const WithEverything = () => (
         </>
       }
     />
+  </MemoryRouter>
+);
+
+export const WithMetadataUsers = () => (
+  <MemoryRouter>
+    <Header title="Page Title" metadata={metadataUsers.slice(0, 2)} />
   </MemoryRouter>
 );
 
@@ -76,7 +101,14 @@ export const WithDescription = () => (
 
 export const WithMetadata = () => (
   <MemoryRouter>
-    <Header title="Page Title" metadata={metadata} />
+    <Header
+      title="Page Title"
+      metadata={[
+        { label: 'Owner', value: 'platform-team' },
+        { label: 'Type', value: 'website' },
+        { label: 'Tier', value: 'gold' },
+      ]}
+    />
   </MemoryRouter>
 );
 

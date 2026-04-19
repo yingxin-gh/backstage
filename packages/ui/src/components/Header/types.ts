@@ -73,6 +73,16 @@ export interface HeaderMetadataItem {
 }
 
 /**
+ * Represents a user in the HeaderMetadataUsers component.
+ *
+ * @public
+ */
+export interface HeaderMetadataUser {
+  name: string;
+  src?: string;
+}
+
+/**
  * Own props for the Header component.
  *
  * @public

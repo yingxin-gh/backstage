@@ -16,8 +16,13 @@
 
 import preview from '../../../../../.storybook/preview';
 import { DateRangePicker } from './DateRangePicker';
-import { parseDate, today, getLocalTimeZone } from '@internationalized/date';
-import { Form } from 'react-aria-components';
+import {
+  parseDate,
+  today,
+  getLocalTimeZone,
+  isWeekend,
+} from '@internationalized/date';
+import { useLocale, Form } from 'react-aria-components';
 import { Button } from '../Button';
 
 const meta = preview.meta({
@@ -126,5 +131,25 @@ export const WithMinMaxValue = meta.story({
     description: 'You can only select dates within the next 30 days.',
     minValue: today(getLocalTimeZone()),
     maxValue: today(getLocalTimeZone()).add({ days: 30 }),
+  },
+});
+
+/**
+ * Weekends are marked unavailable. Because `allowsNonContiguousRanges` is not
+ * set (defaults to false), the picker prevents the user from selecting any
+ * range that spans across an unavailable date — the selection snaps to avoid
+ * crossing a weekend.
+ */
+export const WithUnavailableDates = meta.story({
+  render: args => {
+    const { locale } = useLocale();
+    return (
+      <DateRangePicker
+        {...args}
+        label="Working days only"
+        description="Weekends are unavailable. You cannot select a range that spans across them."
+        isDateUnavailable={date => isWeekend(date, locale)}
+      />
+    );
   },
 });

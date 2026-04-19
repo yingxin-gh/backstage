@@ -20,7 +20,7 @@
   .bui-Header {
     display: flex;
     flex-direction: column;
-    gap: var(--bui-space-4);
+    gap: var(--bui-space-3);
     margin-top: var(--bui-space-6);
   }
 

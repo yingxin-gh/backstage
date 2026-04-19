@@ -1508,6 +1508,11 @@ export const HeaderDefinition: {
     readonly breadcrumbs: 'bui-HeaderBreadcrumbs';
     readonly tabsWrapper: 'bui-HeaderTabsWrapper';
     readonly controls: 'bui-HeaderControls';
+    readonly tags: 'bui-HeaderTags';
+    readonly tagDivider: 'bui-HeaderTagDivider';
+    readonly description: 'bui-HeaderDescription';
+    readonly metaRow: 'bui-HeaderMetaRow';
+    readonly metaItem: 'bui-HeaderMetaItem';
   };
   readonly propDefs: {
     readonly title: {};
@@ -1515,9 +1520,50 @@ export const HeaderDefinition: {
     readonly tabs: {};
     readonly activeTabId: {};
     readonly breadcrumbs: {};
+    readonly description: {};
+    readonly tags: {};
+    readonly metadata: {};
     readonly className: {};
   };
 };
+
+// @public
+export interface HeaderMetadataItem {
+  // (undocumented)
+  label: string;
+  // (undocumented)
+  value: React.ReactNode;
+}
+
+// @public
+export const HeaderMetadataStatus: (
+  input: HeaderMetadataStatusItem,
+) => JSX_2.Element;
+
+// @public
+export interface HeaderMetadataStatusItem {
+  // (undocumented)
+  color: 'danger' | 'warning' | 'success' | 'info';
+  // (undocumented)
+  href?: string;
+  // (undocumented)
+  label: string;
+}
+
+// @public
+export interface HeaderMetadataUser {
+  // (undocumented)
+  href?: string;
+  // (undocumented)
+  name: string;
+  // (undocumented)
+  src?: string;
+}
+
+// @public
+export const HeaderMetadataUsers: (input: {
+  users: HeaderMetadataUser[];
+}) => JSX_2.Element | null;
 
 // @public (undocumented)
 export const HeaderNavDefinition: {
@@ -1599,14 +1645,19 @@ export type HeaderNavTabItem = HeaderNavTab | HeaderNavTabGroup;
 export interface HeaderOwnProps {
   // (undocumented)
   activeTabId?: string | null;
-  // (undocumented)
+  // @deprecated (undocumented)
   breadcrumbs?: HeaderBreadcrumb[];
   // (undocumented)
   className?: string;
   // (undocumented)
   customActions?: React.ReactNode;
+  description?: string;
+  // (undocumented)
+  metadata?: HeaderMetadataItem[];
   // (undocumented)
   tabs?: HeaderNavTabItem[];
+  // (undocumented)
+  tags?: HeaderTag[];
   // (undocumented)
   title?: string;
 }
@@ -1628,6 +1679,11 @@ export const HeaderPageDefinition: {
     readonly breadcrumbs: 'bui-HeaderBreadcrumbs';
     readonly tabsWrapper: 'bui-HeaderTabsWrapper';
     readonly controls: 'bui-HeaderControls';
+    readonly tags: 'bui-HeaderTags';
+    readonly tagDivider: 'bui-HeaderTagDivider';
+    readonly description: 'bui-HeaderDescription';
+    readonly metaRow: 'bui-HeaderMetaRow';
+    readonly metaItem: 'bui-HeaderMetaItem';
   };
   readonly propDefs: {
     readonly title: {};
@@ -1635,6 +1691,9 @@ export const HeaderPageDefinition: {
     readonly tabs: {};
     readonly activeTabId: {};
     readonly breadcrumbs: {};
+    readonly description: {};
+    readonly tags: {};
+    readonly metadata: {};
     readonly className: {};
   };
 };
@@ -1657,6 +1716,14 @@ export interface HeaderTab {
   // (undocumented)
   label: string;
   matchStrategy?: TabMatchStrategy;
+}
+
+// @public
+export interface HeaderTag {
+  // (undocumented)
+  href?: string;
+  // (undocumented)
+  label: string;
 }
 
 // @public (undocumented)

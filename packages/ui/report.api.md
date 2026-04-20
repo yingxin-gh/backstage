@@ -222,6 +222,9 @@ export const AlertDefinition: {
       readonly dataAttribute: true;
       readonly default: 'info';
     };
+    readonly isPending: {
+      readonly dataAttribute: true;
+    };
     readonly loading: {
       readonly dataAttribute: true;
     };
@@ -239,6 +242,7 @@ export const AlertDefinition: {
 export type AlertOwnProps = {
   status?: Responsive<'info' | 'success' | 'warning' | 'danger'>;
   icon?: boolean | ReactElement;
+  isPending?: boolean;
   loading?: boolean;
   customActions?: ReactNode;
   title?: ReactNode;
@@ -431,6 +435,9 @@ export const BoxDefinition: {
     'py',
     'position',
     'display',
+    'grow',
+    'shrink',
+    'basis',
     'width',
     'minWidth',
     'maxWidth',
@@ -452,6 +459,7 @@ export type BoxOwnProps = {
 // @public (undocumented)
 export interface BoxProps
   extends SpaceProps,
+    FlexItemProps,
     BoxOwnProps,
     BoxUtilityProps,
     Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {}
@@ -510,6 +518,9 @@ export const ButtonDefinition: {
     readonly destructive: {
       readonly dataAttribute: true;
     };
+    readonly isPending: {
+      readonly dataAttribute: true;
+    };
     readonly loading: {
       readonly dataAttribute: true;
     };
@@ -545,6 +556,9 @@ export const ButtonIconDefinition: {
       readonly dataAttribute: true;
       readonly default: 'primary';
     };
+    readonly isPending: {
+      readonly dataAttribute: true;
+    };
     readonly loading: {
       readonly dataAttribute: true;
     };
@@ -558,6 +572,7 @@ export type ButtonIconOwnProps = {
   size?: Responsive<'small' | 'medium'>;
   variant?: Responsive<'primary' | 'secondary' | 'tertiary'>;
   icon?: ReactElement;
+  isPending?: boolean;
   loading?: boolean;
   className?: string;
 };
@@ -623,6 +638,7 @@ export type ButtonOwnProps = {
   destructive?: boolean;
   iconStart?: ReactElement;
   iconEnd?: ReactElement;
+  isPending?: boolean;
   loading?: boolean;
   children?: ReactNode;
   className?: string;
@@ -642,6 +658,7 @@ export const Card: ForwardRefExoticComponent<
 export type CardBaseProps = {
   children?: ReactNode;
   className?: string;
+  style?: CSSProperties;
 };
 
 // @public
@@ -702,7 +719,9 @@ export const CardDefinition: {
     readonly target: {};
     readonly rel: {};
     readonly download: {};
+    readonly style: {};
   };
+  readonly utilityProps: readonly ['grow', 'shrink', 'basis'];
 };
 
 // @public
@@ -786,10 +805,12 @@ export type CardOwnProps = Pick<
   | 'target'
   | 'rel'
   | 'download'
+  | 'style'
 >;
 
 // @public
 export type CardProps = CardBaseProps &
+  FlexItemProps &
   Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> &
   (CardButtonVariant | CardLinkVariant | CardStaticVariant);
 
@@ -1315,11 +1336,21 @@ export const FlexDefinition: {
     'align',
     'justify',
     'direction',
+    'grow',
+    'shrink',
+    'basis',
   ];
 };
 
 // @public (undocumented)
 export type FlexDirection = 'row' | 'column';
+
+// @public
+export interface FlexItemProps {
+  basis?: Responsive<CSSProperties['flexBasis']>;
+  grow?: Responsive<number | boolean>;
+  shrink?: Responsive<number | boolean>;
+}
 
 // @public (undocumented)
 export type FlexOwnProps = {
@@ -1332,6 +1363,7 @@ export type FlexOwnProps = {
 // @public (undocumented)
 export interface FlexProps
   extends SpaceProps,
+    FlexItemProps,
     FlexOwnProps,
     Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   // (undocumented)
@@ -1422,6 +1454,9 @@ export const GridDefinition: {
     'pt',
     'px',
     'py',
+    'grow',
+    'shrink',
+    'basis',
   ];
 };
 
@@ -1478,6 +1513,7 @@ export type GridOwnProps = {
 // @public (undocumented)
 export interface GridProps
   extends SpaceProps,
+    FlexItemProps,
     GridOwnProps,
     Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   // (undocumented)
@@ -2784,6 +2820,9 @@ export const TableDefinition: {
     readonly stale: {
       readonly dataAttribute: true;
     };
+    readonly isPending: {
+      readonly dataAttribute: true;
+    };
     readonly loading: {
       readonly dataAttribute: true;
     };
@@ -2887,8 +2926,10 @@ export interface TableProps<T extends TableItem> {
   // (undocumented)
   error?: Error;
   // (undocumented)
-  isStale?: boolean;
+  isPending?: boolean;
   // (undocumented)
+  isStale?: boolean;
+  // @deprecated (undocumented)
   loading?: boolean;
   // (undocumented)
   pagination: TablePaginationType;
@@ -2910,6 +2951,7 @@ export const TableRoot: (props: TableRootProps) => JSX_2.Element;
 // @public (undocumented)
 export type TableRootOwnProps = {
   stale?: boolean;
+  isPending?: boolean;
   loading?: boolean;
 };
 

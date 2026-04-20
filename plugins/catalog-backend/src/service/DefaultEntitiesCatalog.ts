@@ -695,9 +695,9 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
       // against one-row-per-entity rather than the much larger search
       // table. This keeps the facets aggregation fast even with many
       // filter clauses or permission conditions.
-      const entityIdSubquery = this.database('final_entities')
-        .select('final_entities.entity_id')
-        .whereNotNull('final_entities.final_entity');
+      const entityIdSubquery = this.database('final_entities').select(
+        'final_entities.entity_id',
+      );
 
       applyEntityFilterToQuery({
         filter: request.filter,

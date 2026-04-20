@@ -2430,9 +2430,98 @@ describe('DefaultEntitiesCatalog', () => {
           }),
         ).resolves.toEqual({
           facets: {
-            'metadata.name': expect.arrayContaining([
-              { value: 'one', count: 1 },
-            ]),
+            'metadata.name': [{ value: 'one', count: 1 }],
+          },
+        });
+      },
+    );
+
+    async function setupFacetsCatalog(
+      databaseId: TestDatabaseId,
+      entities: Entity[],
+    ) {
+      await createDatabase(databaseId);
+      for (const entity of entities) {
+        await addEntityToSearch(entity);
+      }
+      return new DefaultEntitiesCatalog({
+        database: knex,
+        logger: mockServices.logger.mock(),
+        stitcher,
+      });
+    }
+
+    it.each(databases.eachSupportedId())(
+      'excludes not-yet-stitched entities, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'stitched' },
+          spec: {},
+        });
+
+        // Insert an unstitched entity: final_entity is NULL but search
+        // rows exist. This simulates a race or future tombstone state.
+        const unstitchedId = v4();
+        await knex<DbRefreshStateRow>('refresh_state').insert({
+          entity_id: unstitchedId,
+          entity_ref: 'component:default/unstitched',
+          unprocessed_entity: '{}',
+          errors: '[]',
+          next_update_at: '2031-01-01 23:00:00',
+          last_discovery_at: '2021-04-01 13:37:00',
+        });
+        await knex<DbFinalEntitiesRow>('final_entities').insert({
+          entity_id: unstitchedId,
+          entity_ref: 'component:default/unstitched',
+          hash: '',
+        });
+        await knex<DbSearchRow>('search').insert([
+          {
+            entity_id: unstitchedId,
+            key: 'kind',
+            value: 'component',
+            original_value: 'Component',
+          },
+          {
+            entity_id: unstitchedId,
+            key: 'metadata.name',
+            value: 'unstitched',
+            original_value: 'unstitched',
+          },
+        ]);
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        // Without filters: unstitched entity should be excluded
+        await expect(
+          catalog.facets({
+            facets: ['metadata.name'],
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            'metadata.name': [{ value: 'stitched', count: 1 }],
+          },
+        });
+
+        // With filter: unstitched entity should also be excluded
+        await expect(
+          catalog.facets({
+            facets: ['metadata.name'],
+            filter: { key: 'kind', values: ['component'] },
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            'metadata.name': [{ value: 'stitched', count: 1 }],
           },
         });
       },
@@ -2441,32 +2530,26 @@ describe('DefaultEntitiesCatalog', () => {
     it.each(databases.eachSupportedId())(
       'filters with a predicate query, %p',
       async databaseId => {
-        await createDatabase(databaseId);
-
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'one' },
-          spec: { type: 'service' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'two' },
-          spec: { type: 'library' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'API',
-          metadata: { name: 'three' },
-          spec: { type: 'openapi' },
-        });
-
-        const catalog = new DefaultEntitiesCatalog({
-          database: knex,
-          logger: mockServices.logger.mock(),
-          stitcher,
-        });
+        const catalog = await setupFacetsCatalog(databaseId, [
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'one' },
+            spec: { type: 'service' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'two' },
+            spec: { type: 'library' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'API',
+            metadata: { name: 'three' },
+            spec: { type: 'openapi' },
+          },
+        ]);
 
         await expect(
           catalog.facets({
@@ -2476,10 +2559,10 @@ describe('DefaultEntitiesCatalog', () => {
           }),
         ).resolves.toEqual({
           facets: {
-            'spec.type': expect.arrayContaining([
-              { value: 'service', count: 1 },
+            'spec.type': [
               { value: 'library', count: 1 },
-            ]),
+              { value: 'service', count: 1 },
+            ],
           },
         });
       },
@@ -2488,32 +2571,26 @@ describe('DefaultEntitiesCatalog', () => {
     it.each(databases.eachSupportedId())(
       'filters with a predicate query using $in, %p',
       async databaseId => {
-        await createDatabase(databaseId);
-
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'one' },
-          spec: { type: 'service' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'API',
-          metadata: { name: 'two' },
-          spec: { type: 'openapi' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'System',
-          metadata: { name: 'three' },
-          spec: {},
-        });
-
-        const catalog = new DefaultEntitiesCatalog({
-          database: knex,
-          logger: mockServices.logger.mock(),
-          stitcher,
-        });
+        const catalog = await setupFacetsCatalog(databaseId, [
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'one' },
+            spec: { type: 'service' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'API',
+            metadata: { name: 'two' },
+            spec: { type: 'openapi' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'System',
+            metadata: { name: 'three' },
+            spec: {},
+          },
+        ]);
 
         await expect(
           catalog.facets({
@@ -2523,10 +2600,10 @@ describe('DefaultEntitiesCatalog', () => {
           }),
         ).resolves.toEqual({
           facets: {
-            kind: expect.arrayContaining([
-              { value: 'Component', count: 1 },
+            kind: [
               { value: 'API', count: 1 },
-            ]),
+              { value: 'Component', count: 1 },
+            ],
           },
         });
       },
@@ -2535,32 +2612,26 @@ describe('DefaultEntitiesCatalog', () => {
     it.each(databases.eachSupportedId())(
       'filters with compound allOf filter, %p',
       async databaseId => {
-        await createDatabase(databaseId);
-
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'one' },
-          spec: { type: 'service' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'two' },
-          spec: { type: 'library' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'API',
-          metadata: { name: 'three' },
-          spec: { type: 'openapi' },
-        });
-
-        const catalog = new DefaultEntitiesCatalog({
-          database: knex,
-          logger: mockServices.logger.mock(),
-          stitcher,
-        });
+        const catalog = await setupFacetsCatalog(databaseId, [
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'one' },
+            spec: { type: 'service' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'two' },
+            spec: { type: 'library' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'API',
+            metadata: { name: 'three' },
+            spec: { type: 'openapi' },
+          },
+        ]);
 
         await expect(
           catalog.facets({
@@ -2584,32 +2655,26 @@ describe('DefaultEntitiesCatalog', () => {
     it.each(databases.eachSupportedId())(
       'filters with compound anyOf filter, %p',
       async databaseId => {
-        await createDatabase(databaseId);
-
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'one' },
-          spec: { type: 'service' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'API',
-          metadata: { name: 'two' },
-          spec: { type: 'openapi' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'System',
-          metadata: { name: 'three' },
-          spec: {},
-        });
-
-        const catalog = new DefaultEntitiesCatalog({
-          database: knex,
-          logger: mockServices.logger.mock(),
-          stitcher,
-        });
+        const catalog = await setupFacetsCatalog(databaseId, [
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'one' },
+            spec: { type: 'service' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'API',
+            metadata: { name: 'two' },
+            spec: { type: 'openapi' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'System',
+            metadata: { name: 'three' },
+            spec: {},
+          },
+        ]);
 
         await expect(
           catalog.facets({
@@ -2624,10 +2689,10 @@ describe('DefaultEntitiesCatalog', () => {
           }),
         ).resolves.toEqual({
           facets: {
-            'metadata.name': expect.arrayContaining([
+            'metadata.name': [
               { value: 'one', count: 1 },
               { value: 'two', count: 1 },
-            ]),
+            ],
           },
         });
       },
@@ -2636,32 +2701,26 @@ describe('DefaultEntitiesCatalog', () => {
     it.each(databases.eachSupportedId())(
       'filters with both filter and query combined, %p',
       async databaseId => {
-        await createDatabase(databaseId);
-
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'one' },
-          spec: { type: 'service' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'Component',
-          metadata: { name: 'two' },
-          spec: { type: 'library' },
-        });
-        await addEntityToSearch({
-          apiVersion: 'a',
-          kind: 'API',
-          metadata: { name: 'three' },
-          spec: { type: 'openapi' },
-        });
-
-        const catalog = new DefaultEntitiesCatalog({
-          database: knex,
-          logger: mockServices.logger.mock(),
-          stitcher,
-        });
+        const catalog = await setupFacetsCatalog(databaseId, [
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'one' },
+            spec: { type: 'service' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'Component',
+            metadata: { name: 'two' },
+            spec: { type: 'library' },
+          },
+          {
+            apiVersion: 'a',
+            kind: 'API',
+            metadata: { name: 'three' },
+            spec: { type: 'openapi' },
+          },
+        ]);
 
         await expect(
           catalog.facets({

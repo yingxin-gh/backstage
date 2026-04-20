@@ -676,20 +676,12 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
   }
 
   async facets(request: EntityFacetsRequest): Promise<EntityFacetsResponse> {
-    // Exclude not-yet-stitched (or future tombstoned) entities by
-    // anti-joining the tiny set of null final_entity rows. This is
-    // nearly free (~3k rows) compared to confirming ~520k non-null rows.
-    const unstitchedSubquery = this.database('final_entities')
-      .select('final_entities.entity_id')
-      .whereNull('final_entities.final_entity');
-
     const query = this.database<DbSearchRow>('search')
       .whereIn(
         'search.key',
         request.facets.map(f => f.toLocaleLowerCase('en-US')),
       )
       .whereNotNull('search.original_value')
-      .whereNotIn('search.entity_id', unstitchedSubquery)
       .select({
         facet: 'search.key',
         value: 'search.original_value',
@@ -701,8 +693,8 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
       // Build a subquery that finds matching entity IDs via
       // final_entities, so that the EXISTS-based filters correlate
       // against one-row-per-entity rather than the much larger search
-      // table. This keeps the facets aggregation fast even with many
-      // filter clauses or permission conditions.
+      // table. The whereNotNull guard on final_entity excludes
+      // not-yet-stitched (or future tombstoned) entities.
       const entityIdSubquery = this.database('final_entities')
         .select('final_entities.entity_id')
         .whereNotNull('final_entities.final_entity');

@@ -2452,7 +2452,7 @@ describe('DefaultEntitiesCatalog', () => {
     }
 
     it.each(databases.eachSupportedId())(
-      'excludes not-yet-stitched entities, %p',
+      'excludes not-yet-stitched entities from filtered facets, %p',
       async databaseId => {
         await createDatabase(databaseId);
 
@@ -2500,19 +2500,8 @@ describe('DefaultEntitiesCatalog', () => {
           stitcher,
         });
 
-        // Without filters: unstitched entity should be excluded
-        await expect(
-          catalog.facets({
-            facets: ['metadata.name'],
-            credentials: mockCredentials.none(),
-          }),
-        ).resolves.toEqual({
-          facets: {
-            'metadata.name': [{ value: 'stitched', count: 1 }],
-          },
-        });
-
-        // With filter: unstitched entity should also be excluded
+        // With filter: unstitched entity should be excluded because the
+        // inner entityIdSubquery requires final_entity IS NOT NULL
         await expect(
           catalog.facets({
             facets: ['metadata.name'],

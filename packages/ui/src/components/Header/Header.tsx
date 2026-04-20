@@ -22,7 +22,40 @@ import { useDefinition } from '../../hooks/useDefinition';
 import { HeaderDefinition } from './definition';
 import { Link } from '../Link';
 import { Fragment } from 'react/jsx-runtime';
-import ReactMarkdown from 'react-markdown';
+
+const INLINE_LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+/**
+ * Renders a plain-text string that may contain inline Markdown links of the
+ * form `[label](href)` as an array of React nodes (strings and Link elements).
+ *
+ * We intentionally avoid `react-markdown` here: that package is ESM-only
+ * (v8+), which breaks Jest in Node-role packages that transitively import
+ * `@backstage/ui` (e.g. via `core-app-api`). Since the Header description only
+ * needs inline link support, a small regex-based parser is sufficient and keeps
+ * this package free of ESM dependencies.
+ */
+function renderInlineMarkdown(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  INLINE_LINK_RE.lastIndex = 0;
+  while ((match = INLINE_LINK_RE.exec(text)) !== null) {
+    if (match.index > last) {
+      parts.push(text.slice(last, match.index));
+    }
+    parts.push(
+      <Link key={match.index} href={match[2]} standalone>
+        {match[1]}
+      </Link>,
+    );
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) {
+    parts.push(text.slice(last));
+  }
+  return parts;
+}
 
 /**
  * A secondary header with title, breadcrumbs, tabs, and actions.
@@ -94,25 +127,13 @@ export const Header = (props: HeaderProps) => {
         <div className={classes.controls}>{customActions}</div>
       </div>
       {description && (
-        <ReactMarkdown
+        <Text
+          variant="body-medium"
+          color="secondary"
           className={classes.description}
-          allowedElements={['p', 'a']}
-          unwrapDisallowed
-          components={{
-            p: ({ children }) => (
-              <Text variant="body-medium" color="secondary">
-                {children}
-              </Text>
-            ),
-            a: ({ href, children }) => (
-              <Link href={href ?? ''} standalone>
-                {children}
-              </Link>
-            ),
-          }}
         >
-          {description}
-        </ReactMarkdown>
+          {renderInlineMarkdown(description)}
+        </Text>
       )}
       {metadata && metadata.length > 0 && (
         <div className={classes.metaRow}>

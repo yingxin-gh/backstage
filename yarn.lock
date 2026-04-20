@@ -7987,7 +7987,6 @@ __metadata:
     react-aria: "npm:~3.48.0"
     react-aria-components: "npm:~1.17.0"
     react-dom: "npm:^18.0.2"
-    react-markdown: "npm:^8.0.0"
     react-router-dom: "npm:^6.30.2"
     react-stately: "npm:~3.46.0"
     storybook: "npm:^10.3.3"

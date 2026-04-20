@@ -775,13 +775,13 @@ export const scaffolderTranslationRef: TranslationRef<
     readonly 'actionsPage.action.examples': 'Examples';
     readonly 'actionsPage.subtitle': 'This is the collection of all installed actions';
     readonly 'actionsPage.pageTitle': 'Create a New Component';
-    readonly 'listTaskPage.content.emptyState.title': 'No information to display';
-    readonly 'listTaskPage.content.emptyState.description': 'There are no tasks or there was an issue communicating with backend.';
     readonly 'listTaskPage.content.tableCell.template': 'Template';
     readonly 'listTaskPage.content.tableCell.status': 'Status';
     readonly 'listTaskPage.content.tableCell.owner': 'Owner';
     readonly 'listTaskPage.content.tableCell.created': 'Created';
     readonly 'listTaskPage.content.tableCell.taskID': 'Task ID';
+    readonly 'listTaskPage.content.emptyState.title': 'No information to display';
+    readonly 'listTaskPage.content.emptyState.description': 'There are no tasks or there was an issue communicating with backend.';
     readonly 'listTaskPage.content.tableTitle': 'Tasks';
     readonly 'listTaskPage.title': 'List template tasks';
     readonly 'listTaskPage.subtitle': 'All tasks that have been started';

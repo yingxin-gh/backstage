@@ -694,10 +694,12 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
       // final_entities, so that the EXISTS-based filters correlate
       // against one-row-per-entity rather than the much larger search
       // table. This keeps the facets aggregation fast even with many
-      // filter clauses or permission conditions.
-      const entityIdSubquery = this.database('final_entities').select(
-        'final_entities.entity_id',
-      );
+      // filter clauses or permission conditions. The whereNotNull guard
+      // ensures that not-yet-stitched (or future tombstoned) entities
+      // are excluded from results.
+      const entityIdSubquery = this.database('final_entities')
+        .select('final_entities.entity_id')
+        .whereNotNull('final_entities.final_entity');
 
       applyEntityFilterToQuery({
         filter: request.filter,

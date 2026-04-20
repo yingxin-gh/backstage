@@ -2437,6 +2437,246 @@ describe('DefaultEntitiesCatalog', () => {
         });
       },
     );
+
+    it.each(databases.eachSupportedId())(
+      'filters with a predicate query, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'one' },
+          spec: { type: 'service' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'two' },
+          spec: { type: 'library' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'API',
+          metadata: { name: 'three' },
+          spec: { type: 'openapi' },
+        });
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        await expect(
+          catalog.facets({
+            facets: ['spec.type'],
+            query: { kind: 'component' },
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            'spec.type': expect.arrayContaining([
+              { value: 'service', count: 1 },
+              { value: 'library', count: 1 },
+            ]),
+          },
+        });
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'filters with a predicate query using $in, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'one' },
+          spec: { type: 'service' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'API',
+          metadata: { name: 'two' },
+          spec: { type: 'openapi' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'System',
+          metadata: { name: 'three' },
+          spec: {},
+        });
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        await expect(
+          catalog.facets({
+            facets: ['kind'],
+            query: { kind: { $in: ['component', 'api'] } },
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            kind: expect.arrayContaining([
+              { value: 'Component', count: 1 },
+              { value: 'API', count: 1 },
+            ]),
+          },
+        });
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'filters with compound allOf filter, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'one' },
+          spec: { type: 'service' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'two' },
+          spec: { type: 'library' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'API',
+          metadata: { name: 'three' },
+          spec: { type: 'openapi' },
+        });
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        await expect(
+          catalog.facets({
+            facets: ['metadata.name'],
+            filter: {
+              allOf: [
+                { key: 'kind', values: ['component'] },
+                { key: 'spec.type', values: ['service'] },
+              ],
+            },
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            'metadata.name': [{ value: 'one', count: 1 }],
+          },
+        });
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'filters with compound anyOf filter, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'one' },
+          spec: { type: 'service' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'API',
+          metadata: { name: 'two' },
+          spec: { type: 'openapi' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'System',
+          metadata: { name: 'three' },
+          spec: {},
+        });
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        await expect(
+          catalog.facets({
+            facets: ['metadata.name'],
+            filter: {
+              anyOf: [
+                { key: 'kind', values: ['component'] },
+                { key: 'kind', values: ['api'] },
+              ],
+            },
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            'metadata.name': expect.arrayContaining([
+              { value: 'one', count: 1 },
+              { value: 'two', count: 1 },
+            ]),
+          },
+        });
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'filters with both filter and query combined, %p',
+      async databaseId => {
+        await createDatabase(databaseId);
+
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'one' },
+          spec: { type: 'service' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'Component',
+          metadata: { name: 'two' },
+          spec: { type: 'library' },
+        });
+        await addEntityToSearch({
+          apiVersion: 'a',
+          kind: 'API',
+          metadata: { name: 'three' },
+          spec: { type: 'openapi' },
+        });
+
+        const catalog = new DefaultEntitiesCatalog({
+          database: knex,
+          logger: mockServices.logger.mock(),
+          stitcher,
+        });
+
+        await expect(
+          catalog.facets({
+            facets: ['spec.type'],
+            filter: { key: 'kind', values: ['component'] },
+            query: { 'metadata.name': 'one' },
+            credentials: mockCredentials.none(),
+          }),
+        ).resolves.toEqual({
+          facets: {
+            'spec.type': [{ value: 'service', count: 1 }],
+          },
+        });
+      },
+    );
   });
 });
 

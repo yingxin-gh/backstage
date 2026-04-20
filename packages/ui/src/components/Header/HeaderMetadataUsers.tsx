@@ -25,7 +25,7 @@ import styles from './HeaderMetadataUsers.module.css';
 /**
  * Displays a list of users as avatars inside a Header metadata value.
  * A single user shows the avatar with their name beside it.
- * Multiple users show overlapping avatars with the name revealed on hover via tooltip.
+ * Multiple users show avatars in a row with the name revealed on hover via tooltip.
  * When a user has an `href`, the avatar and name become links.
  *
  * @public
@@ -41,7 +41,7 @@ export const HeaderMetadataUsers = ({
     const user = users[0];
     const avatar = (
       <Avatar
-        src={user.src ?? ''}
+        src={user.src ?? 'data:,'}
         name={user.name}
         size="small"
         purpose="decoration"
@@ -82,7 +82,7 @@ export const HeaderMetadataUsers = ({
               className={styles.avatarLink}
             >
               <Avatar
-                src={user.src ?? ''}
+                src={user.src ?? 'data:,'}
                 name={user.name}
                 size="small"
                 purpose="decoration"
@@ -91,7 +91,7 @@ export const HeaderMetadataUsers = ({
           ) : (
             <Pressable>
               <Avatar
-                src={user.src ?? ''}
+                src={user.src ?? 'data:,'}
                 name={user.name}
                 size="small"
                 purpose="informative"

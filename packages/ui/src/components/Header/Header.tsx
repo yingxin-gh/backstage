@@ -24,10 +24,14 @@ import { Link } from '../Link';
 import { Fragment } from 'react/jsx-runtime';
 
 const INLINE_LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
+// Reject javascript:/vbscript:/data: URIs to prevent XSS via description links.
+const UNSAFE_HREF_RE = /^(javascript:|vbscript:|data:)/i;
 
 /**
  * Renders a plain-text string that may contain inline Markdown links of the
  * form `[label](href)` as an array of React nodes (strings and Link elements).
+ * Links with unsafe URL schemes (javascript:, vbscript:, data:) are rendered
+ * as plain text instead.
  *
  * We intentionally avoid `react-markdown` here: that package is ESM-only
  * (v8+), which breaks Jest in Node-role packages that transitively import
@@ -44,11 +48,17 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
     if (match.index > last) {
       parts.push(text.slice(last, match.index));
     }
-    parts.push(
-      <Link key={match.index} href={match[2]} standalone>
-        {match[1]}
-      </Link>,
-    );
+    const href = match[2];
+    const label = match[1];
+    if (UNSAFE_HREF_RE.test(href)) {
+      parts.push(label);
+    } else {
+      parts.push(
+        <Link key={match.index} href={href} standalone>
+          {label}
+        </Link>,
+      );
+    }
     last = match.index + match[0].length;
   }
   if (last < text.length) {
@@ -81,7 +91,7 @@ export const Header = (props: HeaderProps) => {
       {tags && tags.length > 0 && (
         <div className={classes.tags}>
           {tags.map((tag, i) => (
-            <Fragment key={tag.label}>
+            <Fragment key={`${i}:${tag.label}:${tag.href ?? ''}`}>
               {i > 0 && <span className={classes.tagDivider} aria-hidden />}
               {tag.href ? (
                 <Link
@@ -137,12 +147,16 @@ export const Header = (props: HeaderProps) => {
       )}
       {metadata && metadata.length > 0 && (
         <div className={classes.metaRow}>
-          {metadata.map(item => (
-            <div key={item.label} className={classes.metaItem}>
+          {metadata.map((item, i) => (
+            <div key={`${i}:${item.label}`} className={classes.metaItem}>
               <Text variant="body-medium" color="secondary">
                 {item.label}
               </Text>
-              <Text variant="body-medium">{item.value}</Text>
+              {typeof item.value === 'string' ? (
+                <Text variant="body-medium">{item.value}</Text>
+              ) : (
+                item.value
+              )}
             </div>
           ))}
         </div>

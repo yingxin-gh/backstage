@@ -20,6 +20,7 @@ import { RiArrowRightSLine } from '@remixicon/react';
 import { HeaderNav } from './HeaderNav';
 import { useDefinition } from '../../hooks/useDefinition';
 import { HeaderDefinition } from './definition';
+import { Container } from '../Container';
 import { Link } from '../Link';
 import { Fragment } from 'react/jsx-runtime';
 
@@ -87,7 +88,7 @@ export const Header = (props: HeaderProps) => {
   } = ownProps;
 
   return (
-    <div className={classes.root}>
+    <Container className={classes.root}>
       {tags && tags.length > 0 && (
         <div className={classes.tags}>
           {tags.map((tag, i) => (
@@ -166,7 +167,7 @@ export const Header = (props: HeaderProps) => {
           <HeaderNav tabs={tabs} activeTabId={activeTabId} />
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

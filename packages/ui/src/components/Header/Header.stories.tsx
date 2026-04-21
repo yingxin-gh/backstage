@@ -28,6 +28,9 @@ import { RiMore2Line } from '@remixicon/react';
 const meta = preview.meta({
   title: 'Backstage UI/Header',
   component: Header,
+  parameters: {
+    layout: 'fullscreen',
+  },
 });
 
 const tabs: HeaderNavTabItem[] = [

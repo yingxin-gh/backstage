@@ -15,7 +15,7 @@
  */
 import { Text, Button } from '@backstage/ui';
 import { useState } from 'react';
-import { NotificationDescriptionProps } from './NotificationDescription';
+import type { NotificationDescriptionProps } from './NotificationDescription';
 
 const MAX_LENGTH = 100;
 

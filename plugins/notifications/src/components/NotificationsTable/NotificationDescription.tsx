@@ -15,10 +15,22 @@
  */
 import { Text, Button } from '@backstage/ui';
 import { useState } from 'react';
+import { createSwappableComponent } from '@backstage/frontend-plugin-api';
+
+/**
+ * Props for the {@link NotificationDescription} swappable component.
+ *
+ * @public
+ */
+export interface NotificationDescriptionProps {
+  description: string;
+}
 
 const MAX_LENGTH = 100;
 
-export const NotificationDescription = (props: { description: string }) => {
+const DefaultNotificationDescription = (
+  props: NotificationDescriptionProps,
+) => {
   const { description } = props;
   const [shown, setShown] = useState(false);
   const isLong = description.length > MAX_LENGTH;
@@ -56,3 +68,16 @@ export const NotificationDescription = (props: { description: string }) => {
     </Text>
   );
 };
+
+/**
+ * Swappable component that renders the description of a notification in the
+ * notifications table. Apps can override this to customize how descriptions
+ * are displayed.
+ *
+ * @public
+ */
+export const NotificationDescription =
+  createSwappableComponent<NotificationDescriptionProps>({
+    id: 'notifications.notification-description',
+    loader: () => DefaultNotificationDescription,
+  });

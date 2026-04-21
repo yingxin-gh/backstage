@@ -49,7 +49,9 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
     if (match.index > last) {
       parts.push(text.slice(last, match.index));
     }
-    const href = match[2];
+    // Trim leading whitespace/control chars before scheme check to prevent
+    // bypass via inputs like " javascript:alert(1)".
+    const href = match[2].trimStart();
     const label = match[1];
     if (UNSAFE_HREF_RE.test(href)) {
       parts.push(label);

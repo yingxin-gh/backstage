@@ -21,6 +21,9 @@ import { createSwappableComponent } from '@backstage/frontend-plugin-api';
  * @public
  */
 export interface NotificationDescriptionProps {
+  /**
+   * The plain-text description of the notification.
+   */
   description: string;
 }
 

@@ -61,7 +61,6 @@ export const NotificationDescription: {
 
 // @public
 export interface NotificationDescriptionProps {
-  // (undocumented)
   description: string;
 }
 

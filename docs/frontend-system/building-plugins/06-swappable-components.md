@@ -20,7 +20,7 @@ import { createSwappableComponent } from '@backstage/frontend-plugin-api';
 export const ExampleSwappableComponent = createSwappableComponent({
   name: 'example',
 
-  // This is a loader for loading the default implementation of the component when there's no overridden
+  // This is a loader for loading the default implementation of the component when there's no overriding
   // implementation created with `SwappableComponentBlueprint`.
   // It can be sync like below, but it can also be async like `loader: () => import('./DefaultImplementation').then(m => m.DefaultImplementation)`.
   loader: () => (props: { name: string }) =>

@@ -32,7 +32,11 @@ export const HeaderMetadataStatus = ({
 }: HeaderMetadataStatusItem) => {
   return (
     <div className={styles.single}>
-      <span className={`${styles.dot} ${styles[`dot-${color}`]}`} />
+      <span
+        role="img"
+        aria-label={`${color} status`}
+        className={`${styles.dot} ${styles[`dot-${color}`]}`}
+      />
       <Text variant="body-medium">
         {href ? (
           <Link href={href} standalone>

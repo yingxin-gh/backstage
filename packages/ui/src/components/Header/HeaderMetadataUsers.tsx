@@ -39,43 +39,10 @@ export const HeaderMetadataUsers = ({
 
   if (users.length === 1) {
     const user = users[0];
-    const avatar = (
-      <Avatar
-        src={user.src ?? 'data:,'}
-        name={user.name}
-        size="small"
-        purpose="decoration"
-      />
-    );
     return (
       <div className={styles.single}>
         {user.href ? (
-          <Link
-            href={user.href}
-            aria-label={user.name}
-            className={styles.avatarLink}
-          >
-            {avatar}
-          </Link>
-        ) : (
-          avatar
-        )}
-        {user.href ? (
-          <Link href={user.href} variant="body-medium" standalone>
-            {user.name}
-          </Link>
-        ) : (
-          <Text variant="body-medium">{user.name}</Text>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.stack}>
-      {users.map(user => (
-        <TooltipTrigger key={user.name}>
-          {user.href ? (
+          <>
             <Link
               href={user.href}
               aria-label={user.name}
@@ -88,19 +55,57 @@ export const HeaderMetadataUsers = ({
                 purpose="decoration"
               />
             </Link>
-          ) : (
-            <Pressable>
-              <Avatar
-                src={user.src ?? 'data:,'}
-                name={user.name}
-                size="small"
-                purpose="informative"
-              />
-            </Pressable>
-          )}
-          <Tooltip>{user.name}</Tooltip>
-        </TooltipTrigger>
+            <Link href={user.href} variant="body-medium" standalone>
+              {user.name}
+            </Link>
+          </>
+        ) : (
+          <>
+            <Avatar
+              src={user.src ?? 'data:,'}
+              name={user.name}
+              size="small"
+              purpose="decoration"
+            />
+            <Text variant="body-medium">{user.name}</Text>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <ul className={styles.stack}>
+      {users.map(user => (
+        <li key={user.name}>
+          <TooltipTrigger>
+            {user.href ? (
+              <Link
+                href={user.href}
+                aria-label={user.name}
+                className={styles.avatarLink}
+              >
+                <Avatar
+                  src={user.src ?? 'data:,'}
+                  name={user.name}
+                  size="small"
+                  purpose="decoration"
+                />
+              </Link>
+            ) : (
+              <Pressable>
+                <Avatar
+                  src={user.src ?? 'data:,'}
+                  name={user.name}
+                  size="small"
+                  purpose="informative"
+                />
+              </Pressable>
+            )}
+            <Tooltip>{user.name}</Tooltip>
+          </TooltipTrigger>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };

@@ -23,7 +23,7 @@ import { HeaderDefinition } from './definition';
 import { Container } from '../Container';
 import { Lexer } from 'marked';
 import { Link } from '../Link';
-import { Fragment } from 'react/jsx-runtime';
+import { Fragment } from 'react';
 
 // Reject javascript:/vbscript:/data: URIs to prevent XSS via description links.
 const UNSAFE_HREF_RE = /^(javascript:|vbscript:|data:)/i;
@@ -78,10 +78,12 @@ export const Header = (props: HeaderProps) => {
   return (
     <Container className={classes.root}>
       {tags && tags.length > 0 && (
-        <div className={classes.tags}>
+        <ul className={classes.tags}>
           {tags.map((tag, i) => (
-            <Fragment key={`${i}:${tag.label}:${tag.href ?? ''}`}>
-              {i > 0 && <span className={classes.tagDivider} aria-hidden />}
+            <li
+              key={`${i}:${tag.label}:${tag.href ?? ''}`}
+              className={classes.tag}
+            >
               {tag.href ? (
                 <Link
                   href={tag.href}
@@ -96,9 +98,9 @@ export const Header = (props: HeaderProps) => {
                   {tag.label}
                 </Text>
               )}
-            </Fragment>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
       <div className={classes.content}>
         <div className={classes.breadcrumbs}>
@@ -135,20 +137,24 @@ export const Header = (props: HeaderProps) => {
         </Text>
       )}
       {metadata && metadata.length > 0 && (
-        <div className={classes.metaRow}>
+        <dl className={classes.metaRow}>
           {metadata.map((item, i) => (
             <div key={`${i}:${item.label}`} className={classes.metaItem}>
-              <Text variant="body-medium" color="secondary">
-                {item.label}
-              </Text>
-              {typeof item.value === 'string' ? (
-                <Text variant="body-medium">{item.value}</Text>
-              ) : (
-                item.value
-              )}
+              <dt>
+                <Text variant="body-medium" color="secondary">
+                  {item.label}
+                </Text>
+              </dt>
+              <dd>
+                {typeof item.value === 'string' ? (
+                  <Text variant="body-medium">{item.value}</Text>
+                ) : (
+                  item.value
+                )}
+              </dd>
             </div>
           ))}
-        </div>
+        </dl>
       )}
       {tabs && (
         <div className={classes.tabsWrapper}>

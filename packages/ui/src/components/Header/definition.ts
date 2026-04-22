@@ -31,7 +31,7 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
     tabsWrapper: 'bui-HeaderTabsWrapper',
     controls: 'bui-HeaderControls',
     tags: 'bui-HeaderTags',
-    tagDivider: 'bui-HeaderTagDivider',
+    tag: 'bui-HeaderTag',
     description: 'bui-HeaderDescription',
     metaRow: 'bui-HeaderMetaRow',
     metaItem: 'bui-HeaderMetaItem',

@@ -51,10 +51,11 @@ export type ApiFactoryEntry = {
 export function registerFeatureFlagDeclarationsInHolder(
   apis: ApiHolder,
   features: FrontendFeature[],
+  collector: ErrorCollector,
 ) {
   const featureFlagApi = apis.get(featureFlagsApiRef);
   if (featureFlagApi) {
-    registerFeatureFlagDeclarations(featureFlagApi, features);
+    registerFeatureFlagDeclarations(featureFlagApi, features, collector);
   }
 }
 
@@ -65,6 +66,7 @@ export function registerFeatureFlagDeclarationsInHolder(
 export function wrapFeatureFlagApiFactory(
   factory: AnyApiFactory,
   features: FrontendFeature[],
+  collector: ErrorCollector,
 ) {
   if (factory.api.id !== featureFlagsApiRef.id) {
     return factory;
@@ -76,7 +78,7 @@ export function wrapFeatureFlagApiFactory(
       const featureFlagApi = factory.factory(
         deps,
       ) as typeof featureFlagsApiRef.T;
-      registerFeatureFlagDeclarations(featureFlagApi, features);
+      registerFeatureFlagDeclarations(featureFlagApi, features, collector);
       return featureFlagApi;
     },
   } as AnyApiFactory;
@@ -137,7 +139,11 @@ export function syncFinalApiFactories(options: {
     return true;
   });
   const changedFactories = changedEntries.map(entry =>
-    wrapFeatureFlagApiFactory(entry.factory, options.features),
+    wrapFeatureFlagApiFactory(
+      entry.factory,
+      options.features,
+      options.collector,
+    ),
   );
   options.appApiRegistry.setAll(changedFactories);
   options.apiResolver.invalidate(
@@ -174,25 +180,45 @@ const EMPTY_API_HOLDER: ApiHolder = {
 function registerFeatureFlagDeclarations(
   featureFlagApi: typeof featureFlagsApiRef.T,
   features: FrontendFeature[],
+  collector: ErrorCollector,
 ) {
   for (const feature of features) {
     if (OpaqueFrontendPlugin.isType(feature)) {
-      OpaqueFrontendPlugin.toInternal(feature).featureFlags.forEach(flag =>
-        featureFlagApi.registerFlag({
-          name: flag.name,
-          description: flag.description,
-          pluginId: feature.id,
-        }),
-      );
+      const pluginId = feature.id;
+      for (const flag of OpaqueFrontendPlugin.toInternal(feature)
+        .featureFlags) {
+        try {
+          featureFlagApi.registerFlag({
+            name: flag.name,
+            description: flag.description,
+            pluginId,
+          });
+        } catch (error) {
+          collector.report({
+            code: 'FEATURE_FLAG_INVALID',
+            message: `Plugin '${pluginId}' declared invalid feature flag '${flag.name}': ${error}`,
+            context: { pluginId, flagName: flag.name, error: error as Error },
+          });
+        }
+      }
     }
     if (isInternalFrontendModule(feature)) {
-      toInternalFrontendModule(feature).featureFlags.forEach(flag =>
-        featureFlagApi.registerFlag({
-          name: flag.name,
-          description: flag.description,
-          pluginId: feature.pluginId,
-        }),
-      );
+      const pluginId = feature.pluginId;
+      for (const flag of toInternalFrontendModule(feature).featureFlags) {
+        try {
+          featureFlagApi.registerFlag({
+            name: flag.name,
+            description: flag.description,
+            pluginId,
+          });
+        } catch (error) {
+          collector.report({
+            code: 'FEATURE_FLAG_INVALID',
+            message: `Plugin '${pluginId}' declared invalid feature flag '${flag.name}': ${error}`,
+            context: { pluginId, flagName: flag.name, error: error as Error },
+          });
+        }
+      }
     }
   }
 }

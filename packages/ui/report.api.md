@@ -1545,7 +1545,7 @@ export const HeaderDefinition: {
     readonly tabsWrapper: 'bui-HeaderTabsWrapper';
     readonly controls: 'bui-HeaderControls';
     readonly tags: 'bui-HeaderTags';
-    readonly tagDivider: 'bui-HeaderTagDivider';
+    readonly tag: 'bui-HeaderTag';
     readonly description: 'bui-HeaderDescription';
     readonly metaRow: 'bui-HeaderMetaRow';
     readonly metaItem: 'bui-HeaderMetaItem';
@@ -1716,7 +1716,7 @@ export const HeaderPageDefinition: {
     readonly tabsWrapper: 'bui-HeaderTabsWrapper';
     readonly controls: 'bui-HeaderControls';
     readonly tags: 'bui-HeaderTags';
-    readonly tagDivider: 'bui-HeaderTagDivider';
+    readonly tag: 'bui-HeaderTag';
     readonly description: 'bui-HeaderDescription';
     readonly metaRow: 'bui-HeaderMetaRow';
     readonly metaItem: 'bui-HeaderMetaItem';

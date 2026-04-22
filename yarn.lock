@@ -7983,6 +7983,7 @@ __metadata:
     eslint-plugin-storybook: "npm:^10.3.3"
     glob: "npm:^13.0.0"
     globals: "npm:^17.0.0"
+    marked: "npm:^15.0.12"
     react: "npm:^18.0.2"
     react-aria: "npm:~3.48.0"
     react-aria-components: "npm:~1.17.0"

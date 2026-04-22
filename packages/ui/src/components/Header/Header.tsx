@@ -21,53 +21,39 @@ import { HeaderNav } from './HeaderNav';
 import { useDefinition } from '../../hooks/useDefinition';
 import { HeaderDefinition } from './definition';
 import { Container } from '../Container';
+import { Lexer } from 'marked';
 import { Link } from '../Link';
 import { Fragment } from 'react/jsx-runtime';
 
-const INLINE_LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
 // Reject javascript:/vbscript:/data: URIs to prevent XSS via description links.
 const UNSAFE_HREF_RE = /^(javascript:|vbscript:|data:)/i;
 
 /**
- * Renders a plain-text string that may contain inline Markdown links of the
- * form `[label](href)` as an array of React nodes (strings and Link elements).
- * Links with unsafe URL schemes (javascript:, vbscript:, data:) are rendered
- * as plain text instead.
+ * Renders a plain-text string that may contain inline Markdown links as an
+ * array of React nodes (strings and Link elements). Links with unsafe URL
+ * schemes (javascript:, vbscript:, data:) are rendered as plain text instead.
  *
- * We intentionally avoid `react-markdown` here: that package is ESM-only
- * (v8+), which breaks Jest in Node-role packages that transitively import
- * `@backstage/ui` (e.g. via `core-app-api`). Since the Header description only
- * needs inline link support, a small regex-based parser is sufficient and keeps
- * this package free of ESM dependencies.
+ * We use `marked`'s `Lexer.lexInline()` rather than `react-markdown` because
+ * `react-markdown` v8+ is ESM-only, which breaks Jest in Node-role packages
+ * that transitively import `@backstage/ui` (e.g. via `core-app-api`). `marked`
+ * ships CommonJS, has zero dependencies, and its inline lexer gives us a clean
+ * token model without needing to maintain a custom regex.
  */
 function renderInlineMarkdown(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  let last = 0;
-  let match: RegExpExecArray | null;
-  INLINE_LINK_RE.lastIndex = 0;
-  while ((match = INLINE_LINK_RE.exec(text)) !== null) {
-    if (match.index > last) {
-      parts.push(text.slice(last, match.index));
-    }
-    // Trim leading whitespace/control chars before scheme check to prevent
-    // bypass via inputs like " javascript:alert(1)".
-    const href = match[2].trimStart();
-    const label = match[1];
-    if (UNSAFE_HREF_RE.test(href)) {
-      parts.push(label);
-    } else {
-      parts.push(
-        <Link key={match.index} href={href} standalone>
-          {label}
-        </Link>,
+  return Lexer.lexInline(text).map((token, i) => {
+    if (token.type === 'link') {
+      // Trim leading whitespace/control chars before scheme check to prevent
+      // bypass via inputs like " javascript:alert(1)".
+      const href = token.href.trimStart();
+      if (UNSAFE_HREF_RE.test(href)) return token.text;
+      return (
+        <Link key={i} href={href} standalone>
+          {token.text}
+        </Link>
       );
     }
-    last = match.index + match[0].length;
-  }
-  if (last < text.length) {
-    parts.push(text.slice(last));
-  }
-  return parts;
+    return token.raw;
+  });
 }
 
 /**

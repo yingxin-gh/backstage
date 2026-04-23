@@ -22,7 +22,7 @@ import {
 } from '@backstage/backend-test-utils';
 import { Entity, stringifyEntityRef } from '@backstage/catalog-model';
 import { Knex } from 'knex';
-import { v4 as uuid, v4 } from 'uuid';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   QueryEntitiesCursorRequest,
   QueryEntitiesInitialRequest,
@@ -99,7 +99,7 @@ describe('DefaultEntitiesCatalog', () => {
   }
 
   async function addEntityToSearch(entity: Entity) {
-    const id = entity.metadata.uid || v4();
+    const id = entity.metadata.uid || uuid();
     const entityRef = stringifyEntityRef(entity);
     const entityJson = JSON.stringify(entity);
 
@@ -1518,7 +1518,7 @@ describe('DefaultEntitiesCatalog', () => {
               addEntityToSearch({
                 apiVersion: 'a',
                 kind: 'k',
-                metadata: { name: v4() },
+                metadata: { name: uuid() },
               }),
             ),
         );
@@ -1554,7 +1554,7 @@ describe('DefaultEntitiesCatalog', () => {
               addEntityToSearch({
                 apiVersion: 'a',
                 kind: 'k',
-                metadata: { name: v4() },
+                metadata: { name: uuid() },
               }),
             ),
         );
@@ -2465,7 +2465,7 @@ describe('DefaultEntitiesCatalog', () => {
 
         // Insert an unstitched entity: final_entity is NULL but search
         // rows exist. This simulates a race or future tombstone state.
-        const unstitchedId = v4();
+        const unstitchedId = uuid();
         await knex<DbRefreshStateRow>('refresh_state').insert({
           entity_id: unstitchedId,
           entity_ref: 'component:default/unstitched',

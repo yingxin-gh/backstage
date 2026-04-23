@@ -183,28 +183,22 @@ function registerFeatureFlagDeclarations(
   collector: ErrorCollector,
 ) {
   for (const feature of features) {
+    let pluginId: string | undefined;
+    let flags: Array<{ name: string; description?: string }> | undefined;
+    let source: string | undefined;
+
     if (OpaqueFrontendPlugin.isType(feature)) {
-      const pluginId = feature.id;
-      for (const flag of OpaqueFrontendPlugin.toInternal(feature)
-        .featureFlags) {
-        try {
-          featureFlagApi.registerFlag({
-            name: flag.name,
-            description: flag.description,
-            pluginId,
-          });
-        } catch (error) {
-          collector.report({
-            code: 'FEATURE_FLAG_INVALID',
-            message: `Plugin '${pluginId}' declared invalid feature flag '${flag.name}': ${error}`,
-            context: { pluginId, flagName: flag.name, error: error as Error },
-          });
-        }
-      }
+      pluginId = feature.id;
+      flags = OpaqueFrontendPlugin.toInternal(feature).featureFlags;
+      source = 'Plugin';
+    } else if (isInternalFrontendModule(feature)) {
+      pluginId = feature.pluginId;
+      flags = toInternalFrontendModule(feature).featureFlags;
+      source = 'Module for plugin';
     }
-    if (isInternalFrontendModule(feature)) {
-      const pluginId = feature.pluginId;
-      for (const flag of toInternalFrontendModule(feature).featureFlags) {
+
+    if (pluginId && flags && source) {
+      for (const flag of flags) {
         try {
           featureFlagApi.registerFlag({
             name: flag.name,
@@ -214,7 +208,7 @@ function registerFeatureFlagDeclarations(
         } catch (error) {
           collector.report({
             code: 'FEATURE_FLAG_INVALID',
-            message: `Plugin '${pluginId}' declared invalid feature flag '${flag.name}': ${error}`,
+            message: `${source} '${pluginId}' declared invalid feature flag '${flag.name}': ${error}`,
             context: { pluginId, flagName: flag.name, error: error as Error },
           });
         }

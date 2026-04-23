@@ -177,6 +177,8 @@ describe('registerFeatureFlagDeclarationsInHolder', () => {
       code: 'FEATURE_FLAG_INVALID',
       context: { pluginId: 'my-plugin', flagName: 'mod/invalid' },
     });
+    expect(errors[0].message).toContain("Module for plugin 'my-plugin'");
+    expect(errors[0].message).toContain("'mod/invalid'");
   });
 
   it('should isolate non-validation errors thrown by registerFlag', () => {

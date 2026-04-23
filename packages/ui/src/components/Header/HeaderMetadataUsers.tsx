@@ -39,45 +39,42 @@ export const HeaderMetadataUsers = ({
 
   if (users.length === 1) {
     const user = users[0];
+    if (user.href) {
+      return (
+        <Link
+          href={user.href}
+          variant="body-medium"
+          standalone
+          className={styles.single}
+        >
+          <Avatar
+            src={user.src ?? 'data:,'}
+            name={user.name}
+            size="small"
+            purpose="decoration"
+          />
+          {user.name}
+        </Link>
+      );
+    }
+
     return (
       <div className={styles.single}>
-        {user.href ? (
-          <>
-            <Link
-              href={user.href}
-              aria-label={user.name}
-              className={styles.avatarLink}
-            >
-              <Avatar
-                src={user.src ?? 'data:,'}
-                name={user.name}
-                size="small"
-                purpose="decoration"
-              />
-            </Link>
-            <Link href={user.href} variant="body-medium" standalone>
-              {user.name}
-            </Link>
-          </>
-        ) : (
-          <>
-            <Avatar
-              src={user.src ?? 'data:,'}
-              name={user.name}
-              size="small"
-              purpose="decoration"
-            />
-            <Text variant="body-medium">{user.name}</Text>
-          </>
-        )}
+        <Avatar
+          src={user.src ?? 'data:,'}
+          name={user.name}
+          size="small"
+          purpose="decoration"
+        />
+        <Text variant="body-medium">{user.name}</Text>
       </div>
     );
   }
 
   return (
     <ul className={styles.stack}>
-      {users.map(user => (
-        <li key={user.name}>
+      {users.map((user, i) => (
+        <li key={user.href ?? `${i}:${user.name}`}>
           <TooltipTrigger>
             {user.href ? (
               <Link

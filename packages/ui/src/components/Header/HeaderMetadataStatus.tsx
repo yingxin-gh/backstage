@@ -33,8 +33,7 @@ export const HeaderMetadataStatus = ({
   return (
     <div className={styles.single}>
       <span
-        role="img"
-        aria-label={`${color} status`}
+        aria-hidden="true"
         className={`${styles.dot} ${styles[`dot-${color}`]}`}
       />
       <Text variant="body-medium">

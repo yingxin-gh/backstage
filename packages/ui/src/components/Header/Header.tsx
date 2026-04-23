@@ -20,32 +20,22 @@ import { RiArrowRightSLine } from '@remixicon/react';
 import { HeaderNav } from './HeaderNav';
 import { useDefinition } from '../../hooks/useDefinition';
 import { HeaderDefinition } from './definition';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 import { Container } from '../Container';
 import { Lexer } from 'marked';
 import { Link } from '../Link';
 import { Fragment } from 'react';
 
-// Reject javascript:/vbscript:/data: URIs to prevent XSS via description links.
-const UNSAFE_HREF_RE = /^(javascript:|vbscript:|data:)/i;
-
 /**
- * Renders a plain-text string that may contain inline Markdown links as an
- * array of React nodes (strings and Link elements). Links with unsafe URL
- * schemes (javascript:, vbscript:, data:) are rendered as plain text instead.
- *
- * We use `marked`'s `Lexer.lexInline()` rather than `react-markdown` because
- * `react-markdown` v8+ is ESM-only, which breaks Jest in Node-role packages
- * that transitively import `@backstage/ui` (e.g. via `core-app-api`). `marked`
- * ships CommonJS, has zero dependencies, and its inline lexer gives us a clean
- * token model without needing to maintain a custom regex.
+ * Parses inline Markdown links in a string and returns an array of React nodes.
+ * URLs are sanitized via `@braintree/sanitize-url`; unsafe URLs are rendered as
+ * plain text. Uses `marked` instead of `react-markdown` to avoid ESM issues.
  */
 function renderInlineMarkdown(text: string): React.ReactNode[] {
   return Lexer.lexInline(text).map((token, i) => {
     if (token.type === 'link') {
-      // Trim leading whitespace/control chars before scheme check to prevent
-      // bypass via inputs like " javascript:alert(1)".
-      const href = token.href.trimStart();
-      if (UNSAFE_HREF_RE.test(href)) return token.text;
+      const href = sanitizeUrl(token.href);
+      if (href === 'about:blank') return token.text;
       return (
         <Link key={i} href={href} standalone>
           {token.text}

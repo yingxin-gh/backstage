@@ -19,10 +19,10 @@ import express from 'express';
 import Router from 'express-promise-router';
 import { connectionsServiceRef } from '@backstage/connections';
 import { HttpAuthService, LoggerService } from '@backstage/backend-plugin-api';
+import { ConnectionTypeKey } from '@backstage/connections';
 
 export async function createRouter({
   connections,
-  httpAuth,
 }: {
   connections: typeof connectionsServiceRef.T;
   httpAuth: HttpAuthService;
@@ -32,17 +32,30 @@ export async function createRouter({
   router.use(express.json());
 
   router.get('/find', async (req, res) => {
+    const p: any = req.query;
+
+    if (!p.type) {
+      res.status(400).json('Connection type not specified');
+      return;
+    }
+
+    if (!p.host) {
+      res.status(400).json('Host not specified');
+    }
+
+    const query: { type: ConnectionTypeKey; host: string } = {
+      type: p.type as ConnectionTypeKey,
+      host: p.host,
+    };
+
     // const credentials = await httpAuth.credentials(req, {allow: ['user']});
-    const v = await connections.find({
-      type: 'github',
-      host: 'spotify.github.com',
-    });
+    const v = await connections.find(query);
 
     if (!v) {
       res.status(400).json('Cannot find connection');
-    } else {
-      res.status(201).json(v);
+      return;
     }
+    res.status(201).json(v);
   });
 
   return router;

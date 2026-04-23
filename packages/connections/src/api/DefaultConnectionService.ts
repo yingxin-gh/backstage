@@ -18,7 +18,7 @@ import {
   LoggerService,
   RootConfigService,
 } from '@backstage/backend-plugin-api';
-import { ConnectionTypeKey, LookupConnectionType } from '../definitions/lookup';
+import { ConnectionTypeKey, LookupConnectionType } from '../definitions';
 import { AnyConnection, Connection } from './Connection';
 
 class PluginConnectionsService implements ConnectionsService {
@@ -33,29 +33,38 @@ class PluginConnectionsService implements ConnectionsService {
     this.connections.push({
       type: 'github',
       config: { host: 'github.com' },
-      auth: [],
+      auth: [
+        {
+          method: 'app',
+          config: {
+            appId: '123',
+            clientId: 'my-client',
+            clientSecret: 'my-secret',
+            privateKey: 'priv-key',
+          },
+        },
+      ],
     });
     this.connections.push({
       type: 'github',
       config: { host: 'spotify.github.com' },
-      auth: [],
+      auth: [{ method: 'token', config: { token: 'a-token' } }],
     });
   }
 
-  // Connection<LookupConnectionType<'github'>>
-  async find({
+  async find<TType extends ConnectionTypeKey>({
     type,
     host,
   }: {
-    type: ConnectionTypeKey;
+    type: TType;
     host: string;
-  }): Promise<Connection<LookupConnectionType<ConnectionTypeKey>> | undefined> {
+  }): Promise<Connection<LookupConnectionType<TType>> | undefined> {
     const connectionsMatchingType = this.connections.filter(
       ({ type: conType }) => conType === type,
     );
     return connectionsMatchingType.find(
       ({ config: { host: conHost } }) => conHost === host,
-    );
+    ) as Connection<LookupConnectionType<TType>> | undefined;
   }
 
   async registerConnection(): Promise<void> {

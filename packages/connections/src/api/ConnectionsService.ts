@@ -17,11 +17,8 @@ import { ConnectionTypeKey, LookupConnectionType } from '../definitions/lookup';
 import { Connection } from './Connection';
 
 export interface ConnectionsService {
-  find({
-    type,
-    host,
-  }: {
-    type: ConnectionTypeKey;
+  find<TType extends ConnectionTypeKey>(options: {
+    type: TType;
     host: string;
-  }): Promise<Connection<LookupConnectionType<ConnectionTypeKey>> | undefined>;
+  }): Promise<Connection<LookupConnectionType<TType>> | undefined>;
 }

@@ -17,14 +17,18 @@ import { AnyZodObject } from 'zod/v3';
 
 export type ConnectionType<
   TType extends string,
-  TInputSchema extends AnyZodObject,
+  TConfigSchema extends AnyZodObject,
+  TAuthMethods extends readonly ConnectionAuthMethod[] = readonly ConnectionAuthMethod[],
 > = {
   type: TType;
-  configSchema: TInputSchema;
-  authMethods: ConnectionAuthMethod[];
+  configSchema: TConfigSchema;
+  authMethods: TAuthMethods;
 };
 
-export type ConnectionAuthMethod = {
-  method: string;
-  configSchema: AnyZodObject;
+export type ConnectionAuthMethod<
+  TMethod extends string = string,
+  TConfigSchema extends AnyZodObject = AnyZodObject,
+> = {
+  method: TMethod;
+  configSchema: TConfigSchema;
 };

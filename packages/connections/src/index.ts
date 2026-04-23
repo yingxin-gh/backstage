@@ -14,3 +14,5 @@
  * limitations under the License.
  */
 export { connectionsServiceRef, connectionsServiceFactory } from './service';
+export * from './api';
+export * from './definitions';

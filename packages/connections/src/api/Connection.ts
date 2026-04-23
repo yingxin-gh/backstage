@@ -15,14 +15,23 @@
  */
 import { AnyZodObject, z } from 'zod/v3';
 import { ConnectionTypeKey, LookupConnectionType } from '../definitions/lookup';
-import { ConnectionType } from './ConnectionType';
+import { ConnectionAuthMethod, ConnectionType } from './ConnectionType';
+
+type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
+  TAuthMethod extends ConnectionAuthMethod<infer TMethod, infer TConfigSchema>
+    ? { method: TMethod; config: z.infer<TConfigSchema> }
+    : never;
 
 export type Connection<
-  T extends ConnectionType<ConnectionTypeKey, AnyZodObject>,
+  T extends ConnectionType<
+    ConnectionTypeKey,
+    AnyZodObject,
+    readonly ConnectionAuthMethod[]
+  >,
 > = {
   type: T['type'];
   config: z.infer<T['configSchema']>;
-  auth: T['authMethods'];
+  auth: Array<ConnectionAuthValue<T['authMethods'][number]>>;
 };
 
 export type AnyConnection = {

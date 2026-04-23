@@ -14,3 +14,4 @@
  * limitations under the License.
  */
 export { GithubConnectionType } from './github';
+export * from './lookup';

@@ -18,19 +18,20 @@ import { ConnectionAuthMethod, ConnectionType } from '../api/ConnectionType';
 
 export function createConnectionType<
   TType extends string,
-  TInputSchema extends AnyZodObject,
+  TConfigSchema extends AnyZodObject,
+  const TAuthMethods extends readonly ConnectionAuthMethod[],
 >({
   configSchema,
   type,
   authMethods,
 }: {
-  configSchema: TInputSchema;
+  configSchema: TConfigSchema;
   type: TType;
-  authMethods: ConnectionAuthMethod[];
-}): ConnectionType<TType, TInputSchema> {
+  authMethods: TAuthMethods;
+}): ConnectionType<TType, TConfigSchema, TAuthMethods> {
   return {
     type,
-    configSchema: configSchema,
+    configSchema,
     authMethods,
   };
 }

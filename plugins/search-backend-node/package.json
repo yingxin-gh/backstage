@@ -61,8 +61,7 @@
     "@types/lunr": "^2.3.3",
     "lodash": "^4.17.21",
     "lunr": "^2.3.9",
-    "ndjson": "^2.0.0",
-    "uuid": "^11.0.0"
+    "ndjson": "^2.0.0"
   },
   "devDependencies": {
     "@backstage/backend-defaults": "workspace:^",

@@ -14,7 +14,4 @@
  * limitations under the License.
  */
 
-export * from './refs';
-export * from '../shared';
-export * from '../next';
-export type { TypeOnly } from './typeRef';
+export type TypeOnly = { value: number };

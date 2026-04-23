@@ -123,6 +123,29 @@ ruleTester.run(RULE, rule, {
       code: `import type { Foo } from '@internal/self-import-pkg/alpha'`,
       filename: path.join(PKG_DIR, 'src/alpha/refs.ts'),
     },
+    // `export type { ... } from` is also a type-only statement: the TS AST
+    // marks it with `exportKind: 'type'`, and the emitted JS has no runtime
+    // edge. Both same-entry and cross-entry forms must be skipped.
+    {
+      code: `export type { Foo } from '@internal/self-import-pkg'`,
+      filename: path.join(PKG_DIR, 'src/index.ts'),
+    },
+    {
+      code: `export type { Foo } from '@internal/self-import-pkg/alpha'`,
+      filename: path.join(PKG_DIR, 'src/alpha/refs.ts'),
+    },
+    // `src/alpha/typeRef.ts` is only reachable from the `./alpha` barrel via
+    // an `export type { ... } from './typeRef'` edge. Since type-only edges
+    // are erased at runtime, the file isn't part of any entry's bundle and
+    // self-imports from it must be skipped as orphans.
+    {
+      code: `import { foo } from '@internal/self-import-pkg/alpha'`,
+      filename: path.join(PKG_DIR, 'src/alpha/typeRef.ts'),
+    },
+    {
+      code: `import { foo } from '@internal/self-import-pkg'`,
+      filename: path.join(PKG_DIR, 'src/alpha/typeRef.ts'),
+    },
   ],
   invalid: [
     // Same-entry self-imports are always errors because they create circular

@@ -28,7 +28,16 @@ const getPackages = require('../lib/getPackages');
  * @property {string} sourceFile - The source file for the entry, relative to the package dir.
  */
 
-const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
+const SOURCE_EXTENSIONS = [
+  '.ts',
+  '.tsx',
+  '.mts',
+  '.cts',
+  '.js',
+  '.jsx',
+  '.mjs',
+  '.cjs',
+];
 
 // Cache the per-package analysis across files lint invocations. The key is the
 // absolute package dir; the value is a Map from absolute file path to the set
@@ -84,9 +93,11 @@ function resolveSourcePath(fromFile, specifier) {
 }
 
 // Matches `from '...'` specifiers in `import`/`export ... from` statements.
-// Uses a non-greedy body so multi-line imports match cleanly.
+// Uses a non-greedy body so multi-line imports match cleanly. The negative
+// lookahead skips `import type` / `export type` statements because type-only
+// edges are erased at runtime and can't pull files into a runtime bundle.
 const FROM_SPEC_RE =
-  /(?:^|[\s;}])(?:import|export)\b[^"';]*?\bfrom\s*["']([^"']+)["']/gm;
+  /(?:^|[\s;}])(?:import|export)\b(?!\s+type\b)[^"';]*?\bfrom\s*["']([^"']+)["']/gm;
 // Matches side-effect imports: `import '...';`.
 const SIDE_EFFECT_IMPORT_RE = /(?:^|[\s;}])import\s*["']([^"']+)["']/gm;
 

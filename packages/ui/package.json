@@ -48,7 +48,7 @@
   "dependencies": {
     "@backstage/version-bridge": "workspace:^",
     "@internationalized/date": "^3.12.0",
-    "@remixicon/react": "^4.6.0",
+    "@remixicon/react": ">=4.6.0 <4.9.0",
     "@tanstack/react-table": "^8.21.3",
     "clsx": "^2.1.1",
     "react-aria": "~3.48.0",

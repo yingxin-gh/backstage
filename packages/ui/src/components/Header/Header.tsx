@@ -24,7 +24,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import { Container } from '../Container';
 import { Lexer } from 'marked';
 import { Link } from '../Link';
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 
 /**
  * Parses inline Markdown links in a string and returns an array of React nodes.
@@ -64,6 +64,11 @@ export const Header = (props: HeaderProps) => {
     tags,
     metadata,
   } = ownProps;
+
+  const descriptionNodes = useMemo(
+    () => (description ? renderInlineMarkdown(description) : null),
+    [description],
+  );
 
   return (
     <Container className={classes.root}>
@@ -123,7 +128,7 @@ export const Header = (props: HeaderProps) => {
           color="secondary"
           className={classes.description}
         >
-          {renderInlineMarkdown(description)}
+          {descriptionNodes}
         </Text>
       )}
       {metadata && metadata.length > 0 && (

@@ -88,7 +88,7 @@ export interface HeaderMetadataUser {
  *
  * @public
  */
-export interface HeaderMetadataStatusItem {
+export interface HeaderMetadataStatusProps {
   label: string;
   color: 'danger' | 'warning' | 'success' | 'info';
   href?: string;

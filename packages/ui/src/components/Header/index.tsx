@@ -32,7 +32,7 @@ export type {
   HeaderTag,
   HeaderMetadataItem,
   HeaderMetadataUser,
-  HeaderMetadataStatusItem,
+  HeaderMetadataStatusProps,
   HeaderPageOwnProps,
   HeaderPageProps,
   HeaderPageBreadcrumb,

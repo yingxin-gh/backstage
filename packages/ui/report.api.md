@@ -1614,11 +1614,11 @@ export interface HeaderMetadataItem {
 
 // @public
 export const HeaderMetadataStatus: (
-  input: HeaderMetadataStatusItem,
+  input: HeaderMetadataStatusProps,
 ) => JSX_2.Element;
 
 // @public
-export interface HeaderMetadataStatusItem {
+export interface HeaderMetadataStatusProps {
   // (undocumented)
   color: 'danger' | 'warning' | 'success' | 'info';
   // (undocumented)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { HeaderMetadataStatusItem } from './types';
+import type { HeaderMetadataStatusProps } from './types';
 import { Text } from '../Text';
 import { Link } from '../Link';
 import styles from './HeaderMetadataStatus.module.css';
@@ -29,7 +29,7 @@ export const HeaderMetadataStatus = ({
   label,
   color,
   href,
-}: HeaderMetadataStatusItem) => {
+}: HeaderMetadataStatusProps) => {
   return (
     <div className={styles.single}>
       <span

@@ -183,30 +183,32 @@ export const Header = (props: HeaderProps) => {
               ))}
             <h2 className={classes.title}>{title}</h2>
           </div>
-          <div
-            className={classes.breadcrumbsSmall}
-            aria-hidden={!isStuck || undefined}
-          >
-            {breadcrumbs &&
-              breadcrumbs.map(breadcrumb => (
-                <Fragment key={breadcrumb.label}>
-                  <Link
-                    href={isStuck ? breadcrumb.href : undefined}
-                    color="secondary"
-                    className={classes.breadcrumbLinkSmall}
-                    standalone
-                  >
-                    {breadcrumb.label}
-                  </Link>
-                  <RiArrowRightSLine
-                    className={classes.breadcrumbSeparator}
-                    size={16}
-                    color="var(--bui-fg-secondary)"
-                  />
-                </Fragment>
-              ))}
-            <h2 className={classes.titleSmall}>{title}</h2>
-          </div>
+          {sticky && (
+            <div
+              className={classes.breadcrumbsSmall}
+              aria-hidden={!isStuck || undefined}
+            >
+              {breadcrumbs &&
+                breadcrumbs.map(breadcrumb => (
+                  <Fragment key={breadcrumb.label}>
+                    <Link
+                      href={isStuck ? breadcrumb.href : undefined}
+                      color="secondary"
+                      className={classes.breadcrumbLinkSmall}
+                      standalone
+                    >
+                      {breadcrumb.label}
+                    </Link>
+                    <RiArrowRightSLine
+                      className={classes.breadcrumbSeparator}
+                      size={16}
+                      color="var(--bui-fg-secondary)"
+                    />
+                  </Fragment>
+                ))}
+              <h2 className={classes.titleSmall}>{title}</h2>
+            </div>
+          )}
         </div>
         <div className={classes.controls}>{customActions}</div>
       </div>

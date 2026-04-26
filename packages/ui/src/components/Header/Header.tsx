@@ -180,37 +180,8 @@ export const Header = (props: HeaderProps) => {
   const titleAndActionsContent = (
     <>
       <div className={classes.titleStack}>
-        <div
-          className={classes.breadcrumbs}
-          aria-hidden={isStuck || undefined}
-          inert={isStuck ? '' : undefined}
-        >
-          {breadcrumbs &&
-            breadcrumbs.map(breadcrumb => (
-              <Fragment key={breadcrumb.label}>
-                <Link
-                  href={breadcrumb.href}
-                  color="secondary"
-                  className={classes.breadcrumbLink}
-                  standalone
-                >
-                  {breadcrumb.label}
-                </Link>
-                <RiArrowRightSLine
-                  className={classes.breadcrumbSeparator}
-                  size={16}
-                  color="var(--bui-fg-secondary)"
-                />
-              </Fragment>
-            ))}
-          <h2 className={classes.title}>{title}</h2>
-        </div>
-        {sticky && (
-          <div
-            className={classes.breadcrumbsSmall}
-            aria-hidden={!isStuck || undefined}
-            inert={isStuck ? undefined : ''}
-          >
+        {isStuck ? (
+          <div className={classes.breadcrumbsSmall}>
             {breadcrumbs &&
               breadcrumbs.map(breadcrumb => (
                 <Fragment key={breadcrumb.label}>
@@ -230,6 +201,28 @@ export const Header = (props: HeaderProps) => {
                 </Fragment>
               ))}
             <h2 className={classes.titleSmall}>{title}</h2>
+          </div>
+        ) : (
+          <div className={classes.breadcrumbs}>
+            {breadcrumbs &&
+              breadcrumbs.map(breadcrumb => (
+                <Fragment key={breadcrumb.label}>
+                  <Link
+                    href={breadcrumb.href}
+                    color="secondary"
+                    className={classes.breadcrumbLink}
+                    standalone
+                  >
+                    {breadcrumb.label}
+                  </Link>
+                  <RiArrowRightSLine
+                    className={classes.breadcrumbSeparator}
+                    size={16}
+                    color="var(--bui-fg-secondary)"
+                  />
+                </Fragment>
+              ))}
+            <h2 className={classes.title}>{title}</h2>
           </div>
         )}
       </div>

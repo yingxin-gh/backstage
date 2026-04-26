@@ -113,24 +113,91 @@
     flex-shrink: 0;
   }
 
-  .bui-HeaderBreadcrumbs {
+  .bui-HeaderTitleStack {
+    position: relative;
+    flex: 1 1 auto;
+    height: calc(var(--bui-font-size-6) * 1.4);
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .bui-HeaderBreadcrumbs,
+  .bui-HeaderBreadcrumbsSmall {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: var(--bui-space-2);
     min-width: 0;
+    transition: opacity 200ms ease, transform 200ms ease;
   }
 
-  .bui-HeaderTitle {
-    margin: 0;
-    padding: 0;
+  .bui-HeaderBreadcrumbs {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+
+  .bui-HeaderBreadcrumbsSmall {
+    gap: var(--bui-space-1);
+    opacity: 0;
+    transform: translateY(25%);
+  }
+
+  .bui-HeaderBreadcrumbs .bui-HeaderBreadcrumbLink,
+  .bui-HeaderBreadcrumbsSmall .bui-HeaderBreadcrumbLinkSmall {
+    max-width: 240px;
     overflow: hidden;
     font-family: var(--bui-font-regular);
-    font-size: var(--bui-font-size-6);
     font-weight: var(--bui-font-weight-bold);
     line-height: 140%;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .bui-HeaderBreadcrumbs .bui-HeaderBreadcrumbLink {
+    font-size: var(--bui-font-size-6);
+  }
+
+  .bui-HeaderBreadcrumbsSmall .bui-HeaderBreadcrumbLinkSmall {
+    font-size: var(--bui-font-size-4);
+  }
+
+  .bui-HeaderBreadcrumbSeparator {
+    flex-shrink: 0;
+  }
+
+  .bui-HeaderTitle,
+  .bui-HeaderTitleSmall {
+    margin: 0;
+    padding: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: var(--bui-font-regular);
+    font-weight: var(--bui-font-weight-bold);
+    line-height: 140%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bui-HeaderTitle {
+    font-size: var(--bui-font-size-6);
+  }
+
+  .bui-HeaderTitleSmall {
+    font-size: var(--bui-font-size-4);
+  }
+
+  .bui-HeaderContent[data-stuck] .bui-HeaderBreadcrumbs {
+    opacity: 0;
+    transform: translateY(-125%);
+  }
+
+  .bui-HeaderContent[data-stuck] .bui-HeaderBreadcrumbsSmall {
+    opacity: 1;
+    transform: translateY(-50%);
   }
 
   .bui-HeaderTags {

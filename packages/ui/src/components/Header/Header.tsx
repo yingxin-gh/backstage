@@ -158,25 +158,55 @@ export const Header = (props: HeaderProps) => {
         data-sticky={sticky || undefined}
         data-stuck={isStuck || undefined}
       >
-        <div className={classes.breadcrumbs}>
-          {breadcrumbs &&
-            breadcrumbs.map(breadcrumb => (
-              <Fragment key={breadcrumb.label}>
-                <Link
-                  href={breadcrumb.href}
-                  variant="title-small"
-                  weight="bold"
-                  color="secondary"
-                  truncate
-                  style={{ maxWidth: '240px' }}
-                  standalone
-                >
-                  {breadcrumb.label}
-                </Link>
-                <RiArrowRightSLine size={16} color="var(--bui-fg-secondary)" />
-              </Fragment>
-            ))}
-          <h2 className={classes.title}>{title}</h2>
+        <div className={classes.titleStack}>
+          <div
+            className={classes.breadcrumbs}
+            aria-hidden={isStuck || undefined}
+          >
+            {breadcrumbs &&
+              breadcrumbs.map(breadcrumb => (
+                <Fragment key={breadcrumb.label}>
+                  <Link
+                    href={isStuck ? undefined : breadcrumb.href}
+                    color="secondary"
+                    className={classes.breadcrumbLink}
+                    standalone
+                  >
+                    {breadcrumb.label}
+                  </Link>
+                  <RiArrowRightSLine
+                    className={classes.breadcrumbSeparator}
+                    size={16}
+                    color="var(--bui-fg-secondary)"
+                  />
+                </Fragment>
+              ))}
+            <h2 className={classes.title}>{title}</h2>
+          </div>
+          <div
+            className={classes.breadcrumbsSmall}
+            aria-hidden={!isStuck || undefined}
+          >
+            {breadcrumbs &&
+              breadcrumbs.map(breadcrumb => (
+                <Fragment key={breadcrumb.label}>
+                  <Link
+                    href={isStuck ? breadcrumb.href : undefined}
+                    color="secondary"
+                    className={classes.breadcrumbLinkSmall}
+                    standalone
+                  >
+                    {breadcrumb.label}
+                  </Link>
+                  <RiArrowRightSLine
+                    className={classes.breadcrumbSeparator}
+                    size={16}
+                    color="var(--bui-fg-secondary)"
+                  />
+                </Fragment>
+              ))}
+            <h2 className={classes.titleSmall}>{title}</h2>
+          </div>
         </div>
         <div className={classes.controls}>{customActions}</div>
       </div>

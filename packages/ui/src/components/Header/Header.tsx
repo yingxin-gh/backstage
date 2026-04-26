@@ -180,12 +180,16 @@ export const Header = (props: HeaderProps) => {
   const titleAndActionsContent = (
     <>
       <div className={classes.titleStack}>
-        <div className={classes.breadcrumbs} aria-hidden={isStuck || undefined}>
+        <div
+          className={classes.breadcrumbs}
+          aria-hidden={isStuck || undefined}
+          inert={isStuck ? '' : undefined}
+        >
           {breadcrumbs &&
             breadcrumbs.map(breadcrumb => (
               <Fragment key={breadcrumb.label}>
                 <Link
-                  href={isStuck ? undefined : breadcrumb.href}
+                  href={breadcrumb.href}
                   color="secondary"
                   className={classes.breadcrumbLink}
                   standalone
@@ -205,12 +209,13 @@ export const Header = (props: HeaderProps) => {
           <div
             className={classes.breadcrumbsSmall}
             aria-hidden={!isStuck || undefined}
+            inert={isStuck ? undefined : ''}
           >
             {breadcrumbs &&
               breadcrumbs.map(breadcrumb => (
                 <Fragment key={breadcrumb.label}>
                   <Link
-                    href={isStuck ? breadcrumb.href : undefined}
+                    href={breadcrumb.href}
                     color="secondary"
                     className={classes.breadcrumbLinkSmall}
                     standalone
@@ -273,35 +278,27 @@ export const Header = (props: HeaderProps) => {
     </div>
   );
 
-  if (sticky) {
-    return (
-      <>
-        {beforeStickyContent}
+  return (
+    <>
+      {beforeStickyContent}
+      {sticky && (
         <div
           ref={stickySentinelRef}
           className={classes.stickySentinel}
           data-sticky=""
           aria-hidden="true"
         />
-        <header
-          className={classes.content}
-          data-sticky=""
-          data-stuck={isStuck || undefined}
-          {...dataAttributes}
-        >
-          {titleAndActionsContent}
-        </header>
-        {afterStickyContent}
-      </>
-    );
-  }
-
-  return (
-    <header className={classes.root} {...dataAttributes}>
-      {beforeStickyContent}
-      <div className={classes.content}>{titleAndActionsContent}</div>
+      )}
+      <header
+        className={classes.content}
+        data-sticky={sticky || undefined}
+        data-stuck={isStuck || undefined}
+        {...dataAttributes}
+      >
+        {titleAndActionsContent}
+      </header>
       {afterStickyContent}
-    </header>
+    </>
   );
 };
 

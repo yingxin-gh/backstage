@@ -17,24 +17,15 @@
 @layer tokens, base, components, utilities;
 
 @layer components {
-  .bui-Header {
-    display: flex;
-    flex-direction: column;
-    padding-top: var(--bui-space-2);
-    width: 100%;
-    padding-inline: var(--bui-space-5);
-  }
-
   .bui-HeaderAfterSticky {
     display: flex;
     flex-direction: column;
     gap: var(--bui-space-3);
   }
 
-  .bui-HeaderBeforeSticky[data-sticky],
-  .bui-HeaderStickySentinel[data-sticky],
-  .bui-HeaderContent[data-sticky],
-  .bui-HeaderAfterSticky[data-sticky] {
+  .bui-HeaderBeforeSticky,
+  .bui-HeaderContent,
+  .bui-HeaderAfterSticky {
     width: 100%;
     padding-inline: var(--bui-space-5);
     box-sizing: border-box;
@@ -59,7 +50,8 @@
     flex-direction: row;
     justify-content: space-between;
     gap: var(--bui-space-3);
-    padding-block: var(--bui-space-3);
+    padding-top: var(--bui-space-2);
+    padding-bottom: var(--bui-space-3);
   }
 
   .bui-HeaderContent[data-sticky] {

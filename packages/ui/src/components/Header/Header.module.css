@@ -116,8 +116,10 @@
   .bui-HeaderTitleStack {
     position: relative;
     flex: 1 1 auto;
-    height: calc(var(--bui-font-size-6) * 1.4);
+    height: 1lh;
     min-width: 0;
+    font-size: var(--bui-font-size-6);
+    line-height: 140%;
     overflow: hidden;
   }
 
@@ -151,13 +153,13 @@
     overflow: hidden;
     font-family: var(--bui-font-regular);
     font-weight: var(--bui-font-weight-bold);
-    line-height: 140%;
+    line-height: inherit;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .bui-HeaderBreadcrumbs .bui-HeaderBreadcrumbLink {
-    font-size: var(--bui-font-size-6);
+    font-size: inherit;
   }
 
   .bui-HeaderBreadcrumbsSmall .bui-HeaderBreadcrumbLinkSmall {
@@ -176,14 +178,14 @@
     min-width: 0;
     font-family: var(--bui-font-regular);
     font-weight: var(--bui-font-weight-bold);
-    line-height: 140%;
+    line-height: inherit;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .bui-HeaderTitle {
-    font-size: var(--bui-font-size-6);
+    font-size: inherit;
   }
 
   .bui-HeaderTitleSmall {

@@ -29,9 +29,11 @@ const getScrollParent = (element: HTMLElement | null): Element | null => {
   let parent = element?.parentElement;
 
   while (parent) {
-    const { overflowY } = window.getComputedStyle(parent);
+    const { overflow, overflowX, overflowY } = window.getComputedStyle(parent);
 
-    if (/(auto|scroll|overlay)/.test(overflowY)) {
+    if (
+      /(auto|scroll|overlay|hidden)/.test(`${overflow}${overflowX}${overflowY}`)
+    ) {
       return parent;
     }
 
@@ -85,6 +87,8 @@ export const Header = (props: HeaderProps) => {
     () => (description ? renderInlineMarkdown(description) : null),
     [description],
   );
+  // The sentinel sits directly before the sticky content and leaves the
+  // viewport when the content becomes stuck, letting us toggle stuck styling.
   const stickySentinelRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
 

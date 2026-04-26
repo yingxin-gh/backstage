@@ -1743,7 +1743,6 @@ export interface HeaderOwnProps {
   description?: string;
   // (undocumented)
   metadata?: HeaderMetadataItem[];
-  // (undocumented)
   sticky?: boolean;
   // (undocumented)
   tabs?: HeaderNavTabItem[];

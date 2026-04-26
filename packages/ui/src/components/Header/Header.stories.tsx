@@ -24,7 +24,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { BUIProvider } from '../../provider';
 import { Button, ButtonIcon, MenuTrigger, Menu, MenuItem } from '../../';
 import { RiMore2Line } from '@remixicon/react';
-import { Container } from '../Container/Container';
+import { Container } from '../Container';
 
 const meta = preview.meta({
   title: 'Backstage UI/Header',
@@ -415,8 +415,8 @@ export const NonSticky = meta.story({
       <Container pb="3">
         {Array.from({ length: 60 }, (_, i) => (
           <p key={i} style={{ marginBottom: '16px' }}>
-            Scroll down to see the title bar stick to the top while the tags,
-            description, and metadata scroll away. Line {i + 1}.
+            Scroll down to see the entire header scroll away with the rest of
+            the page content. Line {i + 1}.
           </p>
         ))}
       </Container>

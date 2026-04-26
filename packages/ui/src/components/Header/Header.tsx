@@ -43,6 +43,16 @@ const getScrollParent = (element: HTMLElement | null): Element | null => {
   return null;
 };
 
+const isStickySentinelOutOfView = (
+  sentinel: HTMLElement,
+  root: Element | null,
+) => {
+  const sentinelRect = sentinel.getBoundingClientRect();
+  const rootTop = root ? root.getBoundingClientRect().top : 0;
+
+  return sentinelRect.bottom <= rootTop;
+};
+
 /**
  * Parses inline Markdown links in a string and returns an array of React nodes.
  * URLs are sanitized via `@braintree/sanitize-url`; unsafe URLs are rendered as
@@ -103,11 +113,31 @@ export const Header = (props: HeaderProps) => {
       return;
     }
 
+    const root = getScrollParent(sentinel);
+
+    if (typeof IntersectionObserver === 'undefined') {
+      const updateStuckState = () => {
+        setIsStuck(isStickySentinelOutOfView(sentinel, root));
+      };
+      const scrollTarget = root ?? window;
+
+      updateStuckState();
+      scrollTarget.addEventListener('scroll', updateStuckState, {
+        passive: true,
+      });
+      window.addEventListener('resize', updateStuckState);
+
+      return () => {
+        scrollTarget.removeEventListener('scroll', updateStuckState);
+        window.removeEventListener('resize', updateStuckState);
+      };
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsStuck(!entry.isIntersecting);
       },
-      { root: getScrollParent(sentinel), threshold: 0 },
+      { root, threshold: 0 },
     );
 
     observer.observe(sentinel);

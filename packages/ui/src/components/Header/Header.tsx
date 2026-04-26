@@ -80,7 +80,7 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
  */
 export const Header = (props: HeaderProps) => {
   const { ownProps, dataAttributes } = useDefinition(HeaderDefinition, props, {
-    classNameTarget: props.sticky ? 'content' : 'root',
+    classNameTarget: 'content',
   });
   const {
     classes,

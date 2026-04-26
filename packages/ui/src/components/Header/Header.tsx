@@ -79,7 +79,9 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
  * @public
  */
 export const Header = (props: HeaderProps) => {
-  const { ownProps, dataAttributes } = useDefinition(HeaderDefinition, props);
+  const { ownProps, dataAttributes } = useDefinition(HeaderDefinition, props, {
+    classNameTarget: props.sticky ? 'content' : 'root',
+  });
   const {
     classes,
     title,
@@ -147,63 +149,70 @@ export const Header = (props: HeaderProps) => {
     };
   }, [sticky]);
 
-  return (
-    <header
-      className={classes.root}
-      data-sticky={sticky || undefined}
-      {...dataAttributes}
-    >
-      {tags && tags.length > 0 && (
-        <div className={classes.beforeSticky}>
-          <ul className={classes.tags}>
-            {tags.map((tag, i) => (
-              <li
-                key={`${i}:${tag.label}:${tag.href ?? ''}`}
-                className={classes.tag}
+  const beforeStickyContent = tags && tags.length > 0 && (
+    <div className={classes.beforeSticky} data-sticky={sticky || undefined}>
+      <ul className={classes.tags}>
+        {tags.map((tag, i) => (
+          <li
+            key={`${i}:${tag.label}:${tag.href ?? ''}`}
+            className={classes.tag}
+          >
+            {tag.href ? (
+              <Link
+                href={tag.href}
+                variant="body-medium"
+                color="secondary"
+                standalone
               >
-                {tag.href ? (
-                  <Link
-                    href={tag.href}
-                    variant="body-medium"
-                    color="secondary"
-                    standalone
-                  >
-                    {tag.label}
-                  </Link>
-                ) : (
-                  <Text variant="body-medium" color="secondary">
-                    {tag.label}
-                  </Text>
-                )}
-              </li>
+                {tag.label}
+              </Link>
+            ) : (
+              <Text variant="body-medium" color="secondary">
+                {tag.label}
+              </Text>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const titleAndActionsContent = (
+    <>
+      <div className={classes.titleStack}>
+        <div className={classes.breadcrumbs} aria-hidden={isStuck || undefined}>
+          {breadcrumbs &&
+            breadcrumbs.map(breadcrumb => (
+              <Fragment key={breadcrumb.label}>
+                <Link
+                  href={isStuck ? undefined : breadcrumb.href}
+                  color="secondary"
+                  className={classes.breadcrumbLink}
+                  standalone
+                >
+                  {breadcrumb.label}
+                </Link>
+                <RiArrowRightSLine
+                  className={classes.breadcrumbSeparator}
+                  size={16}
+                  color="var(--bui-fg-secondary)"
+                />
+              </Fragment>
             ))}
-          </ul>
+          <h2 className={classes.title}>{title}</h2>
         </div>
-      )}
-      {sticky && (
-        <div
-          ref={stickySentinelRef}
-          className={classes.stickySentinel}
-          aria-hidden="true"
-        />
-      )}
-      <div
-        className={classes.content}
-        data-sticky={sticky || undefined}
-        data-stuck={isStuck || undefined}
-      >
-        <div className={classes.titleStack}>
+        {sticky && (
           <div
-            className={classes.breadcrumbs}
-            aria-hidden={isStuck || undefined}
+            className={classes.breadcrumbsSmall}
+            aria-hidden={!isStuck || undefined}
           >
             {breadcrumbs &&
               breadcrumbs.map(breadcrumb => (
                 <Fragment key={breadcrumb.label}>
                   <Link
-                    href={isStuck ? undefined : breadcrumb.href}
+                    href={isStuck ? breadcrumb.href : undefined}
                     color="secondary"
-                    className={classes.breadcrumbLink}
+                    className={classes.breadcrumbLinkSmall}
                     standalone
                   >
                     {breadcrumb.label}
@@ -215,75 +224,83 @@ export const Header = (props: HeaderProps) => {
                   />
                 </Fragment>
               ))}
-            <h2 className={classes.title}>{title}</h2>
+            <h2 className={classes.titleSmall}>{title}</h2>
           </div>
-          {sticky && (
-            <div
-              className={classes.breadcrumbsSmall}
-              aria-hidden={!isStuck || undefined}
-            >
-              {breadcrumbs &&
-                breadcrumbs.map(breadcrumb => (
-                  <Fragment key={breadcrumb.label}>
-                    <Link
-                      href={isStuck ? breadcrumb.href : undefined}
-                      color="secondary"
-                      className={classes.breadcrumbLinkSmall}
-                      standalone
-                    >
-                      {breadcrumb.label}
-                    </Link>
-                    <RiArrowRightSLine
-                      className={classes.breadcrumbSeparator}
-                      size={16}
-                      color="var(--bui-fg-secondary)"
-                    />
-                  </Fragment>
-                ))}
-              <h2 className={classes.titleSmall}>{title}</h2>
-            </div>
-          )}
-        </div>
-        <div className={classes.controls}>{customActions}</div>
+        )}
       </div>
-      {(description || (metadata && metadata.length > 0) || tabs) && (
-        <div className={classes.afterSticky}>
-          {description && (
-            <Text
-              variant="body-medium"
-              color="secondary"
-              className={classes.description}
-            >
-              {descriptionNodes}
-            </Text>
-          )}
-          {metadata && metadata.length > 0 && (
-            <dl className={classes.metaRow}>
-              {metadata.map((item, i) => (
-                <div key={`${i}:${item.label}`} className={classes.metaItem}>
-                  <dt>
-                    <Text variant="body-medium" color="secondary">
-                      {item.label}
-                    </Text>
-                  </dt>
-                  <dd>
-                    {typeof item.value === 'string' ? (
-                      <Text variant="body-medium">{item.value}</Text>
-                    ) : (
-                      item.value
-                    )}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          {tabs && (
-            <div className={classes.tabsWrapper}>
-              <HeaderNav tabs={tabs} activeTabId={activeTabId} />
+      <div className={classes.controls}>{customActions}</div>
+    </>
+  );
+
+  const afterStickyContent = (description ||
+    (metadata && metadata.length > 0) ||
+    tabs) && (
+    <div className={classes.afterSticky} data-sticky={sticky || undefined}>
+      {description && (
+        <Text
+          variant="body-medium"
+          color="secondary"
+          className={classes.description}
+        >
+          {descriptionNodes}
+        </Text>
+      )}
+      {metadata && metadata.length > 0 && (
+        <dl className={classes.metaRow}>
+          {metadata.map((item, i) => (
+            <div key={`${i}:${item.label}`} className={classes.metaItem}>
+              <dt>
+                <Text variant="body-medium" color="secondary">
+                  {item.label}
+                </Text>
+              </dt>
+              <dd>
+                {typeof item.value === 'string' ? (
+                  <Text variant="body-medium">{item.value}</Text>
+                ) : (
+                  item.value
+                )}
+              </dd>
             </div>
-          )}
+          ))}
+        </dl>
+      )}
+      {tabs && (
+        <div className={classes.tabsWrapper}>
+          <HeaderNav tabs={tabs} activeTabId={activeTabId} />
         </div>
       )}
+    </div>
+  );
+
+  if (sticky) {
+    return (
+      <>
+        {beforeStickyContent}
+        <div
+          ref={stickySentinelRef}
+          className={classes.stickySentinel}
+          data-sticky=""
+          aria-hidden="true"
+        />
+        <header
+          className={classes.content}
+          data-sticky=""
+          data-stuck={isStuck || undefined}
+          {...dataAttributes}
+        >
+          {titleAndActionsContent}
+        </header>
+        {afterStickyContent}
+      </>
+    );
+  }
+
+  return (
+    <header className={classes.root} {...dataAttributes}>
+      {beforeStickyContent}
+      <div className={classes.content}>{titleAndActionsContent}</div>
+      {afterStickyContent}
     </header>
   );
 };

@@ -1581,7 +1581,6 @@ export const HeaderDefinition: {
   };
   readonly bg: 'consumer';
   readonly classNames: {
-    readonly root: 'bui-Header';
     readonly headerTop: 'bui-HeaderTop';
     readonly stickySentinel: 'bui-HeaderStickySentinel';
     readonly content: 'bui-HeaderContent';
@@ -1765,7 +1764,6 @@ export const HeaderPageDefinition: {
   };
   readonly bg: 'consumer';
   readonly classNames: {
-    readonly root: 'bui-Header';
     readonly headerTop: 'bui-HeaderTop';
     readonly stickySentinel: 'bui-HeaderStickySentinel';
     readonly content: 'bui-HeaderContent';

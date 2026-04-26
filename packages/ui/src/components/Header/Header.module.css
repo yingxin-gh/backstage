@@ -47,7 +47,7 @@
     flex-direction: row;
     justify-content: space-between;
     gap: var(--bui-space-3);
-    padding-top: var(--bui-space-6);
+    padding-top: var(--bui-space-3);
     padding-bottom: var(--bui-space-3);
   }
 

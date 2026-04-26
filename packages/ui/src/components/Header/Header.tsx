@@ -152,8 +152,8 @@ export const Header = (props: HeaderProps) => {
 
   return (
     <>
-      {tags && tags.length > 0 && (
-        <div className={classes.headerTop} data-sticky={sticky || undefined}>
+      <div className={classes.headerTop} data-sticky={sticky || undefined}>
+        {tags && tags.length > 0 && (
           <ul className={classes.tags}>
             {tags.map((tag, i) => (
               <li
@@ -177,8 +177,8 @@ export const Header = (props: HeaderProps) => {
               </li>
             ))}
           </ul>
-        </div>
-      )}
+        )}
+      </div>
       {sticky && (
         <div
           ref={stickySentinelRef}

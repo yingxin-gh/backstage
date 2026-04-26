@@ -58,6 +58,19 @@ const PageContent = () => (
   </Container>
 );
 
+const LongPageContent = () => (
+  <Container mt="6" pb="3">
+    <Flex direction="row" gap="4" mb="4">
+      <Card style={{ minHeight: 200, flex: 1 }} />
+      <Card style={{ minHeight: 200, flex: 1 }} />
+      <Card style={{ minHeight: 200, flex: 1 }} />
+    </Flex>
+    {Array.from({ length: 40 }, (_, i) => (
+      <Card key={i} style={{ minHeight: 200, marginBottom: 16 }} />
+    ))}
+  </Container>
+);
+
 // ---------------------------------------------------------------------------
 // Shared layout decorator
 // ---------------------------------------------------------------------------
@@ -270,6 +283,60 @@ export const WithSubTabsAndTags = meta.story({
           }
         />
         <PageContent />
+      </>
+    );
+  },
+});
+
+export const WithStickyHeader = meta.story({
+  decorators: [
+    (Story: StoryFn) => (
+      <MemoryRouter initialEntries={['/summary']}>
+        <BUIProvider>
+          <Story />
+        </BUIProvider>
+      </MemoryRouter>
+    ),
+  ],
+  render: () => {
+    return (
+      <>
+        <PluginHeader
+          icon={<RiGitBranchLine />}
+          title="CI/CD"
+          titleLink="/"
+          tabs={[
+            { id: 'builds', label: 'Builds', href: '/builds' },
+            { id: 'pipelines', label: 'Pipelines', href: '/pipelines' },
+            { id: 'deployments', label: 'Deployments', href: '/deployments' },
+            { id: 'settings', label: 'Settings', href: '/settings' },
+          ]}
+          customActions={
+            <>
+              <ButtonIcon
+                variant="secondary"
+                icon={<RiRefreshLine />}
+                aria-label="Refresh"
+              />
+            </>
+          }
+        />
+        <Header
+          title="Production deployment pipeline run"
+          sticky
+          tabs={subTabs}
+          customActions={
+            <>
+              <Button variant="secondary" iconStart={<RiDownloadLine />}>
+                Download logs
+              </Button>
+              <Button variant="primary" iconStart={<RiPlayLine />}>
+                Re-run pipeline
+              </Button>
+            </>
+          }
+        />
+        <LongPageContent />
       </>
     );
   },

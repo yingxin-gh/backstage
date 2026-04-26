@@ -1582,10 +1582,10 @@ export const HeaderDefinition: {
   readonly bg: 'consumer';
   readonly classNames: {
     readonly root: 'bui-Header';
-    readonly beforeSticky: 'bui-HeaderBeforeSticky';
+    readonly headerTop: 'bui-HeaderTop';
     readonly stickySentinel: 'bui-HeaderStickySentinel';
     readonly content: 'bui-HeaderContent';
-    readonly afterSticky: 'bui-HeaderAfterSticky';
+    readonly headerBottom: 'bui-HeaderBottom';
     readonly breadcrumbs: 'bui-HeaderBreadcrumbs';
     readonly breadcrumbsSmall: 'bui-HeaderBreadcrumbsSmall';
     readonly breadcrumbLink: 'bui-HeaderBreadcrumbLink';
@@ -1766,10 +1766,10 @@ export const HeaderPageDefinition: {
   readonly bg: 'consumer';
   readonly classNames: {
     readonly root: 'bui-Header';
-    readonly beforeSticky: 'bui-HeaderBeforeSticky';
+    readonly headerTop: 'bui-HeaderTop';
     readonly stickySentinel: 'bui-HeaderStickySentinel';
     readonly content: 'bui-HeaderContent';
-    readonly afterSticky: 'bui-HeaderAfterSticky';
+    readonly headerBottom: 'bui-HeaderBottom';
     readonly breadcrumbs: 'bui-HeaderBreadcrumbs';
     readonly breadcrumbsSmall: 'bui-HeaderBreadcrumbsSmall';
     readonly breadcrumbLink: 'bui-HeaderBreadcrumbLink';

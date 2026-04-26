@@ -99,6 +99,7 @@ export const Header = (props: HeaderProps) => {
     () => (description ? renderInlineMarkdown(description) : null),
     [description],
   );
+
   // The sentinel sits directly before the sticky content and leaves the
   // viewport when the content becomes stuck, letting us toggle stuck styling.
   const stickySentinelRef = useRef<HTMLDivElement>(null);
@@ -149,131 +150,35 @@ export const Header = (props: HeaderProps) => {
     };
   }, [sticky]);
 
-  const beforeStickyContent = tags && tags.length > 0 && (
-    <div className={classes.beforeSticky} data-sticky={sticky || undefined}>
-      <ul className={classes.tags}>
-        {tags.map((tag, i) => (
-          <li
-            key={`${i}:${tag.label}:${tag.href ?? ''}`}
-            className={classes.tag}
-          >
-            {tag.href ? (
-              <Link
-                href={tag.href}
-                variant="body-medium"
-                color="secondary"
-                standalone
-              >
-                {tag.label}
-              </Link>
-            ) : (
-              <Text variant="body-medium" color="secondary">
-                {tag.label}
-              </Text>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-
-  const titleAndActionsContent = (
-    <>
-      <div className={classes.titleStack}>
-        {isStuck ? (
-          <div className={classes.breadcrumbsSmall}>
-            {breadcrumbs &&
-              breadcrumbs.map(breadcrumb => (
-                <Fragment key={breadcrumb.label}>
-                  <Link
-                    href={breadcrumb.href}
-                    color="secondary"
-                    className={classes.breadcrumbLinkSmall}
-                    standalone
-                  >
-                    {breadcrumb.label}
-                  </Link>
-                  <RiArrowRightSLine
-                    className={classes.breadcrumbSeparator}
-                    size={16}
-                    color="var(--bui-fg-secondary)"
-                  />
-                </Fragment>
-              ))}
-            <h2 className={classes.titleSmall}>{title}</h2>
-          </div>
-        ) : (
-          <div className={classes.breadcrumbs}>
-            {breadcrumbs &&
-              breadcrumbs.map(breadcrumb => (
-                <Fragment key={breadcrumb.label}>
-                  <Link
-                    href={breadcrumb.href}
-                    color="secondary"
-                    className={classes.breadcrumbLink}
-                    standalone
-                  >
-                    {breadcrumb.label}
-                  </Link>
-                  <RiArrowRightSLine
-                    className={classes.breadcrumbSeparator}
-                    size={16}
-                    color="var(--bui-fg-secondary)"
-                  />
-                </Fragment>
-              ))}
-            <h2 className={classes.title}>{title}</h2>
-          </div>
-        )}
-      </div>
-      <div className={classes.controls}>{customActions}</div>
-    </>
-  );
-
-  const afterStickyContent = (description ||
-    (metadata && metadata.length > 0) ||
-    tabs) && (
-    <div className={classes.afterSticky} data-sticky={sticky || undefined}>
-      {description && (
-        <Text
-          variant="body-medium"
-          color="secondary"
-          className={classes.description}
-        >
-          {descriptionNodes}
-        </Text>
-      )}
-      {metadata && metadata.length > 0 && (
-        <dl className={classes.metaRow}>
-          {metadata.map((item, i) => (
-            <div key={`${i}:${item.label}`} className={classes.metaItem}>
-              <dt>
-                <Text variant="body-medium" color="secondary">
-                  {item.label}
-                </Text>
-              </dt>
-              <dd>
-                {typeof item.value === 'string' ? (
-                  <Text variant="body-medium">{item.value}</Text>
-                ) : (
-                  item.value
-                )}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      )}
-      {tabs && (
-        <div className={classes.tabsWrapper}>
-          <HeaderNav tabs={tabs} activeTabId={activeTabId} />
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <>
-      {beforeStickyContent}
+      {tags && tags.length > 0 && (
+        <div className={classes.headerTop} data-sticky={sticky || undefined}>
+          <ul className={classes.tags}>
+            {tags.map((tag, i) => (
+              <li
+                key={`${i}:${tag.label}:${tag.href ?? ''}`}
+                className={classes.tag}
+              >
+                {tag.href ? (
+                  <Link
+                    href={tag.href}
+                    variant="body-medium"
+                    color="secondary"
+                    standalone
+                  >
+                    {tag.label}
+                  </Link>
+                ) : (
+                  <Text variant="body-medium" color="secondary">
+                    {tag.label}
+                  </Text>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {sticky && (
         <div
           ref={stickySentinelRef}
@@ -282,15 +187,98 @@ export const Header = (props: HeaderProps) => {
           aria-hidden="true"
         />
       )}
-      <header
+      <div
         className={classes.content}
         data-sticky={sticky || undefined}
         data-stuck={isStuck || undefined}
+        data-has-tags={tags && tags.length > 0 ? '' : undefined}
         {...dataAttributes}
       >
-        {titleAndActionsContent}
-      </header>
-      {afterStickyContent}
+        <div className={classes.titleStack}>
+          {isStuck ? (
+            <div className={classes.breadcrumbsSmall}>
+              {breadcrumbs &&
+                breadcrumbs.map(breadcrumb => (
+                  <Fragment key={breadcrumb.label}>
+                    <Link
+                      href={breadcrumb.href}
+                      color="secondary"
+                      className={classes.breadcrumbLinkSmall}
+                      standalone
+                    >
+                      {breadcrumb.label}
+                    </Link>
+                    <RiArrowRightSLine
+                      className={classes.breadcrumbSeparator}
+                      size={16}
+                      color="var(--bui-fg-secondary)"
+                    />
+                  </Fragment>
+                ))}
+              <h2 className={classes.titleSmall}>{title}</h2>
+            </div>
+          ) : (
+            <div className={classes.breadcrumbs}>
+              {breadcrumbs &&
+                breadcrumbs.map(breadcrumb => (
+                  <Fragment key={breadcrumb.label}>
+                    <Link
+                      href={breadcrumb.href}
+                      color="secondary"
+                      className={classes.breadcrumbLink}
+                      standalone
+                    >
+                      {breadcrumb.label}
+                    </Link>
+                    <RiArrowRightSLine
+                      className={classes.breadcrumbSeparator}
+                      size={16}
+                      color="var(--bui-fg-secondary)"
+                    />
+                  </Fragment>
+                ))}
+              <h2 className={classes.title}>{title}</h2>
+            </div>
+          )}
+        </div>
+        <div className={classes.controls}>{customActions}</div>
+      </div>
+      <div className={classes.headerBottom} data-sticky={sticky || undefined}>
+        {description && (
+          <Text
+            variant="body-medium"
+            color="secondary"
+            className={classes.description}
+          >
+            {descriptionNodes}
+          </Text>
+        )}
+        {metadata && metadata.length > 0 && (
+          <dl className={classes.metaRow}>
+            {metadata.map((item, i) => (
+              <div key={`${i}:${item.label}`} className={classes.metaItem}>
+                <dt>
+                  <Text variant="body-medium" color="secondary">
+                    {item.label}
+                  </Text>
+                </dt>
+                <dd>
+                  {typeof item.value === 'string' ? (
+                    <Text variant="body-medium">{item.value}</Text>
+                  ) : (
+                    item.value
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {tabs && (
+          <div className={classes.tabsWrapper}>
+            <HeaderNav tabs={tabs} activeTabId={activeTabId} />
+          </div>
+        )}
+      </div>
     </>
   );
 };

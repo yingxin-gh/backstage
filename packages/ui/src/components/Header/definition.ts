@@ -27,10 +27,10 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
   bg: 'consumer',
   classNames: {
     root: 'bui-Header',
-    beforeSticky: 'bui-HeaderBeforeSticky',
+    headerTop: 'bui-HeaderTop',
     stickySentinel: 'bui-HeaderStickySentinel',
     content: 'bui-HeaderContent',
-    afterSticky: 'bui-HeaderAfterSticky',
+    headerBottom: 'bui-HeaderBottom',
     breadcrumbs: 'bui-HeaderBreadcrumbs',
     breadcrumbsSmall: 'bui-HeaderBreadcrumbsSmall',
     breadcrumbLink: 'bui-HeaderBreadcrumbLink',

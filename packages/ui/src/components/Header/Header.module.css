@@ -33,10 +33,6 @@
   }
 
   .bui-HeaderTop {
-    padding-top: var(--bui-space-4);
-  }
-
-  .bui-HeaderTop[data-sticky] {
     padding-top: var(--bui-space-6);
   }
 

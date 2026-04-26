@@ -116,6 +116,7 @@ export interface HeaderOwnProps {
   tags?: HeaderTag[];
   metadata?: HeaderMetadataItem[];
   className?: string;
+  sticky?: boolean;
 }
 
 /**

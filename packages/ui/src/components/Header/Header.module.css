@@ -20,14 +20,85 @@
   .bui-Header {
     display: flex;
     flex-direction: column;
+    padding-top: var(--bui-space-2);
+    width: 100%;
+    padding-inline: var(--bui-space-5);
+  }
+
+  .bui-Header[data-sticky] {
+    display: contents;
+  }
+
+  .bui-HeaderAfterSticky {
+    display: flex;
+    flex-direction: column;
     gap: var(--bui-space-3);
-    margin-top: var(--bui-space-6);
+  }
+
+  .bui-Header[data-sticky] .bui-HeaderBeforeSticky,
+  .bui-Header[data-sticky] .bui-HeaderStickySentinel,
+  .bui-Header[data-sticky] .bui-HeaderContent,
+  .bui-Header[data-sticky] .bui-HeaderAfterSticky {
+    width: 100%;
+    padding-inline: var(--bui-space-5);
+    box-sizing: border-box;
+  }
+
+  .bui-HeaderBeforeSticky {
+    padding-top: var(--bui-space-4);
+  }
+
+  .bui-Header[data-sticky] .bui-HeaderBeforeSticky {
+    padding-top: var(--bui-space-6);
+  }
+
+  .bui-HeaderStickySentinel {
+    height: 1px;
+    margin-bottom: -1px;
+    pointer-events: none;
   }
 
   .bui-HeaderContent {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    gap: var(--bui-space-3);
+    padding-block: var(--bui-space-3);
+  }
+
+  .bui-HeaderContent[data-sticky] {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--bui-bg-app);
+
+    .bui-Header[data-on-bg='neutral-1'] & {
+      background-color: var(--bui-bg-neutral-1);
+    }
+
+    .bui-Header[data-on-bg='neutral-2'] & {
+      background-color: var(--bui-bg-neutral-2);
+    }
+
+    .bui-Header[data-on-bg='neutral-3'] & {
+      background-color: var(--bui-bg-neutral-3);
+    }
+  }
+
+  .bui-HeaderContent[data-sticky]::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    content: '';
+    background-color: var(--bui-border-1);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .bui-HeaderContent[data-stuck]::after {
+    opacity: 1;
   }
 
   .bui-HeaderTabsWrapper {
@@ -39,6 +110,7 @@
     flex-direction: row;
     align-items: center;
     gap: var(--bui-space-2);
+    flex-shrink: 0;
   }
 
   .bui-HeaderBreadcrumbs {
@@ -46,6 +118,19 @@
     flex-direction: row;
     align-items: center;
     gap: var(--bui-space-2);
+    min-width: 0;
+  }
+
+  .bui-HeaderTitle {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: var(--bui-font-regular);
+    font-size: var(--bui-font-size-6);
+    font-weight: var(--bui-font-weight-bold);
+    line-height: 140%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .bui-HeaderTags {

@@ -24,10 +24,15 @@ import styles from './Header.module.css';
  */
 export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
   styles,
+  bg: 'consumer',
   classNames: {
     root: 'bui-Header',
+    beforeSticky: 'bui-HeaderBeforeSticky',
+    stickySentinel: 'bui-HeaderStickySentinel',
     content: 'bui-HeaderContent',
+    afterSticky: 'bui-HeaderAfterSticky',
     breadcrumbs: 'bui-HeaderBreadcrumbs',
+    title: 'bui-HeaderTitle',
     tabsWrapper: 'bui-HeaderTabsWrapper',
     controls: 'bui-HeaderControls',
     tags: 'bui-HeaderTags',
@@ -46,6 +51,7 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
     tags: {},
     metadata: {},
     className: {},
+    sticky: {},
   },
 });
 

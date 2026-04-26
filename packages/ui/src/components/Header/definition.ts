@@ -26,7 +26,6 @@ export const HeaderDefinition = defineComponent<HeaderOwnProps>()({
   styles,
   bg: 'consumer',
   classNames: {
-    root: 'bui-Header',
     headerTop: 'bui-HeaderTop',
     stickySentinel: 'bui-HeaderStickySentinel',
     content: 'bui-HeaderContent',

@@ -33,7 +33,7 @@ techdocs:
   generator:
     runIn: 'docker' # Alternatives - 'local'
   publisher:
-    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+    type: 'local' # Alternatives include 'googleGcs', 'awsS3', and other supported publishers. See configuration documentation for the full list.
 ```
 
 This basic configuration allows you to get started quickly. It processes the component documentation, as follows:

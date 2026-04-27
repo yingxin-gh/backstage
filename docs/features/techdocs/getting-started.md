@@ -40,7 +40,7 @@ This basic configuration allows you to get started quickly. It processes the com
 
 - **builder = local** - uses the TechDocs backend to generate the docs, publish to storage, and show the generated docs.
 - **generator.runIn = docker** - spins up the techdocs-container docker image running `mkdocs` inside it to process the documentation. The Docker image is automatically pulled by TechDocs.
-- **publisher.type = local** - techdocs-backend will create a 'static' directory at its root to store generated documentation files.
+- **publisher.type = local** - stores generated documentation files locally, by default in `@backstage/plugin-techdocs-backend/static/docs`, or in the path configured by `techdocs.publisher.local.publishDirectory`.
 
 You can further refine the `generator` and `publisher` settings. **See [TechDocs Configuration Options](configuration.md) for complete configuration reference.**
 

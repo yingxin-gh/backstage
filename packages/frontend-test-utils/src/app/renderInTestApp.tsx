@@ -56,7 +56,7 @@ const DEFAULT_MOCK_CONFIG = {
 export type TestAppOptions<TApiPairs extends any[] = any[]> = {
   /**
    * An object of paths to mount route ref on, with the key being the path and the value
-   * being the RouteRef that the path will be bound to. This allows the route refs to be
+   * being the route ref that the path will be bound to. This allows the route refs to be
    * used by `useRouteRef` in the rendered elements.
    *
    * @example

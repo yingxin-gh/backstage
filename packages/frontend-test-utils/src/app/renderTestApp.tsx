@@ -73,7 +73,7 @@ export type RenderTestAppOptions<TApiPairs extends any[] = any[]> = {
 
   /**
    * An object of paths to mount route refs on, with the key being the path and
-   * the value being the RouteRef that the path will be bound to. This allows
+   * the value being the route ref that the path will be bound to. This allows
    * the route refs to be used by `useRouteRef` in the rendered elements.
    *
    * @example

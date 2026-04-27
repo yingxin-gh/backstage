@@ -21,9 +21,9 @@ Now let us tweak some configurations to suit your needs.
 
 The configuration of TechDocs is based on three primary settings:
 
-- `builder` - Are you generating the documentation locally using the TechDocs backend or just fetching it for display from an external source.
-- `generator` - Are you generating it with a Docker image running `mkdocs` or your own local copy of `mkdocs`.
-- `publisher` - Where is the generated documentation stored; on your local server or another location, such as a Google Cloud Storage Bucket.
+- `builder` - Determines whether the documentation is generated locally using the TechDocs backend or fetched for display from an external source.
+- `generator` - Determines whether the documentation is generated with a Docker image running `mkdocs` or with your own local copy of `mkdocs`.
+- `publisher` - Specifies where the generated documentation is stored, such as on your local server or another location like a Google Cloud Storage bucket.
 
 Out of the box, TechDocs is configured in `app-config.yaml` as:
 

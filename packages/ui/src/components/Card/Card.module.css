@@ -94,7 +94,7 @@
 
   .bui-CardBody {
     flex: 1;
-    min-height: 0;
+    min-height: var(--bui-space-6);
     overflow: auto;
     padding-inline: var(--bui-space-3);
     padding-block: var(--bui-space-3);

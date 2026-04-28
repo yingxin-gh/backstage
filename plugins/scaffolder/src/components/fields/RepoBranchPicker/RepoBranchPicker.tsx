@@ -125,6 +125,8 @@ export const RepoBranchPicker = (props: RepoBranchPickerProps) => {
   const renderRepoBranchPicker = () => {
     switch (hostType) {
       case 'bitbucket':
+      case 'bitbucketCloud':
+      case 'bitbucketServer':
         return (
           <BitbucketRepoBranchPicker
             onChange={updateLocalState}

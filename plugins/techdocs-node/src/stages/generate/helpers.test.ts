@@ -492,7 +492,13 @@ theme:
   name: material
   font: false
 `,
+        'mkdocs_with_theme_non_material.yml': `site_name: Test Site
+docs_dir: docs
+theme:
+  name: test-theme
+`,
       });
+      mockLogger.debug.mockClear();
     });
 
     it('should create theme section with font disabled when no theme exists', async () => {
@@ -561,6 +567,18 @@ theme:
       expect(parsedYml.theme).toBeDefined();
       expect(parsedYml.theme?.name).toBe('material');
       expect(parsedYml.theme?.font).toBe(false);
+    });
+
+    it('should not patch when theme name is not material', async () => {
+      const fixturePath = mockDir.resolve('mkdocs_with_theme_non_material.yml');
+      const before = await fs.readFile(fixturePath, 'utf8');
+
+      await patchMkdocsYmlWithFontDisabled(fixturePath, mockLogger);
+
+      await expect(fs.readFile(fixturePath, 'utf8')).resolves.toEqual(before);
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        'mkdocs.yml theme is not "material"; skipping font disabling patch',
+      );
     });
   });
 

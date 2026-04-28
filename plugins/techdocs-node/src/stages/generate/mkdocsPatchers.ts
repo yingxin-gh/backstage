@@ -27,15 +27,21 @@ import { LoggerService } from '@backstage/backend-plugin-api';
 
 const MATERIAL_THEME = 'material';
 
+type MkDocsThemeObject = {
+  name?: string;
+  font?: boolean;
+};
+
+function isThemeObject(theme: unknown): theme is MkDocsThemeObject {
+  return typeof theme === 'object' && theme !== null && !Array.isArray(theme);
+}
+
 type MkDocsObject = {
   plugins?: string[];
   docs_dir: string;
   repo_url?: string;
   edit_uri?: string;
-  theme?: {
-    name?: string;
-    font?: boolean;
-  };
+  theme?: MkDocsThemeObject;
 };
 
 const patchMkdocsFile = async (
@@ -210,25 +216,18 @@ export const patchMkdocsYmlWithFontDisabled = async (
       return true;
     }
 
-    // Theme section exists. Only modify it when the configured theme is Material
-    if (
-      mkdocsYml.theme &&
-      typeof mkdocsYml.theme === 'object' &&
-      (mkdocsYml.theme as any).name === MATERIAL_THEME &&
-      !('font' in mkdocsYml.theme)
-    ) {
-      mkdocsYml.theme.font = false;
-      return true;
-    }
-
-    if (
-      mkdocsYml.theme &&
-      typeof mkdocsYml.theme === 'object' &&
-      (mkdocsYml.theme as any).name !== MATERIAL_THEME
-    ) {
-      logger.debug(
-        'mkdocs.yml theme is not "material"; skipping font disabling patch',
-      );
+    const theme = mkdocsYml.theme;
+    if (isThemeObject(theme)) {
+      // Theme section exists. Only modify it when the configured theme is Material
+      if (theme.name === MATERIAL_THEME && !('font' in theme)) {
+        theme.font = false;
+        return true;
+      }
+      if (theme.name !== MATERIAL_THEME) {
+        logger.debug(
+          'mkdocs.yml theme is not "material"; skipping font disabling patch',
+        );
+      }
     }
 
     return false;

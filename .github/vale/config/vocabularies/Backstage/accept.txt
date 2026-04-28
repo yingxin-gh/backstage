@@ -343,6 +343,7 @@ params
 parseable
 passthrough
 passwordless
+patcher
 Patrik
 pattison
 Peloton
@@ -587,4 +588,3 @@ zod
 Zolotusky
 zoomable
 zsh
-patcher

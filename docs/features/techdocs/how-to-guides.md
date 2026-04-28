@@ -549,14 +549,15 @@ on how you have configured your `template.yaml`.
 
 Done! You now have support for TechDocs in your own software template!
 
-### Prevent download of Google fonts
+### Disable external fonts
 
-If your Backstage instance does not have internet access, the generation will fail. TechDocs tries to download the Roboto font from Google. You can disable it by configuring your `app-config.yaml` or by manually updating your `mkdocs.yml` file.
+`techdocs.generator.mkdocs.disableExternalFonts`
 
-#### Using app-config
+(Optional) Use this when the generator cannot reach the internet (for example air-gapped or restricted networks). MkDocs Material otherwise tries to download the Roboto font from Google during generation.
 
-Add the following configuration to your `app-config.yaml` to automatically
-disable external font downloads for all TechDocs sites:
+When `true`, TechDocs patches each `mkdocs.yml` during generation: if no `theme` section exists it adds `name: material` and `font: false`; if a `theme` exists but `font` is omitted, it sets `font: false`; if `font` is already set in the file, your value is left unchanged.
+
+**Example:**
 
 ```yaml
 techdocs:
@@ -565,17 +566,7 @@ techdocs:
       disableExternalFonts: true
 ```
 
-This configuration will automatically patch the `mkdocs.yml` file during the
-generation process. If no `theme` section exists, it will create one with `name:
-material` and `font: false`. If a `theme` section exists but `font` is not
-configured, it will add `font: false` to the existing theme. If `font` is
-already explicitly configured in your `mkdocs.yml`, the patcher will respect
-your file-level configuration and not override it.
-
-#### Manual configuration in mkdocs.yml
-
-Alternatively, you can manually add the following configuration to your `mkdocs.yml`
-file:
+Alternatively, configure `mkdocs.yml` manually:
 
 ```yaml
 theme:
@@ -583,15 +574,7 @@ theme:
   font: false
 ```
 
-:::note Note
-
-The addition `name: material` is necessary. Otherwise it will not work.
-
-If you explicitly set `font: true` or `font: false` in your `mkdocs.yml`, the
-app-config patcher will respect that setting and not override it. The patcher
-only adds `font: false` when the `font` property is not already configured.
-
-:::
+**Note:** When using `theme.font` in `mkdocs.yml`, `theme.name: material` is required. If `font` is already set in the file, app-config patching does not override it; it only adds `font: false` when `font` was not configured.
 
 #### Using techdocs-cli in CI/CD
 

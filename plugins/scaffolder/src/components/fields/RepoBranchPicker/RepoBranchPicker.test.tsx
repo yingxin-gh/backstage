@@ -164,6 +164,41 @@ describe('RepoBranchPicker', () => {
       expect(getByText('test title')).toBeInTheDocument();
       expect(getByText('test description')).toBeInTheDocument();
     });
+
+    it('should render BitbucketRepoBranchPicker when host resolves to bitbucketCloud', async () => {
+      const mockIntegrationsApiBitbucket: Partial<ScmIntegrationsApi> = {
+        byHost: () => ({ type: 'bitbucketCloud' }),
+      };
+
+      await renderInTestApp(
+        <TestApiProvider
+          apis={[
+            [scmIntegrationsApiRef, mockIntegrationsApiBitbucket],
+            [scmAuthApiRef, {}],
+            [scaffolderApiRef, {}],
+          ]}
+        >
+          <SecretsContextProvider>
+            <Form
+              validator={validator}
+              schema={{ type: 'string' }}
+              uiSchema={{ 'ui:field': 'RepoBranchPicker' }}
+              fields={{
+                RepoBranchPicker:
+                  RepoBranchPicker as ScaffolderRJSFField<string>,
+              }}
+              formContext={{
+                formData: { repoUrl: 'bitbucket.org?repo=repo' },
+              }}
+            />
+          </SecretsContextProvider>
+        </TestApiProvider>,
+      );
+
+      expect(
+        screen.getByRole('combobox', { name: 'Branch' }),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('requestUserCredentials', () => {

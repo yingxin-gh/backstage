@@ -242,6 +242,36 @@ describe('RepoUrlPicker', () => {
       expect(getByText('test title')).toBeInTheDocument();
       expect(getByText('test description')).toBeInTheDocument();
     });
+
+    it('should render BitbucketRepoPicker when host resolves to bitbucketCloud', async () => {
+      const mockIntegrationsApiBitbucket: Partial<ScmIntegrationsApi> = {
+        byHost: () => ({ type: 'bitbucketCloud' }),
+      };
+
+      const { getByText } = await renderInTestApp(
+        <TestApiProvider
+          apis={[
+            [scmIntegrationsApiRef, mockIntegrationsApiBitbucket],
+            [scmAuthApiRef, {}],
+            [scaffolderApiRef, mockScaffolderApi],
+          ]}
+        >
+          <SecretsContextProvider>
+            <Form
+              validator={validator}
+              schema={{ type: 'string' }}
+              uiSchema={{ 'ui:field': 'RepoUrlPicker' }}
+              fields={{
+                RepoUrlPicker: RepoUrlPicker as ScaffolderRJSFField<string>,
+              }}
+              formData="bitbucket.org"
+            />
+          </SecretsContextProvider>
+        </TestApiProvider>,
+      );
+
+      expect(getByText('Workspaces')).toBeInTheDocument();
+    });
   });
 
   describe('requestUserCredentials', () => {

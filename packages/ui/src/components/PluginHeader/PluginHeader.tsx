@@ -125,7 +125,7 @@ export const PluginHeader = (props: PluginHeaderProps) => {
 
   return (
     <div ref={rootRef} className={classes.root}>
-      <div className={classes.toolbar} data-has-tabs={hasTabs}>
+      <div className={classes.toolbar} data-has-tabs={hasTabs ? '' : undefined}>
         <div className={classes.toolbarContent}>
           <Box bg="neutral" className={classes.toolbarIcon} aria-hidden="true">
             {icon || <RiShapesLine />}
@@ -144,7 +144,7 @@ export const PluginHeader = (props: PluginHeaderProps) => {
         </div>
         <div className={classes.toolbarControls}>{actionChildren}</div>
       </div>
-      {tabs && (
+      {hasTabs && (
         <div className={classes.tabs}>
           <Tabs onSelectionChange={onTabSelectionChange}>
             <TabList>

@@ -17,15 +17,23 @@
 @layer tokens, base, components, utilities;
 
 @layer components {
+  .bui-PluginHeader {
+    margin-bottom: var(--bui-space-6);
+    padding-inline: var(--bui-space-5);
+  }
+
   .bui-PluginHeaderToolbar {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding-inline: var(--bui-space-5);
     color: var(--bui-fg-primary);
     height: 52px;
-    border-bottom: 1px solid var(--bui-border-1);
+    border-bottom: solid 1px var(--bui-border-1);
+
+    &[data-has-tabs] {
+      border-bottom: none;
+    }
   }
 
   .bui-PluginHeaderToolbarContent {
@@ -69,7 +77,6 @@
   }
 
   .bui-PluginHeaderTabsWrapper {
-    padding-inline: var(--bui-space-3);
     border-bottom: 1px solid var(--bui-border-1);
   }
 }

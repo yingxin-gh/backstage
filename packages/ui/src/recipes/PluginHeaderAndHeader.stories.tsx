@@ -49,7 +49,7 @@ import {
 // ---------------------------------------------------------------------------
 
 const PageContent = () => (
-  <Container mt="6">
+  <Container>
     <Flex direction="row" gap="4">
       <Card style={{ minHeight: 120, flex: 1 }} />
       <Card style={{ minHeight: 120, flex: 1 }} />
@@ -59,7 +59,7 @@ const PageContent = () => (
 );
 
 const LongPageContent = () => (
-  <Container mt="6" pb="3">
+  <Container pb="3">
     <Flex direction="row" gap="4" mb="4">
       <Card style={{ minHeight: 200, flex: 1 }} />
       <Card style={{ minHeight: 200, flex: 1 }} />
@@ -99,6 +99,28 @@ export const NoHeader = meta.story({
   render: () => (
     <>
       <PluginHeader icon={<RiCodeSSlashLine />} title="APIs" />
+      <PageContent />
+    </>
+  ),
+});
+
+export const NoHeaderWithTabs = meta.story({
+  decorators: [withLayout],
+  render: () => (
+    <>
+      <PluginHeader
+        icon={<RiCodeSSlashLine />}
+        title="APIs"
+        tabs={[
+          { id: 'overview', label: 'Overview', href: '/apis' },
+          {
+            id: 'definitions',
+            label: 'Definitions',
+            href: '/apis/definitions',
+          },
+          { id: 'consumers', label: 'Consumers', href: '/apis/consumers' },
+        ]}
+      />
       <PageContent />
     </>
   ),

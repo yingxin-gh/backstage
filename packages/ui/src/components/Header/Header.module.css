@@ -32,10 +32,6 @@
     box-sizing: border-box;
   }
 
-  .bui-HeaderTop {
-    padding-top: var(--bui-space-6);
-  }
-
   .bui-HeaderStickySentinel {
     height: 1px;
     margin-bottom: -1px;

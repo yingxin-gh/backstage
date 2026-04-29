@@ -245,11 +245,12 @@
  * this file for easier scanning alongside other component overrides above.
  */
 [data-theme-name='spotify'] {
+  .bui-PluginHeader {
+    margin-top: var(--bui-space-4);
+  }
+
   .bui-PluginHeaderToolbar {
     height: 32px;
-    border: none;
-    background: none;
-    margin-top: var(--bui-space-4);
   }
 
   .bui-PluginHeaderTabsWrapper {
@@ -257,9 +258,5 @@
     background: none;
     margin-left: 0;
     margin-top: var(--bui-space-2);
-  }
-
-  .bui-HeaderTop {
-    padding-top: var(--bui-space-4);
   }
 }

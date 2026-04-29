@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AnyZodObject } from 'zod/v3';
-import { ConnectionAuthMethod, ConnectionType } from '../api/ConnectionType';
+import { AnyZodObject, z } from 'zod/v3';
+import type {
+  ConnectionAuthMethod,
+  ConnectionType,
+} from '../api/ConnectionType';
 
 export function createConnectionType<
   TType extends string,
@@ -29,9 +32,25 @@ export function createConnectionType<
   type: TType;
   authMethods: TAuthMethods;
 }): ConnectionType<TType, TConfigSchema, TAuthMethods> {
+  const authOptions = authMethods.map(am =>
+    z.object({ method: z.literal(am.method), config: am.configSchema }),
+  );
+  const schema = z.object({
+    type: z.literal(type),
+    config: configSchema,
+    auth: z.array(
+      authOptions.length === 1
+        ? authOptions[0]
+        : z.discriminatedUnion(
+            'method',
+            authOptions as [(typeof authOptions)[0], ...typeof authOptions],
+          ),
+    ),
+  });
   return {
     type,
     configSchema,
     authMethods,
+    schema,
   };
 }

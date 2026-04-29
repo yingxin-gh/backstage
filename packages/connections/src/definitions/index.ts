@@ -15,3 +15,4 @@
  */
 export { GithubConnectionType } from './github';
 export * from './lookup';
+export * from './types';

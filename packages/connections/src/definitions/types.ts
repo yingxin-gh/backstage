@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { AnyZodObject, ZodTypeAny } from 'zod/v3';
+import { GithubConnectionType } from './github';
+import { GitlabConnectionType } from './gitlab';
+import { ConnectionType } from '../api/ConnectionType';
 
-export type ConnectionType<
-  TType extends string = string,
-  TConfigSchema extends AnyZodObject = AnyZodObject,
-  TAuthMethods extends readonly ConnectionAuthMethod[] = readonly ConnectionAuthMethod[],
-> = {
-  type: TType;
-  configSchema: TConfigSchema;
-  authMethods: TAuthMethods;
-  schema: ZodTypeAny;
-  // TODO Add plugin match
-};
+export const connectionTypes = {
+  github: GithubConnectionType,
+  gitlab: GitlabConnectionType,
+} as const satisfies { [K in string]: ConnectionType<K> };
 
-export type ConnectionAuthMethod<
-  TMethod extends string = string,
-  TConfigSchema extends AnyZodObject = AnyZodObject,
-> = {
-  method: TMethod;
-  configSchema: TConfigSchema;
-  // TODO Add plugin match
+export type ConnectionTypeKey = keyof typeof connectionTypes;
+
+// TODO inline lookup conncetion type
+export type LookupConnectionType<T extends ConnectionTypeKey> =
+  (typeof connectionTypes)[T];
+
+export type ConnectionMatch = {
+  plugins: string[];
 };

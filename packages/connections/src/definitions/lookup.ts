@@ -13,13 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GithubConnectionType } from './github';
+import {
+  LookupConnectionType,
+  ConnectionTypeKey,
+  connectionTypes,
+} from './types';
 
-export type ConnectionTypeKey = keyof typeof connectionTypes;
+const connectionTypesMap = new Map(Object.entries(connectionTypes));
 
-const connectionTypes = {
-  github: GithubConnectionType,
-} as const;
+export function getConnectionType<T extends ConnectionTypeKey>(
+  key: T,
+): LookupConnectionType<T> {
+  return connectionTypesMap.get(key) as LookupConnectionType<T>;
+}
 
-export type LookupConnectionType<T extends ConnectionTypeKey> =
-  (typeof connectionTypes)[T];
+export function isConnectionTypeKey(
+  value: string | undefined,
+): value is ConnectionTypeKey {
+  if (!value) return false;
+
+  return connectionTypesMap.has(value);
+}

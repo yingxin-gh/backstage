@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AnyZodObject, z } from 'zod/v3';
-import { ConnectionTypeKey, LookupConnectionType } from '../definitions/lookup';
-import { ConnectionAuthMethod, ConnectionType } from './ConnectionType';
+import type { z } from 'zod/v3';
+import type { ConnectionAuthMethod, ConnectionType } from './ConnectionType';
+import { ConnectionMatch } from '../definitions';
 
 type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
-  TAuthMethod extends ConnectionAuthMethod<infer TMethod, infer TConfigSchema>
-    ? { method: TMethod; config: z.infer<TConfigSchema> }
+  TAuthMethod extends any
+    ? {
+        method: TAuthMethod['method'];
+        config: z.infer<TAuthMethod['configSchema']>;
+        match: ConnectionMatch;
+      }
     : never;
 
-export type Connection<
-  T extends ConnectionType<
-    ConnectionTypeKey,
-    AnyZodObject,
-    readonly ConnectionAuthMethod[]
-  >,
-> = {
+export type Connection<T extends ConnectionType = ConnectionType> = {
   type: T['type'];
   config: z.infer<T['configSchema']>;
-  auth: Array<ConnectionAuthValue<T['authMethods'][number]>>;
+  auth: ConnectionAuthValue<T['authMethods'][number]>[];
+  match: ConnectionMatch;
 };
 
-export type AnyConnection = {
-  [K in ConnectionTypeKey]: Connection<LookupConnectionType<K>>;
-}[ConnectionTypeKey];
+export type RootConnection<T extends ConnectionType = ConnectionType> =
+  Connection<T> & { match: unknown };

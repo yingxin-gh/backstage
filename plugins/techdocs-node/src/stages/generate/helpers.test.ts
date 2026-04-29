@@ -37,6 +37,7 @@ import {
   patchMkdocsYmlPreBuild,
   patchMkdocsYmlWithPlugins,
   sanitizeMkdocsYml,
+  patchMkdocsYmlWithFontDisabled,
 } from './mkdocsPatchers';
 import yaml from 'js-yaml';
 
@@ -465,6 +466,119 @@ describe('helpers', () => {
       expect(parsedYml.plugins).toContainEqual({
         'custom-plugin': { with: { configuration: 1 } },
       });
+    });
+  });
+
+  describe('patchMkdocsYmlWithFontDisabled', () => {
+    beforeEach(() => {
+      mockDir.setContent({
+        'mkdocs_without_theme.yml': `site_name: Test Site
+docs_dir: docs
+`,
+        'mkdocs_with_theme_no_font.yml': `site_name: Test Site
+docs_dir: docs
+theme:
+  name: material
+`,
+        'mkdocs_with_theme_font_true.yml': `site_name: Test Site
+docs_dir: docs
+theme:
+  name: material
+  font: true
+`,
+        'mkdocs_with_theme_font_false.yml': `site_name: Test Site
+docs_dir: docs
+theme:
+  name: material
+  font: false
+`,
+        'mkdocs_with_theme_non_material.yml': `site_name: Test Site
+docs_dir: docs
+theme:
+  name: test-theme
+`,
+      });
+      mockLogger.debug.mockClear();
+    });
+
+    it('should create theme section with font disabled when no theme exists', async () => {
+      await patchMkdocsYmlWithFontDisabled(
+        mockDir.resolve('mkdocs_without_theme.yml'),
+        mockLogger,
+      );
+
+      const updatedMkdocsYml = await fs.readFile(
+        mockDir.resolve('mkdocs_without_theme.yml'),
+      );
+      const parsedYml = yaml.load(updatedMkdocsYml.toString()) as {
+        theme?: { name?: string; font?: boolean };
+      };
+      expect(parsedYml.theme).toBeDefined();
+      expect(parsedYml.theme?.name).toBe('material');
+      expect(parsedYml.theme?.font).toBe(false);
+    });
+
+    it('should add font: false when theme exists but font is not configured', async () => {
+      await patchMkdocsYmlWithFontDisabled(
+        mockDir.resolve('mkdocs_with_theme_no_font.yml'),
+        mockLogger,
+      );
+
+      const updatedMkdocsYml = await fs.readFile(
+        mockDir.resolve('mkdocs_with_theme_no_font.yml'),
+      );
+      const parsedYml = yaml.load(updatedMkdocsYml.toString()) as {
+        theme?: { name?: string; font?: boolean };
+      };
+      expect(parsedYml.theme).toBeDefined();
+      expect(parsedYml.theme?.name).toBe('material');
+      expect(parsedYml.theme?.font).toBe(false);
+    });
+
+    it('should not override font when font is already set to true', async () => {
+      await patchMkdocsYmlWithFontDisabled(
+        mockDir.resolve('mkdocs_with_theme_font_true.yml'),
+        mockLogger,
+      );
+
+      const updatedMkdocsYml = await fs.readFile(
+        mockDir.resolve('mkdocs_with_theme_font_true.yml'),
+      );
+      const parsedYml = yaml.load(updatedMkdocsYml.toString()) as {
+        theme?: { name?: string; font?: boolean };
+      };
+      expect(parsedYml.theme).toBeDefined();
+      expect(parsedYml.theme?.name).toBe('material');
+      expect(parsedYml.theme?.font).toBe(true);
+    });
+
+    it('should not override font when font is already set to false', async () => {
+      await patchMkdocsYmlWithFontDisabled(
+        mockDir.resolve('mkdocs_with_theme_font_false.yml'),
+        mockLogger,
+      );
+
+      const updatedMkdocsYml = await fs.readFile(
+        mockDir.resolve('mkdocs_with_theme_font_false.yml'),
+      );
+      const parsedYml = yaml.load(updatedMkdocsYml.toString()) as {
+        theme?: { name?: string; font?: boolean };
+      };
+      expect(parsedYml.theme).toBeDefined();
+      expect(parsedYml.theme?.name).toBe('material');
+      expect(parsedYml.theme?.font).toBe(false);
+    });
+
+    it('should not patch when theme name is not material', async () => {
+      const fixturePath = mockDir.resolve('mkdocs_with_theme_non_material.yml');
+      const before = await fs.readFile(fixturePath, 'utf8');
+
+      await patchMkdocsYmlWithFontDisabled(fixturePath, mockLogger);
+
+      await expect(fs.readFile(fixturePath, 'utf8')).resolves.toEqual(before);
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        'mkdocs.yml theme is not "material"; skipping font disabling patch',
+      );
     });
   });
 

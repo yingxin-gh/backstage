@@ -20,6 +20,7 @@
   .bui-PluginHeader {
     margin-bottom: var(--bui-space-6);
     padding-inline: var(--bui-space-5);
+    margin-top: var(--bui-space-4);
   }
 
   .bui-PluginHeaderToolbar {
@@ -28,11 +29,12 @@
     align-items: center;
     justify-content: space-between;
     color: var(--bui-fg-primary);
-    height: 52px;
     border-bottom: solid 1px var(--bui-border-1);
+    padding-bottom: var(--bui-space-4);
 
     &[data-has-tabs] {
       border-bottom: none;
+      padding-bottom: var(--bui-space-1);
     }
   }
 

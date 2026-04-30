@@ -11,7 +11,7 @@ read the [old frontend system version of this guide](./getting-started--old.md)
 instead.
 ::::
 
-If you haven't setup Backstage already, start [here](../../getting-started/index.md).
+If you haven't set up Backstage already, start [here](../../getting-started/index.md).
 
 TechDocs functions as a plugin in Backstage and ships with it installed and added to the frontend and backend out of the box, so you will need to use Backstage to use TechDocs.
 

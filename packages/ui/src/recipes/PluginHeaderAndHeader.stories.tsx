@@ -53,7 +53,7 @@ import {
 // ---------------------------------------------------------------------------
 
 const PageContent = () => (
-  <Container>
+  <Container style={{ gridArea: 'pageContent' }}>
     <Flex direction="row" gap="4">
       <Card style={{ minHeight: 120, flex: 1 }} />
       <Card style={{ minHeight: 120, flex: 1 }} />

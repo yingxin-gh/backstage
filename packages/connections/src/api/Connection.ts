@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { z } from 'zod/v3';
+import type { z } from 'zod/v4';
 import type { ConnectionAuthMethod, ConnectionType } from './ConnectionType';
 import { ConnectionMatch } from '../definitions';
 
@@ -21,17 +21,15 @@ type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
   TAuthMethod extends any
     ? {
         method: TAuthMethod['method'];
-        config: z.infer<TAuthMethod['configSchema']>;
         match: ConnectionMatch;
-      }
+      } & z.infer<TAuthMethod['configSchema']>
     : never;
 
 export type Connection<T extends ConnectionType = ConnectionType> = {
   type: T['type'];
-  config: z.infer<T['configSchema']>;
   auth: ConnectionAuthValue<T['authMethods'][number]>[];
   match: ConnectionMatch;
-};
+} & z.infer<T['configSchema']>;
 
 export type RootConnection<T extends ConnectionType = ConnectionType> =
   Connection<T> & { match: unknown };

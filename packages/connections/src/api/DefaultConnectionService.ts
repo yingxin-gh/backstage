@@ -26,6 +26,18 @@ import {
 } from '../definitions';
 import { Connection } from './Connection';
 import { JsonObject } from '@backstage/types';
+import { InputError } from '@backstage/errors';
+import { z } from 'zod/v4';
+
+function describeError(error: unknown): string {
+  if (error instanceof z.ZodError) {
+    return z.prettifyError(error);
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
 
 class PluginConnectionsService implements ConnectionsService {
   private readonly logger: LoggerService;
@@ -49,11 +61,11 @@ class PluginConnectionsService implements ConnectionsService {
     type: TType;
     host: string;
   }): Promise<Connection<LookupConnectionType<TType>> | undefined> {
-    const connectionsMatchingType = this.connections.filter(
-      ({ type: conType }) => conType === type,
+    this.logger.debug(
+      `Finding connection of type "${type}" matching host "${host}"`,
     );
-    return connectionsMatchingType.find(
-      ({ config: { host: conHost } }) => conHost === host,
+    return this.connections.find(
+      c => c.type === type && (c as { host?: unknown }).host === host,
     ) as Connection<LookupConnectionType<TType>> | undefined;
   }
 }
@@ -84,23 +96,22 @@ export class DefaultConnectionsService {
       return;
     }
 
-    try {
-      cons.forEach((v: JsonObject) => {
-        const coercedConnection = this.#coerceConfigurationConnection(v);
-        const validatedConnection = this.#validateConnection(coercedConnection);
-        this.connections.push(validatedConnection);
-      });
-    } catch (e) {
-      this.logger.error(
-        'Was not able to validate connections from configuration',
-      );
-      console.log(e);
-      return;
-    }
+    cons.forEach((v: JsonObject) => {
+      try {
+        this.connections.push(this.#validateConnection(v));
+      } catch (e) {
+        const type = typeof v.type === 'string' ? v.type : 'unknown';
+        this.logger.error(
+          `Failed to validate connection of type "${type}":\n${describeError(
+            e,
+          )}`,
+        );
+      }
+    });
 
     this.logger.info(
-      `Validated ${cons.length} connection${
-        cons.length > 1 ? 's' : ''
+      `Validated ${this.connections.length} of ${cons.length} connection${
+        cons.length === 1 ? '' : 's'
       } from configuration`,
     );
   }
@@ -109,45 +120,18 @@ export class DefaultConnectionsService {
     return this.config.getOptional('connections');
   }
 
-  // Blind coercion - still needs validation
-  #coerceConfigurationConnection(con: JsonObject): JsonObject {
-    const { type, auth, match, ...remainingConfig } = con;
-
-    const result: JsonObject = {
-      type: type as string,
-      config: remainingConfig,
-    };
-
-    if (match !== undefined) {
-      result.match = match;
-    }
-
-    if (Array.isArray(auth)) {
-      result.auth = auth.map(a => {
-        const { method, match: authMatch, ...rest } = a as JsonObject;
-        const authResult: JsonObject = { method, config: rest };
-        if (authMatch !== undefined) {
-          authResult.match = authMatch;
-        }
-        return authResult;
-      });
-    }
-
-    return result;
-  }
-
   #validateConnection(connection: JsonObject): Connection {
     if (typeof connection.type !== 'string') {
-      throw new Error(`Unrecognised connection type ${connection.type}`);
+      throw new InputError(`Unrecognised connection type ${connection.type}`);
     }
 
     if (!isConnectionTypeKey(connection.type)) {
-      throw new Error(`Unrecognised connection type ${connection.type}`);
+      throw new InputError(`Unrecognised connection type ${connection.type}`);
     }
 
-    getConnectionType(connection.type).schema.parse(connection);
-
-    return connection as Connection;
+    return getConnectionType(connection.type).schema.parse(
+      connection,
+    ) as Connection;
   }
 
   #getConnectionsForPlugin(pluginId: string): Connection[] {

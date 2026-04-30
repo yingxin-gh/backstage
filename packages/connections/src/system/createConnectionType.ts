@@ -13,43 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AnyZodObject, z } from 'zod/v3';
+import { z } from 'zod/v4';
 import type {
   ConnectionAuthMethod,
   ConnectionType,
+  ReservedConnectionFields,
+  WithoutReservedFields,
 } from '../api/ConnectionType';
+
+const matchSchema = z
+  .object({ plugins: z.array(z.string()) })
+  .strict()
+  .optional();
 
 export function createConnectionType<
   TType extends string,
-  TConfigSchema extends AnyZodObject,
+  TConfigSchema extends z.ZodObject,
   const TAuthMethods extends readonly ConnectionAuthMethod[],
 >({
   configSchema,
   type,
   authMethods,
 }: {
-  configSchema: TConfigSchema;
   type: TType;
+  configSchema: WithoutReservedFields<TConfigSchema, ReservedConnectionFields>;
   authMethods: TAuthMethods;
 }): ConnectionType<TType, TConfigSchema, TAuthMethods> {
   const authOptions = authMethods.map(am =>
-    z.object({ method: z.literal(am.method), config: am.configSchema }),
+    am.configSchema
+      .extend({
+        method: z.literal(am.method),
+        match: matchSchema,
+      })
+      .strict(),
   );
-  const schema = z.object({
-    type: z.literal(type),
-    config: configSchema,
-    auth: z.array(
-      authOptions.length === 1
-        ? authOptions[0]
-        : z.discriminatedUnion(
-            'method',
-            authOptions as [(typeof authOptions)[0], ...typeof authOptions],
-          ),
-    ),
-  });
+  const schema = (configSchema as TConfigSchema)
+    .extend({
+      type: z.literal(type),
+      match: matchSchema,
+      auth: z.array(
+        authOptions.length === 1
+          ? authOptions[0]
+          : z.discriminatedUnion(
+              'method',
+              authOptions as [(typeof authOptions)[0], ...typeof authOptions],
+            ),
+      ),
+    })
+    .strict();
   return {
     type,
-    configSchema,
+    configSchema: configSchema as TConfigSchema,
     authMethods,
     schema,
   };

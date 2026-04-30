@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 import { GithubConnectionType } from './github';
-import { GitlabConnectionType } from './gitlab';
 import { ConnectionType } from '../api/ConnectionType';
 
 export const connectionTypes = {
   github: GithubConnectionType,
-  gitlab: GitlabConnectionType,
 } as const satisfies { [K in string]: ConnectionType<K> };
 
 export type ConnectionTypeKey = keyof typeof connectionTypes;
 
-// TODO inline lookup conncetion type
+// TODO inline lookup connection type
 export type LookupConnectionType<T extends ConnectionTypeKey> =
   (typeof connectionTypes)[T];
 

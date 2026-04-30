@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ConnectionTypeKey, LookupConnectionType } from '../definitions/lookup';
+import { ConnectionTypeKey, LookupConnectionType } from '../definitions';
 import { Connection } from './Connection';
 
 export interface ConnectionsService {

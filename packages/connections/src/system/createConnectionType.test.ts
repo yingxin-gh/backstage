@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from 'zod/v3';
+import { z } from 'zod/v4';
 import { createConnectionType } from './createConnectionType';
 
 describe('createConnectionType', () => {
@@ -35,8 +35,8 @@ describe('createConnectionType', () => {
     expect(() =>
       SingleAuthType.schema.parse({
         type: 'single',
-        config: { host: 'example.com' },
-        auth: [{ method: 'token', config: { token: 'abc' } }],
+        host: 'example.com',
+        auth: [{ method: 'token', token: 'abc' }],
       }),
     ).not.toThrow();
 
@@ -44,8 +44,8 @@ describe('createConnectionType', () => {
     expect(() =>
       SingleAuthType.schema.parse({
         type: 'other',
-        config: { host: 'example.com' },
-        auth: [{ method: 'token', config: { token: 'abc' } }],
+        host: 'example.com',
+        auth: [{ method: 'token', token: 'abc' }],
       }),
     ).toThrow();
 
@@ -53,8 +53,7 @@ describe('createConnectionType', () => {
     expect(() =>
       SingleAuthType.schema.parse({
         type: 'single',
-        config: {},
-        auth: [{ method: 'token', config: { token: 'abc' } }],
+        auth: [{ method: 'token', token: 'abc' }],
       }),
     ).toThrow();
 
@@ -62,8 +61,18 @@ describe('createConnectionType', () => {
     expect(() =>
       SingleAuthType.schema.parse({
         type: 'single',
-        config: { host: 'example.com' },
-        auth: [{ method: 'other', config: { token: 'abc' } }],
+        host: 'example.com',
+        auth: [{ method: 'other', token: 'abc' }],
+      }),
+    ).toThrow();
+
+    // Unknown top-level fields should fail.
+    expect(() =>
+      SingleAuthType.schema.parse({
+        type: 'single',
+        host: 'example.com',
+        host2: 'example.com',
+        auth: [{ method: 'token', token: 'abc' }],
       }),
     ).toThrow();
   });
@@ -88,10 +97,10 @@ describe('createConnectionType', () => {
     expect(() =>
       MultiAuthType.schema.parse({
         type: 'multi',
-        config: { host: 'example.com' },
+        host: 'example.com',
         auth: [
-          { method: 'token', config: { token: 'abc' } },
-          { method: 'app', config: { appId: 1, privateKey: 'pk' } },
+          { method: 'token', token: 'abc' },
+          { method: 'app', appId: 1, privateKey: 'pk' },
         ],
       }),
     ).not.toThrow();
@@ -100,8 +109,8 @@ describe('createConnectionType', () => {
     expect(() =>
       MultiAuthType.schema.parse({
         type: 'multi',
-        config: { host: 'example.com' },
-        auth: [{ method: 'app', config: { token: 'abc' } }],
+        host: 'example.com',
+        auth: [{ method: 'app', token: 'abc' }],
       }),
     ).toThrow();
 
@@ -109,8 +118,8 @@ describe('createConnectionType', () => {
     expect(() =>
       MultiAuthType.schema.parse({
         type: 'multi',
-        config: { host: 'example.com' },
-        auth: [{ method: 'oauth', config: {} }],
+        host: 'example.com',
+        auth: [{ method: 'oauth' }],
       }),
     ).toThrow();
 
@@ -118,7 +127,7 @@ describe('createConnectionType', () => {
     expect(() =>
       MultiAuthType.schema.parse({
         type: 'multi',
-        config: { host: 'example.com' },
+        host: 'example.com',
         auth: [],
       }),
     ).not.toThrow();

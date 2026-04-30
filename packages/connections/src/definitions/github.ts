@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { createConnectionType } from '../system/createConnectionType';
-import { z } from 'zod/v3';
+import { z } from 'zod/v4';
 
 export const GithubConnectionType = createConnectionType({
   type: 'github',

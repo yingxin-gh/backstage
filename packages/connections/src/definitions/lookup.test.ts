@@ -14,19 +14,30 @@
  * limitations under the License.
  */
 import { GithubConnectionType } from './github';
-import { GitlabConnectionType } from './gitlab';
 import { getConnectionType, isConnectionTypeKey } from './lookup';
 
 describe('definitions/lookup', () => {
-  it('looks up known connection types and recognises their keys', () => {
-    expect(getConnectionType('github')).toBe(GithubConnectionType);
-    expect(getConnectionType('gitlab')).toBe(GitlabConnectionType);
+  describe('getConnectionType', () => {
+    it('returns the github connection type for "github"', () => {
+      expect(getConnectionType('github')).toBe(GithubConnectionType);
+    });
+  });
 
-    expect(isConnectionTypeKey('github')).toBe(true);
-    expect(isConnectionTypeKey('gitlab')).toBe(true);
+  describe('isConnectionTypeKey', () => {
+    it('returns true for a registered connection type', () => {
+      expect(isConnectionTypeKey('github')).toBe(true);
+    });
 
-    expect(isConnectionTypeKey('bitbucket')).toBe(false);
-    expect(isConnectionTypeKey('')).toBe(false);
-    expect(isConnectionTypeKey(undefined)).toBe(false);
+    it('returns false for an unregistered connection type', () => {
+      expect(isConnectionTypeKey('bitbucket')).toBe(false);
+    });
+
+    it('returns false for an empty string', () => {
+      expect(isConnectionTypeKey('')).toBe(false);
+    });
+
+    it('returns false for undefined', () => {
+      expect(isConnectionTypeKey(undefined)).toBe(false);
+    });
   });
 });

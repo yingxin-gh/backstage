@@ -28,7 +28,10 @@
   }
 
   .bui-PluginHeader:has(+ .bui-HeaderTop),
-  .bui-PluginHeader:has(+ [data-backstage-core-header]) {
+  .bui-PluginHeader:has(+ [data-backstage-core-header]),
+  .bui-PluginHeader:has(
+      + [data-backstage-core-page] [data-backstage-core-header]
+    ) {
     --bui-plugin-header-margin-bottom: 0;
     --bui-plugin-header-toolbar-border-bottom: none;
     --bui-plugin-header-tabs-border-bottom: none;

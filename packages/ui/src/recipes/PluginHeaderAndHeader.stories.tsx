@@ -15,7 +15,10 @@
  */
 
 import preview from '../../../../.storybook/preview';
-import { Header as CoreHeader } from '@backstage/core-components';
+import {
+  Header as CoreHeader,
+  Page as CorePage,
+} from '@backstage/core-components';
 import type { StoryFn } from '@storybook/react-vite';
 import { MemoryRouter } from 'react-router-dom';
 import { BUIProvider } from '../provider';
@@ -143,8 +146,10 @@ export const CoreComponentsHeader = meta.story({
   render: () => (
     <>
       <PluginHeader icon={<RiCodeSSlashLine />} title="APIs" />
-      <CoreHeader title="payments-api" />
-      <PageContent />
+      <CorePage themeId="home">
+        <CoreHeader title="payments-api" />
+        <PageContent />
+      </CorePage>
     </>
   ),
 });
@@ -166,8 +171,10 @@ export const CoreComponentsHeaderWithTabs = meta.story({
           { id: 'consumers', label: 'Consumers', href: '/apis/consumers' },
         ]}
       />
-      <CoreHeader title="payments-api" />
-      <PageContent />
+      <CorePage themeId="home">
+        <CoreHeader title="payments-api" />
+        <PageContent />
+      </CorePage>
     </>
   ),
 });

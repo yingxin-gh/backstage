@@ -15,9 +15,27 @@
  */
 import type { z } from 'zod/v4';
 import type { ConnectionAuthMethod, ConnectionType } from './ConnectionType';
-import { ConnectionMatch } from '../definitions';
+import {
+  ConnectionMatch,
+  ConnectionTypeKey,
+  LookupConnectionType,
+} from '../definitions';
 
 type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
+  TAuthMethod extends any
+    ? {
+        method: TAuthMethod['method'];
+      } & z.infer<TAuthMethod['configSchema']>
+    : never;
+
+export type Connection<
+  T extends ConnectionType | ConnectionTypeKey = ConnectionType,
+> = {
+  type: LookupConnectionType<T>['type'];
+  auth: ConnectionAuthValue<LookupConnectionType<T>['authMethods'][number]>[];
+} & z.infer<LookupConnectionType<T>['configSchema']>;
+
+type RootConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
   TAuthMethod extends any
     ? {
         method: TAuthMethod['method'];
@@ -25,11 +43,11 @@ type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
       } & z.infer<TAuthMethod['configSchema']>
     : never;
 
-export type Connection<T extends ConnectionType = ConnectionType> = {
-  type: T['type'];
-  auth: ConnectionAuthValue<T['authMethods'][number]>[];
+export type RootConnection<
+  T extends ConnectionType | ConnectionTypeKey = ConnectionType,
+> = Omit<Connection<T>, 'auth'> & {
   match: ConnectionMatch;
-} & z.infer<T['configSchema']>;
-
-export type RootConnection<T extends ConnectionType = ConnectionType> =
-  Connection<T> & { match: unknown };
+  auth: RootConnectionAuthValue<
+    LookupConnectionType<T>['authMethods'][number]
+  >[];
+};

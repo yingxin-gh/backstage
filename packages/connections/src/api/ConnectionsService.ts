@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ConnectionTypeKey, LookupConnectionType } from '../definitions';
+import { ConnectionTypeKey } from '../definitions';
 import { Connection } from './Connection';
 
 export interface ConnectionsService {
   find<TType extends ConnectionTypeKey>(options: {
     type: TType;
     host: string;
-  }): Promise<Connection<LookupConnectionType<TType>> | undefined>;
+  }): Promise<Connection<TType> | undefined>;
 }

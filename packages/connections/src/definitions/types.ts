@@ -22,9 +22,10 @@ export const connectionTypes = {
 
 export type ConnectionTypeKey = keyof typeof connectionTypes;
 
-// TODO inline lookup connection type
-export type LookupConnectionType<T extends ConnectionTypeKey> =
-  (typeof connectionTypes)[T];
+export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
+  T extends ConnectionTypeKey
+    ? (typeof connectionTypes)[T]
+    : Extract<T, ConnectionType>;
 
 export type ConnectionMatch = {
   plugins: string[];

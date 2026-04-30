@@ -22,9 +22,8 @@ import {
   ConnectionTypeKey,
   getConnectionType,
   isConnectionTypeKey,
-  LookupConnectionType,
 } from '../definitions';
-import { Connection } from './Connection';
+import { Connection, RootConnection } from './Connection';
 import { JsonObject } from '@backstage/types';
 import { InputError } from '@backstage/errors';
 import { z } from 'zod/v4';
@@ -41,15 +40,13 @@ function describeError(error: unknown): string {
 
 class PluginConnectionsService implements ConnectionsService {
   private readonly logger: LoggerService;
-  private readonly pluginId: string;
   private readonly connections: Connection[];
 
   constructor(
-    pluginId: string,
+    _pluginId: string,
     logger: LoggerService,
     connections: Connection[],
   ) {
-    this.pluginId = pluginId;
     this.logger = logger;
     this.connections = connections;
   }
@@ -60,19 +57,19 @@ class PluginConnectionsService implements ConnectionsService {
   }: {
     type: TType;
     host: string;
-  }): Promise<Connection<LookupConnectionType<TType>> | undefined> {
+  }): Promise<Connection<TType> | undefined> {
     this.logger.debug(
       `Finding connection of type "${type}" matching host "${host}"`,
     );
     return this.connections.find(
       c => c.type === type && (c as { host?: unknown }).host === host,
-    ) as Connection<LookupConnectionType<TType>> | undefined;
+    ) as Connection<TType> | undefined;
   }
 }
 
 export class DefaultConnectionsService {
   private readonly logger: LoggerService;
-  private readonly connections: Connection[];
+  private readonly connections: RootConnection[];
   private readonly config: RootConfigService;
 
   private constructor(logger: LoggerService, config: RootConfigService) {
@@ -120,7 +117,7 @@ export class DefaultConnectionsService {
     return this.config.getOptional('connections');
   }
 
-  #validateConnection(connection: JsonObject): Connection {
+  #validateConnection(connection: JsonObject): RootConnection {
     if (typeof connection.type !== 'string') {
       throw new InputError(`Unrecognised connection type ${connection.type}`);
     }
@@ -131,7 +128,7 @@ export class DefaultConnectionsService {
 
     return getConnectionType(connection.type).schema.parse(
       connection,
-    ) as Connection;
+    ) as RootConnection;
   }
 
   #getConnectionsForPlugin(pluginId: string): Connection[] {
@@ -140,24 +137,24 @@ export class DefaultConnectionsService {
     // 2. Include Connections with a plugin matcher condition for this plugin
     // 3. Include auth methods with no plugin matcher condition
     // 4. Remove auth methods with a plugin matcher condition for other plugins
-    return this.connections
-      .filter(({ match }) => {
-        if (match) {
-          return match.plugins.includes(pluginId);
-        }
+    return this.connections.flatMap(({ match, auth, ...rest }) => {
+      if (match && !match.plugins.includes(pluginId)) {
+        return [];
+      }
 
-        return true;
-      })
-      .map(({ auth, ...rest }) => {
-        const matchingAuth = auth.filter(({ match }) => {
-          if (match) {
-            return match.plugins.includes(pluginId);
+      const matchingAuth = auth.reduce<Connection['auth']>(
+        (acc, { match: authMatch, ...authRest }) => {
+          if (authMatch && !authMatch.plugins.includes(pluginId)) {
+            return acc;
           }
+          acc.push(authRest as Connection['auth'][number]);
+          return acc;
+        },
+        [],
+      );
 
-          return true;
-        });
-        return { auth: matchingAuth, ...rest };
-      }, []);
+      return [{ ...rest, auth: matchingAuth } as Connection];
+    });
   }
 
   forPlugin(

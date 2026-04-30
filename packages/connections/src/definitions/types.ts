@@ -13,11 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GithubConnectionType } from './github';
+import { AzureConnectionType } from '../schema/azure';
+import { BitbucketCloudConnectionType } from '../schema/bitbucketCloud';
+import { BitbucketServerConnectionType } from '../schema/bitbucketServer';
+import { GerritConnectionType } from '../schema/gerrit';
+import { GiteaConnectionType } from '../schema/gitea';
+import { GithubConnectionType } from '../schema/github';
+import { GitlabConnectionType } from '../schema/gitlab';
+import { HarnessConnectionType } from '../schema/harness';
 import { ConnectionType } from '../api/ConnectionType';
 
 export const connectionTypes = {
+  azure: AzureConnectionType,
+  'bitbucket-cloud': BitbucketCloudConnectionType,
+  'bitbucket-server': BitbucketServerConnectionType,
+  gerrit: GerritConnectionType,
+  gitea: GiteaConnectionType,
   github: GithubConnectionType,
+  gitlab: GitlabConnectionType,
+  harness: HarnessConnectionType,
 } as const satisfies { [K in string]: ConnectionType<K> };
 
 export type ConnectionTypeKey = keyof typeof connectionTypes;

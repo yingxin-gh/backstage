@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { AzureConnectionType } from '../schema/azure';
-export { BitbucketCloudConnectionType } from '../schema/bitbucketCloud';
-export { BitbucketServerConnectionType } from '../schema/bitbucketServer';
-export { GerritConnectionType } from '../schema/gerrit';
-export { GiteaConnectionType } from '../schema/gitea';
-export { GithubConnectionType } from '../schema/github';
-export { GitlabConnectionType } from '../schema/gitlab';
-export { HarnessConnectionType } from '../schema/harness';
-export * from './lookup';
-export * from './types';
+import { createConnectionType } from '../system/createConnectionType';
+import { z } from 'zod/v4';
+
+export const GiteaConnectionType = createConnectionType({
+  type: 'gitea',
+  configSchema: z.object({
+    host: z.string(),
+    baseUrl: z.string().optional(),
+  }),
+  authMethods: [
+    {
+      method: 'basic',
+      configSchema: z.object({
+        username: z.string(),
+        password: z.string(),
+      }),
+    },
+  ],
+});

@@ -27,6 +27,7 @@ import { Connection, RootConnection } from './Connection';
 import { JsonObject } from '@backstage/types';
 import { InputError } from '@backstage/errors';
 import { z } from 'zod/v4';
+import { getLegacyIntegrations } from '../system/getLegacyIntegrations';
 
 function describeError(error: unknown): string {
   if (error instanceof z.ZodError) {
@@ -51,6 +52,7 @@ class PluginConnectionsService implements ConnectionsService {
     this.connections = connections;
   }
 
+  // Allow filtering by auth method, should be connection type aware?
   async find<TType extends ConnectionTypeKey>({
     type,
     host,
@@ -83,13 +85,15 @@ export class DefaultConnectionsService {
     logger: LoggerService;
     config: RootConfigService;
   }): DefaultConnectionsService {
+    // Create merged config (legacy integrations)
+
     return new DefaultConnectionsService(options.logger, options.config);
   }
 
   #registerConnectionsFromConfig(): void {
-    const cons = this.#readConnectionsFromConfig() as JsonObject[] | undefined;
+    const cons = this.#readConnectionsFromConfig();
 
-    if (!cons) {
+    if (cons.length === 0) {
       return;
     }
 
@@ -113,8 +117,12 @@ export class DefaultConnectionsService {
     );
   }
 
-  #readConnectionsFromConfig() {
-    return this.config.getOptional('connections');
+  #readConnectionsFromConfig(): JsonObject[] {
+    const fromConfig =
+      (this.config.getOptional('connections') as JsonObject[] | undefined) ??
+      [];
+    const fromLegacy = getLegacyIntegrations(this.config);
+    return [...fromLegacy, ...fromConfig];
   }
 
   #validateConnection(connection: JsonObject): RootConnection {

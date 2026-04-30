@@ -179,6 +179,81 @@ describe('DefaultConnectionsService', () => {
     });
   });
 
+  describe('legacy integrations', () => {
+    beforeEach(() => {
+      logger = mockServices.logger.mock();
+    });
+
+    it('exposes a github integration as a connection via forPlugin', async () => {
+      const config = mockConfig({
+        integrations: {
+          github: [
+            {
+              host: 'enterprise.example.com',
+              apiBaseUrl: 'https://enterprise.example.com/api/v3',
+              token: 'enterprise-token',
+              apps: [
+                {
+                  appId: 7,
+                  privateKey: 'pk',
+                  clientId: 'client',
+                  clientSecret: 'secret',
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      service = DefaultConnectionsService.create({ logger, config });
+      const connection = await service.forPlugin('catalog').find({
+        type: 'github',
+        host: 'enterprise.example.com',
+      });
+
+      expect(connection?.host).toBe('enterprise.example.com');
+      expect(connection?.apiBaseUrl).toBe(
+        'https://enterprise.example.com/api/v3',
+      );
+      expect(connection?.auth.map(a => a.method).sort()).toEqual([
+        'app',
+        'token',
+      ]);
+    });
+
+    it('merges legacy integrations with explicit connections config', async () => {
+      const config = mockConfig({
+        integrations: {
+          github: [{ host: 'github.com', token: 'legacy-token' }],
+        },
+        connections: [
+          {
+            type: 'github',
+            host: 'enterprise.example.com',
+            auth: [{ method: 'token', token: 'connections-token' }],
+          },
+        ],
+      });
+
+      service = DefaultConnectionsService.create({ logger, config });
+      const catalog = service.forPlugin('catalog');
+
+      await expect(
+        catalog.find({ type: 'github', host: 'github.com' }),
+      ).resolves.toMatchObject({
+        host: 'github.com',
+        auth: [{ method: 'token', token: 'legacy-token' }],
+      });
+
+      await expect(
+        catalog.find({ type: 'github', host: 'enterprise.example.com' }),
+      ).resolves.toMatchObject({
+        host: 'enterprise.example.com',
+        auth: [{ method: 'token', token: 'connections-token' }],
+      });
+    });
+  });
+
   describe('config validation', () => {
     beforeEach(() => {
       logger = mockServices.logger.mock();

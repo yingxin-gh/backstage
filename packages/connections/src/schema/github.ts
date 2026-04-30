@@ -39,6 +39,7 @@ export const GithubConnectionType = createConnectionType({
         clientSecret: z.string(),
         webhookSecret: z.string().optional(),
         allowedOwners: z.array(z.string()).optional(),
+        publicAccess: z.boolean().optional(),
       }),
     },
   ],

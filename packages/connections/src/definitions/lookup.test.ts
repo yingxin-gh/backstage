@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GithubConnectionType } from './github';
+import { GithubConnectionType } from '../schema/github';
 import { getConnectionType, isConnectionTypeKey } from './lookup';
 
 describe('definitions/lookup', () => {

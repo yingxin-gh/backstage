@@ -119,41 +119,7 @@ Note: We recommend Python version 3.11 or higher.
 
 ## Using TechDocs Addons
 
-The TechDocs Addon framework lets you render React components in documentation pages. Addons are provided as separate plugin modules.
-
-For example, to add the Report Issue addon, first install the package:
-
-```bash title="From your Backstage root directory"
-yarn --cwd packages/app add @backstage/plugin-techdocs-module-addons-contrib
-```
-
-Then install the addon module in your app:
-
-```tsx title="packages/app/src/App.tsx"
-import { createApp } from '@backstage/frontend-defaults';
-import { techDocsReportIssueAddonModule } from '@backstage/plugin-techdocs-module-addons-contrib/alpha';
-
-const app = createApp({
-  features: [techDocsReportIssueAddonModule],
-});
-
-export default app.createRoot();
-```
-
-The same package also provides `techDocsExpandableNavigationAddonModule`, `techDocsTextSizeAddonModule`, and `techDocsLightBoxAddonModule`.
-
-You can see the Report Issue addon in action when you highlight text in your documentation:
-
-<!-- todo: Needs zoomable plugin -->
-
-![TechDocs Report Issue Add-on](../../assets/techdocs/report-issue-addon.png)
-
-By clicking the open new issue button, you are redirected to the new issue page according to the source code provider you are using:
-
-<!-- todo: Needs zoomable plugin -->
-
-![TechDocs Report Issue Template](../../assets/techdocs/report-issue-template.png)
-
+The TechDocs Addon framework lets you render React components in documentation pages. For installation instructions, available addon modules, and usage examples, see the dedicated [TechDocs Addons guide](./addons.md).
 ## Additional reading
 
 - [Creating and publishing your docs](creating-and-publishing.md)

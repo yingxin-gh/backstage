@@ -10,7 +10,7 @@ This documentation is written for the new frontend system, which is the default 
 - your Backstage app still uses the old frontend system
 - you are using the new frontend, but your `<backstage_app_root>/packages/backend/src/index.ts` file does not contain
   `backend.add(import('@backstage/plugin-techdocs-backend'));`
-  ::::
+::::
 
 If you haven't set up Backstage already, start [here](../../getting-started/index.md).
 

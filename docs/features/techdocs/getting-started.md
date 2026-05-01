@@ -5,9 +5,10 @@ description: Getting Started Documentation
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default in new Backstage apps. If your Backstage app still uses the old frontend system, or your `<backstage_app_root>/packages/backend/src/index.ts` file does not contain
-`backend.add(import('@backstage/plugin-techdocs-backend'));` then follow the TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md)
-instead.
+This documentation is written for the new frontend system, which is the default in new Backstage apps. If one of the following are true, then follow the TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md) instead:
+- your Backstage app still uses the old frontend system
+- you are using the new frontend, but your `<backstage_app_root>/packages/backend/src/index.ts` file does not contain
+`backend.add(import('@backstage/plugin-techdocs-backend'));`
 ::::
 
 If you haven't set up Backstage already, start [here](../../getting-started/index.md).

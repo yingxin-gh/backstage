@@ -5,11 +5,8 @@ description: Getting Started Documentation
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system, or 
-your `<backstage_app_root>/packages/backend/src/index.ts` file does not contain 
-`backend.add(import('@backstage/plugin-techdocs-backend'));` then follow the
-TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md)
+This documentation is written for the new frontend system, which is the default in new Backstage apps. If your Backstage app still uses the old frontend system, or your `<backstage_app_root>/packages/backend/src/index.ts` file does not contain
+`backend.add(import('@backstage/plugin-techdocs-backend'));` then follow the TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md)
 instead.
 ::::
 
@@ -122,6 +119,7 @@ Note: We recommend Python version 3.11 or higher.
 ## Using TechDocs Addons
 
 The TechDocs Addon framework lets you render React components in documentation pages. For installation instructions, available addon modules, and usage examples, see the dedicated [TechDocs Addons guide](./addons.md).
+
 ## Additional reading
 
 - [Creating and publishing your docs](creating-and-publishing.md)

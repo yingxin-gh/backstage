@@ -6,14 +6,16 @@ description: Getting Started Documentation
 
 ::::info
 This documentation is written for the new frontend system, which is the default
-in new Backstage apps. If your Backstage app still uses the old frontend system,
-read the [old frontend system version of this guide](./getting-started--old.md)
+in new Backstage apps. If your Backstage app still uses the old frontend system, or 
+your `<backstage_app_root>/packages/backend/src/index.ts` file does not contain 
+`backend.add(import('@backstage/plugin-techdocs-backend'));` then follow the
+TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md)
 instead.
 ::::
 
 If you haven't set up Backstage already, start [here](../../getting-started/index.md).
 
-TechDocs functions as a plugin in Backstage and ships with it installed and added to the frontend and backend out of the box, so you will need to use Backstage to use TechDocs.
+TechDocs functions as a plugin in Backstage, so you will need to use Backstage to use TechDocs. In newly scaffolded Backstage apps, created with the default `@backstage/create-app@latest` template, TechDocs is installed and wired into both the frontend and backend out of the box.
 
 Now let us tweak some configurations to suit your needs.
 

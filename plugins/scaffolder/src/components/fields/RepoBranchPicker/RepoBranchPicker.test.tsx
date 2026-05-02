@@ -165,40 +165,44 @@ describe('RepoBranchPicker', () => {
       expect(getByText('test description')).toBeInTheDocument();
     });
 
-    it('should render BitbucketRepoBranchPicker when host resolves to bitbucketCloud', async () => {
-      const mockIntegrationsApiBitbucket: Partial<ScmIntegrationsApi> = {
-        byHost: () => ({ type: 'bitbucketCloud' }),
-      };
+    it.each([
+      { type: 'bitbucketCloud', host: 'bitbucket.org?repo=repo' },
+      { type: 'bitbucketServer', host: 'bitbucket.mycompany.com?repo=repo' },
+    ])(
+      'should render BitbucketRepoBranchPicker when host resolves to $type',
+      async ({ type, host }) => {
+        const mockIntegrationsApiBitbucket: Partial<ScmIntegrationsApi> = {
+          byHost: () => ({ type }),
+        };
 
-      await renderInTestApp(
-        <TestApiProvider
-          apis={[
-            [scmIntegrationsApiRef, mockIntegrationsApiBitbucket],
-            [scmAuthApiRef, {}],
-            [scaffolderApiRef, {}],
-          ]}
-        >
-          <SecretsContextProvider>
-            <Form
-              validator={validator}
-              schema={{ type: 'string' }}
-              uiSchema={{ 'ui:field': 'RepoBranchPicker' }}
-              fields={{
-                RepoBranchPicker:
-                  RepoBranchPicker as ScaffolderRJSFField<string>,
-              }}
-              formContext={{
-                formData: { repoUrl: 'bitbucket.org?repo=repo' },
-              }}
-            />
-          </SecretsContextProvider>
-        </TestApiProvider>,
-      );
+        await renderInTestApp(
+          <TestApiProvider
+            apis={[
+              [scmIntegrationsApiRef, mockIntegrationsApiBitbucket],
+              [scmAuthApiRef, {}],
+              [scaffolderApiRef, {}],
+            ]}
+          >
+            <SecretsContextProvider>
+              <Form
+                validator={validator}
+                schema={{ type: 'string' }}
+                uiSchema={{ 'ui:field': 'RepoBranchPicker' }}
+                fields={{
+                  RepoBranchPicker:
+                    RepoBranchPicker as ScaffolderRJSFField<string>,
+                }}
+                formContext={{
+                  formData: { repoUrl: host },
+                }}
+              />
+            </SecretsContextProvider>
+          </TestApiProvider>,
+        );
 
-      expect(
-        screen.getByRole('combobox', { name: 'Branch' }),
-      ).toBeInTheDocument();
-    });
+        expect(await screen.findByLabelText('Branch')).toBeInTheDocument();
+      },
+    );
   });
 
   describe('requestUserCredentials', () => {

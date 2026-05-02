@@ -243,35 +243,46 @@ describe('RepoUrlPicker', () => {
       expect(getByText('test description')).toBeInTheDocument();
     });
 
-    it('should render BitbucketRepoPicker when host resolves to bitbucketCloud', async () => {
-      const mockIntegrationsApiBitbucket: Partial<ScmIntegrationsApi> = {
-        byHost: () => ({ type: 'bitbucketCloud' }),
-      };
+    it.each([
+      { type: 'bitbucketCloud', host: 'bitbucket.org', hasWorkspaces: true },
+      {
+        type: 'bitbucketServer',
+        host: 'bitbucket.mycompany.com',
+        hasWorkspaces: false,
+      },
+    ])(
+      'should render BitbucketRepoPicker when host resolves to $type',
+      async ({ type, host, hasWorkspaces }) => {
+        const mockIntegrationsApiBitbucket: Partial<ScmIntegrationsApi> = {
+          byHost: () => ({ type }),
+        };
 
-      const { getByText } = await renderInTestApp(
-        <TestApiProvider
-          apis={[
-            [scmIntegrationsApiRef, mockIntegrationsApiBitbucket],
-            [scmAuthApiRef, {}],
-            [scaffolderApiRef, mockScaffolderApi],
-          ]}
-        >
-          <SecretsContextProvider>
-            <Form
-              validator={validator}
-              schema={{ type: 'string' }}
-              uiSchema={{ 'ui:field': 'RepoUrlPicker' }}
-              fields={{
-                RepoUrlPicker: RepoUrlPicker as ScaffolderRJSFField<string>,
-              }}
-              formData="bitbucket.org"
-            />
-          </SecretsContextProvider>
-        </TestApiProvider>,
-      );
+        const { findByText, queryByText } = await renderInTestApp(
+          <TestApiProvider
+            apis={[
+              [scmIntegrationsApiRef, mockIntegrationsApiBitbucket],
+              [scmAuthApiRef, {}],
+              [scaffolderApiRef, mockScaffolderApi],
+            ]}
+          >
+            <SecretsContextProvider>
+              <Form
+                validator={validator}
+                schema={{ type: 'string' }}
+                uiSchema={{ 'ui:field': 'RepoUrlPicker' }}
+                fields={{
+                  RepoUrlPicker: RepoUrlPicker as ScaffolderRJSFField<string>,
+                }}
+                formData={host}
+              />
+            </SecretsContextProvider>
+          </TestApiProvider>,
+        );
 
-      expect(getByText('Workspaces')).toBeInTheDocument();
-    });
+        expect(await findByText('Projects')).toBeInTheDocument();
+        expect(!!queryByText('Workspaces')).toBe(hasWorkspaces);
+      },
+    );
   });
 
   describe('requestUserCredentials', () => {

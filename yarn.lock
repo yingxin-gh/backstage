@@ -5132,6 +5132,7 @@ __metadata:
   resolution: "@backstage/plugin-catalog-backend-module-unprocessed@workspace:plugins/catalog-backend-module-unprocessed"
   dependencies:
     "@backstage/backend-plugin-api": "workspace:^"
+    "@backstage/backend-test-utils": "workspace:^"
     "@backstage/catalog-model": "workspace:^"
     "@backstage/cli": "workspace:^"
     "@backstage/errors": "workspace:^"
@@ -5140,8 +5141,12 @@ __metadata:
     "@backstage/plugin-catalog-unprocessed-entities-common": "workspace:^"
     "@backstage/plugin-permission-common": "workspace:^"
     "@types/express": "npm:^4.17.6"
+    "@types/supertest": "npm:^2.0.8"
+    better-sqlite3: "npm:^12.0.0"
+    express: "npm:^4.22.0"
     express-promise-router: "npm:^4.1.1"
     knex: "npm:^3.0.0"
+    supertest: "npm:^7.0.0"
   languageName: unknown
   linkType: soft
 

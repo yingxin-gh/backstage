@@ -7949,6 +7949,7 @@ __metadata:
   resolution: "@backstage/ui@workspace:packages/ui"
   dependencies:
     "@backstage/cli": "workspace:^"
+    "@backstage/core-components": "workspace:^"
     "@backstage/version-bridge": "workspace:^"
     "@braintree/sanitize-url": "npm:^7.1.2"
     "@internationalized/date": "npm:^3.12.0"

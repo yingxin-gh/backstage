@@ -31,7 +31,14 @@ export function getLegacyIntegrations(config: RootConfigService): JsonObject[] {
   }
 
   return [
+    ...convertAwsCodeCommit(
+      integrations.getOptionalConfigArray('awsCodeCommit') ?? [],
+    ),
+    ...convertAwsS3(integrations.getOptionalConfigArray('awsS3') ?? []),
     ...convertAzure(integrations.getOptionalConfigArray('azure') ?? []),
+    ...convertAzureBlobStorage(
+      integrations.getOptionalConfigArray('azureBlobStorage') ?? [],
+    ),
     ...convertBitbucketCloud(
       integrations.getOptionalConfigArray('bitbucketCloud') ?? [],
     ),
@@ -42,6 +49,7 @@ export function getLegacyIntegrations(config: RootConfigService): JsonObject[] {
     ...convertGitea(integrations.getOptionalConfigArray('gitea') ?? []),
     ...convertGithub(integrations.getOptionalConfigArray('github') ?? []),
     ...convertGitlab(integrations.getOptionalConfigArray('gitlab') ?? []),
+    ...convertGoogleGcs(integrations.getOptionalConfigArray('googleGcs') ?? []),
     ...convertHarness(integrations.getOptionalConfigArray('harness') ?? []),
   ];
 }
@@ -272,6 +280,127 @@ function convertHarness(entries: Config[]): JsonObject[] {
       host: entry.getOptionalString('host'),
       auth,
     });
+  });
+}
+
+function convertAwsCodeCommit(entries: Config[]): JsonObject[] {
+  return entries.map(entry => {
+    const auth: JsonObject[] = [];
+
+    const accessKeyId = entry.getOptionalString('accessKeyId');
+    const secretAccessKey = entry.getOptionalString('secretAccessKey');
+    if (accessKeyId !== undefined && secretAccessKey !== undefined) {
+      auth.push({ method: 'accessKey', accessKeyId, secretAccessKey });
+    }
+
+    const roleArn = entry.getOptionalString('roleArn');
+    if (roleArn !== undefined) {
+      auth.push(
+        omitUndefined({
+          method: 'assumeRole',
+          roleArn,
+          externalId: entry.getOptionalString('externalId'),
+        }),
+      );
+    }
+
+    const region = entry.getString('region');
+    const host =
+      entry.getOptionalString('host') ?? `${region}.console.aws.amazon.com`;
+
+    return { type: 'aws-codecommit', host, region, auth };
+  });
+}
+
+function convertAwsS3(entries: Config[]): JsonObject[] {
+  return entries.map(entry => {
+    const auth: JsonObject[] = [];
+
+    const accessKeyId = entry.getOptionalString('accessKeyId');
+    const secretAccessKey = entry.getOptionalString('secretAccessKey');
+    if (accessKeyId !== undefined && secretAccessKey !== undefined) {
+      auth.push({ method: 'accessKey', accessKeyId, secretAccessKey });
+    }
+
+    const roleArn = entry.getOptionalString('roleArn');
+    if (roleArn !== undefined) {
+      auth.push(
+        omitUndefined({
+          method: 'assumeRole',
+          roleArn,
+          externalId: entry.getOptionalString('externalId'),
+        }),
+      );
+    }
+
+    const endpoint = entry.getOptionalString('endpoint');
+    const host = endpoint ? new URL(endpoint).host : 'amazonaws.com';
+
+    return omitUndefined({
+      type: 'aws-s3',
+      host,
+      endpoint,
+      s3ForcePathStyle: entry.getOptionalBoolean('s3ForcePathStyle'),
+      auth,
+    });
+  });
+}
+
+function convertAzureBlobStorage(entries: Config[]): JsonObject[] {
+  return entries.map(entry => {
+    const auth: JsonObject[] = [];
+
+    const accountKey = entry.getOptionalString('accountKey');
+    if (accountKey !== undefined) {
+      auth.push({ method: 'accountKey', accountKey });
+    }
+
+    const sasToken = entry.getOptionalString('sasToken');
+    if (sasToken !== undefined) {
+      auth.push({ method: 'sasToken', sasToken });
+    }
+
+    const connectionString = entry.getOptionalString('connectionString');
+    if (connectionString !== undefined) {
+      auth.push({ method: 'connectionString', connectionString });
+    }
+
+    if (entry.has('aadCredential')) {
+      auth.push({
+        method: 'aadCredential',
+        clientId: entry.getString('aadCredential.clientId'),
+        tenantId: entry.getString('aadCredential.tenantId'),
+        clientSecret: entry.getString('aadCredential.clientSecret'),
+      });
+    }
+
+    const endpoint = entry.getOptionalString('endpoint');
+    const host = endpoint
+      ? new URL(endpoint).host
+      : entry.getOptionalString('host') ?? 'blob.core.windows.net';
+
+    return omitUndefined({
+      type: 'azure-blob-storage',
+      host,
+      accountName: entry.getOptionalString('accountName'),
+      endpoint,
+      endpointSuffix: entry.getOptionalString('endpointSuffix'),
+      auth,
+    });
+  });
+}
+
+function convertGoogleGcs(entries: Config[]): JsonObject[] {
+  return entries.map(entry => {
+    const auth: JsonObject[] = [];
+
+    const clientEmail = entry.getOptionalString('clientEmail');
+    const privateKey = entry.getOptionalString('privateKey');
+    if (clientEmail !== undefined && privateKey !== undefined) {
+      auth.push({ method: 'serviceAccount', clientEmail, privateKey });
+    }
+
+    return { type: 'google-gcs', host: 'storage.cloud.google.com', auth };
   });
 }
 

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AwsCodeCommitConnectionType } from '../schema/awsCodeCommit';
+import { AwsS3ConnectionType } from '../schema/awsS3';
+import { AzureBlobStorageConnectionType } from '../schema/azureBlobStorage';
 import { AzureConnectionType } from '../schema/azure';
 import { BitbucketCloudConnectionType } from '../schema/bitbucketCloud';
 import { BitbucketServerConnectionType } from '../schema/bitbucketServer';
@@ -20,10 +23,14 @@ import { GerritConnectionType } from '../schema/gerrit';
 import { GiteaConnectionType } from '../schema/gitea';
 import { GithubConnectionType } from '../schema/github';
 import { GitlabConnectionType } from '../schema/gitlab';
+import { GoogleGcsConnectionType } from '../schema/googleGcs';
 import { HarnessConnectionType } from '../schema/harness';
 import { ConnectionType } from '../api/ConnectionType';
 
 export const connectionTypes = {
+  'aws-codecommit': AwsCodeCommitConnectionType,
+  'aws-s3': AwsS3ConnectionType,
+  'azure-blob-storage': AzureBlobStorageConnectionType,
   azure: AzureConnectionType,
   'bitbucket-cloud': BitbucketCloudConnectionType,
   'bitbucket-server': BitbucketServerConnectionType,
@@ -31,15 +38,14 @@ export const connectionTypes = {
   gitea: GiteaConnectionType,
   github: GithubConnectionType,
   gitlab: GitlabConnectionType,
+  'google-gcs': GoogleGcsConnectionType,
   harness: HarnessConnectionType,
 } as const satisfies { [K in string]: ConnectionType<K> };
 
 export type ConnectionTypeKey = keyof typeof connectionTypes;
 
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
-  T extends ConnectionTypeKey
-    ? (typeof connectionTypes)[T]
-    : Extract<T, ConnectionType>;
+  T extends ConnectionTypeKey ? (typeof connectionTypes)[T] : T;
 
 export type ConnectionMatch = {
   plugins: string[];

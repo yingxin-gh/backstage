@@ -16,10 +16,13 @@
 import { createConnectionType } from '../system/createConnectionType';
 import { z } from 'zod/v4';
 
-export const AzureConnectionType = createConnectionType({
-  type: 'azure',
+export const AzureBlobStorageConnectionType = createConnectionType({
+  type: 'azure-blob-storage',
   configSchema: z.object({
     host: z.string(),
+    accountName: z.string().optional(),
+    endpoint: z.string().optional(),
+    endpointSuffix: z.string().optional(),
   }),
   authMethods: [
     {
@@ -27,28 +30,29 @@ export const AzureConnectionType = createConnectionType({
       configSchema: z.object({}),
     },
     {
-      method: 'pat',
+      method: 'accountKey',
       configSchema: z.object({
-        personalAccessToken: z.string(),
-        organizations: z.array(z.string()).optional(),
+        accountKey: z.string(),
       }),
     },
     {
-      method: 'clientCredentials',
+      method: 'sasToken',
+      configSchema: z.object({
+        sasToken: z.string(),
+      }),
+    },
+    {
+      method: 'connectionString',
+      configSchema: z.object({
+        connectionString: z.string(),
+      }),
+    },
+    {
+      method: 'aadCredential',
       configSchema: z.object({
         clientId: z.string(),
-        clientSecret: z.string(),
         tenantId: z.string(),
-        organizations: z.array(z.string()).optional(),
-      }),
-    },
-    {
-      method: 'managedIdentity',
-      configSchema: z.object({
-        clientId: z.string(),
-        tenantId: z.string().optional(),
-        managedIdentityClientId: z.string().optional(),
-        organizations: z.array(z.string()).optional(),
+        clientSecret: z.string(),
       }),
     },
   ],

@@ -16,10 +16,11 @@
 import { createConnectionType } from '../system/createConnectionType';
 import { z } from 'zod/v4';
 
-export const AzureConnectionType = createConnectionType({
-  type: 'azure',
+export const AwsCodeCommitConnectionType = createConnectionType({
+  type: 'aws-codecommit',
   configSchema: z.object({
     host: z.string(),
+    region: z.string(),
   }),
   authMethods: [
     {
@@ -27,28 +28,17 @@ export const AzureConnectionType = createConnectionType({
       configSchema: z.object({}),
     },
     {
-      method: 'pat',
+      method: 'accessKey',
       configSchema: z.object({
-        personalAccessToken: z.string(),
-        organizations: z.array(z.string()).optional(),
+        accessKeyId: z.string(),
+        secretAccessKey: z.string(),
       }),
     },
     {
-      method: 'clientCredentials',
+      method: 'assumeRole',
       configSchema: z.object({
-        clientId: z.string(),
-        clientSecret: z.string(),
-        tenantId: z.string(),
-        organizations: z.array(z.string()).optional(),
-      }),
-    },
-    {
-      method: 'managedIdentity',
-      configSchema: z.object({
-        clientId: z.string(),
-        tenantId: z.string().optional(),
-        managedIdentityClientId: z.string().optional(),
-        organizations: z.array(z.string()).optional(),
+        roleArn: z.string(),
+        externalId: z.string().optional(),
       }),
     },
   ],

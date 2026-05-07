@@ -16,8 +16,8 @@
 import { createConnectionType } from '../system/createConnectionType';
 import { z } from 'zod/v4';
 
-export const AzureConnectionType = createConnectionType({
-  type: 'azure',
+export const GoogleGcsConnectionType = createConnectionType({
+  type: 'google-gcs',
   configSchema: z.object({
     host: z.string(),
   }),
@@ -27,28 +27,10 @@ export const AzureConnectionType = createConnectionType({
       configSchema: z.object({}),
     },
     {
-      method: 'pat',
+      method: 'serviceAccount',
       configSchema: z.object({
-        personalAccessToken: z.string(),
-        organizations: z.array(z.string()).optional(),
-      }),
-    },
-    {
-      method: 'clientCredentials',
-      configSchema: z.object({
-        clientId: z.string(),
-        clientSecret: z.string(),
-        tenantId: z.string(),
-        organizations: z.array(z.string()).optional(),
-      }),
-    },
-    {
-      method: 'managedIdentity',
-      configSchema: z.object({
-        clientId: z.string(),
-        tenantId: z.string().optional(),
-        managedIdentityClientId: z.string().optional(),
-        organizations: z.array(z.string()).optional(),
+        clientEmail: z.string(),
+        privateKey: z.string(),
       }),
     },
   ],

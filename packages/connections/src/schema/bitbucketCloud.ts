@@ -23,6 +23,10 @@ export const BitbucketCloudConnectionType = createConnectionType({
   }),
   authMethods: [
     {
+      method: 'none',
+      configSchema: z.object({}),
+    },
+    {
       method: 'token',
       configSchema: z.object({
         username: z.string(),

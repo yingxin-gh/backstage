@@ -15,6 +15,9 @@
  */
 import { mockServices } from '@backstage/backend-test-utils';
 import { getLegacyIntegrations } from './getLegacyIntegrations';
+import { AwsCodeCommitConnectionType } from '../schema/awsCodeCommit';
+import { AwsS3ConnectionType } from '../schema/awsS3';
+import { AzureBlobStorageConnectionType } from '../schema/azureBlobStorage';
 import { AzureConnectionType } from '../schema/azure';
 import { BitbucketCloudConnectionType } from '../schema/bitbucketCloud';
 import { BitbucketServerConnectionType } from '../schema/bitbucketServer';
@@ -22,6 +25,7 @@ import { GerritConnectionType } from '../schema/gerrit';
 import { GiteaConnectionType } from '../schema/gitea';
 import { GithubConnectionType } from '../schema/github';
 import { GitlabConnectionType } from '../schema/gitlab';
+import { GoogleGcsConnectionType } from '../schema/googleGcs';
 import { HarnessConnectionType } from '../schema/harness';
 
 describe('getLegacyIntegrations', () => {
@@ -671,6 +675,403 @@ describe('getLegacyIntegrations', () => {
 
       const [converted] = getLegacyIntegrations(config);
       expect(() => GiteaConnectionType.schema.parse(converted)).not.toThrow();
+    });
+  });
+
+  describe('awsCodeCommit', () => {
+    it('emits separate accessKey and assumeRole auth methods', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsCodeCommit: [
+              {
+                region: 'us-east-1',
+                accessKeyId: 'AKID',
+                secretAccessKey: 'secret',
+                roleArn: 'arn:aws:iam::123456789012:role/MyRole',
+                externalId: 'ext-id',
+              },
+            ],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'aws-codecommit',
+          host: 'us-east-1.console.aws.amazon.com',
+          region: 'us-east-1',
+          auth: [
+            {
+              method: 'accessKey',
+              accessKeyId: 'AKID',
+              secretAccessKey: 'secret',
+            },
+            {
+              method: 'assumeRole',
+              roleArn: 'arn:aws:iam::123456789012:role/MyRole',
+              externalId: 'ext-id',
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('omits externalId when not set', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsCodeCommit: [
+              {
+                region: 'eu-west-1',
+                roleArn: 'arn:aws:iam::123456789012:role/MyRole',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(
+        (converted as { auth: { externalId?: string }[] }).auth[0],
+      ).not.toHaveProperty('externalId');
+    });
+
+    it('emits an empty auth array when no credentials are configured', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsCodeCommit: [{ region: 'us-west-2' }],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'aws-codecommit',
+          host: 'us-west-2.console.aws.amazon.com',
+          region: 'us-west-2',
+          auth: [],
+        },
+      ]);
+    });
+
+    it('produces output that validates against the aws-codecommit connection schema', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsCodeCommit: [
+              {
+                region: 'us-east-1',
+                accessKeyId: 'AKID',
+                secretAccessKey: 'secret',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(() =>
+        AwsCodeCommitConnectionType.schema.parse(converted),
+      ).not.toThrow();
+    });
+  });
+
+  describe('awsS3', () => {
+    it('emits accessKey and assumeRole auth methods', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsS3: [
+              {
+                accessKeyId: 'AKID',
+                secretAccessKey: 'secret',
+                roleArn: 'arn:aws:iam::123456789012:role/MyRole',
+                externalId: 'ext-id',
+              },
+            ],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'aws-s3',
+          host: 'amazonaws.com',
+          auth: [
+            {
+              method: 'accessKey',
+              accessKeyId: 'AKID',
+              secretAccessKey: 'secret',
+            },
+            {
+              method: 'assumeRole',
+              roleArn: 'arn:aws:iam::123456789012:role/MyRole',
+              externalId: 'ext-id',
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('carries endpoint and s3ForcePathStyle through when present', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsS3: [
+              {
+                endpoint: 'http://localhost:4566',
+                s3ForcePathStyle: true,
+              },
+            ],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'aws-s3',
+          host: 'localhost:4566',
+          endpoint: 'http://localhost:4566',
+          s3ForcePathStyle: true,
+          auth: [],
+        },
+      ]);
+    });
+
+    it('produces output that validates against the aws-s3 connection schema', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            awsS3: [
+              {
+                accessKeyId: 'AKID',
+                secretAccessKey: 'secret',
+                roleArn: 'arn:aws:iam::123456789012:role/MyRole',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(() => AwsS3ConnectionType.schema.parse(converted)).not.toThrow();
+    });
+  });
+
+  describe('googleGcs', () => {
+    it('emits a serviceAccount auth method when clientEmail and privateKey are both present', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            googleGcs: [
+              {
+                clientEmail: 'sa@project.iam.gserviceaccount.com',
+                privateKey:
+                  '-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----',
+              },
+            ],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'google-gcs',
+          host: 'storage.cloud.google.com',
+          auth: [
+            {
+              method: 'serviceAccount',
+              clientEmail: 'sa@project.iam.gserviceaccount.com',
+              privateKey:
+                '-----BEGIN RSA PRIVATE KEY-----\nkey\n-----END RSA PRIVATE KEY-----',
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('emits an empty auth array when no credentials are configured (application default credentials)', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            googleGcs: [{}],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        { type: 'google-gcs', host: 'storage.cloud.google.com', auth: [] },
+      ]);
+    });
+
+    it('produces output that validates against the google-gcs connection schema', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            googleGcs: [
+              {
+                clientEmail: 'sa@project.iam.gserviceaccount.com',
+                privateKey: 'pk',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(() =>
+        GoogleGcsConnectionType.schema.parse(converted),
+      ).not.toThrow();
+    });
+  });
+
+  describe('azureBlobStorage', () => {
+    it('emits one auth method per credential type present', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            azureBlobStorage: [
+              {
+                accountName: 'myaccount',
+                accountKey: 'ak',
+              },
+            ],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'azure-blob-storage',
+          host: 'blob.core.windows.net',
+          accountName: 'myaccount',
+          auth: [{ method: 'accountKey', accountKey: 'ak' }],
+        },
+      ]);
+    });
+
+    it('converts a sasToken credential', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            azureBlobStorage: [
+              {
+                accountName: 'myaccount',
+                sasToken:
+                  'sv=2021-01-01&ss=b&srt=sco&sp=rwdlacupiytfx&se=2024-01-01T00:00:00Z&st=2023-01-01T00:00:00Z&spr=https&sig=abc',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect((converted as { auth: { method: string }[] }).auth).toEqual([
+        { method: 'sasToken', sasToken: expect.any(String) },
+      ]);
+    });
+
+    it('converts a connectionString credential', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            azureBlobStorage: [
+              {
+                connectionString:
+                  'DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=key;EndpointSuffix=core.windows.net',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect((converted as { auth: { method: string }[] }).auth).toEqual([
+        { method: 'connectionString', connectionString: expect.any(String) },
+      ]);
+    });
+
+    it('converts an aadCredential', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            azureBlobStorage: [
+              {
+                accountName: 'myaccount',
+                aadCredential: {
+                  clientId: 'cid',
+                  tenantId: 'tid',
+                  clientSecret: 'csecret',
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      expect(getLegacyIntegrations(config)).toEqual([
+        {
+          type: 'azure-blob-storage',
+          host: 'blob.core.windows.net',
+          accountName: 'myaccount',
+          auth: [
+            {
+              method: 'aadCredential',
+              clientId: 'cid',
+              tenantId: 'tid',
+              clientSecret: 'csecret',
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('carries endpoint and endpointSuffix through when present', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            azureBlobStorage: [
+              {
+                accountName: 'myaccount',
+                endpoint: 'https://myaccount.blob.core.usgovcloudapi.net',
+                endpointSuffix: 'core.usgovcloudapi.net',
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(converted).toMatchObject({
+        endpoint: 'https://myaccount.blob.core.usgovcloudapi.net',
+        endpointSuffix: 'core.usgovcloudapi.net',
+      });
+    });
+
+    it('produces output that validates against the azure-blob-storage connection schema', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            azureBlobStorage: [
+              {
+                accountName: 'myaccount',
+                aadCredential: {
+                  clientId: 'cid',
+                  tenantId: 'tid',
+                  clientSecret: 'csecret',
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(() =>
+        AzureBlobStorageConnectionType.schema.parse(converted),
+      ).not.toThrow();
     });
   });
 

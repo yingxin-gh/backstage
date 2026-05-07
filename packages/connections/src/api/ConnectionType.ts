@@ -14,17 +14,40 @@
  * limitations under the License.
  */
 import type { z } from 'zod/v4';
+import type { ConnectionTypeKey, LookupConnectionType } from '../definitions';
 
 // Field names the framework owns at the connection level. Connection-type
 // authors must not declare these in their `configSchema`.
 export type ReservedConnectionFields = 'type' | 'auth' | 'match';
 
+// Surfaced when a configSchema declares a reserved key — the message becomes
+// part of the type error so authors see why their schema was rejected.
+type ReservedFieldError<K extends string> = {
+  readonly __error: `configSchema must not declare reserved field '${K}'`;
+};
+
 // Constrain a ZodObject so its inferred shape can't collide with framework
-// keys. Resolves to `never` if a reserved key is present.
-export type WithoutReservedFields<
-  TSchema extends z.ZodObject,
-  TReserved extends string,
-> = Extract<keyof z.infer<TSchema>, TReserved> extends never ? TSchema : never;
+// keys. Resolves to a self-describing error type if a reserved key is present.
+export type WithoutReservedFields<TSchema extends z.ZodObject> = Extract<
+  keyof z.infer<TSchema>,
+  ReservedConnectionFields
+> extends infer K
+  ? [K] extends [never]
+    ? TSchema
+    : ReservedFieldError<K & string>
+  : never;
+
+export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
+  TAuthMethod extends any
+    ? {
+        method: TAuthMethod['method'];
+      } & z.infer<TAuthMethod['configSchema']>
+    : never;
+
+export type MatchAuth<TAuthMethods extends readonly ConnectionAuthMethod[]> = (
+  authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
+  query: string,
+) => ConnectionAuthValue<TAuthMethods[number]> | undefined;
 
 export type ConnectionType<
   TType extends string = string,
@@ -35,7 +58,13 @@ export type ConnectionType<
   configSchema: TConfigSchema;
   authMethods: TAuthMethods;
   schema: z.ZodType;
-  // TODO Add plugin match
+  // Method shorthand keeps parameter checking bivariant so a narrow
+  // ConnectionType (e.g. github) is still assignable to ConnectionType<string>.
+  // TODO a default match auth method so this is no longer optional
+  matchAuth?(
+    authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
+    query: string,
+  ): ConnectionAuthValue<TAuthMethods[number]> | undefined;
 };
 
 export type ConnectionAuthMethod<
@@ -44,5 +73,8 @@ export type ConnectionAuthMethod<
 > = {
   method: TMethod;
   configSchema: TConfigSchema;
-  // TODO Add plugin match
 };
+
+export type ConnectionAuthMethodKey<
+  T extends ConnectionType | ConnectionTypeKey,
+> = LookupConnectionType<T>['authMethods'][number]['method'];

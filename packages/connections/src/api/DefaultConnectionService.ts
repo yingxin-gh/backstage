@@ -23,11 +23,13 @@ import {
   getConnectionType,
   isConnectionTypeKey,
 } from '../definitions';
+import { ConnectionAuthMethodKey } from './ConnectionType';
 import { Connection, RootConnection } from './Connection';
 import { JsonObject } from '@backstage/types';
-import { InputError } from '@backstage/errors';
+import { InputError, NotAllowedError } from '@backstage/errors';
 import { z } from 'zod/v4';
 import { getLegacyIntegrations } from '../system/getLegacyIntegrations';
+import { combineConnectionSources } from '../system/combineConnectionSources';
 
 function describeError(error: unknown): string {
   if (error instanceof z.ZodError) {
@@ -52,20 +54,57 @@ class PluginConnectionsService implements ConnectionsService {
     this.connections = connections;
   }
 
-  // Allow filtering by auth method, should be connection type aware?
-  async find<TType extends ConnectionTypeKey>({
+  async find<
+    TType extends ConnectionTypeKey,
+    TAuthMethod extends ConnectionAuthMethodKey<TType>,
+  >({
     type,
-    host,
+    url,
+    authMethods,
   }: {
     type: TType;
-    host: string;
-  }): Promise<Connection<TType> | undefined> {
+    url: string;
+    authMethods: readonly [TAuthMethod, ...TAuthMethod[]];
+  }): Promise<Connection<TType, TAuthMethod> | undefined> {
     this.logger.debug(
-      `Finding connection of type "${type}" matching host "${host}"`,
+      `Finding connection of type "${type}" matching url "${url}"`,
     );
-    return this.connections.find(
+
+    const host = new URL(url).host;
+
+    const connection = this.connections.find(
       c => c.type === type && (c as { host?: unknown }).host === host,
     ) as Connection<TType> | undefined;
+
+    if (!connection || connection.auth.length === 0) {
+      return undefined;
+    }
+
+    const matchAuth = getConnectionType(type).matchAuth as
+      | ((authMethods: any[], query: string) => any | undefined)
+      | undefined;
+
+    // We take the host-matched connection and check to see if there's an auth method better suited to the current url
+    // e.g. org selection
+    const selected = matchAuth?.(connection.auth, url) ?? connection.auth[0];
+
+    // We don't allow a connection without an auth method
+    // No auth method should be { auth: { method: 'none' } }
+    if (!selected) {
+      return undefined;
+    }
+
+    // Now we compare user requested auth methods with what the connection can provide
+    if (!(authMethods as readonly string[]).includes(selected.method)) {
+      throw new NotAllowedError(
+        `Connection not found for type "${type}" with auth method "${selected.method}"`,
+      );
+    }
+
+    return {
+      ...connection,
+      auth: selected,
+    } as Connection<TType, TAuthMethod>;
   }
 }
 
@@ -85,21 +124,36 @@ export class DefaultConnectionsService {
     logger: LoggerService;
     config: RootConfigService;
   }): DefaultConnectionsService {
-    // Create merged config (legacy integrations)
-
     return new DefaultConnectionsService(options.logger, options.config);
   }
 
   #registerConnectionsFromConfig(): void {
-    const cons = this.#readConnectionsFromConfig();
+    const legacy = this.#validateAll(getLegacyIntegrations(this.config));
+    const fromConfig = this.#validateAll(
+      (this.config.getOptional('connections') as JsonObject[] | undefined) ??
+        [],
+    );
 
-    if (cons.length === 0) {
+    if (legacy.length === 0 && fromConfig.length === 0) {
       return;
     }
 
-    cons.forEach((v: JsonObject) => {
+    this.connections.push(
+      ...combineConnectionSources(legacy, fromConfig, this.logger),
+    );
+
+    this.logger.info(
+      `Loaded ${this.connections.length} connection${
+        this.connections.length === 1 ? '' : 's'
+      } from configuration`,
+    );
+  }
+
+  #validateAll(raw: JsonObject[]): RootConnection[] {
+    const result: RootConnection[] = [];
+    for (const v of raw) {
       try {
-        this.connections.push(this.#validateConnection(v));
+        result.push(this.#validateConnection(v));
       } catch (e) {
         const type = typeof v.type === 'string' ? v.type : 'unknown';
         this.logger.error(
@@ -108,21 +162,8 @@ export class DefaultConnectionsService {
           )}`,
         );
       }
-    });
-
-    this.logger.info(
-      `Validated ${this.connections.length} of ${cons.length} connection${
-        cons.length === 1 ? '' : 's'
-      } from configuration`,
-    );
-  }
-
-  #readConnectionsFromConfig(): JsonObject[] {
-    const fromConfig =
-      (this.config.getOptional('connections') as JsonObject[] | undefined) ??
-      [];
-    const fromLegacy = getLegacyIntegrations(this.config);
-    return [...fromLegacy, ...fromConfig];
+    }
+    return result;
   }
 
   #validateConnection(connection: JsonObject): RootConnection {
@@ -150,18 +191,20 @@ export class DefaultConnectionsService {
         return [];
       }
 
-      const matchingAuth = auth.reduce<Connection['auth']>(
-        (acc, { match: authMatch, ...authRest }) => {
-          if (authMatch && !authMatch.plugins.includes(pluginId)) {
-            return acc;
-          }
-          acc.push(authRest as Connection['auth'][number]);
-          return acc;
-        },
-        [],
-      );
+      const pluginMatched: Connection['auth'] = [];
+      const unmatched: Connection['auth'] = [];
+      for (const { match: authMatch, ...authRest } of auth) {
+        if (authMatch) {
+          if (!authMatch.plugins.includes(pluginId)) continue;
+          pluginMatched.push(authRest as Connection['auth'][number]);
+        } else {
+          unmatched.push(authRest as Connection['auth'][number]);
+        }
+      }
 
-      return [{ ...rest, auth: matchingAuth } as Connection];
+      return [
+        { ...rest, auth: [...pluginMatched, ...unmatched] } as Connection,
+      ];
     });
   }
 

@@ -17,7 +17,7 @@ import { z } from 'zod/v4';
 import type {
   ConnectionAuthMethod,
   ConnectionType,
-  ReservedConnectionFields,
+  MatchAuth,
   WithoutReservedFields,
 } from '../api/ConnectionType';
 
@@ -34,10 +34,12 @@ export function createConnectionType<
   configSchema,
   type,
   authMethods,
+  matchAuth,
 }: {
   type: TType;
-  configSchema: WithoutReservedFields<TConfigSchema, ReservedConnectionFields>;
+  configSchema: WithoutReservedFields<TConfigSchema>;
   authMethods: TAuthMethods;
+  matchAuth?: MatchAuth<TAuthMethods>;
 }): ConnectionType<TType, TConfigSchema, TAuthMethods> {
   const authOptions = authMethods.map(am =>
     am.configSchema
@@ -47,7 +49,8 @@ export function createConnectionType<
       })
       .strict(),
   );
-  const schema = (configSchema as TConfigSchema)
+  const validated = configSchema as unknown as TConfigSchema;
+  const schema = validated
     .extend({
       type: z.literal(type),
       match: matchSchema,
@@ -63,8 +66,9 @@ export function createConnectionType<
     .strict();
   return {
     type,
-    configSchema: configSchema as TConfigSchema,
+    configSchema: validated,
     authMethods,
     schema,
+    matchAuth,
   };
 }

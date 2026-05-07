@@ -15,10 +15,15 @@
  */
 import { ConnectionTypeKey } from '../definitions';
 import { Connection } from './Connection';
+import { ConnectionAuthMethodKey } from './ConnectionType';
 
 export interface ConnectionsService {
-  find<TType extends ConnectionTypeKey>(options: {
+  find<
+    TType extends ConnectionTypeKey,
+    TAuthMethod extends ConnectionAuthMethodKey<TType>,
+  >(options: {
     type: TType;
-    host: string;
-  }): Promise<Connection<TType> | undefined>;
+    url: string;
+    authMethods: readonly [TAuthMethod, ...TAuthMethod[]];
+  }): Promise<Connection<TType, TAuthMethod> | undefined>;
 }

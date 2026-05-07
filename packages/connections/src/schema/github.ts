@@ -42,22 +42,19 @@ export const GithubConnectionType = createConnectionType({
         clientId: z.string(),
         clientSecret: z.string(),
         webhookSecret: z.string().optional(),
-        allowedOwners: z.array(z.string()).optional(),
         publicAccess: z.boolean().optional(),
-        organizations: z.array(z.string()).optional(),
+        orgs: z.array(z.string()).optional(),
       }),
     },
   ],
   matchAuth: (authMethods, query) => {
     const org = new URL(query).pathname.split('/').filter(Boolean)[0];
     const apps = authMethods.filter(a => a.method === 'app');
-    const appWithOrg = org
-      ? apps.find(a => a.allowedOwners?.includes(org))
-      : undefined;
+    const appWithOrg = org ? apps.find(a => a.orgs?.includes(org)) : undefined;
     if (appWithOrg) return appWithOrg;
-    const unrestrictedApp = apps.find(a => !a.allowedOwners?.length);
+    const unrestrictedApp = apps.find(a => !a.orgs?.length);
     if (unrestrictedApp) return unrestrictedApp;
-    if (apps[0]) return apps[0];
+
     return (
       authMethods.find(a => a.method === 'token') ??
       authMethods.find(a => a.method === 'none')

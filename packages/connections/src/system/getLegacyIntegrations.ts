@@ -104,7 +104,7 @@ function convertGithubApp(app: Config): JsonObject {
     clientId: app.getOptionalString('clientId'),
     clientSecret: app.getOptionalString('clientSecret'),
     webhookSecret: app.getOptionalString('webhookSecret'),
-    allowedOwners: app.getOptionalStringArray('allowedInstallationOwners'),
+    orgs: app.getOptionalStringArray('allowedInstallationOwners'),
     publicAccess: app.getOptionalBoolean('publicAccess'),
   });
 }
@@ -129,7 +129,7 @@ function convertAzure(entries: Config[]): JsonObject[] {
 }
 
 function convertAzureCredential(credential: Config): JsonObject | undefined {
-  const organizations = credential.getOptionalStringArray('organizations');
+  const orgs = credential.getOptionalStringArray('organizations');
   const personalAccessToken = credential.getOptionalString(
     'personalAccessToken',
   );
@@ -137,7 +137,7 @@ function convertAzureCredential(credential: Config): JsonObject | undefined {
     return omitUndefined({
       method: 'pat',
       personalAccessToken,
-      organizations,
+      orgs,
     });
   }
 
@@ -148,7 +148,7 @@ function convertAzureCredential(credential: Config): JsonObject | undefined {
       clientId: credential.getOptionalString('clientId'),
       clientSecret,
       tenantId: credential.getOptionalString('tenantId'),
-      organizations,
+      orgs,
     });
   }
 
@@ -161,7 +161,7 @@ function convertAzureCredential(credential: Config): JsonObject | undefined {
       managedIdentityClientId: credential.getOptionalString(
         'managedIdentityClientId',
       ),
-      organizations,
+      orgs,
     });
   }
 

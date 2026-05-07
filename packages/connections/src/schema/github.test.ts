@@ -17,7 +17,7 @@ import { mockServices } from '@backstage/backend-test-utils';
 import { DefaultConnectionsService } from '../api';
 
 describe('matchAuth', () => {
-  it('picks the app whose allowedOwners contains the URL org', async () => {
+  it('picks the app whose orgs contains the URL org', async () => {
     const service = DefaultConnectionsService.create({
       logger: mockServices.logger.mock(),
       config: mockServices.rootConfig({
@@ -33,7 +33,7 @@ describe('matchAuth', () => {
                   privateKey: 'pk-acme',
                   clientId: 'client-acme',
                   clientSecret: 'secret-acme',
-                  allowedOwners: ['acme'],
+                  orgs: ['acme'],
                 },
                 {
                   method: 'app',
@@ -41,7 +41,7 @@ describe('matchAuth', () => {
                   privateKey: 'pk-widgets',
                   clientId: 'client-widgets',
                   clientSecret: 'secret-widgets',
-                  allowedOwners: ['widgets'],
+                  orgs: ['widgets'],
                 },
               ],
             },
@@ -66,7 +66,7 @@ describe('matchAuth', () => {
     expect((widgets?.auth as { appId: number }).appId).toBe(2);
   });
 
-  it('falls back to the unrestricted app when no allowedOwners matches', async () => {
+  it('falls back to the unrestricted app when no orgs matches', async () => {
     const service = DefaultConnectionsService.create({
       logger: mockServices.logger.mock(),
       config: mockServices.rootConfig({
@@ -82,7 +82,7 @@ describe('matchAuth', () => {
                   privateKey: 'pk-widgets',
                   clientId: 'client-widgets',
                   clientSecret: 'secret-widgets',
-                  allowedOwners: ['widgets'],
+                  orgs: ['widgets'],
                 },
                 {
                   method: 'app',
@@ -107,7 +107,7 @@ describe('matchAuth', () => {
     expect((connection?.auth as { appId: number }).appId).toBe(3);
   });
 
-  it('throws when matchAuth picks an app but the caller only declared token', async () => {
+  it('does not return an app scoped to a different org when the requested org has no app', async () => {
     const service = DefaultConnectionsService.create({
       logger: mockServices.logger.mock(),
       config: mockServices.rootConfig({
@@ -123,11 +123,7 @@ describe('matchAuth', () => {
                   privateKey: 'pk-widgets',
                   clientId: 'client-widgets',
                   clientSecret: 'secret-widgets',
-                  allowedOwners: ['widgets'],
-                },
-                {
-                  method: 'token',
-                  token: 'abc',
+                  orgs: ['widgets'],
                 },
               ],
             },
@@ -136,16 +132,46 @@ describe('matchAuth', () => {
       }),
     });
 
-    // matchAuth picks the org-matched app for /acme/...; caller declared
-    // only ['token'], so this is a capability mismatch and must throw.
+    await expect(
+      service.forPlugin('catalog').find({
+        type: 'github',
+        url: 'https://matchauth.example.com/acme/repo',
+        authMethods: ['app'],
+      }),
+    ).rejects.toThrow(/Connection not found for type "github"/);
+  });
+
+  it('matchAuth returns undefined when trying to fetch a token that doesnt exist', async () => {
+    const service = DefaultConnectionsService.create({
+      logger: mockServices.logger.mock(),
+      config: mockServices.rootConfig({
+        data: {
+          connections: [
+            {
+              type: 'github',
+              host: 'matchauth.example.com',
+              auth: [
+                {
+                  method: 'app',
+                  appId: 2,
+                  privateKey: 'pk-widgets',
+                  clientId: 'client-widgets',
+                  clientSecret: 'secret-widgets',
+                  orgs: ['widgets'],
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    });
+
     await expect(
       service.forPlugin('catalog').find({
         type: 'github',
         url: 'https://matchauth.example.com/acme/repo',
         authMethods: ['token'],
       }),
-    ).rejects.toThrow(
-      /Connection not found for type "github" with auth method "app"/,
-    );
+    ).rejects.toThrow(/Connection not found for type "github"/);
   });
 });

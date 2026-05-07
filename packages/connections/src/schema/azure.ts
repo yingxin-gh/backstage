@@ -30,7 +30,7 @@ export const AzureConnectionType = createConnectionType({
       method: 'pat',
       configSchema: z.object({
         personalAccessToken: z.string(),
-        organizations: z.array(z.string()).optional(),
+        orgs: z.array(z.string()).optional(),
       }),
     },
     {
@@ -39,7 +39,7 @@ export const AzureConnectionType = createConnectionType({
         clientId: z.string(),
         clientSecret: z.string(),
         tenantId: z.string(),
-        organizations: z.array(z.string()).optional(),
+        orgs: z.array(z.string()).optional(),
       }),
     },
     {
@@ -48,7 +48,7 @@ export const AzureConnectionType = createConnectionType({
         clientId: z.string(),
         tenantId: z.string().optional(),
         managedIdentityClientId: z.string().optional(),
-        organizations: z.array(z.string()).optional(),
+        orgs: z.array(z.string()).optional(),
       }),
     },
   ],

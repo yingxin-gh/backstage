@@ -136,7 +136,7 @@ describe('getLegacyIntegrations', () => {
               clientId: 'client-2',
               clientSecret: 'secret-2',
               webhookSecret: 'whsec',
-              allowedOwners: ['acme', 'widgets'],
+              orgs: ['acme', 'widgets'],
               publicAccess: true,
             },
           ],
@@ -516,7 +516,7 @@ describe('getLegacyIntegrations', () => {
             {
               method: 'pat',
               personalAccessToken: 'pat-token',
-              organizations: ['acme'],
+              orgs: ['acme'],
             },
             {
               method: 'clientCredentials',

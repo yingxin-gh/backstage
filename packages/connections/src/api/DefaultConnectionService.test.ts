@@ -65,7 +65,7 @@ describe('DefaultConnectionsService', () => {
         ]),
       });
 
-      const connection = await service.forPlugin('catalog').find({
+      const connection = await service.forPlugin('catalog').findOptional({
         type: 'github',
         url: 'https://enterprise.example.com/foo',
         authMethods: ['app'],
@@ -145,7 +145,7 @@ describe('DefaultConnectionsService', () => {
       expect(splitForScaffolder?.auth.method).toBe('app');
     });
 
-    it('returns undefined for hosts that are not configured', async () => {
+    it('returns undefined from findOptional for hosts that are not configured', async () => {
       const service = DefaultConnectionsService.create({
         logger: mockServices.logger.mock(),
         config: mockConnectionsConfig([
@@ -157,12 +157,33 @@ describe('DefaultConnectionsService', () => {
         ]),
       });
 
-      const connection = await service.forPlugin('catalog').find({
+      const connection = await service.forPlugin('catalog').findOptional({
         type: 'github',
         url: 'https://missing.example.com/foo',
         authMethods: ['token'],
       });
       expect(connection).toBeUndefined();
+    });
+
+    it('throws from find for hosts that are not configured', async () => {
+      const service = DefaultConnectionsService.create({
+        logger: mockServices.logger.mock(),
+        config: mockConnectionsConfig([
+          {
+            type: 'github',
+            host: 'github.com',
+            auth: [{ method: 'token', token: 'public-token' }],
+          },
+        ]),
+      });
+
+      await expect(
+        service.forPlugin('catalog').find({
+          type: 'github',
+          url: 'https://missing.example.com/foo',
+          authMethods: ['token'],
+        }),
+      ).rejects.toThrow(/Connection not found for type "github"/);
     });
   });
 
@@ -206,12 +227,12 @@ describe('DefaultConnectionsService', () => {
             type: 'github',
             host: 'specific.example.com',
             auth: [
-              { method: 'token', token: 'general-token' },
               {
                 method: 'token',
                 token: 'catalog-token',
                 match: { plugins: ['catalog'] },
               },
+              { method: 'token', token: 'general-token' },
             ],
           },
         ]),
@@ -227,12 +248,80 @@ describe('DefaultConnectionsService', () => {
         'general-token',
       );
     });
+
+    it('should always return the first auth', async () => {
+      const service = DefaultConnectionsService.create({
+        logger: mockServices.logger.mock(),
+        config: mockConnectionsConfig([
+          {
+            type: 'gitlab',
+            host: 'gitlab.com',
+            auth: [
+              { method: 'token', token: 'first-token' },
+              { method: 'token', token: 'second-token' },
+            ],
+          },
+        ]),
+      });
+
+      const connection = await service.forPlugin('catalog').find({
+        type: 'gitlab',
+        url: 'https://gitlab.com/my-org/my-repo',
+        authMethods: ['token'],
+      });
+
+      expect(connection?.auth.method).toBe('token');
+      expect((connection?.auth as { token: string }).token).toBe('first-token');
+    });
+
+    it('returns the auth scoped to the requesting plugin when auths are split by plugin', async () => {
+      const service = DefaultConnectionsService.create({
+        logger: mockServices.logger.mock(),
+        config: mockConnectionsConfig([
+          {
+            type: 'gitlab',
+            host: 'gitlab.com',
+            auth: [
+              {
+                method: 'token',
+                token: 'scaffolder-token',
+                match: { plugins: ['scaffolder'] },
+              },
+              {
+                method: 'token',
+                token: 'catalog-token',
+                match: { plugins: ['catalog'] },
+              },
+            ],
+          },
+        ]),
+      });
+
+      const forCatalog = await service.forPlugin('catalog').find({
+        type: 'gitlab',
+        url: 'https://gitlab.com/my-org/my-repo',
+        authMethods: ['token'],
+      });
+      const forScaffolder = await service.forPlugin('scaffolder').find({
+        type: 'gitlab',
+        url: 'https://gitlab.com/my-org/my-repo',
+        authMethods: ['token'],
+      });
+
+      expect((forCatalog?.auth as { token: string }).token).toBe(
+        'catalog-token',
+      );
+      expect((forScaffolder?.auth as { token: string }).token).toBe(
+        'scaffolder-token',
+      );
+    });
   });
 
   describe('legacy integrations', () => {
-    it('exposes a github integration as a connection via forPlugin', async () => {
+    it('merges legacy and connections entries when types do not conflict', async () => {
+      const logger = mockServices.logger.mock();
       const service = DefaultConnectionsService.create({
-        logger: mockServices.logger.mock(),
+        logger,
         config: mockServices.rootConfig({
           data: {
             integrations: {
@@ -252,34 +341,6 @@ describe('DefaultConnectionsService', () => {
                 },
               ],
             },
-          },
-        }),
-      });
-
-      const connection = await service.forPlugin('catalog').find({
-        type: 'github',
-        url: 'https://enterprise.example.com/foo',
-        authMethods: ['token', 'app'],
-      });
-
-      // matchAuth's priority chain prefers `app` over `token` when an app
-      // is available.
-      expect(connection?.host).toBe('enterprise.example.com');
-      expect(connection?.apiBaseUrl).toBe(
-        'https://enterprise.example.com/api/v3',
-      );
-      expect(connection?.auth.method).toBe('app');
-    });
-
-    it('keeps legacy and connections entries from different types side by side', async () => {
-      const logger = mockServices.logger.mock();
-      const service = DefaultConnectionsService.create({
-        logger,
-        config: mockServices.rootConfig({
-          data: {
-            integrations: {
-              github: [{ host: 'github.com', token: 'legacy-gh-token' }],
-            },
             connections: [
               {
                 type: 'gitlab',
@@ -294,11 +355,14 @@ describe('DefaultConnectionsService', () => {
 
       const gh = await catalog.find({
         type: 'github',
-        url: 'https://github.com/foo',
-        authMethods: ['token'],
+        url: 'https://enterprise.example.com/foo',
+        authMethods: ['token', 'app'],
       });
-      expect(gh?.host).toBe('github.com');
-      expect((gh?.auth as { token: string }).token).toBe('legacy-gh-token');
+      // matchAuth's priority chain prefers `app` over `token` when an app
+      // is available.
+      expect(gh?.host).toBe('enterprise.example.com');
+      expect(gh?.apiBaseUrl).toBe('https://enterprise.example.com/api/v3');
+      expect(gh?.auth.method).toBe('app');
 
       const gl = await catalog.find({
         type: 'gitlab',
@@ -313,59 +377,9 @@ describe('DefaultConnectionsService', () => {
       expect(logger.warn).not.toHaveBeenCalled();
     });
 
-    it('discards all legacy integrations of a type when the same type appears in connections config', async () => {
+    it('discards all legacy entries of a conflicting type and logs one warning', async () => {
       const logger = mockServices.logger.mock();
       const service = DefaultConnectionsService.create({
-        logger,
-        config: mockServices.rootConfig({
-          data: {
-            integrations: {
-              github: [
-                { host: 'github.com', token: 'legacy-public' },
-                { host: 'enterprise.example.com', token: 'legacy-enterprise' },
-              ],
-            },
-            connections: [
-              {
-                type: 'github',
-                host: 'config.example.com',
-                auth: [{ method: 'token', token: 'config-token' }],
-              },
-            ],
-          },
-        }),
-      });
-      const catalog = service.forPlugin('catalog');
-
-      const gone1 = await catalog.find({
-        type: 'github',
-        url: 'https://github.com/foo',
-        authMethods: ['token'],
-      });
-      const gone2 = await catalog.find({
-        type: 'github',
-        url: 'https://enterprise.example.com/foo',
-        authMethods: ['token'],
-      });
-      expect(gone1).toBeUndefined();
-      expect(gone2).toBeUndefined();
-
-      const kept = await catalog.find({
-        type: 'github',
-        url: 'https://config.example.com/foo',
-        authMethods: ['token'],
-      });
-      expect(kept?.host).toBe('config.example.com');
-      expect((kept?.auth as { token: string }).token).toBe('config-token');
-
-      expect(logger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('github'),
-      );
-    });
-
-    it('logs a single warning per discarded legacy type, regardless of how many entries existed', () => {
-      const logger = mockServices.logger.mock();
-      DefaultConnectionsService.create({
         logger,
         config: mockServices.rootConfig({
           data: {
@@ -380,14 +394,40 @@ describe('DefaultConnectionsService', () => {
               {
                 type: 'github',
                 host: 'config.example.com',
-                auth: [{ method: 'token', token: 'ct' }],
+                auth: [{ method: 'token', token: 'config-token' }],
               },
             ],
           },
         }),
       });
+      const catalog = service.forPlugin('catalog');
+
+      for (const url of [
+        'https://a.example.com/foo',
+        'https://b.example.com/foo',
+        'https://c.example.com/foo',
+      ]) {
+        expect(
+          await catalog.findOptional({
+            type: 'github',
+            url,
+            authMethods: ['token'],
+          }),
+        ).toBeUndefined();
+      }
+
+      const kept = await catalog.find({
+        type: 'github',
+        url: 'https://config.example.com/foo',
+        authMethods: ['token'],
+      });
+      expect(kept?.host).toBe('config.example.com');
+      expect((kept?.auth as { token: string }).token).toBe('config-token');
 
       expect(logger.warn).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('github'),
+      );
     });
   });
 
@@ -466,7 +506,7 @@ describe('DefaultConnectionsService', () => {
       );
     });
 
-    it('returns undefined for an unconfigured host regardless of authMethods', async () => {
+    it('findOptional returns undefined for an unconfigured host regardless of authMethods', async () => {
       const service = DefaultConnectionsService.create({
         logger: mockServices.logger.mock(),
         config: mockConnectionsConfig([
@@ -478,7 +518,7 @@ describe('DefaultConnectionsService', () => {
         ]),
       });
 
-      const connection = await service.forPlugin('catalog').find({
+      const connection = await service.forPlugin('catalog').findOptional({
         type: 'github',
         url: 'https://missing.example.com/foo',
         authMethods: ['token'],

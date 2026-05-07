@@ -26,7 +26,7 @@ import {
 import { ConnectionAuthMethodKey } from './ConnectionType';
 import { Connection, RootConnection } from './Connection';
 import { JsonObject } from '@backstage/types';
-import { InputError, NotAllowedError } from '@backstage/errors';
+import { InputError, NotAllowedError, NotFoundError } from '@backstage/errors';
 import { z } from 'zod/v4';
 import { getLegacyIntegrations } from '../system/getLegacyIntegrations';
 import { combineConnectionSources } from '../system/combineConnectionSources';
@@ -55,6 +55,23 @@ class PluginConnectionsService implements ConnectionsService {
   }
 
   async find<
+    TType extends ConnectionTypeKey,
+    TAuthMethod extends ConnectionAuthMethodKey<TType>,
+  >(options: {
+    type: TType;
+    url: string;
+    authMethods: readonly [TAuthMethod, ...TAuthMethod[]];
+  }): Promise<Connection<TType, TAuthMethod>> {
+    const result = await this.findOptional(options);
+    if (!result) {
+      throw new NotFoundError(
+        `Connection not found for type "${options.type}" matching url "${options.url}"`,
+      );
+    }
+    return result;
+  }
+
+  async findOptional<
     TType extends ConnectionTypeKey,
     TAuthMethod extends ConnectionAuthMethodKey<TType>,
   >({
@@ -86,10 +103,10 @@ class PluginConnectionsService implements ConnectionsService {
 
     // We take the host-matched connection and check to see if there's an auth method better suited to the current url
     // e.g. org selection
-    const selected = matchAuth?.(connection.auth, url) ?? connection.auth[0];
+    const selected = matchAuth
+      ? matchAuth(connection.auth, url)
+      : connection.auth[0];
 
-    // We don't allow a connection without an auth method
-    // No auth method should be { auth: { method: 'none' } }
     if (!selected) {
       return undefined;
     }
@@ -133,6 +150,18 @@ export class DefaultConnectionsService {
       (this.config.getOptional('connections') as JsonObject[] | undefined) ??
         [],
     );
+
+    const seen = new Set<string>();
+    for (const c of fromConfig) {
+      const host = (c as unknown as { host: string }).host;
+      const key = `${c.type} ${host}`;
+      if (seen.has(key)) {
+        throw new InputError(
+          `Duplicate connection of type "${c.type}" for host "${host}"`,
+        );
+      }
+      seen.add(key);
+    }
 
     if (legacy.length === 0 && fromConfig.length === 0) {
       return;

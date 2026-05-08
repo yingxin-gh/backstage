@@ -566,51 +566,61 @@ describe('DefaultConnectionsService', () => {
     });
   });
 
-  describe('config validation', () => {
-    it('logs the failing field when a connection is missing a required value', () => {
-      const logger = mockServices.logger.mock();
-      DefaultConnectionsService.create({
-        logger,
+  describe('invalid input', () => {
+    it('throws an InputError when the url cannot be parsed', async () => {
+      const service = DefaultConnectionsService.create({
+        logger: mockServices.logger.mock(),
         config: mockConnectionsConfig([
           {
             type: 'github',
             host: 'github.com',
-            // Token auth is missing the required `token` field.
-            auth: [{ method: 'token' }],
+            auth: [{ method: 'token', token: 'public-token' }],
           },
         ]),
       });
 
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('connection of type "github"'),
-      );
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid input: expected string'),
-      );
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('at auth[0].token'),
-      );
+      await expect(
+        service.forPlugin('catalog').find({
+          type: 'github',
+          url: 'not a url',
+          authMethods: ['token'],
+        }),
+      ).rejects.toThrow(/Invalid url/);
+    });
+  });
+
+  describe('config validation', () => {
+    it('throws with the failing field when a connection is missing a required value', () => {
+      expect(() =>
+        DefaultConnectionsService.create({
+          logger: mockServices.logger.mock(),
+          config: mockConnectionsConfig([
+            {
+              type: 'github',
+              host: 'github.com',
+              // Token auth is missing the required `token` field.
+              auth: [{ method: 'token' }],
+            },
+          ]),
+        }),
+      ).toThrow(/Invalid connection of type "github".*at auth\[0\]\.token/s);
     });
 
-    it('logs the offending field when a connection has an unknown property', () => {
-      const logger = mockServices.logger.mock();
-      DefaultConnectionsService.create({
-        logger,
-        config: mockConnectionsConfig([
-          {
-            type: 'github',
-            host: 'github.com',
-            host2: 'github.com',
-            auth: [{ method: 'token', token: 'abc' }],
-          },
-        ]),
-      });
-
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('connection of type "github"'),
-      );
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Unrecognized key: "host2"'),
+    it('throws with the offending field when a connection has an unknown property', () => {
+      expect(() =>
+        DefaultConnectionsService.create({
+          logger: mockServices.logger.mock(),
+          config: mockConnectionsConfig([
+            {
+              type: 'github',
+              host: 'github.com',
+              host2: 'github.com',
+              auth: [{ method: 'token', token: 'abc' }],
+            },
+          ]),
+        }),
+      ).toThrow(
+        /Invalid connection of type "github".*Unrecognized key: "host2"/s,
       );
     });
   });

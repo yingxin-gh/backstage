@@ -87,14 +87,27 @@ class PluginConnectionsService implements ConnectionsService {
       `Finding connection of type "${type}" matching url "${url}"`,
     );
 
-    const host = new URL(url).host;
+    let host: string;
+    try {
+      host = new URL(url).host;
+    } catch {
+      throw new InputError(
+        `Invalid url "${url}" passed to ConnectionsService.find`,
+      );
+    }
 
     const connection = this.connections.find(
       c => c.type === type && (c as { host?: unknown }).host === host,
     ) as Connection<TType> | undefined;
 
-    if (!connection || connection.auth.length === 0) {
+    if (!connection) {
       return undefined;
+    }
+
+    if (connection.auth.length === 0) {
+      throw new NotAllowedError(
+        `Connection of type "${type}" for host "${host}" has no auth method available to this plugin`,
+      );
     }
 
     const matchAuth = getConnectionType(type).matchAuth as
@@ -145,14 +158,22 @@ export class DefaultConnectionsService {
   }
 
   #registerConnectionsFromConfig(): void {
-    const legacy = this.#validateAll(getLegacyIntegrations(this.config));
-    const fromConfig = this.#validateAll(
+    const legacy = this.#validateLegacy(getLegacyIntegrations(this.config));
+    const fromConfig = this.#validateConfig(
       (this.config.getOptional('connections') as JsonObject[] | undefined) ??
         [],
     );
 
+    if (legacy.length === 0 && fromConfig.length === 0) {
+      return;
+    }
+
+    this.connections.push(
+      ...combineConnectionSources(legacy, fromConfig, this.logger),
+    );
+
     const seen = new Set<string>();
-    for (const c of fromConfig) {
+    for (const c of this.connections) {
       const host = (c as unknown as { host: string }).host;
       const key = `${c.type} ${host}`;
       if (seen.has(key)) {
@@ -163,14 +184,6 @@ export class DefaultConnectionsService {
       seen.add(key);
     }
 
-    if (legacy.length === 0 && fromConfig.length === 0) {
-      return;
-    }
-
-    this.connections.push(
-      ...combineConnectionSources(legacy, fromConfig, this.logger),
-    );
-
     this.logger.info(
       `Loaded ${this.connections.length} connection${
         this.connections.length === 1 ? '' : 's'
@@ -178,7 +191,22 @@ export class DefaultConnectionsService {
     );
   }
 
-  #validateAll(raw: JsonObject[]): RootConnection[] {
+  #validateConfig(raw: JsonObject[]): RootConnection[] {
+    return raw.map(v => {
+      try {
+        return this.#validateConnection(v);
+      } catch (e) {
+        const type = typeof v.type === 'string' ? v.type : 'unknown';
+        throw new InputError(
+          `Invalid connection of type "${type}" in connections config:\n${describeError(
+            e,
+          )}`,
+        );
+      }
+    });
+  }
+
+  #validateLegacy(raw: JsonObject[]): RootConnection[] {
     const result: RootConnection[] = [];
     for (const v of raw) {
       try {

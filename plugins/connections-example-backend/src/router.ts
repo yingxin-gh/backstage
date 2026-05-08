@@ -39,23 +39,32 @@ export async function createRouter({
       return;
     }
 
-    if (!p.host) {
-      res.status(400).json('Host not specified');
+    if (!p.url) {
+      res.status(400).json('URL not specified');
+      return;
     }
 
-    const query: { type: ConnectionTypeKey; host: string } = {
+    const rawAuth = p.auth;
+    let authMethods: string[];
+    if (!rawAuth) {
+      authMethods = ['none'];
+    } else if (Array.isArray(rawAuth)) {
+      authMethods = rawAuth as string[];
+    } else {
+      authMethods = [rawAuth];
+    }
+
+    const connection = await connections.findOptional({
       type: p.type as ConnectionTypeKey,
-      host: p.host,
-    };
+      url: p.url,
+      authMethods: authMethods as any,
+    });
 
-    // const credentials = await httpAuth.credentials(req, {allow: ['user']});
-    const v = await connections.find(query);
-
-    if (!v) {
+    if (!connection) {
       res.status(400).json('Cannot find connection');
       return;
     }
-    res.status(201).json(v);
+    res.status(201).json(connection);
   });
 
   return router;

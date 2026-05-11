@@ -45,6 +45,8 @@ backend:
 
 In addition to plugin-level restrictions, the Actions Service supports filtering actions using include and exclude rules. This allows fine-grained control over which actions are exposed or runnable in a Backstage instance.
 
+Actions can be filtered by `id` (using glob patterns) or by their attributes (`destructive`, `readOnly`, or `idempotent`).
+
 #### Include specific actions
 
 ```yaml
@@ -52,7 +54,9 @@ backend:
   actions:
     filter:
       include:
-        - 'catalog.*'
+        - id: 'catalog:*'
+        - attributes:
+            destructive: false
 ```
 
 #### Exclude specific actions
@@ -62,7 +66,9 @@ backend:
   actions:
     filter:
       exclude:
-        - 'scaffolder.internal.*'
+        - id: '*:delete-*'
+        - attributes:
+            readOnly: false
 ```
 
 ### Permissions

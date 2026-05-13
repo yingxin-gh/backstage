@@ -15,8 +15,8 @@
  */
 
 import { Entity, CompoundEntityRef } from '@backstage/catalog-model';
-import { TableColumn } from '@backstage/core-components';
-import { JSX } from 'react';
+import type { TableColumn } from '@backstage/core-components';
+import type { JSX } from 'react';
 
 /**
  * Generic representing the metadata structure for a docs table row.

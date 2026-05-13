@@ -17,7 +17,7 @@ import { FC } from 'react';
 import { FetchApi } from '@backstage/core-plugin-api';
 import { IdentityApi } from '@backstage/core-plugin-api';
 import { JSX as JSX_2 } from 'react/jsx-runtime';
-import { JSX as JSX_3 } from 'react';
+import type { JSX as JSX_3 } from 'react';
 import { Overrides } from '@material-ui/core/styles/overrides';
 import { PropsWithChildren } from 'react';
 import { ReactNode } from 'react';

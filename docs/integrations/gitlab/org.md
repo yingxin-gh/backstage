@@ -66,7 +66,7 @@ Install and configure `@backstage/plugin-events-backend-module-gitlab` as descri
 
 ### Receiving events in Backstage
 
-Set up how your backstage instance recieves these events using one of the options below:
+Set up how your backstage instance receives these events using one of the options below:
 
 - [Events Setup using HTTP endpoint](./discovery.md#events-setup-using-http-endpoint)
 - [Events Setup using AWS SQS module](./discovery.md#events-setup-using-aws-sqs-module)

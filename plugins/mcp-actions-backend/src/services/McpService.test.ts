@@ -1104,6 +1104,7 @@ describe('McpService', () => {
         actions: mockActionsRegistry,
         metrics: metricsServiceMock.mock(),
         tracingService: opts.tracing,
+        auditor: mockServices.auditor.mock(),
         captureToolPayloads: opts.captureToolPayloads,
       });
 
@@ -1278,6 +1279,7 @@ describe('McpService', () => {
         actions: mockActionsRegistry,
         metrics: metricsServiceMock.mock(),
         tracingService: tracing,
+        auditor: mockServices.auditor.mock(),
         captureToolPayloads: true,
       });
 

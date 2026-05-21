@@ -94,6 +94,7 @@ export class DefaultActionsService implements ActionsService {
   async invoke(opts: {
     id: string;
     input?: JsonObject;
+    secrets?: JsonObject;
     credentials: BackstageCredentials;
   }) {
     const pluginId = this.pluginIdFromActionId(opts.id);
@@ -105,9 +106,10 @@ export class DefaultActionsService implements ActionsService {
       credentials: opts.credentials,
       options: {
         method: 'POST',
-        body: JSON.stringify(opts.input),
+        body: JSON.stringify({ input: opts.input, secrets: opts.secrets }),
         headers: {
           'Content-Type': 'application/json',
+          'X-Actions-Body-Version': '2',
         },
       },
     });

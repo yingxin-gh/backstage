@@ -34,10 +34,10 @@ import {
 import { InputError, NotAllowedError, NotFoundError } from '@backstage/errors';
 import { AuthorizeResult } from '@backstage/plugin-permission-common';
 
-type ActionEntry = [string, ActionsRegistryActionOptions<any, any>];
+type ActionEntry = [string, ActionsRegistryActionOptions<any, any, any>];
 
 export class DefaultActionsRegistryService implements ActionsRegistryService {
-  private actions: Map<string, ActionsRegistryActionOptions<any, any>> =
+  private actions: Map<string, ActionsRegistryActionOptions<any, any, any>> =
     new Map();
 
   private readonly logger: LoggerService;
@@ -123,6 +123,9 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
             output: action.schema?.output
               ? zodToJsonSchema(action.schema.output(z))
               : zodToJsonSchema(z.object({})),
+            ...(action.schema?.secrets && {
+              secrets: zodToJsonSchema(action.schema.secrets(z)),
+            }),
           },
         })),
       });
@@ -156,8 +159,12 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
           }
         }
 
+        const isWrapped = req.headers['x-actions-body-version'] === '2';
+        const rawInput = isWrapped ? req.body.input : req.body;
+        const rawSecrets = isWrapped ? req.body.secrets : undefined;
+
         const input = action.schema?.input
-          ? action.schema.input(z).safeParse(req.body)
+          ? action.schema.input(z).safeParse(rawInput)
           : ({ success: true, data: undefined } as const);
 
         if (!input.success) {
@@ -167,8 +174,26 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
           );
         }
 
+        if (action.schema?.secrets && !rawSecrets) {
+          throw new InputError(
+            `Action "${req.params.actionId}" requires secrets but none were provided`,
+          );
+        }
+
+        const secrets = action.schema?.secrets
+          ? action.schema.secrets(z).safeParse(rawSecrets)
+          : ({ success: true, data: undefined } as const);
+
+        if (!secrets.success) {
+          throw new InputError(
+            `Invalid secrets for action "${req.params.actionId}"`,
+            secrets.error,
+          );
+        }
+
         const result = await action.action({
           input: input.data,
+          secrets: secrets.data,
           credentials,
           logger: this.logger,
         });
@@ -193,7 +218,14 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
   register<
     TInputSchema extends AnyZodObject,
     TOutputSchema extends AnyZodObject,
-  >(options: ActionsRegistryActionOptions<TInputSchema, TOutputSchema>): void {
+    TSecretsSchema extends AnyZodObject | undefined = undefined,
+  >(
+    options: ActionsRegistryActionOptions<
+      TInputSchema,
+      TOutputSchema,
+      TSecretsSchema
+    >,
+  ): void {
     const id = `${this.metadata.getId()}:${options.name}`;
 
     if (this.actions.has(id)) {

@@ -180,6 +180,12 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
           );
         }
 
+        if (!action.schema?.secrets && rawSecrets) {
+          throw new InputError(
+            `Action "${req.params.actionId}" does not accept secrets`,
+          );
+        }
+
         const secrets = action.schema?.secrets
           ? action.schema.secrets(z).safeParse(rawSecrets)
           : ({ success: true, data: undefined } as const);

@@ -825,32 +825,31 @@ describe('actionsRegistryServiceFactory', () => {
       });
     });
 
-    it('should pass secrets to the action handler when using wrapped body format', async () => {
-      const mockSecretAction = jest
-        .fn()
-        .mockResolvedValue({ output: { ok: true } });
+    const mockSecretAction = jest.fn();
+    const pluginWithSecrets = createBackendPlugin({
+      pluginId: 'my-plugin',
+      register(reg) {
+        reg.registerInit({
+          deps: { actionsRegistry: actionsRegistryServiceRef },
+          async init({ actionsRegistry }) {
+            actionsRegistry.register({
+              name: 'secret-action',
+              title: 'Secret Action',
+              description: 'Needs secrets',
+              schema: {
+                input: z => z.object({ repo: z.string() }),
+                output: z => z.object({ ok: z.boolean() }),
+                secrets: z => z.object({ token: z.string() }),
+              },
+              action: mockSecretAction,
+            });
+          },
+        });
+      },
+    });
 
-      const pluginWithSecrets = createBackendPlugin({
-        pluginId: 'my-plugin',
-        register(reg) {
-          reg.registerInit({
-            deps: { actionsRegistry: actionsRegistryServiceRef },
-            async init({ actionsRegistry }) {
-              actionsRegistry.register({
-                name: 'secret-action',
-                title: 'Secret Action',
-                description: 'Needs secrets',
-                schema: {
-                  input: z => z.object({ repo: z.string() }),
-                  output: z => z.object({ ok: z.boolean() }),
-                  secrets: z => z.object({ token: z.string() }),
-                },
-                action: mockSecretAction,
-              });
-            },
-          });
-        },
-      });
+    it('should pass secrets to the action handler when using wrapped body format', async () => {
+      mockSecretAction.mockResolvedValue({ output: { ok: true } });
 
       const { server } = await startTestBackend({
         features: [pluginWithSecrets, ...defaultServices],
@@ -873,27 +872,7 @@ describe('actionsRegistryServiceFactory', () => {
     });
 
     it('should return 400 when action requires secrets but none provided', async () => {
-      const pluginWithSecrets = createBackendPlugin({
-        pluginId: 'my-plugin',
-        register(reg) {
-          reg.registerInit({
-            deps: { actionsRegistry: actionsRegistryServiceRef },
-            async init({ actionsRegistry }) {
-              actionsRegistry.register({
-                name: 'secret-action',
-                title: 'Secret Action',
-                description: 'Needs secrets',
-                schema: {
-                  input: z => z.object({ repo: z.string() }),
-                  output: z => z.object({ ok: z.boolean() }),
-                  secrets: z => z.object({ token: z.string() }),
-                },
-                action: async () => ({ output: { ok: true } }),
-              });
-            },
-          });
-        },
-      });
+      mockSecretAction.mockResolvedValue({ output: { ok: true } });
 
       const { server } = await startTestBackend({
         features: [pluginWithSecrets, ...defaultServices],
@@ -911,27 +890,7 @@ describe('actionsRegistryServiceFactory', () => {
     });
 
     it('should validate secrets against the schema', async () => {
-      const pluginWithSecrets = createBackendPlugin({
-        pluginId: 'my-plugin',
-        register(reg) {
-          reg.registerInit({
-            deps: { actionsRegistry: actionsRegistryServiceRef },
-            async init({ actionsRegistry }) {
-              actionsRegistry.register({
-                name: 'secret-action',
-                title: 'Secret Action',
-                description: 'Needs secrets',
-                schema: {
-                  input: z => z.object({ repo: z.string() }),
-                  output: z => z.object({ ok: z.boolean() }),
-                  secrets: z => z.object({ token: z.string() }),
-                },
-                action: async () => ({ output: { ok: true } }),
-              });
-            },
-          });
-        },
-      });
+      mockSecretAction.mockResolvedValue({ output: { ok: true } });
 
       const { server } = await startTestBackend({
         features: [pluginWithSecrets, ...defaultServices],
@@ -945,6 +904,24 @@ describe('actionsRegistryServiceFactory', () => {
         .send({ input: { repo: 'test' }, secrets: { token: 123 } });
 
       expect(status).toBe(400);
+    });
+
+    it('should return 400 when secrets are sent to an action that does not accept them', async () => {
+      mockAction.mockResolvedValue({ output: { ok: true } });
+
+      const { server } = await startTestBackend({
+        features: [pluginSubject, ...defaultServices],
+      });
+
+      const { status, body } = await request(server)
+        .post(
+          '/api/my-plugin/.backstage/actions/v1/actions/my-plugin:test/invoke',
+        )
+        .set('X-Actions-Body-Version', '2')
+        .send({ input: { name: 'test' }, secrets: { token: 'unexpected' } });
+
+      expect(status).toBe(400);
+      expect(body.error.message).toMatch(/does not accept secrets/);
     });
 
     it('should still accept raw body format for backward compatibility', async () => {

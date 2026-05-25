@@ -99,7 +99,7 @@ export class DefaultActionsService implements ActionsService {
   }) {
     const pluginId = this.pluginIdFromActionId(opts.id);
     const response = await this.makeRequest({
-      path: `/.backstage/actions/v1/actions/${encodeURIComponent(
+      path: `/.backstage/actions/v2/actions/${encodeURIComponent(
         opts.id,
       )}/invoke`,
       pluginId,
@@ -109,7 +109,6 @@ export class DefaultActionsService implements ActionsService {
         body: JSON.stringify({ input: opts.input, secrets: opts.secrets }),
         headers: {
           'Content-Type': 'application/json',
-          'X-Actions-Body-Version': '2',
         },
       },
     });

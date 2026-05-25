@@ -857,9 +857,8 @@ describe('actionsRegistryServiceFactory', () => {
 
       const { status } = await request(server)
         .post(
-          '/api/my-plugin/.backstage/actions/v1/actions/my-plugin:secret-action/invoke',
+          '/api/my-plugin/.backstage/actions/v2/actions/my-plugin:secret-action/invoke',
         )
-        .set('X-Actions-Body-Version', '2')
         .send({ input: { repo: 'test' }, secrets: { token: 'my-secret' } });
 
       expect(status).toBe(200);
@@ -880,9 +879,8 @@ describe('actionsRegistryServiceFactory', () => {
 
       const { status, body } = await request(server)
         .post(
-          '/api/my-plugin/.backstage/actions/v1/actions/my-plugin:secret-action/invoke',
+          '/api/my-plugin/.backstage/actions/v2/actions/my-plugin:secret-action/invoke',
         )
-        .set('X-Actions-Body-Version', '2')
         .send({ input: { repo: 'test' } });
 
       expect(status).toBe(400);
@@ -898,9 +896,8 @@ describe('actionsRegistryServiceFactory', () => {
 
       const { status } = await request(server)
         .post(
-          '/api/my-plugin/.backstage/actions/v1/actions/my-plugin:secret-action/invoke',
+          '/api/my-plugin/.backstage/actions/v2/actions/my-plugin:secret-action/invoke',
         )
-        .set('X-Actions-Body-Version', '2')
         .send({ input: { repo: 'test' }, secrets: { token: 123 } });
 
       expect(status).toBe(400);
@@ -915,9 +912,8 @@ describe('actionsRegistryServiceFactory', () => {
 
       const { status, body } = await request(server)
         .post(
-          '/api/my-plugin/.backstage/actions/v1/actions/my-plugin:test/invoke',
+          '/api/my-plugin/.backstage/actions/v2/actions/my-plugin:test/invoke',
         )
-        .set('X-Actions-Body-Version', '2')
         .send({ input: { name: 'test' }, secrets: { token: 'unexpected' } });
 
       expect(status).toBe(400);

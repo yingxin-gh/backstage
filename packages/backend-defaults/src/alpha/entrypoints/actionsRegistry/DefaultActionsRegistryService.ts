@@ -131,9 +131,12 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
       });
     });
 
-    router.post(
-      '/.backstage/actions/v1/actions/:actionId/invoke',
-      async (req, res) => {
+    const invokeHandler =
+      (opts: { wrapped: boolean }) =>
+      async (
+        req: import('express').Request,
+        res: import('express').Response,
+      ) => {
         const credentials = await this.httpAuth.credentials(req);
         if (this.auth.isPrincipal(credentials, 'none')) {
           throw new NotAllowedError(
@@ -159,9 +162,8 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
           }
         }
 
-        const isWrapped = req.headers['x-actions-body-version'] === '2';
-        const rawInput = isWrapped ? req.body.input : req.body;
-        const rawSecrets = isWrapped ? req.body.secrets : undefined;
+        const rawInput = opts.wrapped ? req.body.input : req.body;
+        const rawSecrets = opts.wrapped ? req.body.secrets : undefined;
 
         const input = action.schema?.input
           ? action.schema.input(z).safeParse(rawInput)
@@ -216,8 +218,18 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
         }
 
         res.json({ output: output.data });
-      },
+      };
+
+    router.post(
+      '/.backstage/actions/v1/actions/:actionId/invoke',
+      invokeHandler({ wrapped: false }),
     );
+
+    router.post(
+      '/.backstage/actions/v2/actions/:actionId/invoke',
+      invokeHandler({ wrapped: true }),
+    );
+
     return router;
   }
 

@@ -592,7 +592,7 @@ describe('actionsServiceFactory', () => {
       it('should invoke the action and return the output', async () => {
         server.use(
           rest.post(
-            'http://localhost:0/api/my-plugin/.backstage/actions/v1/actions/my-plugin:test/invoke',
+            'http://localhost:0/api/my-plugin/.backstage/actions/v2/actions/my-plugin:test/invoke',
             (_req, res, ctx) => res(ctx.json({ output: { ok: true } })),
           ),
         );
@@ -611,7 +611,7 @@ describe('actionsServiceFactory', () => {
       it('should throw a 404 if the action does not exist', async () => {
         server.use(
           rest.post(
-            'http://localhost:0/api/my-plugin/.backstage/actions/v1/actions/my-plugin:test/invoke',
+            'http://localhost:0/api/my-plugin/.backstage/actions/v2/actions/my-plugin:test/invoke',
             (_req, res, ctx) => res(ctx.status(404)),
           ),
         );
@@ -631,7 +631,7 @@ describe('actionsServiceFactory', () => {
       it('should throw a 400 if the action returns an invalid input', async () => {
         server.use(
           rest.post(
-            'http://localhost:0/api/my-plugin/.backstage/actions/v1/actions/my-plugin:test/invoke',
+            'http://localhost:0/api/my-plugin/.backstage/actions/v2/actions/my-plugin:test/invoke',
             (_req, res, ctx) => res(ctx.status(400)),
           ),
         );

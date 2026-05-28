@@ -17,3 +17,4 @@
 export type { ConnectionsService } from './ConnectionsService';
 export { DefaultConnectionsService } from './DefaultConnectionService';
 export { withDeclaredConnections } from './withDeclaredConnections';
+export { declareConnection } from './declareConnection';

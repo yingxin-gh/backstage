@@ -26,7 +26,8 @@
   },
   "dependencies": {
     "@backstage/backend-plugin-api": "workspace:^",
-    "@backstage/connections": "workspace:^"
+    "@backstage/connections": "workspace:^",
+    "@backstage/errors": "workspace:^"
   },
   "devDependencies": {
     "@backstage/backend-test-utils": "workspace:^",

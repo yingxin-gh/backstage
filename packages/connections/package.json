@@ -1,13 +1,16 @@
 {
   "name": "@backstage/connections",
-  "version": "0.1",
+  "version": "0.0.0",
   "description": "Connections framework used by Backstage to better manage external connections used by integrations and plugins",
   "backstage": {
     "role": "node-library",
     "pluginId": "connections"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.esm.js",
+    "types": "dist/index.d.ts"
   },
   "keywords": [
     "backstage"
@@ -35,15 +38,12 @@
   },
   "dependencies": {
     "@backstage/backend-plugin-api": "workspace:^",
-    "@backstage/cli-common": "workspace:^",
     "@backstage/config": "workspace:^",
-    "@backstage/connections": "workspace:^",
     "@backstage/errors": "workspace:^",
     "@backstage/types": "workspace:^",
     "zod": "^3.25.76 || ^4.0.0"
   },
   "devDependencies": {
-    "@backstage/backend-test-utils": "workspace:^",
-    "@backstage/types": "workspace:^"
+    "@backstage/backend-test-utils": "workspace:^"
   }
 }

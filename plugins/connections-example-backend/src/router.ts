@@ -20,6 +20,7 @@ import Router from 'express-promise-router';
 import { connectionsServiceRef } from '@backstage/connections';
 import { HttpAuthService, LoggerService } from '@backstage/backend-plugin-api';
 import { ConnectionTypeKey } from '@backstage/connections';
+import { NotFoundError } from '@backstage/errors';
 
 export async function createRouter({
   connections,
@@ -54,15 +55,19 @@ export async function createRouter({
       authMethods = [rawAuth];
     }
 
-    const connection = await connections.findOptional({
-      type: p.type as ConnectionTypeKey,
-      url: p.url,
-      authMethods: authMethods as any,
-    });
-
-    if (!connection) {
-      res.status(400).json('Cannot find connection');
-      return;
+    let connection;
+    try {
+      connection = await connections.find({
+        type: p.type as ConnectionTypeKey,
+        url: p.url,
+        authMethods: authMethods as any,
+      });
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        res.status(400).json('Cannot find connection');
+        return;
+      }
+      throw e;
     }
     res.status(201).json(connection);
   });

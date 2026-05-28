@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {
-  coreServices,
   createBackendModule,
   createBackendPlugin,
 } from '@backstage/backend-plugin-api';
@@ -23,6 +22,7 @@ import { mockServices } from '@backstage/backend-test-utils';
 import {
   connectionsServiceRef,
   connectionsServiceFactory,
+  declareConnection,
 } from '@backstage/connections';
 
 describe('connections-example-backend-module-gitlab', () => {
@@ -49,9 +49,11 @@ describe('connections-example-backend-module-gitlab', () => {
     const testModule = createBackendModule({
       pluginId: 'test',
       moduleId: 'gitlab-test',
-      register(env) {
-        env.registerConnection({ type: 'gitlab' });
-        env.registerInit({
+      register(reg) {
+        declareConnection(reg, {
+          type: 'gitlab',
+        });
+        reg.registerInit({
           deps: { connections: connectionsServiceRef },
           async init({ connections }) {
             const conn = await connections.find({
@@ -87,9 +89,11 @@ describe('connections-example-backend-module-gitlab', () => {
     const testModule = createBackendModule({
       pluginId: 'test',
       moduleId: 'gitlab-only',
-      register(env) {
-        env.registerConnection({ type: 'gitlab' });
-        env.registerInit({
+      register(reg) {
+        declareConnection(reg, {
+          type: 'gitlab',
+        });
+        reg.registerInit({
           deps: { connections: connectionsServiceRef },
           async init({ connections }) {
             await expect(
@@ -110,8 +114,8 @@ describe('connections-example-backend-module-gitlab', () => {
         connectionsServiceFactory,
         createBackendPlugin({
           pluginId: 'test',
-          register(env) {
-            env.registerInit({ deps: {}, async init() {} });
+          register(reg) {
+            reg.registerInit({ deps: {}, async init() {} });
           },
         }),
         testModule,
@@ -119,22 +123,24 @@ describe('connections-example-backend-module-gitlab', () => {
     });
   });
 
-  it('plugin and module each see only their own declared connections', async () => {
+  it('plugin and module only see their respective plugins', async () => {
     expect.assertions(4);
 
     const testPlugin = createBackendPlugin({
       pluginId: 'test',
-      register(env) {
-        env.registerConnection({ type: 'github' });
-        env.registerInit({
+      register(reg) {
+        declareConnection(reg, {
+          type: 'github',
+        });
+        reg.registerInit({
           deps: { connections: connectionsServiceRef },
           async init({ connections }) {
-            const conn = await connections.find({
+            const gh = await connections.find({
               type: 'github',
               url: 'https://github.com/my-org/my-repo',
               authMethods: ['token'],
             });
-            expect(conn.host).toBe('github.com');
+            expect(gh.host).toBe('github.com');
 
             await expect(
               connections.find({
@@ -151,9 +157,11 @@ describe('connections-example-backend-module-gitlab', () => {
     const testModule = createBackendModule({
       pluginId: 'test',
       moduleId: 'gitlab-only',
-      register(env) {
-        env.registerConnection({ type: 'gitlab' });
-        env.registerInit({
+      register(reg) {
+        declareConnection(reg, {
+          type: 'gitlab',
+        });
+        reg.registerInit({
           deps: { connections: connectionsServiceRef },
           async init({ connections }) {
             const conn = await connections.find({

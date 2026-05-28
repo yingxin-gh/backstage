@@ -54,25 +54,6 @@ describe('withDeclaredConnections', () => {
     expect(connection.auth.method).toBe('token');
   });
 
-  it('allows findOptional for a declared connection type', async () => {
-    const root = DefaultConnectionsService.create({
-      logger: mockServices.logger.mock(),
-      config: mockConnectionsConfig([githubConnection]),
-    });
-    const pluginService = root.forPlugin('catalog');
-    const wrapped = withDeclaredConnections(pluginService, [
-      { type: 'github' },
-    ]);
-
-    const connection = await wrapped.findOptional({
-      type: 'github',
-      url: 'https://github.com/my-org/my-repo',
-      authMethods: ['token'],
-    });
-
-    expect(connection?.host).toBe('github.com');
-  });
-
   it('throws when find is called with an undeclared connection type', async () => {
     const root = DefaultConnectionsService.create({
       logger: mockServices.logger.mock(),
@@ -90,28 +71,7 @@ describe('withDeclaredConnections', () => {
         authMethods: ['token'],
       }),
     ).rejects.toThrow(
-      /undeclared connection of type "gitlab".*env\.registerConnection/,
-    );
-  });
-
-  it('throws when findOptional is called with an undeclared connection type', async () => {
-    const root = DefaultConnectionsService.create({
-      logger: mockServices.logger.mock(),
-      config: mockConnectionsConfig([githubConnection, gitlabConnection]),
-    });
-    const pluginService = root.forPlugin('catalog');
-    const wrapped = withDeclaredConnections(pluginService, [
-      { type: 'github' },
-    ]);
-
-    await expect(
-      wrapped.findOptional({
-        type: 'gitlab',
-        url: 'https://gitlab.com/my-org/my-repo',
-        authMethods: ['token'],
-      }),
-    ).rejects.toThrow(
-      /undeclared connection of type "gitlab".*env\.registerConnection/,
+      /undeclared connection of type "gitlab".*declareConnection/,
     );
   });
 

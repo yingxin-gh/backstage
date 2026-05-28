@@ -65,12 +65,13 @@ describe('DefaultConnectionsService', () => {
         ]),
       });
 
-      const connection = await service.forPlugin('catalog').findOptional({
-        type: 'github',
-        url: 'https://enterprise.example.com/foo',
-        authMethods: ['app'],
-      });
-      expect(connection).toBeUndefined();
+      await expect(
+        service.forPlugin('catalog').find({
+          type: 'github',
+          url: 'https://enterprise.example.com/foo',
+          authMethods: ['app'],
+        }),
+      ).rejects.toThrow(/Connection not found/);
     });
 
     it('exposes connections to the plugin named in their match rule', async () => {
@@ -143,26 +144,6 @@ describe('DefaultConnectionsService', () => {
 
       expect(splitForCatalog?.auth.method).toBe('token');
       expect(splitForScaffolder?.auth.method).toBe('app');
-    });
-
-    it('returns undefined from findOptional for hosts that are not configured', async () => {
-      const service = DefaultConnectionsService.create({
-        logger: mockServices.logger.mock(),
-        config: mockConnectionsConfig([
-          {
-            type: 'github',
-            host: 'github.com',
-            auth: [{ method: 'token', token: 'public-token' }],
-          },
-        ]),
-      });
-
-      const connection = await service.forPlugin('catalog').findOptional({
-        type: 'github',
-        url: 'https://missing.example.com/foo',
-        authMethods: ['token'],
-      });
-      expect(connection).toBeUndefined();
     });
 
     it('throws from find for hosts that are not configured', async () => {
@@ -407,13 +388,13 @@ describe('DefaultConnectionsService', () => {
         'https://b.example.com/foo',
         'https://c.example.com/foo',
       ]) {
-        expect(
-          await catalog.findOptional({
+        await expect(
+          catalog.find({
             type: 'github',
             url,
             authMethods: ['token'],
           }),
-        ).toBeUndefined();
+        ).rejects.toThrow(/Connection not found/);
       }
 
       const kept = await catalog.find({
@@ -504,26 +485,6 @@ describe('DefaultConnectionsService', () => {
       ).rejects.toThrow(
         /Connection not found for type "github" with auth method "token"/,
       );
-    });
-
-    it('findOptional returns undefined for an unconfigured host regardless of authMethods', async () => {
-      const service = DefaultConnectionsService.create({
-        logger: mockServices.logger.mock(),
-        config: mockConnectionsConfig([
-          {
-            type: 'github',
-            host: 'github.com',
-            auth: [{ method: 'token', token: 'public-token' }],
-          },
-        ]),
-      });
-
-      const connection = await service.forPlugin('catalog').findOptional({
-        type: 'github',
-        url: 'https://missing.example.com/foo',
-        authMethods: ['token'],
-      });
-      expect(connection).toBeUndefined();
     });
 
     it('throws when plugin filtering leaves only auth that is not in the declared list', async () => {

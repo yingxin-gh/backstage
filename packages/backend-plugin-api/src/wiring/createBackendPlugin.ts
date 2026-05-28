@@ -20,6 +20,7 @@ import {
   ConnectionRegistration,
   ExtensionPoint,
   ExtensionPointFactoryContext,
+  InternalBackendPluginRegistrationPoints,
   InternalBackendPluginRegistrationV1_1,
   InternalBackendRegistrations,
 } from './types';
@@ -70,7 +71,7 @@ export function createBackendPlugin(
     let init: InternalBackendPluginRegistrationV1_1['init'] | undefined =
       undefined;
 
-    options.register({
+    const reg: InternalBackendPluginRegistrationPoints = {
       registerExtensionPoint<TExtensionPoint>(
         extOrOpts:
           | ExtensionPoint<TExtensionPoint>
@@ -123,7 +124,8 @@ export function createBackendPlugin(
           func: regInit.init,
         };
       },
-    });
+    };
+    options.register(reg);
 
     if (!init) {
       throw new Error(

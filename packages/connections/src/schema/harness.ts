@@ -23,19 +23,10 @@ export const HarnessConnectionType = createConnectionType({
   }),
   authMethods: [
     {
-      method: 'none',
-      configSchema: z.object({}),
-    },
-    {
-      method: 'apiKey',
-      configSchema: z.object({
-        apiKey: z.string(),
-      }),
-    },
-    {
       method: 'token',
       configSchema: z.object({
         token: z.string(),
+        apiKey: z.string().optional(),
       }),
     },
   ],

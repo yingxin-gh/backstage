@@ -26,19 +26,22 @@ import {
 import { ConnectionAuthMethodKey } from './ConnectionType';
 import { Connection, RootConnection } from './Connection';
 import { JsonObject } from '@backstage/types';
-import { InputError, NotAllowedError, NotFoundError } from '@backstage/errors';
+import {
+  InputError,
+  NotAllowedError,
+  NotFoundError,
+  toError,
+} from '@backstage/errors';
 import { z } from 'zod/v4';
 import { getLegacyIntegrations } from '../system/getLegacyIntegrations';
 import { combineConnectionSources } from '../system/combineConnectionSources';
 
 function describeError(error: unknown): string {
-  if (error instanceof z.ZodError) {
-    return z.prettifyError(error);
+  const e = toError(error);
+  if (e.name === 'ZodError') {
+    return z.prettifyError(e as unknown as z.ZodError);
   }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return String(error);
+  return e.message;
 }
 
 class PluginConnectionsService implements ConnectionsService {

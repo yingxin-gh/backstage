@@ -68,7 +68,7 @@ type DepsToInstances<
 /**
  * Declares that a plugin or module consumes a particular connection type.
  *
- * @public
+ * @alpha
  */
 export interface ConnectionRegistration {
   /**
@@ -109,14 +109,6 @@ export interface BackendPluginRegistrationPoints {
     extensionPoint: ExtensionPoint<TExtensionPoint>;
     factory: (context: ExtensionPointFactoryContext) => TExtensionPoint;
   }): void;
-  /**
-   * Declares a connection type that this plugin consumes at runtime.
-   *
-   * Plugins that depend on the connections service must declare every
-   * connection type they query via `find` / `findOptional`. The framework
-   * verifies declarations at startup and at runtime.
-   */
-  registerConnection(registration: ConnectionRegistration): void;
   registerInit<
     TDeps extends {
       [name in string]: ServiceRef<unknown>;
@@ -141,14 +133,6 @@ export interface BackendModuleRegistrationPoints {
     extensionPoint: ExtensionPoint<TExtensionPoint>;
     factory: (context: ExtensionPointFactoryContext) => TExtensionPoint;
   }): void;
-  /**
-   * Declares a connection type that this module consumes at runtime.
-   *
-   * Modules that depend on the connections service must declare every
-   * connection type they query via `find` / `findOptional`. Declarations
-   * are aggregated with the parent plugin's declarations.
-   */
-  registerConnection(registration: ConnectionRegistration): void;
   registerInit<
     TDeps extends {
       [name in string]: ServiceRef<unknown> | ExtensionPoint<unknown>;
@@ -157,6 +141,18 @@ export interface BackendModuleRegistrationPoints {
     deps: TDeps;
     init(deps: DepsToInstances<TDeps>): Promise<void>;
   }): void;
+}
+
+/** @internal */
+export interface InternalBackendPluginRegistrationPoints
+  extends BackendPluginRegistrationPoints {
+  registerConnection(registration: ConnectionRegistration): void;
+}
+
+/** @internal */
+export interface InternalBackendModuleRegistrationPoints
+  extends BackendModuleRegistrationPoints {
+  registerConnection(registration: ConnectionRegistration): void;
 }
 
 /** @internal */

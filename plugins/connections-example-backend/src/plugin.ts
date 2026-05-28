@@ -18,8 +18,10 @@ import {
   createBackendPlugin,
 } from '@backstage/backend-plugin-api';
 import { createRouter } from './router';
-
-import { connectionsServiceRef } from '@backstage/connections';
+import {
+  connectionsServiceRef,
+  declareConnection,
+} from '@backstage/connections';
 
 /**
  * connectionsExampleBackendPlugin backend plugin
@@ -28,16 +30,16 @@ import { connectionsServiceRef } from '@backstage/connections';
  */
 export const connectionsExampleBackendPlugin = createBackendPlugin({
   pluginId: 'connections-example-backend',
-  register(env) {
-    env.registerConnection({
+  register(reg) {
+    declareConnection(reg, {
       type: 'github',
       description: 'Used by the example /find endpoint to look up GitHub hosts',
     });
-    env.registerConnection({
+    declareConnection(reg, {
       type: 'gitlab',
       description: 'Used by the example /find endpoint to look up GitLab hosts',
     });
-    env.registerInit({
+    reg.registerInit({
       deps: {
         httpAuth: coreServices.httpAuth,
         httpRouter: coreServices.httpRouter,

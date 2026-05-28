@@ -17,7 +17,11 @@ import {
   coreServices,
   createBackendModule,
 } from '@backstage/backend-plugin-api';
-import { connectionsServiceRef } from '@backstage/connections';
+import {
+  connectionsServiceRef,
+  declareConnection,
+} from '@backstage/connections';
+import { NotFoundError } from '@backstage/errors';
 
 /**
  * A module for the connections-example-backend plugin that registers and
@@ -28,28 +32,32 @@ import { connectionsServiceRef } from '@backstage/connections';
 export const connectionsExampleBackendModuleGitlab = createBackendModule({
   pluginId: 'connections-example-backend',
   moduleId: 'gitlab',
-  register(env) {
-    env.registerConnection({
+  register(reg) {
+    declareConnection(reg, {
       type: 'gitlab',
       description:
         'Used by the gitlab module to look up GitLab hosts via the connections service',
     });
-    env.registerInit({
+    reg.registerInit({
       deps: {
         logger: coreServices.logger,
         connections: connectionsServiceRef,
       },
       async init({ logger, connections }) {
         logger.info('GitLab connections module initialized');
-        const connection = await connections.findOptional({
-          type: 'gitlab',
-          url: 'https://gitlab.com',
-          authMethods: ['token'],
-        });
-        if (connection) {
+        try {
+          const connection = await connections.find({
+            type: 'gitlab',
+            url: 'https://gitlab.com',
+            authMethods: ['token'],
+          });
           logger.info(`Found GitLab connection for host ${connection.host}`);
-        } else {
-          logger.info('No GitLab connection configured');
+        } catch (e) {
+          if (e instanceof NotFoundError) {
+            logger.info('No GitLab connection configured');
+          } else {
+            throw e;
+          }
         }
       },
     });

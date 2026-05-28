@@ -26,13 +26,4 @@ export interface ConnectionsService {
     url: string;
     authMethods: readonly [TAuthMethod, ...TAuthMethod[]];
   }): Promise<Connection<TType, TAuthMethod>>;
-
-  findOptional<
-    TType extends ConnectionTypeKey,
-    TAuthMethod extends ConnectionAuthMethodKey<TType>,
-  >(options: {
-    type: TType;
-    url: string;
-    authMethods: readonly [TAuthMethod, ...TAuthMethod[]];
-  }): Promise<Connection<TType, TAuthMethod> | undefined>;
 }

@@ -207,6 +207,64 @@ html.plugin-docs feedback-button {
   opacity: 0.6;
 }
 
+/* Navbar "Ask AI" trigger for the Kapa widget */
+.navbar-ask-ai-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  margin: 0 0.25rem;
+  font: inherit;
+  font-weight: var(--ifm-font-weight-semibold);
+  color: var(--ifm-navbar-link-color);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    color: var(--ifm-navbar-link-hover-color);
+    opacity: 0.8;
+  }
+}
+
+/* Show floating launcher on mobile only, navbar trigger on desktop only */
+@media (max-width: 996px) {
+  .navbar-ask-ai-item {
+    display: none;
+  }
+}
+
+.kapa-ask-ai-mobile-trigger {
+  display: none;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--ifm-color-black);
+  background: var(--ifm-color-primary);
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 200;
+
+  &:hover {
+    background: var(--ifm-color-primary-dark);
+  }
+}
+@media (max-width: 996px) {
+  .kapa-ask-ai-mobile-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+
 .header-github-link::before,
 .header-discord-link::before {
   content: '';

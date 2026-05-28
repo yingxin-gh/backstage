@@ -123,6 +123,28 @@ const config: Config = {
         },
       }),
     },
+    {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: `
+        (function () {
+          function mount() {
+            if (document.querySelector('.kapa-ask-ai-mobile-trigger')) return;
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'kapa-ask-ai-trigger kapa-ask-ai-mobile-trigger';
+            btn.setAttribute('aria-label', 'Ask AI');
+            btn.textContent = '✨';
+            document.body.appendChild(btn);
+          }
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', mount);
+          } else {
+            mount();
+          }
+        })();
+      `,
+    },
   ],
   organizationName: 'Spotify',
   projectName: 'backstage',
@@ -132,6 +154,17 @@ const config: Config = {
     '/js/medium-zoom.js',
     '/js/dismissable-banner.js',
     '/js/scroll-nav-to-view-in-docs.js',
+    {
+      src: 'https://widget.kapa.ai/kapa-widget.bundle.js',
+      'data-website-id': '4f3b7b51-4ea6-4a5b-aede-44fbe128c0f2',
+      'data-project-name': 'Backstage',
+      'data-project-color': '#36baa2',
+      'data-project-logo': 'https://backstage.io/img/favicon.svg',
+      'data-button-hide': 'true',
+      'data-modal-override-open-class': 'kapa-ask-ai-trigger',
+      'data-modal-z-index': '2147483000',
+      async: true,
+    },
   ],
   stylesheets: [
     'https://fonts.googleapis.com/css?family=IBM+Plex+Mono:500,700&display=swap',
@@ -538,6 +571,13 @@ const config: Config = {
           to: '/community',
           label: 'Community',
           position: 'left',
+        },
+        {
+          type: 'html',
+          position: 'right',
+          className: 'navbar-ask-ai-item',
+          value:
+            '<button class="kapa-ask-ai-trigger navbar-ask-ai-button" type="button" aria-label="Ask AI">Ask AI</button>',
         },
         {
           href: 'https://github.com/backstage/backstage',

@@ -123,28 +123,6 @@ const config: Config = {
         },
       }),
     },
-    {
-      tagName: 'script',
-      attributes: {},
-      innerHTML: `
-        (function () {
-          function mount() {
-            if (document.querySelector('.kapa-ask-ai-mobile-trigger')) return;
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'kapa-ask-ai-trigger kapa-ask-ai-mobile-trigger';
-            btn.setAttribute('aria-label', 'Ask AI');
-            btn.textContent = '✨';
-            document.body.appendChild(btn);
-          }
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', mount);
-          } else {
-            mount();
-          }
-        })();
-      `,
-    },
   ],
   organizationName: 'Spotify',
   projectName: 'backstage',
@@ -160,9 +138,11 @@ const config: Config = {
       'data-project-name': 'Backstage',
       'data-project-color': '#36baa2',
       'data-project-logo': 'https://backstage.io/img/favicon.svg',
-      'data-button-hide': 'true',
-      'data-modal-override-open-class': 'kapa-ask-ai-trigger',
-      'data-modal-z-index': '2147483000',
+      'data-launcher-button-image': 'https://backstage.io/img/favicon.svg',
+      'data-button-position-bottom': '4rem',
+      'data-button-position-right': '0.75rem',
+      'data-color-scheme-selector': "[data-theme='dark']",
+      'data-example-questions': 'What is Backstage?,How do I get started?',
       async: true,
     },
   ],
@@ -571,13 +551,6 @@ const config: Config = {
           to: '/community',
           label: 'Community',
           position: 'left',
-        },
-        {
-          type: 'html',
-          position: 'right',
-          className: 'navbar-ask-ai-item',
-          value:
-            '<button class="kapa-ask-ai-trigger navbar-ask-ai-button" type="button" aria-label="Ask AI">Ask AI</button>',
         },
         {
           href: 'https://github.com/backstage/backstage',

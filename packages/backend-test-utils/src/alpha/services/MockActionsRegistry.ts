@@ -138,6 +138,10 @@ export class MockActionsRegistry
       );
     }
 
+    if (!action.schema?.secrets && opts.secrets) {
+      throw new InputError(`Action "${opts.id}" does not accept secrets`);
+    }
+
     const secrets = action.schema?.secrets
       ? action.schema.secrets(z).safeParse(opts.secrets)
       : ({ success: true, data: undefined } as const);

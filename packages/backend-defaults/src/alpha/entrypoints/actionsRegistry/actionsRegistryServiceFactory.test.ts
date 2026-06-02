@@ -607,8 +607,11 @@ describe('actionsRegistryServiceFactory', () => {
 
   describe('/.backstage/actions/v1/actions/:actionId/invoke', () => {
     const mockAction = jest.fn();
+    const mockSecretAction = jest.fn();
 
     beforeEach(() => {
+      mockAction.mockReset();
+      mockSecretAction.mockReset();
       mockAction.mockResolvedValue({ output: { ok: true } });
     });
 
@@ -825,7 +828,6 @@ describe('actionsRegistryServiceFactory', () => {
       });
     });
 
-    const mockSecretAction = jest.fn();
     const pluginWithSecrets = createBackendPlugin({
       pluginId: 'my-plugin',
       register(reg) {

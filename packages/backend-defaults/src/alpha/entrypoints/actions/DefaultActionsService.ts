@@ -98,6 +98,7 @@ export class DefaultActionsService implements ActionsService {
     credentials: BackstageCredentials;
   }) {
     const pluginId = this.pluginIdFromActionId(opts.id);
+    // Deprecated: remove v1 fallback once all registries support v2
     const version = opts.secrets ? 'v2' : 'v1';
     const body =
       version === 'v2'

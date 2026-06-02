@@ -220,6 +220,7 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
         res.json({ output: output.data });
       };
 
+    // Deprecated: remove v1 invoke route once all callers have migrated to v2
     router.post(
       '/.backstage/actions/v1/actions/:actionId/invoke',
       invokeHandler({ wrapped: false }),

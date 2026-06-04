@@ -465,16 +465,16 @@ async function pushFilesViaGitHubApi(input: {
     );
   }
 
-  const MAX_PAYLOAD_BYTES = 50 * 1024 * 1024; // 50 MB
-  const totalBytes = files.reduce((sum, f) => sum + f.content.length, 0);
-  if (totalBytes > MAX_PAYLOAD_BYTES) {
+  const totalRawBytes = files.reduce((sum, f) => sum + f.content.length, 0);
+  // base64 expands content by ~4/3; add 1 KB per file for JSON overhead
+  const estimatedPayload =
+    Math.ceil(totalRawBytes * (4 / 3)) + files.length * 1024;
+  const MAX_PAYLOAD_BYTES = 30 * 1024 * 1024; // 30 MB after encoding
+  if (estimatedPayload > MAX_PAYLOAD_BYTES) {
     throw new Error(
-      `GraphQL API fallback payload too large (${(
-        totalBytes /
-        1024 /
-        1024
-      ).toFixed(1)} MB). ` +
-        'The GitHub GraphQL API limits request size. ' +
+      `GraphQL API fallback payload too large ` +
+        `(${(totalRawBytes / 1024 / 1024).toFixed(1)} MB raw, ` +
+        `~${(estimatedPayload / 1024 / 1024).toFixed(1)} MB encoded). ` +
         'Consider reducing template size or resolving the network issue preventing git push.',
     );
   }
@@ -494,7 +494,13 @@ async function pushFilesViaGitHubApi(input: {
       throw refError;
     }
     if (status === 404) {
-      await client.rest.repos.get({ owner, repo });
+      const { data: repoData } = await client.rest.repos.get({ owner, repo });
+      if (repoData.size > 0) {
+        throw new Error(
+          `Branch '${defaultBranch}' not found in ${owner}/${repo}. ` +
+            `The repository exists and its default branch is '${repoData.default_branch}'.`,
+        );
+      }
     }
     logger.info(
       `No existing HEAD found for ${owner}/${repo}#${defaultBranch} ` +
@@ -527,19 +533,37 @@ async function pushFilesViaGitHubApi(input: {
     fileChanges.deletions = [{ path: '.gitkeep' }];
   }
 
-  const result: {
-    createCommitOnBranch: { commit: { oid: string } };
-  } = await client.graphql(CREATE_COMMIT_ON_BRANCH_MUTATION, {
-    input: {
-      branch: {
-        repositoryNameWithOwner: `${owner}/${repo}`,
-        branchName: defaultBranch,
-      },
-      message: { headline: commitMessage },
-      fileChanges,
-      expectedHeadOid: headOid,
+  const commitInput = {
+    branch: {
+      repositoryNameWithOwner: `${owner}/${repo}`,
+      branchName: defaultBranch,
     },
-  });
+    message: { headline: commitMessage },
+    fileChanges,
+    expectedHeadOid: headOid,
+  };
+
+  let result: { createCommitOnBranch: { commit: { oid: string } } };
+  try {
+    result = await client.graphql(CREATE_COMMIT_ON_BRANCH_MUTATION, {
+      input: commitInput,
+    });
+  } catch (commitError: unknown) {
+    const msg = String((commitError as Error).message ?? '');
+    if (!msg.includes('expectedHeadOid')) {
+      throw commitError;
+    }
+    logger.warn('HEAD OID changed since read, retrying once');
+    const { data: freshRef } = await client.rest.git.getRef({
+      owner,
+      repo,
+      ref: `heads/${defaultBranch}`,
+    });
+    commitInput.expectedHeadOid = freshRef.object.sha;
+    result = await client.graphql(CREATE_COMMIT_ON_BRANCH_MUTATION, {
+      input: commitInput,
+    });
+  }
 
   const commitHash = result.createCommitOnBranch.commit.oid;
   logger.info(

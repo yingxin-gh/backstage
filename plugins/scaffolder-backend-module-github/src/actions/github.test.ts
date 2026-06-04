@@ -64,7 +64,9 @@ const mockOctokit = {
       getByUsername: jest.fn(),
     },
     repos: {
-      get: jest.fn().mockResolvedValue({ data: {} }),
+      get: jest
+        .fn()
+        .mockResolvedValue({ data: { size: 0, default_branch: 'main' } }),
       addCollaborator: jest.fn(),
       createInOrg: jest.fn(),
       createForAuthenticatedUser: jest.fn(),
@@ -2014,6 +2016,9 @@ describe('publish:github', () => {
         status: 404,
       });
       mockOctokit.rest.git.getRef.mockRejectedValue(notFoundError);
+      mockOctokit.rest.repos.get.mockResolvedValue({
+        data: { size: 0, default_branch: 'main' },
+      });
       mockOctokit.rest.repos.createOrUpdateFileContents.mockResolvedValue({
         data: { commit: { sha: 'init-sha' } },
       });
@@ -2187,6 +2192,129 @@ describe('publish:github', () => {
       const additions = graphqlCall[1].input.fileChanges.additions;
       expect(additions).toHaveLength(1);
       expect(additions[0].path).toBe('README.md');
+    });
+
+    it('should collect files from nested directories with correct paths', async () => {
+      const econnError = new Error('socket hang up');
+      (econnError as NodeJS.ErrnoException).code = 'ECONNRESET';
+      setupFallbackMocks(econnError);
+
+      readdirSpy
+        .mockResolvedValueOnce([
+          {
+            name: 'README.md',
+            isDirectory: () => false,
+            isSymbolicLink: () => false,
+          },
+          {
+            name: '.git',
+            isDirectory: () => true,
+            isSymbolicLink: () => false,
+          },
+          {
+            name: 'src',
+            isDirectory: () => true,
+            isSymbolicLink: () => false,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            name: 'index.ts',
+            isDirectory: () => false,
+            isSymbolicLink: () => false,
+          },
+          {
+            name: 'utils',
+            isDirectory: () => true,
+            isSymbolicLink: () => false,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            name: 'helper.ts',
+            isDirectory: () => false,
+            isSymbolicLink: () => false,
+          },
+        ]);
+      readFileSpy.mockResolvedValue(Buffer.from('content'));
+
+      mockOctokit.rest.git.getRef.mockResolvedValue({
+        data: { object: { sha: 'head-sha' } },
+      });
+      mockOctokit.graphql.mockResolvedValue({
+        createCommitOnBranch: { commit: { oid: 'nested-sha' } },
+      });
+
+      await action.handler({
+        ...mockContext,
+        input: { ...mockContext.input, protectDefaultBranch: false },
+      });
+
+      const graphqlCall = mockOctokit.graphql.mock.calls[0];
+      const additions = graphqlCall[1].input.fileChanges.additions;
+      const paths = additions.map((a: { path: string }) => a.path).sort();
+      expect(paths).toEqual([
+        'README.md',
+        'src/index.ts',
+        'src/utils/helper.ts',
+      ]);
+    });
+
+    it('should throw when getRef returns 404 and repo is non-empty (wrong branch)', async () => {
+      const econnError = new Error('socket hang up');
+      (econnError as NodeJS.ErrnoException).code = 'ECONNRESET';
+      setupFallbackMocks(econnError);
+      mockFilesOnDisk([{ name: 'README.md' }]);
+
+      const refNotFound = Object.assign(new Error('Not Found'), {
+        status: 404,
+      });
+      mockOctokit.rest.git.getRef.mockRejectedValue(refNotFound);
+      mockOctokit.rest.repos.get.mockResolvedValue({
+        data: { size: 100, default_branch: 'master' },
+      });
+
+      await expect(
+        action.handler({
+          ...mockContext,
+          input: { ...mockContext.input, protectDefaultBranch: false },
+        }),
+      ).rejects.toThrow("Branch 'main' not found");
+
+      expect(
+        mockOctokit.rest.repos.createOrUpdateFileContents,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should retry once on HEAD OID mismatch', async () => {
+      const econnError = new Error('socket hang up');
+      (econnError as NodeJS.ErrnoException).code = 'ECONNRESET';
+      setupFallbackMocks(econnError);
+      mockFilesOnDisk([{ name: 'README.md' }]);
+
+      mockOctokit.rest.git.getRef
+        .mockResolvedValueOnce({
+          data: { object: { sha: 'stale-sha' } },
+        })
+        .mockResolvedValueOnce({
+          data: { object: { sha: 'fresh-sha' } },
+        });
+      mockOctokit.graphql
+        .mockRejectedValueOnce(new Error('expectedHeadOid does not match'))
+        .mockResolvedValueOnce({
+          createCommitOnBranch: { commit: { oid: 'retry-commit-sha' } },
+        });
+
+      await action.handler({
+        ...mockContext,
+        input: { ...mockContext.input, protectDefaultBranch: false },
+      });
+
+      expect(mockOctokit.graphql).toHaveBeenCalledTimes(2);
+      expect(mockContext.output).toHaveBeenCalledWith(
+        'commitHash',
+        'retry-commit-sha',
+      );
     });
 
     it('should rethrow non-connection errors from git push', async () => {

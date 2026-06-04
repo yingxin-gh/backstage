@@ -418,6 +418,9 @@ async function collectFilesFromDir(
     if (entry.name === '.git') {
       continue;
     }
+    if (entry.isSymbolicLink()) {
+      continue;
+    }
     if (entry.isDirectory()) {
       results.push(...(await collectFilesFromDir(fullPath, relativePath)));
     } else {
@@ -455,6 +458,27 @@ async function pushFilesViaGitHubApi(input: {
   const files = await collectFilesFromDir(dir);
   logger.info(`Collected ${files.length} files for API push`);
 
+  if (files.length === 0) {
+    throw new Error(
+      'GraphQL API fallback found no files to push. ' +
+        'The workspace directory may be empty.',
+    );
+  }
+
+  const MAX_PAYLOAD_BYTES = 50 * 1024 * 1024; // 50 MB
+  const totalBytes = files.reduce((sum, f) => sum + f.content.length, 0);
+  if (totalBytes > MAX_PAYLOAD_BYTES) {
+    throw new Error(
+      `GraphQL API fallback payload too large (${(
+        totalBytes /
+        1024 /
+        1024
+      ).toFixed(1)} MB). ` +
+        'The GitHub GraphQL API limits request size. ' +
+        'Consider reducing template size or resolving the network issue preventing git push.',
+    );
+  }
+
   let headOid: string;
   let needsCleanup = false;
   try {
@@ -466,12 +490,15 @@ async function pushFilesViaGitHubApi(input: {
     headOid = ref.object.sha;
   } catch (refError: unknown) {
     const status = (refError as { status?: number }).status;
-    if (status !== 404) {
+    if (status !== 404 && status !== 409) {
       throw refError;
     }
+    if (status === 404) {
+      await client.rest.repos.get({ owner, repo });
+    }
     logger.info(
-      `No existing HEAD found for ${owner}/${repo}#${defaultBranch}, ` +
-        'initializing repository',
+      `No existing HEAD found for ${owner}/${repo}#${defaultBranch} ` +
+        `(status ${status}), initializing repository`,
     );
     const { data: init } = await client.rest.repos.createOrUpdateFileContents({
       owner,

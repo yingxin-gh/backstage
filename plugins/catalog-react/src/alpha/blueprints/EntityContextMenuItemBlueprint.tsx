@@ -20,10 +20,8 @@ import {
   createExtensionBlueprint,
   ExtensionBoundary,
 } from '@backstage/frontend-plugin-api';
-import MenuItem from '@material-ui/core/MenuItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import { useEntityContextMenu } from '../../hooks/useEntityContextMenu';
+import { MenuItem } from '@backstage/ui';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   FilterPredicate,
   filterPredicateToFilterFunction,
@@ -31,6 +29,17 @@ import {
 } from '@backstage/filter-predicates';
 import type { Entity } from '@backstage/catalog-model';
 import { entityFilterFunctionDataRef } from './extensionData';
+
+const useStyles = makeStyles({
+  menuItem: {
+    '& .MuiSvgIcon-root': {
+      fontSize: '1rem',
+      width: '1rem',
+      height: '1rem',
+    },
+  },
+});
+
 /** @alpha */
 export type UseProps = () =>
   | {
@@ -68,25 +77,30 @@ export const EntityContextMenuItemBlueprint = createExtensionBlueprint({
   *factory(params: EntityContextMenuItemParams, { node, config }) {
     const loader = async () => {
       const Component = () => {
-        const { onMenuClose } = useEntityContextMenu();
-        const { title, ...menuItemProps } = params.useProps();
-        let handleClick = undefined;
+        const classes = useStyles();
+        const { title, disabled, ...menuItemProps } = params.useProps();
 
-        if ('onClick' in menuItemProps) {
-          handleClick = () => {
-            const result = menuItemProps.onClick();
-            if (result && 'then' in result) {
-              result.then(onMenuClose, onMenuClose);
-            } else {
-              onMenuClose();
-            }
-          };
+        if ('href' in menuItemProps) {
+          return (
+            <MenuItem
+              className={classes.menuItem}
+              iconStart={params.icon}
+              href={menuItemProps.href}
+              isDisabled={disabled}
+            >
+              {title}
+            </MenuItem>
+          );
         }
 
         return (
-          <MenuItem {...menuItemProps} onClick={handleClick}>
-            <ListItemIcon>{params.icon}</ListItemIcon>
-            <ListItemText primary={title} />
+          <MenuItem
+            className={classes.menuItem}
+            iconStart={params.icon}
+            onAction={menuItemProps.onClick}
+            isDisabled={disabled}
+          >
+            {title}
           </MenuItem>
         );
       };

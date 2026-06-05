@@ -735,13 +735,19 @@ describe('Entity page', () => {
       });
       const { disabled } = params.useProps();
 
-      await userEvent.click(await screen.findByTestId('menu-button'));
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'More actions' }),
+      );
 
-      const title = await screen.findByText('Test Title');
+      const menuItemElement = (await screen.findByText('Test Title')).closest(
+        '[role="menuitem"]',
+      );
+      expect(menuItemElement).not.toBeNull();
       await expect(screen.findByText('Test Icon')).resolves.toBeInTheDocument();
-      const anchor = title.closest('a');
-      expect(anchor).toHaveAttribute('href', '/somewhere');
-      expect(anchor).toHaveAttribute('aria-disabled', disabled.toString());
+      expect(menuItemElement).toHaveAttribute('href', '/somewhere');
+      expect(menuItemElement?.getAttribute('aria-disabled')).toBe(
+        disabled ? 'true' : null,
+      );
     });
 
     it.each([
@@ -794,17 +800,21 @@ describe('Entity page', () => {
         screen.findByText(/artist-lookup/),
       ).resolves.toBeInTheDocument();
 
-      await userEvent.click(await screen.findByTestId('menu-button'));
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'More actions' }),
+      );
 
-      await expect(
-        screen.findByText('Test Title'),
-      ).resolves.toBeInTheDocument();
+      const menuItemElement = (await screen.findByText('Test Title')).closest(
+        '[role="menuitem"]',
+      );
+      expect(menuItemElement).not.toBeNull();
 
       await expect(screen.findByText('Test Icon')).resolves.toBeInTheDocument();
-      const listItem = (await screen.findByText('Test Title')).closest('li');
-      expect(listItem).toHaveAttribute('aria-disabled', disabled.toString());
+      expect(menuItemElement?.getAttribute('aria-disabled')).toBe(
+        disabled ? 'true' : null,
+      );
       if (!disabled) {
-        await userEvent.click(screen.getByText('Test Title'));
+        await userEvent.click(menuItemElement!);
       }
 
       expect(onClickMock).toHaveBeenCalledTimes(disabled ? 0 : 1);
@@ -882,7 +892,9 @@ describe('Entity page', () => {
           ],
         });
 
-        await userEvent.click(await screen.findByTestId('menu-button'));
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'More actions' }),
+        );
 
         await expect(
           screen.findByText('Should Render'),

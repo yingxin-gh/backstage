@@ -110,7 +110,7 @@ export const catalogTranslationRef = createTranslationRef({
       inspectMenuTitle: 'Inspect entity',
       copyURLMenuTitle: 'Copy entity URL',
       unregisterMenuTitle: 'Unregister entity',
-      moreButtonAriaLabel: 'more',
+      moreButtonAriaLabel: 'More actions',
     },
     entityLabelsCard: {
       title: 'Labels',

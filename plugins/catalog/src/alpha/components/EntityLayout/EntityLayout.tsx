@@ -58,9 +58,6 @@ attachComponentData(Route, 'core.gatherMountPoints', true); // This causes all m
 
 /** @public */
 export interface EntityLayoutProps {
-  UNSTABLE_contextMenuOptions?: ComponentProps<
-    typeof EntityHeader
-  >['UNSTABLE_contextMenuOptions'];
   UNSTABLE_extraContextMenuItems?: ComponentProps<
     typeof EntityHeader
   >['UNSTABLE_extraContextMenuItems'];
@@ -104,7 +101,6 @@ export interface EntityLayoutProps {
 export const EntityLayout = (props: EntityLayoutProps) => {
   const {
     UNSTABLE_extraContextMenuItems,
-    UNSTABLE_contextMenuOptions,
     contextMenuItems,
     children,
     header,
@@ -154,7 +150,6 @@ export const EntityLayout = (props: EntityLayoutProps) => {
       {header ?? (
         <EntityHeader
           parentEntityRelations={parentEntityRelations}
-          UNSTABLE_contextMenuOptions={UNSTABLE_contextMenuOptions}
           UNSTABLE_extraContextMenuItems={UNSTABLE_extraContextMenuItems}
           contextMenuItems={contextMenuItems}
         />

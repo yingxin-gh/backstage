@@ -280,7 +280,10 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
 
         const Component = () => {
           const entityFromUrl = useEntityFromUrl();
-          const { entity } = entityFromUrl;
+          const entity = entityFromUrl.loading
+            ? undefined
+            : entityFromUrl.entity;
+          const entityProviderProps = { ...entityFromUrl, entity };
           const filteredMenuItems = entity
             ? menuItems
                 .filter(i => i.filter(entity))
@@ -317,7 +320,7 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
             );
 
           return (
-            <AsyncEntityProvider {...entityFromUrl}>
+            <AsyncEntityProvider {...entityProviderProps}>
               {layout}
             </AsyncEntityProvider>
           );

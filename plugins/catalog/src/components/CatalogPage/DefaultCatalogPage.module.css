@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-.supportButton {
-  /* Header already provides the spacing that SupportButton adds internally. */
-  display: contents;
-}
-
 .supportButton > :global(.MuiBox-root) {
+  /* Header already provides the spacing that SupportButton adds internally. */
   margin-left: 0;
 }

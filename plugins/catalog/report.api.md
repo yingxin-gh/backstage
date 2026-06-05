@@ -321,6 +321,9 @@ export const catalogTranslationRef: TranslationRef<
     readonly 'entityLabels.ownerLabel': 'Owner';
     readonly 'entityLabels.warningPanelTitle': 'Entity not found';
     readonly 'entityLabels.lifecycleLabel': 'Lifecycle';
+    readonly 'entityLabels.systemLabel': 'System';
+    readonly 'entityLabels.domainLabel': 'Domain';
+    readonly 'entityLabels.partOfLabel': 'Part of';
     readonly 'entityLinksCard.title': 'Links';
     readonly 'entityLinksCard.readMoreButtonTitle': 'Read more';
     readonly 'entityLinksCard.emptyDescription': 'No links defined for this entity. You can add links to your entity YAML as shown in the highlighted example below:';

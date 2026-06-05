@@ -37,6 +37,7 @@ import { EntityHeader } from '../EntityHeader';
 import { EntityTabs } from '../EntityTabs';
 import { EntityContentGroupDefinitions } from '@backstage/plugin-catalog-react/alpha';
 import { EntityLayoutRoute, useEntityLayoutRoutes } from './entityLayoutRoutes';
+
 export type { EntityLayoutRouteProps } from './entityLayoutRoutes';
 
 /** @public */

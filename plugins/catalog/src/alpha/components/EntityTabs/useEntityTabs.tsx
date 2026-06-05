@@ -51,8 +51,8 @@ export function buildHeaderTabs(
   }, {} as Record<string, { group?: EntityContentGroupDefinitions[string]; items: HeaderNavTab[] }>);
   const order = Object.keys(groupDefinitions);
   const entries = Object.entries(groups).sort(([a], [b]) => {
-    const ai = order.indexOf(a),
-      bi = order.indexOf(b);
+    const ai = order.indexOf(a);
+    const bi = order.indexOf(b);
     if (ai !== -1 && bi !== -1) return ai - bi;
     if (ai !== -1) return -1;
     if (bi !== -1) return 1;

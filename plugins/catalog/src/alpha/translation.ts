@@ -124,6 +124,9 @@ export const catalogTranslationRef = createTranslationRef({
       warningPanelTitle: 'Entity not found',
       ownerLabel: 'Owner',
       lifecycleLabel: 'Lifecycle',
+      systemLabel: 'System',
+      domainLabel: 'Domain',
+      partOfLabel: 'Part of',
     },
     entityLinksCard: {
       title: 'Links',

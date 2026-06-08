@@ -18,7 +18,7 @@ import { Entity } from '@backstage/catalog-model';
 import { configApiRef } from '@backstage/core-plugin-api';
 import { mockApis, TestApiProvider } from '@backstage/test-utils';
 import { makeStyles } from '@material-ui/core/styles';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
 import { PreviewCatalogInfoComponent } from './PreviewCatalogInfoComponent';
 

@@ -1413,44 +1413,51 @@ describe.each(databases.eachSupportedId())('migrations, %p', databaseId => {
     await knex.destroy();
   });
 
-  it('20260609000000_drop_search_entity_id_idx.js', async () => {
+  it('20260608000000_search_autovacuum_and_ndistinct.js', async () => {
     const knex = await databases.init(databaseId);
     const client = knex.client.config.client;
+    const isPg = typeof client === 'string' && client.includes('pg');
 
     await migrateUntilBefore(
       knex,
-      '20260609000000_drop_search_entity_id_idx.js',
+      '20260608000000_search_autovacuum_and_ndistinct.js',
     );
 
-    async function indexExists(): Promise<boolean> {
-      if (typeof client === 'string' && client.includes('pg')) {
-        const r = await knex.raw(
-          `SELECT 1 FROM pg_class c
-           JOIN pg_namespace n ON n.oid = c.relnamespace
-           WHERE c.relname = 'search_entity_id_idx'
-             AND c.relkind = 'i'
-             AND n.nspname = current_schema()`,
-        );
-        return r.rows.length > 0;
-      } else if (typeof client === 'string' && client.includes('mysql')) {
-        const [rows] = await knex.raw(
-          `SHOW INDEX FROM \`search\` WHERE Key_name = 'search_entity_id_idx'`,
-        );
-        return rows.length > 0;
-      }
+    async function hasAutovacuumOptions(): Promise<boolean> {
+      if (!isPg) return false;
       const r = await knex.raw(
-        `SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'search_entity_id_idx'`,
+        `SELECT reloptions FROM pg_class WHERE relname = 'search'`,
       );
-      return r.length > 0;
+      const opts: string[] | null = r.rows[0]?.reloptions;
+      return (
+        !!opts &&
+        opts.includes('autovacuum_vacuum_scale_factor=0.01') &&
+        opts.includes('autovacuum_analyze_scale_factor=0.01')
+      );
     }
 
-    expect(await indexExists()).toBe(true);
+    async function hasNdistinctOverride(): Promise<boolean> {
+      if (!isPg) return false;
+      const r = await knex.raw(
+        `SELECT attoptions FROM pg_attribute
+         WHERE attrelid = 'search'::regclass AND attname = 'entity_id'`,
+      );
+      const opts: string[] | null = r.rows[0]?.attoptions;
+      return !!opts && opts.includes('n_distinct=-1');
+    }
+
+    expect(await hasAutovacuumOptions()).toBe(false);
+    expect(await hasNdistinctOverride()).toBe(false);
 
     await migrateUpOnce(knex);
-    expect(await indexExists()).toBe(false);
+
+    expect(await hasAutovacuumOptions()).toBe(isPg);
+    expect(await hasNdistinctOverride()).toBe(isPg);
 
     await migrateDownOnce(knex);
-    expect(await indexExists()).toBe(true);
+
+    expect(await hasAutovacuumOptions()).toBe(false);
+    expect(await hasNdistinctOverride()).toBe(false);
 
     await knex.destroy();
   });

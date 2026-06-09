@@ -37,6 +37,7 @@ export type WithoutReservedFields<TSchema extends z.ZodObject> = Extract<
     : ReservedFieldError<K & string>
   : never;
 
+/** @public */
 export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
   TAuthMethod extends any
     ? {
@@ -49,6 +50,7 @@ export type MatchAuth<TAuthMethods extends readonly ConnectionAuthMethod[]> = (
   query: string,
 ) => ConnectionAuthValue<TAuthMethods[number]> | undefined;
 
+/** @public */
 export type ConnectionType<
   TType extends string = string,
   TConfigSchema extends z.ZodObject = z.ZodObject,
@@ -67,6 +69,7 @@ export type ConnectionType<
   ): ConnectionAuthValue<TAuthMethods[number]> | undefined;
 };
 
+/** @public */
 export type ConnectionAuthMethod<
   TMethod extends string = string,
   TConfigSchema extends z.ZodObject = z.ZodObject,
@@ -75,6 +78,7 @@ export type ConnectionAuthMethod<
   configSchema: TConfigSchema;
 };
 
+/** @public */
 export type ConnectionAuthMethodKey<
   T extends ConnectionType | ConnectionTypeKey,
 > = LookupConnectionType<T>['authMethods'][number]['method'];

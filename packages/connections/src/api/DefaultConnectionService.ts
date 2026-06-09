@@ -136,6 +136,7 @@ class PluginConnectionsService implements ConnectionsService {
   }
 }
 
+/** @public */
 export class DefaultConnectionsService {
   private readonly logger: LoggerService;
   private readonly connections: RootConnection[];

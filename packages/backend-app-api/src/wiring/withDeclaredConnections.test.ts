@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { mockServices } from '@backstage/backend-test-utils';
-import { DefaultConnectionsService } from './DefaultConnectionService';
+import { DefaultConnectionsService } from '@backstage/connections';
 import { withDeclaredConnections } from './withDeclaredConnections';
 import { JsonArray } from '@backstage/types';
 
@@ -80,14 +80,11 @@ describe('withDeclaredConnections', () => {
       logger: mockServices.logger.mock(),
       config: mockConnectionsConfig([githubConnection, gitlabConnection]),
     });
-    // The plugin-level service sees both types (aggregated from plugin + modules)
     const pluginService = root.forPlugin('catalog');
 
-    // Module A only declared github
     const moduleA = withDeclaredConnections(pluginService, [
       { type: 'github' },
     ]);
-    // Module B only declared gitlab
     const moduleB = withDeclaredConnections(pluginService, [
       { type: 'gitlab' },
     ]);

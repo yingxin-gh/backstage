@@ -27,6 +27,7 @@ import { GoogleGcsConnectionType } from '../schema/googleGcs';
 import { HarnessConnectionType } from '../schema/harness';
 import { ConnectionType } from '../api/ConnectionType';
 
+/** @public */
 export const connectionTypes = {
   'aws-codecommit': AwsCodeCommitConnectionType,
   'aws-s3': AwsS3ConnectionType,
@@ -42,8 +43,10 @@ export const connectionTypes = {
   harness: HarnessConnectionType,
 } as const satisfies { [K in string]: ConnectionType<K> };
 
+/** @public */
 export type ConnectionTypeKey = keyof typeof connectionTypes;
 
+/** @public */
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
   T extends ConnectionTypeKey ? (typeof connectionTypes)[T] : T;
 

@@ -68,7 +68,7 @@ type DepsToInstances<
 /**
  * Declares that a plugin or module consumes a particular connection type.
  *
- * @alpha
+ * @public
  */
 export interface ConnectionRegistration {
   /**

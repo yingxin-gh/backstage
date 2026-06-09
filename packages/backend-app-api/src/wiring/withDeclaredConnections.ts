@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import type { ConnectionRegistration } from '@backstage/backend-plugin-api';
-import type { ConnectionsService } from './ConnectionsService';
+import type { ConnectionsService } from '@backstage/connections';
 import { InputError } from '@backstage/errors';
 
 /** @internal */

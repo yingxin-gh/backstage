@@ -51,9 +51,9 @@ import { BackendStartupError } from './BackendStartupError';
 import { createAllowBootFailurePredicate } from './createAllowBootFailurePredicate';
 import {
   connectionsServiceRef,
-  withDeclaredConnections,
   type ConnectionsService,
 } from '@backstage/connections';
+import { withDeclaredConnections } from './withDeclaredConnections';
 
 export interface BackendRegisterInit {
   consumes: Set<ServiceOrExtensionPoint>;

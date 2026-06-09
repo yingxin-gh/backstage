@@ -21,13 +21,7 @@ import {
 } from '@backstage/backend-plugin-api';
 import { ConnectionsService, DefaultConnectionsService } from './api';
 
-/**
- * ************ CHANGE ************
- * The {@link EventsService} that allows to publish events, and subscribe to topics.
- * Uses the `root` scope so that events can be shared across all plugins, modules, and more.
- *
- * @public
- */
+/** @public */
 export const connectionsServiceRef = createServiceRef<ConnectionsService>({
   id: 'core.connections',
   scope: 'plugin',

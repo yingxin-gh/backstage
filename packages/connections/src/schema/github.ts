@@ -16,6 +16,7 @@
 import { createConnectionType } from '../system/createConnectionType';
 import { z } from 'zod/v4';
 
+/** @public */
 export const GithubConnectionType = createConnectionType({
   type: 'github',
   configSchema: z.object({

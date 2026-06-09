@@ -23,7 +23,7 @@ import type {
  * Declares that a plugin or module uses a particular connection type.
  * Must be called inside the `register` callback, before `registerInit`.
  *
- * @alpha
+ * @public
  */
 export function declareConnection(
   reg: BackendPluginRegistrationPoints | BackendModuleRegistrationPoints,

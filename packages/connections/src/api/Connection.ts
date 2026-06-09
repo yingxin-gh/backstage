@@ -21,7 +21,8 @@ import {
   LookupConnectionType,
 } from '../definitions';
 
-type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
+/** @public */
+export type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
   ConnectionAuthValue<LookupConnectionType<T>['authMethods'][number]>;
 
 // A connection of a specific type.
@@ -31,6 +32,7 @@ type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
 //   shape returned by `ConnectionsService.find`.
 // - With no parameters: an open shape suitable for internal storage.
 //   Use `AnyConnection` when you want a discriminated union for narrowing.
+/** @public */
 export type Connection<
   T extends ConnectionType | ConnectionTypeKey = ConnectionType,
   TAuthMethod extends string = string,

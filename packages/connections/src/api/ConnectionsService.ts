@@ -17,6 +17,7 @@ import { ConnectionTypeKey } from '../definitions';
 import { Connection } from './Connection';
 import { ConnectionAuthMethodKey } from './ConnectionType';
 
+/** @public */
 export interface ConnectionsService {
   find<
     TType extends ConnectionTypeKey,

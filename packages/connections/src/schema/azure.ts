@@ -16,6 +16,7 @@
 import { createConnectionType } from '../system/createConnectionType';
 import { z } from 'zod/v4';
 
+/** @public */
 export const AzureConnectionType = createConnectionType({
   type: 'azure',
   configSchema: z.object({

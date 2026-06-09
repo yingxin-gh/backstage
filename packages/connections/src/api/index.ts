@@ -15,6 +15,11 @@
  */
 
 export type { ConnectionsService } from './ConnectionsService';
+export type { Connection, AnyConnection, AuthValue } from './Connection';
+export type {
+  ConnectionType,
+  ConnectionAuthMethod,
+  ConnectionAuthMethodKey,
+  ConnectionAuthValue,
+} from './ConnectionType';
 export { DefaultConnectionsService } from './DefaultConnectionService';
-export { withDeclaredConnections } from './withDeclaredConnections';
-export { declareConnection } from './declareConnection';

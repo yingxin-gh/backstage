@@ -229,7 +229,7 @@ export class BackendInitializer {
         ) ?? []
       );
     }
-    // For plugins, aggregate registrations from the plugin itself and all its modules
+    // Aggregate registrations from the plugin
     const result: ConnectionRegistration[] = [];
     for (const [key, registrations] of this.#callerConnectionRegistrations) {
       if (key === pluginId) {

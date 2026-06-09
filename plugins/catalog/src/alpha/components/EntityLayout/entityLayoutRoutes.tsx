@@ -35,6 +35,7 @@ const dataKey = 'plugin.catalog.entityLayoutRoute';
 export const EntityLayoutRoute: (props: EntityLayoutRouteProps) => null = () =>
   null;
 attachComponentData(EntityLayoutRoute, dataKey, true);
+// Ensures mount points discovered within a route use the route's own path.
 attachComponentData(EntityLayoutRoute, 'core.gatherMountPoints', true);
 
 export function useEntityLayoutRoutes(

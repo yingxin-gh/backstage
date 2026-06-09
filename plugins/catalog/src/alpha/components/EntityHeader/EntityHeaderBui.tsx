@@ -16,6 +16,7 @@
 
 import { useMemo } from 'react';
 import {
+  Box,
   ButtonIcon,
   Header,
   HeaderMetadataUsers,
@@ -90,16 +91,20 @@ function useOwnerUsers(entity: Entity | undefined): HeaderMetadataUser[] {
 function HierarchyLinks(props: { refs: CompoundEntityRef[] }) {
   const entityLink = useEntityRefLink();
   return (
-    <>
+    <Box
+      as="ul"
+      display="inline"
+      style={{ listStyle: 'none', margin: 0, padding: 0 }}
+    >
       {props.refs.map((ref, index) => (
-        <span key={stringifyEntityRef(ref)}>
+        <Box as="li" display="inline" key={stringifyEntityRef(ref)}>
           {index > 0 ? ', ' : null}
           <Link href={entityLink(ref)} standalone>
             {ref.name}
           </Link>
-        </span>
+        </Box>
       ))}
-    </>
+    </Box>
   );
 }
 

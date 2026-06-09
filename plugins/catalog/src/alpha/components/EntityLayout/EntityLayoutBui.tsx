@@ -96,6 +96,47 @@ function InspectEntityDialogHost() {
   );
 }
 
+function EntityLayoutContent(props: {
+  content?: React.JSX.Element;
+  NotFoundComponent?: ReactNode;
+}) {
+  const { kind } = useRouteRefParams(entityRouteRef);
+  const { entity, loading, error } = useAsyncEntity();
+  const { t } = useTranslationRef(catalogTranslationRef);
+
+  if (loading) {
+    return <Progress />;
+  }
+  if (error) {
+    return (
+      <Container>
+        <Alert status="danger" title={error.toString()} />
+      </Container>
+    );
+  }
+  if (!entity) {
+    return (
+      <Container>
+        {props.NotFoundComponent ?? (
+          <Alert
+            status="warning"
+            title={t('entityLabels.warningPanelTitle')}
+            description={t('entityPage.notFoundMessage', {
+              kind,
+              link: (
+                <Link to="https://backstage.io/docs/features/software-catalog/references">
+                  {t('entityPage.notFoundLinkText')}
+                </Link>
+              ),
+            })}
+          />
+        )}
+      </Container>
+    );
+  }
+  return <Container>{props.content ?? <NotFoundErrorPage />}</Container>;
+}
+
 export function EntityLayoutBui(props: {
   children?: ReactNode;
   NotFoundComponent?: ReactNode;
@@ -112,11 +153,9 @@ export function EntityLayoutBui(props: {
     contextMenuItems,
     HeaderComponent,
   } = props;
-  const { kind } = useRouteRefParams(entityRouteRef);
-  const { entity, loading, error } = useAsyncEntity();
+  const { entity } = useAsyncEntity();
   const routes = useEntityLayoutRoutes(children, entity);
   const tabs = useEntityTabs({ routes, groupDefinitions, defaultContentOrder });
-  const { t } = useTranslationRef(catalogTranslationRef);
 
   return (
     <main>
@@ -130,31 +169,10 @@ export function EntityLayoutBui(props: {
           contextMenuItems={contextMenuItems}
         />
       )}
-      {loading && <Progress />}
-      {entity && <Container>{tabs.content ?? <NotFoundErrorPage />}</Container>}
-      {error && (
-        <Container>
-          <Alert status="danger" title={error.toString()} />
-        </Container>
-      )}
-      {!loading && !error && !entity && (
-        <Container>
-          {NotFoundComponent ?? (
-            <Alert
-              status="warning"
-              title={t('entityLabels.warningPanelTitle')}
-              description={t('entityPage.notFoundMessage', {
-                kind,
-                link: (
-                  <Link to="https://backstage.io/docs/features/software-catalog/references">
-                    {t('entityPage.notFoundLinkText')}
-                  </Link>
-                ),
-              })}
-            />
-          )}
-        </Container>
-      )}
+      <EntityLayoutContent
+        content={tabs.content}
+        NotFoundComponent={NotFoundComponent}
+      />
       <InspectEntityDialogHost />
     </main>
   );

@@ -64,12 +64,20 @@ export async function createRouter({
       });
     } catch (e) {
       if (e instanceof NotFoundError) {
-        res.status(400).json('Cannot find connection');
+        res.status(404).json('Cannot find connection');
+        return;
+      }
+      if (e instanceof Error && e.name === 'InputError') {
+        res.status(400).json(e.message);
+        return;
+      }
+      if (e instanceof Error && e.name === 'NotAllowedError') {
+        res.status(403).json(e.message);
         return;
       }
       throw e;
     }
-    res.status(201).json(connection);
+    res.status(200).json(connection);
   });
 
   return router;

@@ -1,23 +1,19 @@
-# example-backend-connections
+# connections-example-backend
 
 This plugin backend was templated using the Backstage CLI. You should replace this text with a description of your plugin backend.
 
 ## Installation
 
-This plugin is installed via the `@backstage/plugin-example-backend-connections-backend` package. To install it to your backend package, run the following command:
+This plugin is installed via the `@backstage/plugin-connections-example-backend` package. To install it to your backend package, run the following command:
 
-```bash
-# From your root directory
-yarn --cwd packages/backend add @backstage/plugin-example-backend-connections-backend
-```
+    # From your root directory
+    yarn --cwd packages/backend add @backstage/plugin-connections-example-backend
 
 Then add the plugin to your backend in `packages/backend/src/index.ts`:
 
-```ts
-const backend = createBackend();
-// ...
-backend.add(import('@backstage/plugin-example-backend-connections-backend'));
-```
+    const backend = createBackend();
+    // ...
+    backend.add(import('@backstage/plugin-connections-example-backend'));
 
 ## Development
 

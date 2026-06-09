@@ -18,26 +18,12 @@ import { mockServices } from '@backstage/backend-test-utils';
 import { catalogServiceMock } from '@backstage/plugin-catalog-node/testUtils';
 import { connectionsServiceFactory } from '@backstage/connections';
 
-// TEMPLATE NOTE:
-// This is the development setup for your plugin that wires up a
-// minimal backend that can use both real and mocked plugins and services.
+// Development setup for this plugin that wires up a minimal backend.
 //
-// Start up the backend by running `yarn start` in the package directory.
-// Once it's up and running, try out the following requests:
+// Start up the backend by running `yarn start` in this package directory.
+// Once it's up and running, try out a connection lookup request:
 //
-// Create a new todo item, standalone or for the sample component:
-//
-//   curl http://localhost:7007/api/example-backend-connections/todos -H 'Content-Type: application/json' -d '{"title": "My Todo"}'
-//   curl http://localhost:7007/api/example-backend-connections/todos -H 'Content-Type: application/json' -d '{"title": "My Todo", "entityRef": "component:default/sample"}'
-//
-// List TODOs:
-//
-//   curl http://localhost:7007/api/example-backend-connections/todos
-//
-// Explicitly make an unauthenticated request, or with service auth:
-//
-//   curl http://localhost:7007/api/example-backend-connections/todos -H 'Authorization: Bearer mock-none-token'
-//   curl http://localhost:7007/api/example-backend-connections/todos -H 'Authorization: Bearer mock-service-token'
+//   curl 'http://localhost:7007/api/connections-example-backend/find?type=gitlab&url=https%3A%2F%2Fgitlab.com&auth=token'
 
 const backend = createBackend();
 

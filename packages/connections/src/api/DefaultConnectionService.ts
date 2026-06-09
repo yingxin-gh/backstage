@@ -158,9 +158,14 @@ export class DefaultConnectionsService {
 
   #registerConnectionsFromConfig(): void {
     const legacy = this.#validateLegacy(getLegacyIntegrations(this.config));
+
+    const rawConnections = this.config.getOptional('connections');
+    if (rawConnections !== undefined && !Array.isArray(rawConnections)) {
+      throw new InputError('Expected "connections" config to be an array of connection objects');
+    }
+
     const fromConfig = this.#validateConfig(
-      (this.config.getOptional('connections') as JsonObject[] | undefined) ??
-        [],
+      (rawConnections as JsonObject[] | undefined) ?? [],
     );
 
     if (legacy.length === 0 && fromConfig.length === 0) {

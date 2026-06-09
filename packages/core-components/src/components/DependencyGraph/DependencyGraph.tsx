@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { Suspense, lazy } from 'react';
-import { DependencyGraphProps } from './DependencyGraphContent';
+import { type ComponentType, Suspense, lazy } from 'react';
+import type { DependencyGraphProps } from './DependencyGraphContent';
 
 export type { DependencyGraphProps } from './DependencyGraphContent';
 
 const LazyDependencyGraphContent = lazy(() =>
   import('./DependencyGraphContent').then(m => ({
-    default: m.DependencyGraph as React.ComponentType<any>,
+    default: m.DependencyGraph as ComponentType<any>,
   })),
 );
 

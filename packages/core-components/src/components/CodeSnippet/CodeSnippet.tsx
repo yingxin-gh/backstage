@@ -15,7 +15,7 @@
  */
 
 import { Suspense, lazy } from 'react';
-import { CodeSnippetProps } from './CodeSnippetContent';
+import type { CodeSnippetProps } from './CodeSnippetContent';
 
 export type { CodeSnippetProps } from './CodeSnippetContent';
 

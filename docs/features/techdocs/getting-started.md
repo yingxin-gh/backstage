@@ -18,7 +18,7 @@ Now let us tweak some configurations to suit your needs.
 
 The configuration of TechDocs is based on three primary settings:
 
-- `builder` - Determines whether the documentation is generated locally using the TechDocs backend or fetched for display from an external source.
+- `builder` - Determines whether the documentation is generated locally using the TechDocs backend or is built/published outside of Backstage and fetched for display from the configured publisher.
 - `generator` - Determines whether the documentation is generated with a Docker image running `mkdocs` or with your own local copy of `mkdocs`.
 - `publisher` - Specifies where the generated documentation is stored, such as on your local server or another location like a Google Cloud Storage bucket.
 

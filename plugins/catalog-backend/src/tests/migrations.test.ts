@@ -1423,10 +1423,18 @@ describe.each(databases.eachSupportedId())('migrations, %p', databaseId => {
       '20260608000000_search_autovacuum_and_ndistinct.js',
     );
 
-    async function hasAutovacuumOptions(): Promise<boolean> {
+    const tunedTables = [
+      'search',
+      'final_entities',
+      'relations',
+      'refresh_state_references',
+    ];
+
+    async function hasAutovacuumOptions(table: string): Promise<boolean> {
       if (!isPg) return false;
       const r = await knex.raw(
-        `SELECT reloptions FROM pg_class WHERE relname = 'search'`,
+        `SELECT reloptions FROM pg_class WHERE relname = ?`,
+        [table],
       );
       const opts: string[] | null = r.rows[0]?.reloptions;
       return (
@@ -1446,17 +1454,23 @@ describe.each(databases.eachSupportedId())('migrations, %p', databaseId => {
       return !!opts && opts.includes('n_distinct=-1');
     }
 
-    expect(await hasAutovacuumOptions()).toBe(false);
+    for (const table of tunedTables) {
+      expect(await hasAutovacuumOptions(table)).toBe(false);
+    }
     expect(await hasNdistinctOverride()).toBe(false);
 
     await migrateUpOnce(knex);
 
-    expect(await hasAutovacuumOptions()).toBe(isPg);
+    for (const table of tunedTables) {
+      expect(await hasAutovacuumOptions(table)).toBe(isPg);
+    }
     expect(await hasNdistinctOverride()).toBe(isPg);
 
     await migrateDownOnce(knex);
 
-    expect(await hasAutovacuumOptions()).toBe(false);
+    for (const table of tunedTables) {
+      expect(await hasAutovacuumOptions(table)).toBe(false);
+    }
     expect(await hasNdistinctOverride()).toBe(false);
 
     await knex.destroy();

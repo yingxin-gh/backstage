@@ -5,7 +5,7 @@ description: Getting Started Documentation
 ---
 
 ::::info
-This documentation is written for the new frontend system, which is the default in new Backstage apps. If your Backstage app still uses the old frontend system, then follow the TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md) instead:
+This documentation is written for the new frontend system, which is the default in new Backstage apps. If your Backstage app still uses the old frontend system, then follow the TechDocs installation instructions in the [old frontend system version of this guide](./getting-started--old.md) instead.
 ::::
 
 If you haven't set up Backstage already, start [here](../../getting-started/index.md).

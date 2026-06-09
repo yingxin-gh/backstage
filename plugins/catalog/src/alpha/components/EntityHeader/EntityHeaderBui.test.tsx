@@ -100,7 +100,7 @@ describe('EntityHeaderBui', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Component')).toBeInTheDocument();
     expect(screen.getByText('service')).toBeInTheDocument();
-    expect(screen.getByText('Catalog description')).toBeInTheDocument();
+    expect(screen.queryByText('Catalog description')).not.toBeInTheDocument();
     expect(screen.getByText('experimental')).toBeInTheDocument();
     expect(await screen.findByText('Team A')).toBeInTheDocument();
     expect(

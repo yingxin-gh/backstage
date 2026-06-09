@@ -196,7 +196,6 @@ export function EntityHeaderBui(props: {
         { label: entity?.kind ?? routeParams.kind },
         ...(type ? [{ label: type }] : []),
       ]}
-      description={entity?.metadata.description}
       metadata={metadata}
       tabs={entity ? props.tabs : undefined}
       activeTabId={props.activeTabId}

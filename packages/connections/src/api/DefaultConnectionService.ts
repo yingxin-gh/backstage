@@ -161,7 +161,9 @@ export class DefaultConnectionsService {
 
     const rawConnections = this.config.getOptional('connections');
     if (rawConnections !== undefined && !Array.isArray(rawConnections)) {
-      throw new InputError('Expected "connections" config to be an array of connection objects');
+      throw new InputError(
+        'Expected "connections" config to be an array of connection objects',
+      );
     }
 
     const fromConfig = this.#validateConfig(

@@ -918,7 +918,7 @@ describe.each(databases.eachSupportedId())(
         ]);
       });
 
-      it('handles more than 200 refs in a single query on PostgreSQL', async () => {
+      it('handles more than 200 refs without chunking on PostgreSQL', async () => {
         await createDatabase();
 
         const names = Array.from({ length: 250 }, (_, i) => `item-${i}`);

@@ -338,8 +338,12 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
   async entitiesBatch(
     request: EntitiesBatchRequest,
   ): Promise<EntitiesBatchResponse> {
+    if (request.entityRefs.length === 0) {
+      return { items: processRawEntitiesResult([], request.fields) };
+    }
+
     const lookup = new Map<string, string>();
-    const isPg = this.database.client.config.client.includes('pg');
+    const isPg = this.database.client.config.client === 'pg';
 
     const chunks = isPg
       ? [request.entityRefs]
@@ -352,7 +356,9 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
       });
 
       if (isPg) {
-        query = query.whereRaw('final_entities.entity_ref = ANY(?)', [chunk]);
+        query = query.whereRaw('final_entities.entity_ref = ANY(?::text[])', [
+          chunk,
+        ]);
       } else {
         query = query.whereIn('final_entities.entity_ref', chunk);
       }

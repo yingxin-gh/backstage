@@ -1425,7 +1425,11 @@ describe.each(databases.eachSupportedId())('migrations, %p', databaseId => {
     async function indexExists(): Promise<boolean> {
       if (typeof client === 'string' && client.includes('pg')) {
         const r = await knex.raw(
-          `SELECT 1 FROM pg_class WHERE relname = 'search_entity_id_idx' AND relkind = 'i'`,
+          `SELECT 1 FROM pg_class c
+           JOIN pg_namespace n ON n.oid = c.relnamespace
+           WHERE c.relname = 'search_entity_id_idx'
+             AND c.relkind = 'i'
+             AND n.nspname = current_schema()`,
         );
         return r.rows.length > 0;
       } else if (typeof client === 'string' && client.includes('mysql')) {

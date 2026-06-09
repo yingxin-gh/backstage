@@ -36,8 +36,9 @@
  *
  * ## Cost
  *
- * - **PostgreSQL**: `DROP INDEX CONCURRENTLY` — non-blocking, instant
- *   metadata change. Reclaims ~384 MB on a 490K-entity catalog.
+ * - **PostgreSQL**: `DROP INDEX CONCURRENTLY` — non-blocking for
+ *   reads and writes, but may wait for concurrent transactions to
+ *   finish. Reclaims ~384 MB on a 490K-entity catalog.
  * - **MySQL / SQLite**: standard `DROP INDEX`. Reclaims proportionally
  *   less space on smaller catalogs.
  *

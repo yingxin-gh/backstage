@@ -225,7 +225,7 @@ Scope: The auditor core service, along with auditor usage in the main repository
 
 ### Codemods
 
-Team: @backstage/codemods-maintainers — [Review board](https://github.com/orgs/backstage/projects/14/views/1?filterQuery=no%3Aassignee+reviewers%3Acodemods-maintainers)
+Team: @backstage/codemods-maintainers
 
 Scope: The official Backstage codemods and migration tooling in the [codemods repository](https://github.com/backstage/codemods)
 

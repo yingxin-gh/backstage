@@ -16,8 +16,9 @@
 import type {
   BackendModuleRegistrationPoints,
   BackendPluginRegistrationPoints,
-  ConnectionRegistration,
 } from '@backstage/backend-plugin-api';
+
+import type { ConnectionRegistration } from '@backstage/backend-plugin-api/alpha';
 
 /**
  * Declares that a plugin or module uses a particular connection type.

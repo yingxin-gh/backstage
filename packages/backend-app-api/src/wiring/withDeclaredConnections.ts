@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ConnectionRegistration } from '@backstage/backend-plugin-api';
+import type { ConnectionRegistration } from '@backstage/backend-plugin-api/alpha';
 import type { ConnectionsService } from '@backstage/connections';
 import { InputError } from '@backstage/errors';
 

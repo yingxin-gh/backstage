@@ -211,13 +211,6 @@ export type CacheServiceSetOptions = {
 };
 
 // @public
-export interface ConnectionRegistration {
-  description?: string;
-  required?: boolean;
-  type: string;
-}
-
-// @public
 export namespace coreServices {
   const auth: ServiceRef<AuthService, 'plugin', 'singleton'>;
   const userInfo: ServiceRef<UserInfoService, 'plugin', 'singleton'>;

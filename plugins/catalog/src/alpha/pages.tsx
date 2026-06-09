@@ -222,8 +222,9 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
             (() => true),
         }));
 
-        // Prefer filtered contributions within each header family. A future
-        // priority or specificity value could provide more precise ordering.
+        // Get available headers, sorted by if they have a filter function or not.
+        // TODO(blam): we should really have priority or some specificity here which can be used to sort the headers.
+        // That can be done with embedding the priority in the dataRef alongside the filter function.
         const headerLayouts = inputs.headerLayouts
           .map(layout => {
             const filterFunction = layout.get(

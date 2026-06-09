@@ -91,11 +91,7 @@ function useOwnerUsers(entity: Entity | undefined): HeaderMetadataUser[] {
 function HierarchyLinks(props: { refs: CompoundEntityRef[] }) {
   const entityLink = useEntityRefLink();
   return (
-    <Box
-      as="ul"
-      display="inline"
-      style={{ listStyle: 'none', margin: 0, padding: 0 }}
-    >
+    <Box as="ul" display="inline" m={0} p={0} style={{ listStyle: 'none' }}>
       {props.refs.map((ref, index) => (
         <Box as="li" display="inline" key={stringifyEntityRef(ref)}>
           {index > 0 ? ', ' : null}

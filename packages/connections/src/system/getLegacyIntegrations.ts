@@ -265,14 +265,10 @@ function convertHarness(entries: Config[]): JsonObject[] {
   return entries.map(entry => {
     const auth: JsonObject[] = [];
 
-    const apiKey = entry.getOptionalString('apiKey');
-    if (apiKey !== undefined) {
-      auth.push({ method: 'apiKey', apiKey });
-    }
-
     const token = entry.getOptionalString('token');
     if (token !== undefined) {
-      auth.push({ method: 'token', token });
+      const apiKey = entry.getOptionalString('apiKey');
+      auth.push(omitUndefined({ method: 'token', token, apiKey }));
     }
 
     return omitUndefined({

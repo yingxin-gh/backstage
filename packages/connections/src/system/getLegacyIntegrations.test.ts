@@ -1095,10 +1095,7 @@ describe('getLegacyIntegrations', () => {
         {
           type: 'harness',
           host: 'app.harness.io',
-          auth: [
-            { method: 'apiKey', apiKey: 'ak' },
-            { method: 'token', token: 'tok' },
-          ],
+          auth: [{ method: 'token', token: 'tok', apiKey: 'ak' }],
         },
       ]);
     });
@@ -1107,7 +1104,7 @@ describe('getLegacyIntegrations', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
-            harness: [{ host: 'app.harness.io', apiKey: 'ak' }],
+            harness: [{ host: 'app.harness.io', token: 'tok', apiKey: 'ak' }],
           },
         },
       });

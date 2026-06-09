@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "backstage": {
     "role": "backend-plugin",
-    "pluginId": "connections-example-backend"
+    "pluginId": "connections-example-backend",
+    "pluginPackages": [
+      "@backstage/plugin-connections-example-backend"
+    ]
   },
   "publishConfig": {
     "access": "public",
@@ -11,6 +14,11 @@
     "types": "dist/index.d.ts"
   },
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/backstage/backstage",
+    "directory": "plugins/connections-example-backend"
+  },
   "license": "Apache-2.0",
   "main": "src/index.ts",
   "types": "src/index.ts",

@@ -4,7 +4,10 @@
   "description": "Connections framework used by Backstage to better manage external connections used by integrations and plugins",
   "backstage": {
     "role": "node-library",
-    "pluginId": "connections"
+    "pluginId": "connections",
+    "pluginPackages": [
+      "@backstage/connections"
+    ]
   },
   "publishConfig": {
     "access": "public",

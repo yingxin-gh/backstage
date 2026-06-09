@@ -1412,4 +1412,46 @@ describe.each(databases.eachSupportedId())('migrations, %p', databaseId => {
 
     await knex.destroy();
   });
+
+  it('20260609000000_drop_search_entity_id_idx.js', async () => {
+    const knex = await databases.init(databaseId);
+    const client = knex.client.config.client;
+
+    await migrateUntilBefore(
+      knex,
+      '20260609000000_drop_search_entity_id_idx.js',
+    );
+
+    async function indexExists(): Promise<boolean> {
+      if (typeof client === 'string' && client.includes('pg')) {
+        const r = await knex.raw(
+          `SELECT 1 FROM pg_class c
+           JOIN pg_namespace n ON n.oid = c.relnamespace
+           WHERE c.relname = 'search_entity_id_idx'
+             AND c.relkind = 'i'
+             AND n.nspname = current_schema()`,
+        );
+        return r.rows.length > 0;
+      } else if (typeof client === 'string' && client.includes('mysql')) {
+        const [rows] = await knex.raw(
+          `SHOW INDEX FROM \`search\` WHERE Key_name = 'search_entity_id_idx'`,
+        );
+        return rows.length > 0;
+      }
+      const r = await knex.raw(
+        `SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'search_entity_id_idx'`,
+      );
+      return r.length > 0;
+    }
+
+    expect(await indexExists()).toBe(true);
+
+    await migrateUpOnce(knex);
+    expect(await indexExists()).toBe(false);
+
+    await migrateDownOnce(knex);
+    expect(await indexExists()).toBe(true);
+
+    await knex.destroy();
+  });
 });

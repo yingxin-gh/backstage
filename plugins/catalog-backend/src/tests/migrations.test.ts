@@ -1433,7 +1433,7 @@ describe.each(databases.eachSupportedId())('migrations, %p', databaseId => {
     async function hasAutovacuumOptions(table: string): Promise<boolean> {
       if (!isPg) return false;
       const r = await knex.raw(
-        `SELECT reloptions FROM pg_class WHERE relname = ?`,
+        `SELECT reloptions FROM pg_class WHERE oid = ?::regclass`,
         [table],
       );
       const opts: string[] | null = r.rows[0]?.reloptions;

@@ -339,14 +339,23 @@ export class DefaultEntitiesCatalog implements EntitiesCatalog {
     request: EntitiesBatchRequest,
   ): Promise<EntitiesBatchResponse> {
     const lookup = new Map<string, string>();
+    const isPg = this.database.client.config.client.includes('pg');
 
-    for (const chunk of lodashChunk(request.entityRefs, 200)) {
-      let query = this.database<DbFinalEntitiesRow>('final_entities')
-        .select({
-          entityRef: 'final_entities.entity_ref',
-          entity: 'final_entities.final_entity',
-        })
-        .whereIn('final_entities.entity_ref', chunk);
+    const chunks = isPg
+      ? [request.entityRefs]
+      : lodashChunk(request.entityRefs, 200);
+
+    for (const chunk of chunks) {
+      let query = this.database<DbFinalEntitiesRow>('final_entities').select({
+        entityRef: 'final_entities.entity_ref',
+        entity: 'final_entities.final_entity',
+      });
+
+      if (isPg) {
+        query = query.whereRaw('final_entities.entity_ref = ANY(?)', [chunk]);
+      } else {
+        query = query.whereIn('final_entities.entity_ref', chunk);
+      }
 
       if (request?.filter || request?.query) {
         query = applyEntityFilterToQuery({

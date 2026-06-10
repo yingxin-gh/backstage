@@ -6,11 +6,11 @@ on:
   workflow_dispatch: {}
 
 concurrency:
-  group: sync-patch-cleanup
+  group: sync-automation/patch-cleanup
   cancel-in-progress: true
 
 jobs:
-  sync-patch-cleanup:
+  sync-automation/patch-cleanup:
     name: Sync Patch Cleanup
     runs-on: ubuntu-latest
     if: github.repository == 'backstage/backstage'
@@ -108,7 +108,7 @@ jobs:
         env:
           FILES: ${{ steps.find-released.outputs.files }}
         run: |
-          BRANCH="patch-cleanup"
+          BRANCH="automation/patch-cleanup"
           git checkout -B "$BRANCH" master
 
           for file in $(echo "$FILES" | jq -r '.[]'); do
@@ -126,7 +126,7 @@ jobs:
         with:
           github-token: ${{ secrets.GH_SERVICE_ACCOUNT_TOKEN }}
           script: |
-            const branchName = 'patch-cleanup';
+            const branchName = 'automation/patch-cleanup';
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const files = JSON.parse(process.env.FILES);
@@ -167,7 +167,7 @@ jobs:
         with:
           github-token: ${{ secrets.GH_SERVICE_ACCOUNT_TOKEN }}
           script: |
-            const branchName = 'patch-cleanup';
+            const branchName = 'automation/patch-cleanup';
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 

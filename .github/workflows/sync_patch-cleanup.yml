@@ -63,12 +63,18 @@ jobs:
               return;
             }
 
-            // Get all release tags (non-next, non-rc)
+            // Get stable release tags only (exclude next, rc, beta, alpha, etc.)
             const releaseTags = execSync('git tag -l "v*.*.*" --sort=-v:refname')
               .toString()
               .trim()
               .split('\n')
-              .filter(t => t && !t.includes('next') && !t.includes('rc'));
+              .filter(t => t && /^v\d+\.\d+\.\d+$/.test(t));
+
+            if (releaseTags.length === 0) {
+              console.log('No stable release tags found');
+              core.setOutput('has_released', 'false');
+              return;
+            }
 
             const released = [];
             for (const file of patchFiles) {
@@ -77,10 +83,11 @@ jobs:
               const prNumber = match[1];
 
               // Check if "Patch from PR #NNNN" appears in any release tag's history.
+              // Anchored to the full subject line to prevent prefix false positives.
               // Pass all tags at once so git only walks the history once per patch file.
               try {
                 const log = execSync(
-                  `git log --oneline --max-count=1 --grep="Patch from PR #${prNumber}$" ${releaseTags.join(' ')}`,
+                  `git log --oneline --max-count=1 --extended-regexp --grep="^Patch from PR #${prNumber}$" ${releaseTags.join(' ')}`,
                   { encoding: 'utf8' },
                 ).trim();
                 if (log.length > 0) {

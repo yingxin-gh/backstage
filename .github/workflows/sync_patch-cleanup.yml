@@ -34,7 +34,7 @@ jobs:
       - name: Configure Git
         run: |
           git config --global user.email noreply@backstage.io
-          git config --global user.name 'Github patch cleanup workflow'
+          git config --global user.name 'GitHub patch cleanup workflow'
 
       - name: Find released patch files
         id: find-released
@@ -68,7 +68,7 @@ jobs:
               .toString()
               .trim()
               .split('\n')
-              .filter(t => !t.includes('next') && !t.includes('rc'));
+              .filter(t => t && !t.includes('next') && !t.includes('rc'));
 
             const released = [];
             for (const file of patchFiles) {
@@ -76,23 +76,20 @@ jobs:
               if (!match) continue;
               const prNumber = match[1];
 
-              // Check if "Patch from PR #NNNN" appears in any release tag's history
-              const isReleased = releaseTags.some(tag => {
-                try {
-                  const log = execSync(
-                    `git log --oneline ${tag} --grep="Patch from PR #${prNumber}" --max-count=1`,
-                    { encoding: 'utf8' },
-                  ).trim();
-                  return log.length > 0;
-                } catch {
-                  return false;
+              // Check if "Patch from PR #NNNN" appears in any release tag's history.
+              // Pass all tags at once so git only walks the history once per patch file.
+              try {
+                const log = execSync(
+                  `git log --oneline --max-count=1 --grep="Patch from PR #${prNumber}" ${releaseTags.join(' ')}`,
+                  { encoding: 'utf8' },
+                ).trim();
+                if (log.length > 0) {
+                  console.log(`${file} — released, marking for cleanup`);
+                  released.push(file);
+                } else {
+                  console.log(`${file} — not yet released, keeping`);
                 }
-              });
-
-              if (isReleased) {
-                console.log(`${file} — released, marking for cleanup`);
-                released.push(file);
-              } else {
+              } catch {
                 console.log(`${file} — not yet released, keeping`);
               }
             }

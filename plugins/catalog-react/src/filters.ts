@@ -110,12 +110,13 @@ export class EntityTextFilter implements EntityFilter {
   filterEntity(entity: Entity): boolean {
     const words = this.toUpperArray(this.value.split(/\s/));
     const exactMatch = this.toUpperArray([entity.metadata.tags]);
+    const targets = (entity.spec as { targets?: unknown })?.targets;
     const partialMatch = this.toUpperArray([
       entity.metadata.name,
       entity.metadata.title,
       (entity.spec?.profile as { displayName?: string })?.displayName,
       (entity.spec as { target?: string })?.target,
-      ...((entity.spec as { targets?: string[] })?.targets ?? []),
+      ...(Array.isArray(targets) ? targets : []),
     ]);
 
     for (const word of words) {

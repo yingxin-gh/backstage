@@ -15,14 +15,21 @@
  */
 
 /** @public */
-export type { Selection, SortDirection, Key } from 'react-aria-components';
+export type { Selection } from 'react-aria-components';
+/** @public */
+export type { SortDirection } from 'react-aria-components';
+/** @public */
+export type { Key } from 'react-aria-components';
 
 /** @public */
-export {
-  Focusable,
-  Separator,
-  ListBox,
-  ListBoxItem,
-  ListLayout,
-  Virtualizer,
-} from 'react-aria-components';
+export { Focusable } from 'react-aria-components';
+/** @public */
+export { Separator } from 'react-aria-components';
+/** @public */
+export { ListBox } from 'react-aria-components';
+/** @public */
+export { ListBoxItem } from 'react-aria-components';
+/** @public */
+export { ListLayout } from 'react-aria-components';
+/** @public */
+export { Virtualizer } from 'react-aria-components';

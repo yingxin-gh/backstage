@@ -72,12 +72,13 @@ The key trade-off is simplicity: connections are pure static data - hosts, API e
 
 Connections are configured as a flat array under `backend.connections` in `app-config.yaml`. The `backend` namespace is the natural home since connections are a backend concern, and avoids adding another top-level configuration key. Plugins should always consume connections through the connection service rather than reading the config directly. To enforce this, the framework may introduce restrictions in the config reading service that prevent plugins from accessing `backend.connections` directly, ensuring that all connection access goes through the connection service and its validation, matching, and scoping logic.
 
-Each entry has a `type` field that identifies the kind of external service:
+Each entry has a `type` field that identifies the kind of external service and an optional `name` field for human identification:
 
 ```yaml
 backend:
   connections:
     - type: github
+      name: production
       host: github.com
       apiBaseUrl: https://api.github.com
       rawBaseUrl: https://raw.githubusercontent.com
@@ -100,17 +101,20 @@ backend:
           allowedOwners:
             - internal-org
     - type: github
+      name: enterprise
       host: ghe.example.com
       apiBaseUrl: https://ghe.example.com/api/v3
       auth:
         - method: token
           token: ${GHE_TOKEN}
     - type: gitlab
+      name: production
       host: gitlab.com
       auth:
         - method: token
           token: ${GITLAB_TOKEN}
     - type: azure
+      name: production
       host: dev.azure.com
       auth:
         - method: pat
@@ -118,6 +122,8 @@ backend:
 ```
 
 Each connection entry has a `type`, base fields like `host`, and an `auth` array listing one or more authentication methods. Each auth entry has a `method` discriminator and method-specific fields. When a plugin queries for a connection, the service selects both the best connection and the best auth method, so the consumer receives a single connection with a single selected auth object.
+
+**Connection names.** The optional `name` field provides a human-readable identifier for a connection. It is not used for matching or selection — connections are still resolved by `type` and URL — but it serves two purposes: it makes the config easier to scan when an adopter has many connections of the same type, and it gives connection management interfaces a label to display instead of a raw host string. The `name` field is reserved by the framework alongside `type`, `auth`, and `match`, so connection type schemas cannot use it.
 
 **Auth method matching.** Each auth entry can optionally include a `match` block that controls when the entry is eligible for selection. The `match` key is reserved by the framework, and auth method schemas cannot use it. Currently `match` supports `plugins`, which restricts the auth entry to specific plugin IDs:
 
@@ -276,6 +282,7 @@ The `createConnectionType` helper captures the full definition: base config vali
 **What each piece does:**
 
 - **`type`** - the discriminator string used in config and queries. The framework adds `type` to the output automatically.
+- **`name`** - an optional human-readable identifier. The framework adds `name` to the schema automatically; it is not part of the `configSchema` authored by connection type definitions.
 - **`configSchema`** - a Zod schema for the base connection fields shared across all auth methods (e.g. `host`, `apiBaseUrl`). The pre-transform shape defines the config input; `.transform()` derives computed defaults. The `host` field is required on input but is not included in the output type, it is used internally for matching only. Consumers should use base URL fields like `apiBaseUrl` instead.
 - **`authMethods`** - an array of auth method definitions, each with a `method` string discriminator and its own `configSchema` (Zod).
 - **`match(connections, query)`** - optional, at the connection level. Receives all connections of this type and the query from `find()`, and returns a single connection or `undefined`. When omitted, the default implementation selects by matching the query URL's host against the connection's `host` field. This is a simple selection function, not a scoring function.

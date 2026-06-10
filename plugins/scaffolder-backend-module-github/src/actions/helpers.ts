@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import { resolveSafeChildPath } from '@backstage/backend-plugin-api';
 import { Config } from '@backstage/config';
 import { NotFoundError, toError } from '@backstage/errors';
 import { Octokit } from 'octokit';
 import { promises as fsPromises, Dirent } from 'node:fs';
-import { join } from 'node:path';
 
 import {
   getRepoSourceDirectory,
@@ -407,13 +407,18 @@ export async function initRepoPushAndProtect(
 async function collectFilesFromDir(
   dirPath: string,
   basePath: string = '',
+  rootPath?: string,
 ): Promise<{ filePath: string; content: Buffer }[]> {
+  const root = rootPath ?? dirPath;
   const entries: Dirent[] = await fsPromises.readdir(dirPath, {
     withFileTypes: true,
   });
   const results: { filePath: string; content: Buffer }[] = [];
   for (const entry of entries) {
-    const fullPath = join(dirPath, entry.name);
+    const fullPath = resolveSafeChildPath(
+      root,
+      basePath ? `${basePath}/${entry.name}` : entry.name,
+    );
     const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
     if (entry.name === '.git') {
       continue;
@@ -422,7 +427,9 @@ async function collectFilesFromDir(
       continue;
     }
     if (entry.isDirectory()) {
-      results.push(...(await collectFilesFromDir(fullPath, relativePath)));
+      results.push(
+        ...(await collectFilesFromDir(fullPath, relativePath, root)),
+      );
     } else {
       results.push({
         filePath: relativePath,
@@ -456,7 +463,9 @@ async function pushFilesViaGitHubApi(input: {
     input;
 
   const files = await collectFilesFromDir(dir);
-  logger.info(`Collected ${files.length} files for API push`);
+  logger.info(
+    `Collected ${files.length} files for push via GraphQL to ${owner}/${repo}#${defaultBranch}`,
+  );
 
   if (files.length === 0) {
     throw new Error(
@@ -553,7 +562,9 @@ async function pushFilesViaGitHubApi(input: {
     if (!msg.includes('expectedHeadOid')) {
       throw commitError;
     }
-    logger.warn('HEAD OID changed since read, retrying once');
+    logger.warn(
+      `HEAD OID of ${owner}/${repo}#${defaultBranch} changed since read, retrying GraphQL commit once`,
+    );
     const { data: freshRef } = await client.rest.git.getRef({
       owner,
       repo,
@@ -567,7 +578,7 @@ async function pushFilesViaGitHubApi(input: {
 
   const commitHash = result.createCommitOnBranch.commit.oid;
   logger.info(
-    `Pushed ${files.length} files via GitHub GraphQL API: ${commitHash}`,
+    `Pushed ${files.length} files to ${owner}/${repo}#${defaultBranch} via GitHub GraphQL API (${commitHash})`,
   );
   return { commitHash };
 }

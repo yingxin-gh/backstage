@@ -78,25 +78,24 @@ jobs:
 
             const released = [];
             for (const file of patchFiles) {
-              const match = file.match(/^pr-(\d+)\.txt$/);
-              if (!match) continue;
-              const prNumber = match[1];
-
-              // Check if "Patch from PR #NNNN" appears in any release tag's history.
-              // Anchored to the full subject line to prevent prefix false positives.
-              // Pass all tags at once so git only walks the history once per patch file.
-              try {
-                const log = execSync(
-                  `git log --oneline --max-count=1 --extended-regexp --grep="^Patch from PR #${prNumber}$" ${releaseTags.join(' ')}`,
-                  { encoding: 'utf8' },
-                ).trim();
-                if (log.length > 0) {
-                  console.log(`${file} — released, marking for cleanup`);
-                  released.push(file);
-                } else {
-                  console.log(`${file} — not yet released, keeping`);
+              // Check if the patch file exists in any release tag's tree.
+              // The patch workflow copies pr-*.txt files into the patch branch,
+              // so if the file is present at a release tag, it was consumed.
+              const wasConsumed = releaseTags.some(tag => {
+                try {
+                  execSync(`git cat-file -e ${tag}:.patches/${file}`, {
+                    stdio: 'ignore',
+                  });
+                  return true;
+                } catch {
+                  return false;
                 }
-              } catch {
+              });
+
+              if (wasConsumed) {
+                console.log(`${file} — found in a release tag, marking for cleanup`);
+                released.push(file);
+              } else {
                 console.log(`${file} — not yet released, keeping`);
               }
             }

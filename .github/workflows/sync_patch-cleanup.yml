@@ -80,7 +80,7 @@ jobs:
               // Pass all tags at once so git only walks the history once per patch file.
               try {
                 const log = execSync(
-                  `git log --oneline --max-count=1 --grep="Patch from PR #${prNumber}" ${releaseTags.join(' ')}`,
+                  `git log --oneline --max-count=1 --grep="Patch from PR #${prNumber}$" ${releaseTags.join(' ')}`,
                   { encoding: 'utf8' },
                 ).trim();
                 if (log.length > 0) {
@@ -115,7 +115,7 @@ jobs:
             git rm ".patches/$file"
           done
 
-          git commit -m "chore: clean up released patch files"
+          git commit --signoff -m "chore: clean up released patch files"
           git push origin "$BRANCH" --force
 
       - name: Create or update PR

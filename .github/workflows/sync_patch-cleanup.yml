@@ -6,11 +6,11 @@ on:
   workflow_dispatch: {}
 
 concurrency:
-  group: sync-automation/patch-cleanup
+  group: sync-patch-cleanup
   cancel-in-progress: true
 
 jobs:
-  sync-automation/patch-cleanup:
+  sync-patch-cleanup:
     name: Sync Patch Cleanup
     runs-on: ubuntu-latest
     if: github.repository == 'backstage/backstage'

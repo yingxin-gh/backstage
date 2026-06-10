@@ -114,6 +114,8 @@ export class EntityTextFilter implements EntityFilter {
       entity.metadata.name,
       entity.metadata.title,
       (entity.spec?.profile as { displayName?: string })?.displayName,
+      (entity.spec as { target?: string })?.target,
+      ...((entity.spec as { targets?: string[] })?.targets ?? []),
     ]);
 
     for (const word of words) {
@@ -151,7 +153,7 @@ export class EntityTextFilter implements EntityFilter {
   ): Array<string> {
     return value
       .flat()
-      .filter((m): m is string => Boolean(m))
+      .filter((m): m is string => Boolean(m) && typeof m === 'string')
       .map(m => m.toLocaleUpperCase('en-US'));
   }
 }

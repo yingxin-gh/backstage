@@ -132,7 +132,13 @@ export class EntityTextFilter implements EntityFilter {
     return {
       term: this.value,
       // Update this to be more dynamic based on table columns.
-      fields: ['metadata.name', 'metadata.title', 'spec.profile.displayName'],
+      fields: [
+        'metadata.name',
+        'metadata.title',
+        'spec.profile.displayName',
+        'spec.target',
+        'spec.targets',
+      ],
     };
   }
 

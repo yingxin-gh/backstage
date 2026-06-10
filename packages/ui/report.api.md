@@ -24,17 +24,21 @@ import type { DisclosureGroupProps } from 'react-aria-components';
 import type { DisclosurePanelProps } from 'react-aria-components';
 import type { DisclosureProps } from 'react-aria-components';
 import type { ElementType } from 'react';
+import { Focusable } from 'react-aria-components';
 import { ForwardRefExoticComponent } from 'react';
 import type { GridListItemProps } from 'react-aria-components';
 import type { GridListProps } from 'react-aria-components';
 import type { HeadingProps } from 'react-aria-components';
 import type { HTMLAttributes } from 'react';
 import { JSX as JSX_2 } from 'react/jsx-runtime';
-import type { Key } from 'react-aria-components';
+import { Key } from 'react-aria-components';
 import type { LinkProps as LinkProps_2 } from 'react-aria-components';
+import { ListBox } from 'react-aria-components';
+import { ListBoxItem } from 'react-aria-components';
 import type { ListBoxItemProps } from 'react-aria-components';
 import type { ListBoxItemRenderProps } from 'react-aria-components';
 import type { ListBoxProps } from 'react-aria-components';
+import { ListLayout } from 'react-aria-components';
 import type { MenuItemProps as MenuItemProps_2 } from 'react-aria-components';
 import type { MenuProps as MenuProps_2 } from 'react-aria-components';
 import type { MenuSectionProps as MenuSectionProps_2 } from 'react-aria-components';
@@ -49,10 +53,13 @@ import { ReactNode } from 'react';
 import { RefAttributes } from 'react';
 import { RowProps as RowProps_2 } from 'react-aria-components';
 import type { SearchFieldProps as SearchFieldProps_2 } from 'react-aria-components';
+import { Selection as Selection_2 } from 'react-aria-components';
 import type { SelectProps as SelectProps_2 } from 'react-aria-components';
+import { Separator } from 'react-aria-components';
 import type { SeparatorProps } from 'react-aria-components';
 import type { SliderProps as SliderProps_2 } from 'react-aria-components';
 import type { SortDescriptor as SortDescriptor_2 } from 'react-stately';
+import { SortDirection } from 'react-aria-components';
 import type { SubmenuTriggerProps as SubmenuTriggerProps_2 } from 'react-aria-components';
 import type { SwitchProps as SwitchProps_2 } from 'react-aria-components';
 import { TableBodyProps as TableBodyProps_2 } from 'react-aria-components';
@@ -71,6 +78,7 @@ import type { ToggleButtonProps as ToggleButtonProps_2 } from 'react-aria-compon
 import type { TooltipProps as TooltipProps_2 } from 'react-aria-components';
 import { TooltipTriggerComponentProps } from 'react-aria-components';
 import { useAsyncList } from 'react-stately/useAsyncList';
+import { Virtualizer } from 'react-aria-components';
 
 // @public
 export const Accordion: ForwardRefExoticComponent<
@@ -2060,6 +2068,8 @@ export interface FlexProps
 // @public (undocumented)
 export type FlexWrap = 'wrap' | 'nowrap' | 'wrap-reverse';
 
+export { Focusable };
+
 // @public
 export const FullPage: ForwardRefExoticComponent<
   FullPageProps & RefAttributes<HTMLElement>
@@ -2485,6 +2495,8 @@ export type JustifyContent =
   | 'around'
   | 'between';
 
+export { Key };
+
 // @public (undocumented)
 export type LegacyOption = {
   value: string;
@@ -2559,6 +2571,10 @@ export interface LinkProps
 // @public
 export const List: <T extends object>(props: ListProps<T>) => JSX_2.Element;
 
+export { ListBox };
+
+export { ListBoxItem };
+
 // @public
 export const ListDefinition: {
   readonly styles: {
@@ -2574,6 +2590,8 @@ export const ListDefinition: {
     readonly className: {};
   };
 };
+
+export { ListLayout };
 
 // @public
 export type ListOwnProps<T = object> = {
@@ -3509,6 +3527,8 @@ export function SelectItem<T extends object = object>(
   props: SelectItemProps<T>,
 ): JSX_2.Element;
 
+export { Selection_2 as Selection };
+
 // @public (undocumented)
 export const SelectItemDefinition: {
   readonly styles: {
@@ -3829,6 +3849,8 @@ export const SelectTriggerDefinition: {
   };
 };
 
+export { Separator };
+
 // @public
 export const Skeleton: (props: SkeletonProps) => JSX_2.Element;
 
@@ -3922,6 +3944,8 @@ export interface SliderProps<T extends number | number[]>
 
 // @public (undocumented)
 export type SortDescriptor = SortDescriptor_2;
+
+export { SortDirection };
 
 // @public (undocumented)
 export interface SortState {
@@ -4687,6 +4711,8 @@ export type VirtualizedProp =
   | {
       estimatedRowHeight: number;
     };
+
+export { Virtualizer };
 
 // @public
 export const VisuallyHidden: (props: VisuallyHiddenProps) => JSX_2.Element;

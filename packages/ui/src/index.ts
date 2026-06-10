@@ -72,6 +72,9 @@ export * from './components/VisuallyHidden';
 // Types
 export * from './types';
 
+// Re-exported react-aria-components APIs
+export * from './react-aria-components';
+
 // Hooks
 export { useBreakpoint } from './hooks/useBreakpoint';
 export { useBgProvider, useBgConsumer, BgProvider } from './hooks/useBg';

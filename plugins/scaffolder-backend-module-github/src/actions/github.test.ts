@@ -47,15 +47,14 @@ import {
   enableBranchProtectionOnDefaultRepoBranch,
   entityRefToName,
 } from './gitHelpers';
+import { promises as fsPromises } from 'node:fs';
+import { Octokit } from 'octokit';
 
 const publicKey = '2Sg8iYjAxxmI2LvUXpJjkYrMxURPc8r+dB7TJyvvcCU=';
 
 const initRepoAndPushMocked = initRepoAndPush as jest.Mock<
   Promise<{ commitHash: string }>
 >;
-
-import { promises as fsPromises } from 'node:fs';
-import { Octokit } from 'octokit';
 
 const octokitMock = Octokit as unknown as jest.Mock;
 const mockOctokit = {
@@ -1921,6 +1920,7 @@ describe('publish:github', () => {
         name: string;
         isDirectory?: boolean;
         isSymbolicLink?: boolean;
+        isFile?: boolean;
       }[],
       content: Buffer = Buffer.from('file content'),
     ) {
@@ -1929,6 +1929,9 @@ describe('publish:github', () => {
           name: f.name,
           isDirectory: () => f.isDirectory ?? false,
           isSymbolicLink: () => f.isSymbolicLink ?? false,
+          isFile: () =>
+            f.isFile ??
+            (!(f.isDirectory ?? false) && !(f.isSymbolicLink ?? false)),
         })),
       );
       readFileSpy.mockResolvedValue(content);
@@ -2167,11 +2170,13 @@ describe('publish:github', () => {
           name: 'README.md',
           isDirectory: () => false,
           isSymbolicLink: () => false,
+          isFile: () => true,
         },
         {
           name: 'dangerous-link',
           isDirectory: () => false,
           isSymbolicLink: () => true,
+          isFile: () => false,
         },
       ]);
       readFileSpy.mockResolvedValue(Buffer.from('content'));
@@ -2194,6 +2199,46 @@ describe('publish:github', () => {
       expect(additions[0].path).toBe('README.md');
     });
 
+    it('should skip unsupported filesystem entry types during file collection', async () => {
+      const econnError = new Error('socket hang up');
+      (econnError as NodeJS.ErrnoException).code = 'ECONNRESET';
+      setupFallbackMocks(econnError);
+
+      readdirSpy.mockResolvedValue([
+        {
+          name: 'README.md',
+          isDirectory: () => false,
+          isSymbolicLink: () => false,
+          isFile: () => true,
+        },
+        {
+          name: 'socket.sock',
+          isDirectory: () => false,
+          isSymbolicLink: () => false,
+          isFile: () => false,
+        },
+      ]);
+      readFileSpy.mockResolvedValue(Buffer.from('content'));
+
+      mockOctokit.rest.git.getRef.mockResolvedValue({
+        data: { object: { sha: 'head-sha' } },
+      });
+      mockOctokit.graphql.mockResolvedValue({
+        createCommitOnBranch: { commit: { oid: 'unsupported-type-sha' } },
+      });
+
+      await action.handler({
+        ...mockContext,
+        input: { ...mockContext.input, protectDefaultBranch: false },
+      });
+
+      expect(readFileSpy).toHaveBeenCalledTimes(1);
+      const graphqlCall = mockOctokit.graphql.mock.calls[0];
+      const additions = graphqlCall[1].input.fileChanges.additions;
+      expect(additions).toHaveLength(1);
+      expect(additions[0].path).toBe('README.md');
+    });
+
     it('should collect files from nested directories with correct paths', async () => {
       const econnError = new Error('socket hang up');
       (econnError as NodeJS.ErrnoException).code = 'ECONNRESET';
@@ -2205,16 +2250,19 @@ describe('publish:github', () => {
             name: 'README.md',
             isDirectory: () => false,
             isSymbolicLink: () => false,
+            isFile: () => true,
           },
           {
             name: '.git',
             isDirectory: () => true,
             isSymbolicLink: () => false,
+            isFile: () => false,
           },
           {
             name: 'src',
             isDirectory: () => true,
             isSymbolicLink: () => false,
+            isFile: () => false,
           },
         ])
         .mockResolvedValueOnce([
@@ -2222,11 +2270,13 @@ describe('publish:github', () => {
             name: 'index.ts',
             isDirectory: () => false,
             isSymbolicLink: () => false,
+            isFile: () => true,
           },
           {
             name: 'utils',
             isDirectory: () => true,
             isSymbolicLink: () => false,
+            isFile: () => false,
           },
         ])
         .mockResolvedValueOnce([
@@ -2234,6 +2284,7 @@ describe('publish:github', () => {
             name: 'helper.ts',
             isDirectory: () => false,
             isSymbolicLink: () => false,
+            isFile: () => true,
           },
         ]);
       readFileSpy.mockResolvedValue(Buffer.from('content'));

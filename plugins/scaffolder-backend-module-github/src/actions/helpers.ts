@@ -430,7 +430,7 @@ async function collectFilesFromDir(
       results.push(
         ...(await collectFilesFromDir(fullPath, relativePath, root)),
       );
-    } else {
+    } else if (entry.isFile()) {
       results.push({
         filePath: relativePath,
         content: await fsPromises.readFile(fullPath),

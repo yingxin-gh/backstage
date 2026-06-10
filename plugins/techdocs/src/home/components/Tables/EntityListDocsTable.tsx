@@ -35,7 +35,11 @@ import { OffsetPaginatedDocsTable } from './OffsetPaginatedDocsTable';
 import { CursorPaginatedDocsTable } from './CursorPaginatedDocsTable';
 import { actionFactories } from './actions';
 import { columnFactories, defaultColumns } from './columns';
-import { DocsTableRow, ColumnFactories, ActionFactories } from './types';
+import {
+  DocsTableRow,
+  DocsTableColumnFactories,
+  DocsTableActionFactories,
+} from './types';
 import { rootDocsRouteRef } from '../../../routes';
 import { entitiesToDocsMapper } from './helpers';
 
@@ -49,15 +53,6 @@ export type EntityListDocsTableProps = {
   actions?: TableProps<DocsTableRow>['actions'];
   options?: TableOptions<DocsTableRow>;
 };
-
-/**
- * @public
- */
-export interface EntityListDocsTableType {
-  (props: EntityListDocsTableProps): JSX.Element | null;
-  columns: ColumnFactories;
-  actions: ActionFactories;
-}
 
 /**
  * Component which renders a table with entities from catalog.
@@ -142,8 +137,11 @@ const EntityListDocsTableComponent = (
 /**
  * @public
  */
-export const EntityListDocsTable =
-  EntityListDocsTableComponent as EntityListDocsTableType;
+export const EntityListDocsTable = EntityListDocsTableComponent as {
+  (props: EntityListDocsTableProps): JSX.Element | null;
+  columns: DocsTableColumnFactories;
+  actions: DocsTableActionFactories;
+};
 
 EntityListDocsTable.columns = columnFactories;
 EntityListDocsTable.actions = actionFactories;

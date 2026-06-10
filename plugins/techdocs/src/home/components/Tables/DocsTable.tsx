@@ -31,7 +31,11 @@ import {
 import { techdocsTranslationRef } from '../../../translation';
 import { actionFactories } from './actions';
 import { columnFactories, defaultColumns } from './columns';
-import { DocsTableRow, ColumnFactories, ActionFactories } from './types';
+import {
+  DocsTableRow,
+  DocsTableColumnFactories,
+  DocsTableActionFactories,
+} from './types';
 import { entitiesToDocsMapper } from './helpers';
 
 /**
@@ -47,15 +51,6 @@ export type DocsTableProps = {
   actions?: TableProps<DocsTableRow>['actions'];
   options?: TableOptions<DocsTableRow>;
 };
-
-/**
- * @public
- */
-export interface DocsTableType {
-  (props: DocsTableProps): JSX.Element | null;
-  columns: ColumnFactories;
-  actions: ActionFactories;
-}
 
 /**
  * Component which renders a table documents
@@ -141,7 +136,11 @@ const DocsTableComponent = (props: DocsTableProps): JSX.Element | null => {
 /**
  * @public
  */
-export const DocsTable = DocsTableComponent as DocsTableType;
+export const DocsTable = DocsTableComponent as {
+  (props: DocsTableProps): JSX.Element | null;
+  columns: DocsTableColumnFactories;
+  actions: DocsTableActionFactories;
+};
 
 DocsTable.columns = columnFactories;
 DocsTable.actions = actionFactories;

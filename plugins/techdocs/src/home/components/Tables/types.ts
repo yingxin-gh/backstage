@@ -36,7 +36,7 @@ export type DocsTableRow = {
  * Column factory functions for DocsTable
  * @public
  */
-export interface ColumnFactories {
+export interface DocsTableColumnFactories {
   createTitleColumn(options?: { hidden?: boolean }): TableColumn<DocsTableRow>;
   createNameColumn(): TableColumn<DocsTableRow>;
   createOwnerColumn(): TableColumn<DocsTableRow>;
@@ -48,7 +48,7 @@ export interface ColumnFactories {
  * Action factory functions for DocsTable
  * @public
  */
-export interface ActionFactories {
+export interface DocsTableActionFactories {
   createCopyDocsUrlAction(
     copyToClipboard: Function,
     t?: Function,

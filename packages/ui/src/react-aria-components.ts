@@ -24,8 +24,6 @@ export type { Key } from 'react-aria-components';
 /** @public */
 export { Focusable } from 'react-aria-components';
 /** @public */
-export { Separator } from 'react-aria-components';
-/** @public */
 export { ListBox } from 'react-aria-components';
 /** @public */
 export { ListBoxItem } from 'react-aria-components';

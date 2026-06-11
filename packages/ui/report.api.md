@@ -55,7 +55,6 @@ import { RowProps as RowProps_2 } from 'react-aria-components';
 import type { SearchFieldProps as SearchFieldProps_2 } from 'react-aria-components';
 import { Selection as Selection_2 } from 'react-aria-components';
 import type { SelectProps as SelectProps_2 } from 'react-aria-components';
-import { Separator } from 'react-aria-components';
 import type { SeparatorProps } from 'react-aria-components';
 import type { SliderProps as SliderProps_2 } from 'react-aria-components';
 import type { SortDescriptor as SortDescriptor_2 } from 'react-stately';
@@ -3848,8 +3847,6 @@ export const SelectTriggerDefinition: {
     readonly icon: {};
   };
 };
-
-export { Separator };
 
 // @public
 export const Skeleton: (props: SkeletonProps) => JSX_2.Element;

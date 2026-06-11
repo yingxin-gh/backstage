@@ -60,29 +60,29 @@ When creating the webhook in GitLab, the "URL" will look something like: `https:
 
 In order to use the built-in events support you'll need to install and configure `@backstage/plugin-events-backend-module-gitlab`. This module will route received events from the generic topic `gitlab` to more specific ones based on the event type (e.g., `gitlab.push`). These more specific events are what the builtin events support is expecting.
 
-First we need to add the package:
+1. Add the GitLab events package:
 
-```bash title="from your Backstage root directory"
-yarn --cwd packages/backend add @backstage/plugin-events-backend-module-gitlab
-```
+   ```bash title="from your Backstage root directory"
+   yarn --cwd packages/backend add @backstage/plugin-events-backend-module-gitlab
+   ```
 
-Then we need to add it to your backend:
+2. Add the GitLab events module to your Backstage backend:
 
-```ts title="in packages/backend/src/index.ts"
-backend.add(import('@backstage/plugin-events-backend'));
-/* highlight-add-start */
-backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
-/* highlight-add-end */
-```
+   ```ts title="in packages/backend/src/index.ts"
+   backend.add(import('@backstage/plugin-events-backend'));
+   /* highlight-add-start */
+   backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
+   /* highlight-add-end */
+   ```
 
-Finally you will want to configure it:
+3. Configure the GitLab events module:
 
-```yaml title="app-config.yaml
-events:
-  modules:
-    gitlab:
-      webhookSecret: ${GITLAB_WEBHOOK_SECRET}
-```
+   ```yaml title="app-config.yaml"
+   events:
+     modules:
+       gitlab:
+         webhookSecret: ${GITLAB_WEBHOOK_SECRET}
+   ```
 
 Though this last step is technically optional, you'll want to include it to be sure the events being received are from GitLab and not from an external bad actor.
 
@@ -92,7 +92,7 @@ The value of `${GITLAB_WEBHOOK_SECRET}` in this example would be the same that y
 
 Using the HTTP endpoint for events just requires adding some additional configuration to your `app-config.yaml` as it is a built in feature of the Events backend, here's what that would look like:
 
-```yaml title="app-config.yaml
+```yaml title="app-config.yaml"
 events:
   http:
     topics:
@@ -105,35 +105,35 @@ This will then expose an endpoint like this: <http://localhost/api/events/http/g
 
 Alternatively to using the HTTP endpoint you can use the AWS SQS module, here's how.
 
-First we need to add the package:
+1. Add the AWS SQS events package:
 
-```bash title="from your Backstage root directory"
-yarn --cwd packages/backend add @backstage/plugins-events-backend-module-aws-sqs
-```
+   ```bash title="from your Backstage root directory"
+   yarn --cwd packages/backend add @backstage/plugins-events-backend-module-aws-sqs
+   ```
 
-Then we need to add it to your backend:
+2. Add the AWS SQS events module to your Backstage backend:
 
-```ts title="in packages/backend/src/index.ts"
-backend.add(import('@backstage/plugin-events-backend'));
-backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
-/* highlight-add-start */
-backend.add(import('@backstage/plugins-events-backend-module-aws-sqs'));
-/* highlight-add-end */
-```
+   ```ts title="in packages/backend/src/index.ts"
+   backend.add(import('@backstage/plugin-events-backend'));
+   backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
+   /* highlight-add-start */
+   backend.add(import('@backstage/plugins-events-backend-module-aws-sqs'));
+   /* highlight-add-end */
+   ```
 
-Finally you will want to configure it:
+3. Configure the AWS SQS events module:
 
-```yaml title="app-config.yaml
-events:
-  modules:
-    awsSqs:
-      awsSqsConsumingEventPublisher:
-        topics:
-          gitlab:
-            queue:
-              url: 'https://sqs.us-east-2.amazonaws.com/123456789012/MyQueue'
-              region: us-east-2
-```
+   ```yaml title="app-config.yaml"
+   events:
+     modules:
+       awsSqs:
+         awsSqsConsumingEventPublisher:
+           topics:
+             gitlab:
+               queue:
+                 url: 'https://sqs.us-east-2.amazonaws.com/123456789012/MyQueue'
+                 region: us-east-2
+   ```
 
 The [AWS SQS module `README`](https://github.com/backstage/backstage/blob/master/plugins/events-backend-module-aws-sqs/README.md#configuration) has more details on the configuration options, the example above includes only the required options.
 
@@ -141,37 +141,37 @@ The [AWS SQS module `README`](https://github.com/backstage/backstage/blob/master
 
 Alternatively to using the HTTP endpoint you can use the Google Pub/Sub module, here's how.
 
-First we need to add the package:
+1. Add the Google Pub/Sub events package:
 
-```bash title="from your Backstage root directory"
-yarn --cwd packages/backend add @backstage/plugin-events-backend-module-google-pubsub
-```
+   ```bash title="from your Backstage root directory"
+   yarn --cwd packages/backend add @backstage/plugin-events-backend-module-google-pubsub
+   ```
 
-Then we need to add it to your backend:
+2. Add the Google Pub/Sub events module to your Backstage backend:
 
-```ts title="in packages/backend/src/index.ts"
-backend.add(import('@backstage/plugin-events-backend'));
-backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
-/* highlight-add-start */
-backend.add(import('@backstage/plugin-events-backend-module-google-pubsub'));
-/* highlight-add-end */
-```
+   ```ts title="in packages/backend/src/index.ts"
+   backend.add(import('@backstage/plugin-events-backend'));
+   backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
+   /* highlight-add-start */
+   backend.add(import('@backstage/plugin-events-backend-module-google-pubsub'));
+   /* highlight-add-end */
+   ```
 
-Finally you will want to configure it:
+3. Configure the Google Pub/Sub events module:
 
-```yaml title="app-config.yaml
-events:
-  modules:
-    googlePubSub:
-      googlePubSubConsumingEventPublisher:
-        subscriptions:
-          # A unique key for your subscription, to be used in logging and metrics
-          mySubscription:
-            # The fully qualified name of the subscription
-            subscriptionName: 'projects/my-google-project/subscriptions/gitlab-events'
-            # The event system topic to transfer to. This can also be just a plain string
-            targetTopic: 'gitlab.{{ event.attributes.x-gitlab-event }}'
-```
+   ```yaml title="app-config.yaml"
+   events:
+     modules:
+       googlePubSub:
+         googlePubSubConsumingEventPublisher:
+           subscriptions:
+             # A unique key for your subscription, to be used in logging and metrics
+             mySubscription:
+               # The fully qualified name of the subscription
+               subscriptionName: 'projects/my-google-project/subscriptions/gitlab-events'
+               # The event system topic to transfer to. This can also be just a plain string
+               targetTopic: 'gitlab.{{ event.attributes.x-gitlab-event }}'
+   ```
 
 The [Google Pub/Sub module `README`](https://github.com/backstage/backstage/blob/master/plugins/events-backend-module-google-pubsub/README.md#configuration) has more details on the configuration options, the example above includes only the required options.
 
@@ -179,45 +179,45 @@ The [Google Pub/Sub module `README`](https://github.com/backstage/backstage/blob
 
 Alternatively to using the HTTP endpoint you can use the Kafka module, here's how.
 
-First we need to add the package:
+1. Add the Kafka events package:
 
-```bash title="from your Backstage root directory"
-yarn --cwd packages/backend add @backstage/plugin-events-backend-module-kafka
-```
+   ```bash title="from your Backstage root directory"
+   yarn --cwd packages/backend add @backstage/plugin-events-backend-module-kafka
+   ```
 
-Then we need to add it to your backend:
+2. Add the Kafka events module to your Backstage backend:
 
-```ts title="in packages/backend/src/index.ts"
-backend.add(import('@backstage/plugin-events-backend'));
-backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
-/* highlight-add-start */
-backend.add(import('@backstage/plugin-events-backend-module-kafka'));
-/* highlight-add-end */
-```
+   ```ts title="in packages/backend/src/index.ts"
+   backend.add(import('@backstage/plugin-events-backend'));
+   backend.add(import('@backstage/plugin-events-backend-module-gitlab'));
+   /* highlight-add-start */
+   backend.add(import('@backstage/plugin-events-backend-module-kafka'));
+   /* highlight-add-end */
+   ```
 
-Finally you will want to configure it:
+3. Configure the Kafka events module:
 
-```yaml title="app-config.yaml
-events:
-  modules:
-    kafka:
-      kafkaConsumingEventPublisher:
-        # Client ID used by Backstage to identify when connecting to the Kafka cluster.
-        clientId: your-client-id
-        # List of brokers in the Kafka cluster to connect to.
-        brokers:
-          - broker1
-          - broker2
-        topics:
-          # Replace with actual topic name as expected by subscribers
-          - topic: 'backstage.topic'
-            kafka:
-              # The Kafka topics to subscribe to.
-              topics:
-                - topic1
-              # The GroupId to be used by the topic consumers.
-              groupId: your-group-id
-```
+   ```yaml title="app-config.yaml"
+   events:
+     modules:
+       kafka:
+         kafkaConsumingEventPublisher:
+           # Client ID used by Backstage to identify when connecting to the Kafka cluster.
+           clientId: your-client-id
+           # List of brokers in the Kafka cluster to connect to.
+           brokers:
+             - broker1
+             - broker2
+           topics:
+             # Replace with actual topic name as expected by subscribers
+             - topic: 'backstage.topic'
+               kafka:
+                 # The Kafka topics to subscribe to.
+                 topics:
+                   - topic1
+                 # The GroupId to be used by the topic consumers.
+                 groupId: your-group-id
+   ```
 
 The [Kafka module `README`](https://github.com/backstage/backstage/blob/master/plugins/events-backend-module-kafka/README.md#configuration) has more details on the configuration options, the example above includes only the required options.
 

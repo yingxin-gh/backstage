@@ -78,7 +78,7 @@ Each entry has a `type` field that identifies the kind of external service and a
 backend:
   connections:
     - type: github
-      title: production
+      title: GitHub Production
       host: github.com
       apiBaseUrl: https://api.github.com
       rawBaseUrl: https://raw.githubusercontent.com
@@ -101,20 +101,20 @@ backend:
           allowedOwners:
             - internal-org
     - type: github
-      title: enterprise
+      title: GitHub Enterprise
       host: ghe.example.com
       apiBaseUrl: https://ghe.example.com/api/v3
       auth:
         - method: token
           token: ${GHE_TOKEN}
     - type: gitlab
-      title: production
+      title: Gitlab Production
       host: gitlab.com
       auth:
         - method: token
           token: ${GITLAB_TOKEN}
     - type: azure
-      title: production
+      title: Azure Prod
       host: dev.azure.com
       auth:
         - method: pat

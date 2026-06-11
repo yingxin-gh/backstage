@@ -3521,12 +3521,12 @@ export const SelectDefinition: {
   };
 };
 
+export { Selection_2 as Selection };
+
 // @public
 export function SelectItem<T extends object = object>(
   props: SelectItemProps<T>,
 ): JSX_2.Element;
-
-export { Selection_2 as Selection };
 
 // @public (undocumented)
 export const SelectItemDefinition: {

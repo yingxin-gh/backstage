@@ -37,11 +37,26 @@ export const hasAnnotation = createPermissionRule({
       .optional()
       .describe('Value of the annotation to match on'),
   }),
-  apply: (resource, { annotation, value }) =>
-    !!resource.metadata.annotations?.hasOwnProperty(annotation) &&
-    (value === undefined
-      ? true
-      : resource.metadata.annotations?.[annotation] === value),
+  apply: (resource, { annotation, value }) => {
+    const normalizedAnnotation = annotation.toLocaleLowerCase('en-US');
+    const matchingResourceAnnotation = resource.metadata.annotations
+      ? Object.keys(resource.metadata.annotations).find(
+          key => key.toLocaleLowerCase('en-US') === normalizedAnnotation,
+        )
+      : undefined;
+
+    if (!matchingResourceAnnotation) return false;
+    if (value === undefined) return true;
+
+    const matchingResourceAnnotationValue =
+      resource.metadata.annotations?.[matchingResourceAnnotation];
+
+    return (
+      matchingResourceAnnotationValue !== undefined &&
+      matchingResourceAnnotationValue.toLocaleLowerCase('en-US') ===
+        value.toLocaleLowerCase('en-US')
+    );
+  },
   toQuery: ({ annotation, value }) =>
     value === undefined
       ? {

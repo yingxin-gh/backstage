@@ -117,6 +117,49 @@ describe('hasLabel permission rule', () => {
         ),
       ).toEqual(true);
     });
+
+    it('performs case-insensitive matching of labels', () => {
+      expect(
+        hasLabel.apply(
+          {
+            apiVersion: 'backstage.io/v1alpha1',
+            kind: 'Component',
+            metadata: {
+              name: 'test-component',
+              labels: {
+                someLabel: 'foo',
+                'backstage.io/testLabel': 'bar',
+              },
+            },
+          },
+          {
+            label: 'BACKSTAGE.IO/TESTLABEL',
+          },
+        ),
+      ).toEqual(true);
+    });
+
+    it('performs case-insensitive matching of label values', () => {
+      expect(
+        hasLabel.apply(
+          {
+            apiVersion: 'backstage.io/v1alpha1',
+            kind: 'Component',
+            metadata: {
+              name: 'test-component',
+              labels: {
+                someLabel: 'foo',
+                'backstage.io/testLabel': 'bar',
+              },
+            },
+          },
+          {
+            label: 'BACKSTAGE.IO/TESTLABEL',
+            value: 'BAR',
+          },
+        ),
+      ).toEqual(true);
+    });
   });
 
   describe('toQuery', () => {

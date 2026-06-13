@@ -65,6 +65,132 @@ describe('runCli', () => {
     expect(process.exit).toHaveBeenCalledTimes(1);
   });
 
+  it('forwards help flags to leaf commands', async () => {
+    expect.assertions(2);
+    process.argv = ['node', 'cli', 'test', '--help'];
+
+    const testModule = createCliModule({
+      packageJson: { name: '@example/test' },
+      init: async reg => {
+        reg.addCommand({
+          path: ['test'],
+          description: 'Test the repository',
+          execute: async ({ args }) => {
+            expect(args).toEqual(['--help']);
+          },
+        });
+      },
+    });
+
+    await runCli({
+      modules: [testModule],
+      name: 'example-cli',
+    });
+
+    expect(process.exit).toHaveBeenCalledWith(0);
+  });
+
+  it('renders help for nested command groups', async () => {
+    process.argv = ['node', 'cli', 'help', 'repo'];
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const testModule = createCliModule({
+      packageJson: { name: '@example/test' },
+      init: async reg => {
+        reg.addCommand({
+          path: ['repo', 'test'],
+          description: 'Test the repository',
+          execute: async () => {},
+        });
+        reg.addCommand({
+          path: ['repo', 'secret'],
+          description: 'Hidden command',
+          experimental: true,
+          execute: async () => {},
+        });
+      },
+    });
+
+    await runCli({
+      modules: [testModule],
+      name: 'example-cli',
+    });
+
+    const helpOutput = logSpy.mock.calls.flat().join('\n');
+    expect(helpOutput).toContain('example-cli repo');
+    expect(helpOutput).toContain('test');
+    expect(helpOutput).not.toContain('secret');
+    expect(process.exit).toHaveBeenCalledWith(0);
+    logSpy.mockRestore();
+  });
+
+  it('supports the short version flag', async () => {
+    process.argv = ['node', 'cli', '-V'];
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    await runCli({
+      modules: [],
+      name: 'example-cli',
+      version: '1.2.3',
+    });
+
+    expect(logSpy).toHaveBeenCalledWith('1.2.3');
+    expect(process.exit).toHaveBeenCalledWith(0);
+    logSpy.mockRestore();
+  });
+
+  it('allows modules to define the help command', async () => {
+    expect.assertions(2);
+    process.argv = ['node', 'cli', 'help'];
+
+    const testModule = createCliModule({
+      packageJson: { name: '@example/test' },
+      init: async reg => {
+        reg.addCommand({
+          path: ['help'],
+          description: 'Custom help command',
+          execute: async ({ args }) => {
+            expect(args).toEqual([]);
+          },
+        });
+      },
+    });
+
+    await runCli({
+      modules: [testModule],
+      name: 'example-cli',
+    });
+
+    expect(process.exit).toHaveBeenCalledWith(0);
+  });
+
+  it('reports invalid nested commands', async () => {
+    process.argv = ['node', 'cli', 'repo', 'missing'];
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const testModule = createCliModule({
+      packageJson: { name: '@example/test' },
+      init: async reg => {
+        reg.addCommand({
+          path: ['repo', 'test'],
+          description: 'Test the repository',
+          execute: async () => {},
+        });
+      },
+    });
+
+    await runCli({
+      modules: [testModule],
+      name: 'example-cli',
+    });
+
+    expect(logSpy.mock.calls.flat().join('\n')).toContain(
+      'Invalid command: repo missing',
+    );
+    expect(process.exit).toHaveBeenCalledWith(1);
+    logSpy.mockRestore();
+  });
+
   it('reports conflicts between modules', async () => {
     const firstModule = createCliModule({
       packageJson: { name: '@example/first' },

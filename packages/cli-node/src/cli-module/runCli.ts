@@ -23,9 +23,28 @@ import {
 import type { CommandNode } from '@internal/cli';
 import { ForwardedError, isError, stringifyError } from '@backstage/errors';
 import chalk from 'chalk';
-import { Command } from 'commander';
+import { cli, command } from 'cleye';
+import type { Renderers } from 'cleye';
 import { CommandGraph } from './CommandGraph';
-import type { CliModule } from './types';
+import type { CliCommand, CliModule } from './types';
+
+interface HelpNode {
+  id?: string;
+  type: keyof Renderers;
+  data: unknown;
+}
+
+interface CommandsHelpData {
+  body: {
+    data: {
+      tableData: string[][];
+    };
+  };
+}
+
+interface UsageHelpData {
+  body: string;
+}
 
 function exit(message: string, code: number = 1): never {
   process.stderr.write(`\n${chalk.red(message)}\n\n`);
@@ -60,87 +79,190 @@ function exitWithError(error: unknown): never {
   }
 }
 
-function registerCommands(
-  graph: ReadonlyArray<CommandNode>,
-  program: Command,
-  programName: string,
-): void {
-  const queue = graph.map(node => ({ node, argParser: program }));
-
-  while (queue.length) {
-    const { node, argParser } = queue.shift()!;
-
-    if (OpaqueCommandTreeNode.isType(node)) {
-      const internal = OpaqueCommandTreeNode.toInternal(node);
-      const treeParser = argParser
-        .command(`${internal.name} [command]`, {
-          hidden: isCommandNodeHidden(node),
-        })
-        .description(internal.name);
-
-      queue.push(
-        ...internal.children.map(child => ({
-          node: child,
-          argParser: treeParser,
-        })),
-      );
-    } else {
-      const internal = OpaqueCommandLeafNode.toInternal(node);
-      argParser
-        .command(internal.name, {
-          hidden:
-            !!internal.command.deprecated || !!internal.command.experimental,
-        })
-        .description(internal.command.description)
-        .helpOption(false)
-        .allowUnknownOption(true)
-        .allowExcessArguments(true)
-        .action(async () => {
-          try {
-            const args = program.parseOptions(process.argv);
-
-            const nonProcessArgs = args.operands.slice(2);
-            const positionalArgs = [];
-            let index = 0;
-            for (
-              let argIndex = 0;
-              argIndex < nonProcessArgs.length;
-              argIndex++
-            ) {
-              if (
-                argIndex === index &&
-                internal.command.path[argIndex] === nonProcessArgs[argIndex]
-              ) {
-                index += 1;
-                continue;
-              }
-              positionalArgs.push(nonProcessArgs[argIndex]);
-            }
-            const context = {
-              args: [...positionalArgs, ...args.unknown],
-              info: {
-                usage: [programName, ...internal.command.path].join(' '),
-                name: internal.command.path.join(' '),
-              },
-            };
-
-            if (typeof internal.command.execute === 'function') {
-              await internal.command.execute(context);
-            } else {
-              const mod = await internal.command.execute.loader();
-              const fn =
-                typeof mod.default === 'function'
-                  ? mod.default
-                  : (mod.default as any).default;
-              await fn(context);
-            }
-            process.exit(0);
-          } catch (error: unknown) {
-            exitWithError(error);
-          }
-        });
-    }
+function getNodeName(node: CommandNode): string {
+  if (OpaqueCommandTreeNode.isType(node)) {
+    return OpaqueCommandTreeNode.toInternal(node).name;
   }
+  return OpaqueCommandLeafNode.toInternal(node).name;
+}
+
+function getNodeDescription(node: CommandNode): string {
+  if (OpaqueCommandTreeNode.isType(node)) {
+    return OpaqueCommandTreeNode.toInternal(node).name;
+  }
+  return OpaqueCommandLeafNode.toInternal(node).command.description;
+}
+
+function getNodeHelpName(node: CommandNode): string {
+  const name = getNodeName(node);
+  return OpaqueCommandTreeNode.isType(node) ? `${name} [command]` : name;
+}
+
+function createHelpOptions(options: {
+  nodes: ReadonlyArray<CommandNode>;
+  name: string;
+  isNested: boolean;
+  includeHelpCommand: boolean;
+  version?: string;
+}) {
+  const { nodes, name, isNested, includeHelpCommand, version } = options;
+  const visibleNodes = nodes.filter(node => !isCommandNodeHidden(node));
+
+  return {
+    version,
+    render(nodesToRender: HelpNode[], renderers: Renderers) {
+      const usageNode = nodesToRender.find(node => node.id === 'usage');
+      if (usageNode) {
+        (usageNode.data as UsageHelpData).body = `${name} [options]${
+          nodes.length > 0 ? ' [command]' : ''
+        }${isNested ? ' [command]' : ''}`;
+      }
+
+      const commandsNode = nodesToRender.find(node => node.id === 'commands');
+      if (commandsNode) {
+        const commandRows = visibleNodes.map(node => [
+          getNodeHelpName(node),
+          getNodeDescription(node),
+        ]);
+        if (includeHelpCommand) {
+          commandRows.push(['help [command]', 'Display help for command']);
+        }
+        (commandsNode.data as CommandsHelpData).body.data.tableData =
+          commandRows;
+      }
+      return renderers.render(nodesToRender);
+    },
+  };
+}
+
+async function executeCommand(
+  commandToExecute: CliCommand,
+  args: string[],
+  programName: string,
+): Promise<void> {
+  const context = {
+    args,
+    info: {
+      usage: [programName, ...commandToExecute.path].join(' '),
+      name: commandToExecute.path.join(' '),
+    },
+  };
+
+  if (typeof commandToExecute.execute === 'function') {
+    await commandToExecute.execute(context);
+  } else {
+    const mod = await commandToExecute.execute.loader();
+    const fn =
+      typeof mod.default === 'function'
+        ? mod.default
+        : (mod.default as any).default;
+    await fn(context);
+  }
+}
+
+async function runCommandLevel(options: {
+  nodes: ReadonlyArray<CommandNode>;
+  argv: string[];
+  programName: string;
+  commandPath?: string[];
+  version?: string;
+}): Promise<void> {
+  const { nodes, argv, programName, commandPath = [], version } = options;
+  const name = [programName, ...commandPath].join(' ');
+  const commandArgs = argv.slice(1);
+  const commands = nodes.map(node =>
+    command(
+      {
+        name: getNodeName(node),
+        help: false,
+      },
+      async () => {
+        try {
+          if (OpaqueCommandTreeNode.isType(node)) {
+            await runCommandLevel({
+              nodes: OpaqueCommandTreeNode.toInternal(node).children,
+              argv: commandArgs,
+              programName,
+              commandPath: [...commandPath, getNodeName(node)],
+            });
+          } else {
+            await executeCommand(
+              OpaqueCommandLeafNode.toInternal(node).command,
+              commandArgs,
+              programName,
+            );
+            process.exit(0);
+          }
+        } catch (error: unknown) {
+          exitWithError(error);
+        }
+      },
+    ),
+  );
+  const includeHelpCommand = !nodes.some(node => getNodeName(node) === 'help');
+  if (includeHelpCommand && nodes.length > 0) {
+    commands.push(
+      command(
+        {
+          name: 'help',
+          parameters: ['[command...]'],
+          help: false,
+        },
+        async () => {
+          await runCommandLevel({
+            nodes,
+            argv: [...commandArgs, '--help'],
+            programName,
+            commandPath,
+            version,
+          });
+        },
+      ),
+    );
+  }
+
+  await cli(
+    {
+      name,
+      flags: version
+        ? {
+            version: {
+              type: Boolean,
+              alias: 'V',
+              description: 'Show version',
+            },
+          }
+        : undefined,
+      commands,
+      help: createHelpOptions({
+        nodes,
+        name,
+        isNested: commandPath.length > 0,
+        includeHelpCommand: includeHelpCommand && nodes.length > 0,
+        version,
+      }),
+    },
+    parsed => {
+      if (version && parsed.flags.version) {
+        console.log(version);
+        process.exit(0);
+        return;
+      }
+
+      if (argv.length === 0) {
+        return;
+      }
+
+      console.log();
+      console.log(
+        chalk.red(`Invalid command: ${[...commandPath, ...argv].join(' ')}`),
+      );
+      console.log();
+      parsed.showHelp();
+      process.exit(1);
+    },
+    [...argv],
+  );
 }
 
 /**
@@ -184,31 +306,20 @@ export async function runCli(options: {
       );
     }
 
-    for (const command of await OpaqueCliModule.toInternal(module).commands) {
-      graph.add(command, module);
+    for (const commandToAdd of await OpaqueCliModule.toInternal(module)
+      .commands) {
+      graph.add(commandToAdd, module);
     }
   }
-
-  const program = new Command();
-  program.name(name).allowUnknownOption(true).allowExcessArguments(true);
-
-  if (version) {
-    program.version(version);
-  }
-
-  registerCommands(graph.roots, program, name);
-
-  program.on('command:*', () => {
-    console.log();
-    console.log(chalk.red(`Invalid command: ${program.args.join(' ')}`));
-    console.log();
-    program.outputHelp();
-    process.exit(1);
-  });
 
   process.on('unhandledRejection', rejection => {
     exitWithError(new ForwardedError('Unhandled rejection', rejection));
   });
 
-  await program.parseAsync(process.argv);
+  await runCommandLevel({
+    nodes: graph.roots,
+    argv: process.argv.slice(2),
+    programName: name,
+    version,
+  });
 }

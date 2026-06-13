@@ -275,7 +275,7 @@ export function runCli(options: {
   version?: string;
 }): Promise<void>;
 
-// @public
+// @public @deprecated
 export function runCliModule(options: {
   module: CliModule;
   name: string;

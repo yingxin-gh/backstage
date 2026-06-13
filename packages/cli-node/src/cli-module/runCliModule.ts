@@ -20,25 +20,7 @@ import { runCli } from './runCli';
 /**
  * Runs a CLI module as a standalone program.
  *
- * This helper extracts the commands from a {@link CliModule} and exposes
- * them as a fully functional CLI with help output and argument parsing.
- * It is intended to be called from a module package's `bin` entry point
- * so that the module can be executed directly without being wired into
- * a larger CLI host.
- *
- * @example
- * ```ts
- * #!/usr/bin/env node
- * import { runCliModule } from '@backstage/cli-node';
- * import cliModule from './index';
- *
- * runCliModule({
- *   module: cliModule,
- *   name: 'backstage-auth',
- *   version: require('../package.json').version,
- * });
- * ```
- *
+ * @deprecated Use {@link runCli} with a single entry in the `modules` array instead.
  * @public
  */
 export async function runCliModule(options: {

@@ -17,11 +17,24 @@
 import { createCliModule } from './createCliModule';
 import { runCli } from './runCli';
 
-process.exit = jest.fn() as any;
+const originalArgv = process.argv;
+const originalUnhandledRejectionListeners = new Set(
+  process.listeners('unhandledRejection'),
+);
 
 describe('runCli', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+  });
+
+  afterEach(() => {
+    process.argv = originalArgv;
+    for (const listener of process.listeners('unhandledRejection')) {
+      if (!originalUnhandledRejectionListeners.has(listener)) {
+        process.removeListener('unhandledRejection', listener);
+      }
+    }
+    jest.restoreAllMocks();
   });
 
   it('runs commands from a collection of modules', async () => {

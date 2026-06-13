@@ -42,10 +42,6 @@ interface CommandsHelpData {
   };
 }
 
-interface UsageHelpData {
-  body: string;
-}
-
 function exit(message: string, code: number = 1): never {
   process.stderr.write(`\n${chalk.red(message)}\n\n`);
   process.exit(code);
@@ -93,39 +89,25 @@ function getNodeDescription(node: CommandNode): string {
   return OpaqueCommandLeafNode.toInternal(node).command.description;
 }
 
-function getNodeHelpName(node: CommandNode): string {
-  const name = getNodeName(node);
-  return OpaqueCommandTreeNode.isType(node) ? `${name} [command]` : name;
-}
-
 function createHelpOptions(options: {
   nodes: ReadonlyArray<CommandNode>;
-  name: string;
-  isNested: boolean;
   includeHelpCommand: boolean;
   version?: string;
 }) {
-  const { nodes, name, isNested, includeHelpCommand, version } = options;
+  const { nodes, includeHelpCommand, version } = options;
   const visibleNodes = nodes.filter(node => !isCommandNodeHidden(node));
 
   return {
     version,
     render(nodesToRender: HelpNode[], renderers: Renderers) {
-      const usageNode = nodesToRender.find(node => node.id === 'usage');
-      if (usageNode) {
-        (usageNode.data as UsageHelpData).body = `${name} [options]${
-          nodes.length > 0 ? ' [command]' : ''
-        }${isNested ? ' [command]' : ''}`;
-      }
-
       const commandsNode = nodesToRender.find(node => node.id === 'commands');
       if (commandsNode) {
         const commandRows = visibleNodes.map(node => [
-          getNodeHelpName(node),
+          getNodeName(node),
           getNodeDescription(node),
         ]);
         if (includeHelpCommand) {
-          commandRows.push(['help [command]', 'Display help for command']);
+          commandRows.push(['help', 'Display help for command']);
         }
         (commandsNode.data as CommandsHelpData).body.data.tableData =
           commandRows;
@@ -184,6 +166,7 @@ async function runCommandLevel(options: {
               argv: commandArgs,
               programName,
               commandPath: [...commandPath, getNodeName(node)],
+              version,
             });
           } else {
             await executeCommand(
@@ -236,8 +219,6 @@ async function runCommandLevel(options: {
       commands,
       help: createHelpOptions({
         nodes,
-        name,
-        isNested: commandPath.length > 0,
         includeHelpCommand: includeHelpCommand && nodes.length > 0,
         version,
       }),
@@ -263,6 +244,16 @@ async function runCommandLevel(options: {
     },
     [...argv],
   );
+}
+
+function handleUnhandledRejection(rejection: unknown): void {
+  exitWithError(new ForwardedError('Unhandled rejection', rejection));
+}
+
+function hasVersionFlag(args: string[]): boolean {
+  const separatorIndex = args.indexOf('--');
+  const options = separatorIndex === -1 ? args : args.slice(0, separatorIndex);
+  return options.includes('-V') || options.includes('--version');
 }
 
 /**
@@ -312,13 +303,22 @@ export async function runCli(options: {
     }
   }
 
-  process.on('unhandledRejection', rejection => {
-    exitWithError(new ForwardedError('Unhandled rejection', rejection));
-  });
+  if (
+    !process.listeners('unhandledRejection').includes(handleUnhandledRejection)
+  ) {
+    process.on('unhandledRejection', handleUnhandledRejection);
+  }
+
+  const args = process.argv.slice(2);
+  if (version && hasVersionFlag(args)) {
+    console.log(version);
+    process.exit(0);
+    return;
+  }
 
   await runCommandLevel({
     nodes: graph.roots,
-    argv: process.argv.slice(2),
+    argv: args,
     programName: name,
     version,
   });

@@ -139,6 +139,34 @@ describe('runCli', () => {
     logSpy.mockRestore();
   });
 
+  it('supports the short version flag after a nested leaf command', async () => {
+    process.argv = ['node', 'cli', 'repo', 'test', '-V'];
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const testModule = createCliModule({
+      packageJson: { name: '@example/test' },
+      init: async reg => {
+        reg.addCommand({
+          path: ['repo', 'test'],
+          description: 'Test the repository',
+          execute: async () => {
+            throw new Error('Command should not be executed');
+          },
+        });
+      },
+    });
+
+    await runCli({
+      modules: [testModule],
+      name: 'example-cli',
+      version: '1.2.3',
+    });
+
+    expect(logSpy).toHaveBeenCalledWith('1.2.3');
+    expect(process.exit).toHaveBeenCalledWith(0);
+    logSpy.mockRestore();
+  });
+
   it('allows modules to define the help command', async () => {
     expect.assertions(2);
     process.argv = ['node', 'cli', 'help'];
@@ -262,5 +290,22 @@ describe('runCli', () => {
     ).rejects.toThrow(
       'Command "repo test" from "@example/nested" conflicts with an existing command from "@example/parent"',
     );
+  });
+
+  it('registers the unhandled rejection handler once', async () => {
+    process.argv = ['node', 'cli'];
+
+    await runCli({
+      modules: [],
+      name: 'example-cli',
+    });
+    const listenerCount = process.listenerCount('unhandledRejection');
+
+    await runCli({
+      modules: [],
+      name: 'example-cli',
+    });
+
+    expect(process.listenerCount('unhandledRejection')).toBe(listenerCount);
   });
 });

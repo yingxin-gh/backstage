@@ -2806,7 +2806,7 @@ __metadata:
     "@yarnpkg/lockfile": "npm:^1.1.0"
     "@yarnpkg/parsers": "npm:^3.0.0"
     chalk: "npm:^4.0.0"
-    commander: "npm:^12.0.0"
+    commander: "npm:^14.0.3"
     fs-extra: "npm:^11.2.0"
     keytar: "npm:^7.9.0"
     pirates: "npm:^4.0.6"
@@ -2842,7 +2842,6 @@ __metadata:
     "@backstage/core-components": "workspace:^"
     "@backstage/core-plugin-api": "workspace:^"
     "@backstage/dev-utils": "workspace:^"
-    "@backstage/errors": "workspace:^"
     "@backstage/eslint-plugin": "workspace:^"
     "@backstage/plugin-auth-backend": "workspace:^"
     "@backstage/plugin-auth-backend-module-guest-provider": "workspace:^"
@@ -2865,7 +2864,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.17.0"
     "@typescript-eslint/parser": "npm:^8.16.0"
     chalk: "npm:^4.0.0"
-    commander: "npm:^14.0.3"
     cross-fetch: "npm:^4.0.0"
     eslint: "npm:^8.6.0"
     eslint-config-prettier: "npm:^9.0.0"
@@ -24844,7 +24842,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^12.0.0, commander@npm:^12.1.0":
+"commander@npm:^12.1.0":
   version: 12.1.0
   resolution: "commander@npm:12.1.0"
   checksum: 10/cdaeb672d979816853a4eed7f1310a9319e8b976172485c2a6b437ed0db0a389a44cfb222bfbde772781efa9f215bdd1b936f80d6b249485b465c6cb906e1f93

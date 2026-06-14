@@ -3037,12 +3037,15 @@ export const PluginHeaderDefinition: {
     readonly toolbarControls: 'bui-PluginHeaderToolbarControls';
     readonly toolbarIcon: 'bui-PluginHeaderToolbarIcon';
     readonly toolbarName: 'bui-PluginHeaderToolbarName';
+    readonly breadcrumbs: 'bui-PluginHeaderBreadcrumbs';
+    readonly breadcrumbsEllipsis: 'bui-PluginHeaderBreadcrumbsEllipsis';
     readonly tabs: 'bui-PluginHeaderTabsWrapper';
   };
   readonly propDefs: {
     readonly icon: {};
     readonly title: {};
     readonly titleLink: {};
+    readonly breadcrumbs: {};
     readonly customActions: {};
     readonly tabs: {};
     readonly onTabSelectionChange: {};
@@ -3052,6 +3055,8 @@ export const PluginHeaderDefinition: {
 
 // @public
 export interface PluginHeaderOwnProps {
+  // (undocumented)
+  breadcrumbs?: BreadcrumbEntry[];
   // (undocumented)
   className?: string;
   // (undocumented)

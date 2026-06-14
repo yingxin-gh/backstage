@@ -160,6 +160,50 @@ describe('hasLabel permission rule', () => {
         ),
       ).toEqual(true);
     });
+
+    it('matches label value across case-differing duplicate keys', () => {
+      expect(
+        hasLabel.apply(
+          {
+            apiVersion: 'backstage.io/v1alpha1',
+            kind: 'Component',
+            metadata: {
+              name: 'test-component',
+              labels: {
+                Foo: 'false',
+                foo: 'true',
+              },
+            },
+          },
+          {
+            label: 'Foo',
+            value: 'true',
+          },
+        ),
+      ).toEqual(true);
+    });
+
+    it('returns false when no case-differing duplicate key has the expected value', () => {
+      expect(
+        hasLabel.apply(
+          {
+            apiVersion: 'backstage.io/v1alpha1',
+            kind: 'Component',
+            metadata: {
+              name: 'test-component',
+              labels: {
+                Foo: 'false',
+                foo: 'true',
+              },
+            },
+          },
+          {
+            label: 'Foo',
+            value: 'other',
+          },
+        ),
+      ).toEqual(false);
+    });
   });
 
   describe('toQuery', () => {

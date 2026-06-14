@@ -38,24 +38,32 @@ export const hasAnnotation = createPermissionRule({
       .describe('Value of the annotation to match on'),
   }),
   apply: (resource, { annotation, value }) => {
+    if (!resource.metadata.annotations) return false;
+
+    // exact key match
+    const isExactKeyMatch =
+      !!resource.metadata.annotations?.hasOwnProperty(annotation) &&
+      (value === undefined
+        ? true
+        : resource.metadata.annotations?.[annotation] === value);
+
+    if (isExactKeyMatch) return true;
+
+    // case-insensitive matching if exact match is not found
     const normalizedAnnotation = annotation.toLocaleLowerCase('en-US');
-    const matchingResourceAnnotation = resource.metadata.annotations
-      ? Object.keys(resource.metadata.annotations).find(
-          key => key.toLocaleLowerCase('en-US') === normalizedAnnotation,
-        )
-      : undefined;
+    const normalizedValue = value?.toLocaleLowerCase('en-US');
 
-    if (!matchingResourceAnnotation) return false;
-    if (value === undefined) return true;
-
-    const matchingResourceAnnotationValue =
-      resource.metadata.annotations?.[matchingResourceAnnotation];
-
-    return (
-      matchingResourceAnnotationValue !== undefined &&
-      matchingResourceAnnotationValue.toLocaleLowerCase('en-US') ===
-        value.toLocaleLowerCase('en-US')
-    );
+    for (const [key, val] of Object.entries(resource.metadata.annotations)) {
+      if (key.toLocaleLowerCase('en-US') === normalizedAnnotation) {
+        if (
+          normalizedValue === undefined ||
+          val.toLocaleLowerCase('en-US') === normalizedValue
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
   },
   toQuery: ({ annotation, value }) =>
     value === undefined

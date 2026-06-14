@@ -45,11 +45,11 @@ describe('PageLayout', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Catalog')).toBeInTheDocument();
+      const breadcrumbList = screen.getByRole('list', {
+        name: 'Breadcrumbs',
+      });
+      expect(breadcrumbList).toHaveTextContent('Catalog');
     });
-
-    const breadcrumbList = screen.getByRole('list', { name: 'Breadcrumbs' });
-    expect(breadcrumbList).toHaveTextContent('Catalog');
   });
 
   it('should render the PluginHeader with the page title', async () => {
@@ -134,11 +134,12 @@ describe('PageLayout', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Overview content')).toBeInTheDocument();
+      const breadcrumbList = screen.getByRole('list', {
+        name: 'Breadcrumbs',
+      });
+      expect(breadcrumbList).toHaveTextContent('My Plugin');
+      expect(breadcrumbList).toHaveTextContent('Overview');
     });
-
-    const breadcrumbList = screen.getByRole('list', { name: 'Breadcrumbs' });
-    expect(breadcrumbList).toHaveTextContent('My Plugin');
-    expect(breadcrumbList).toHaveTextContent('Overview');
   });
 
   it('should register breadcrumbs for inner routes within a sub-page', async () => {
@@ -196,11 +197,12 @@ describe('PageLayout', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Task detail: abc-123')).toBeInTheDocument();
+      const breadcrumbList = screen.getByRole('list', {
+        name: 'Breadcrumbs',
+      });
+      expect(breadcrumbList).toHaveTextContent('Create');
+      expect(breadcrumbList).toHaveTextContent('Tasks');
+      expect(breadcrumbList).toHaveTextContent('abc-123');
     });
-
-    const breadcrumbList = screen.getByRole('list', { name: 'Breadcrumbs' });
-    expect(breadcrumbList).toHaveTextContent('Create');
-    expect(breadcrumbList).toHaveTextContent('Tasks');
-    expect(breadcrumbList).toHaveTextContent('abc-123');
   });
 });

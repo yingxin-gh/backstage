@@ -8,6 +8,7 @@ import { ApiRef as ApiRef_2 } from '@backstage/frontend-plugin-api';
 import { ComponentType } from 'react';
 import type { Config } from '@backstage/config';
 import { ConfigurableExtensionDataRef as ConfigurableExtensionDataRef_2 } from '@backstage/frontend-plugin-api';
+import { Context } from 'react';
 import { Expand } from '@backstage/types';
 import { ExpandRecursive } from '@backstage/types';
 import { ExtensionBlueprint as ExtensionBlueprint_2 } from '@backstage/frontend-plugin-api';
@@ -2529,6 +2530,21 @@ export const SubPageBlueprint: ExtensionBlueprint_2<{
   };
   dataRefs: never;
 }>;
+
+// @public
+export const SubPageWrapperContext: Context<
+  ComponentType<SubPageWrapperProps> | undefined
+>;
+
+// @public
+export interface SubPageWrapperProps {
+  // (undocumented)
+  children: ReactNode;
+  // (undocumented)
+  href: string;
+  // (undocumented)
+  label: string;
+}
 
 // @public
 export interface SubRouteRef<

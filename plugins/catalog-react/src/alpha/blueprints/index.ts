@@ -29,6 +29,7 @@ export {
 export type { EntityCardType } from './extensionData';
 export {
   EntityContextMenuItemBlueprint,
+  type EntityContextMenuItemData,
   type EntityContextMenuItemParams,
   type UseProps,
 } from './EntityContextMenuItemBlueprint';

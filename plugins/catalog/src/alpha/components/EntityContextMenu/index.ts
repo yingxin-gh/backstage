@@ -14,4 +14,7 @@
  * limitations under the License.
  */
 
-export { EntityContextMenu } from './EntityContextMenu';
+export {
+  EntityContextMenu,
+  type EntityContextMenuItemDataWithNode,
+} from './EntityContextMenu';

@@ -14,25 +14,93 @@
  * limitations under the License.
  */
 
-import { renderInTestApp } from '@backstage/frontend-test-utils';
-import { MenuItem } from '@backstage/ui';
+import {
+  createExtensionTester,
+  renderInTestApp,
+} from '@backstage/frontend-test-utils';
+import {
+  EntityContextMenuItemBlueprint,
+  type EntityContextMenuItemParams,
+} from '@backstage/plugin-catalog-react/alpha';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { EntityContextMenu } from './EntityContextMenu';
 
+function createContextMenuItem(params: EntityContextMenuItemParams) {
+  const extension = EntityContextMenuItemBlueprint.make({
+    name: 'test',
+    params,
+  });
+  const tester = createExtensionTester(extension);
+
+  return {
+    data: tester.get(EntityContextMenuItemBlueprint.dataRefs.data),
+    node: tester.query(extension).node,
+  };
+}
+
 describe('EntityContextMenu', () => {
-  it('renders the trigger and supplied menu items', async () => {
+  it('renders menu item data and invokes useProps as a hook', async () => {
+    const onClick = jest.fn();
+
+    function useProps() {
+      const [title] = useState('Supplied item');
+      return { title, onClick };
+    }
+
     await renderInTestApp(
       <EntityContextMenu
-        contextMenuItems={[<MenuItem key="supplied">Supplied item</MenuItem>]}
+        contextMenuItems={[
+          createContextMenuItem({
+            icon: <span data-testid="supplied-icon" />,
+            useProps,
+          }),
+        ]}
       />,
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
 
-    expect(
-      await screen.findByRole('menuitem', { name: 'Supplied item' }),
-    ).toBeInTheDocument();
+    const item = await screen.findByRole('menuitem', {
+      name: 'Supplied item',
+    });
+    expect(screen.getByTestId('supplied-icon')).toBeInTheDocument();
+
+    await userEvent.click(item);
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('supports an action alongside an internal link', async () => {
+    const onClick = jest.fn();
+
+    await renderInTestApp(
+      <EntityContextMenu
+        contextMenuItems={[
+          createContextMenuItem({
+            icon: <span />,
+            useProps: () => ({
+              title: 'Linked action',
+              href: '/internal',
+              onClick,
+            }),
+          }),
+        ]}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+
+    const item = await screen.findByRole('menuitem', {
+      name: 'Linked action',
+    });
+    expect(item).toHaveAttribute('href', '/internal');
+    expect(item).not.toHaveAttribute('target');
+
+    await userEvent.click(item);
+
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('renders extras first with an icon and separator, and handles actions', async () => {
@@ -44,7 +112,15 @@ describe('EntityContextMenu', () => {
         UNSTABLE_extraContextMenuItems={[
           { title: 'Extra item', Icon, onClick },
         ]}
-        contextMenuItems={[<MenuItem key="supplied">Supplied item</MenuItem>]}
+        contextMenuItems={[
+          createContextMenuItem({
+            icon: <span />,
+            useProps: () => ({
+              title: 'Supplied item',
+              onClick: () => {},
+            }),
+          }),
+        ]}
       />,
     );
 
@@ -60,10 +136,52 @@ describe('EntityContextMenu', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
+  it('supports extra items with duplicate titles', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation();
+
+    try {
+      await renderInTestApp(
+        <EntityContextMenu
+          UNSTABLE_extraContextMenuItems={[
+            { title: 'Extra item', Icon: () => null, onClick: () => {} },
+            { title: 'Extra item', Icon: () => null, onClick: () => {} },
+          ]}
+        />,
+      );
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'More actions' }),
+      );
+
+      expect(
+        screen.getAllByRole('menuitem', { name: 'Extra item' }),
+      ).toHaveLength(2);
+      expect(
+        consoleError.mock.calls.some(args =>
+          args.some(
+            arg =>
+              typeof arg === 'string' &&
+              arg.includes('Encountered two children with the same key'),
+          ),
+        ),
+      ).toBe(false);
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it('does not render a separator without extras', async () => {
     await renderInTestApp(
       <EntityContextMenu
-        contextMenuItems={[<MenuItem key="supplied">Supplied item</MenuItem>]}
+        contextMenuItems={[
+          createContextMenuItem({
+            icon: <span />,
+            useProps: () => ({
+              title: 'Supplied item',
+              onClick: () => {},
+            }),
+          }),
+        ]}
       />,
     );
 
@@ -92,9 +210,13 @@ describe('EntityContextMenu', () => {
     await renderInTestApp(
       <EntityContextMenu
         contextMenuItems={[
-          <MenuItem key="pending" onAction={() => pendingAction}>
-            Pending action
-          </MenuItem>,
+          createContextMenuItem({
+            icon: <span />,
+            useProps: () => ({
+              title: 'Pending action',
+              onClick: () => pendingAction,
+            }),
+          }),
         ]}
       />,
     );

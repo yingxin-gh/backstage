@@ -15,9 +15,12 @@
  */
 
 import {
+  type AppNode,
+  ExtensionBoundary,
   IconComponent,
   useTranslationRef,
 } from '@backstage/frontend-plugin-api';
+import type { EntityContextMenuItemData } from '@backstage/plugin-catalog-react/alpha';
 import {
   ButtonIcon,
   Menu,
@@ -28,6 +31,51 @@ import {
 import { RiMore2Line } from '@remixicon/react';
 import { catalogTranslationRef } from '../../translation';
 
+export type EntityContextMenuItemDataWithNode = {
+  data: EntityContextMenuItemData;
+  node: AppNode;
+};
+
+function EntityContextMenuItemContent(props: {
+  data: EntityContextMenuItemData;
+}) {
+  const { icon, useProps } = props.data;
+  const { title, disabled, ...menuItemProps } = useProps();
+
+  if ('href' in menuItemProps) {
+    return (
+      <MenuItem
+        iconStart={icon}
+        href={menuItemProps.href}
+        onAction={menuItemProps.onClick}
+        isDisabled={disabled}
+      >
+        {title}
+      </MenuItem>
+    );
+  }
+
+  return (
+    <MenuItem
+      iconStart={icon}
+      onAction={menuItemProps.onClick}
+      isDisabled={disabled}
+    >
+      {title}
+    </MenuItem>
+  );
+}
+
+function EntityContextMenuItem(props: {
+  item: EntityContextMenuItemDataWithNode;
+}) {
+  return (
+    <ExtensionBoundary node={props.item.node}>
+      <EntityContextMenuItemContent data={props.item.data} />
+    </ExtensionBoundary>
+  );
+}
+
 /** @alpha */
 export function EntityContextMenu(props: {
   UNSTABLE_extraContextMenuItems?: {
@@ -35,7 +83,7 @@ export function EntityContextMenu(props: {
     Icon: IconComponent;
     onClick: () => void;
   }[];
-  contextMenuItems?: React.JSX.Element[];
+  contextMenuItems?: EntityContextMenuItemDataWithNode[];
 }) {
   const { UNSTABLE_extraContextMenuItems, contextMenuItems } = props;
   const { t } = useTranslationRef(catalogTranslationRef);
@@ -48,9 +96,9 @@ export function EntityContextMenu(props: {
         aria-label={t('entityContextMenu.moreButtonAriaLabel')}
       />
       <Menu placement="bottom end">
-        {UNSTABLE_extraContextMenuItems?.map(item => (
+        {UNSTABLE_extraContextMenuItems?.map((item, index) => (
           <MenuItem
-            key={item.title}
+            key={`${item.title}-${index}`}
             iconStart={<item.Icon />}
             onAction={() => item.onClick()}
           >
@@ -60,7 +108,9 @@ export function EntityContextMenu(props: {
         {UNSTABLE_extraContextMenuItems?.length && contextMenuItems?.length ? (
           <MenuSeparator />
         ) : null}
-        {contextMenuItems}
+        {contextMenuItems?.map(item => (
+          <EntityContextMenuItem key={item.node.spec.id} item={item} />
+        ))}
       </Menu>
     </MenuTrigger>
   );

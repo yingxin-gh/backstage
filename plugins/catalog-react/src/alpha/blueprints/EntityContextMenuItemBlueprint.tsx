@@ -14,49 +14,28 @@
  * limitations under the License.
  */
 
-import { ReactNode, JSX } from 'react';
 import {
-  coreExtensionData,
   createExtensionBlueprint,
-  ExtensionBoundary,
+  type IconElement,
 } from '@backstage/frontend-plugin-api';
-import { MenuItem } from '@backstage/ui';
-import { makeStyles } from '@material-ui/core/styles';
 import {
   FilterPredicate,
   filterPredicateToFilterFunction,
   createZodV4FilterPredicateSchema,
 } from '@backstage/filter-predicates';
 import type { Entity } from '@backstage/catalog-model';
-import { entityFilterFunctionDataRef } from './extensionData';
+import {
+  entityContextMenuItemDataRef,
+  entityFilterFunctionDataRef,
+  type UseProps,
+} from './extensionData';
 
-const useStyles = makeStyles({
-  menuItem: {
-    '& .MuiSvgIcon-root': {
-      fontSize: '1rem',
-      width: '1rem',
-      height: '1rem',
-    },
-  },
-});
-
-/** @alpha */
-export type UseProps = () =>
-  | {
-      title: ReactNode;
-      href: string;
-      disabled?: boolean;
-    }
-  | {
-      title: ReactNode;
-      onClick: () => void | Promise<void>;
-      disabled?: boolean;
-    };
+export type { EntityContextMenuItemData, UseProps } from './extensionData';
 
 /** @alpha */
 export type EntityContextMenuItemParams = {
   useProps: UseProps;
-  icon: JSX.Element;
+  icon: IconElement;
   filter?: FilterPredicate | ((entity: Entity) => boolean);
 };
 
@@ -65,50 +44,21 @@ export const EntityContextMenuItemBlueprint = createExtensionBlueprint({
   kind: 'entity-context-menu-item',
   attachTo: { id: 'page:catalog/entity', input: 'contextMenuItems' },
   output: [
-    coreExtensionData.reactElement,
+    entityContextMenuItemDataRef,
     entityFilterFunctionDataRef.optional(),
   ],
   dataRefs: {
+    data: entityContextMenuItemDataRef,
     filterFunction: entityFilterFunctionDataRef,
   },
   configSchema: {
     filter: createZodV4FilterPredicateSchema().optional(),
   },
-  *factory(params: EntityContextMenuItemParams, { node, config }) {
-    const loader = async () => {
-      const Component = () => {
-        const classes = useStyles();
-        const { title, disabled, ...menuItemProps } = params.useProps();
-
-        if ('href' in menuItemProps) {
-          return (
-            <MenuItem
-              className={classes.menuItem}
-              iconStart={params.icon}
-              href={menuItemProps.href}
-              isDisabled={disabled}
-            >
-              {title}
-            </MenuItem>
-          );
-        }
-
-        return (
-          <MenuItem
-            className={classes.menuItem}
-            iconStart={params.icon}
-            onAction={menuItemProps.onClick}
-            isDisabled={disabled}
-          >
-            {title}
-          </MenuItem>
-        );
-      };
-
-      return <Component />;
-    };
-
-    yield coreExtensionData.reactElement(ExtensionBoundary.lazy(node, loader));
+  *factory(params: EntityContextMenuItemParams, { config }) {
+    yield entityContextMenuItemDataRef({
+      icon: params.icon,
+      useProps: params.useProps,
+    });
 
     if (config.filter) {
       yield entityFilterFunctionDataRef(

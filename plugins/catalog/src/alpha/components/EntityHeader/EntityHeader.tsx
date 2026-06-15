@@ -42,7 +42,10 @@ import {
 } from '@backstage/plugin-catalog-react';
 
 import { EntityLabels } from '../EntityLabels';
-import { EntityContextMenu } from '../EntityContextMenu';
+import {
+  EntityContextMenu,
+  type EntityContextMenuItemDataWithNode,
+} from '../EntityContextMenu';
 
 function headerProps(
   paramKind: string | undefined,
@@ -161,7 +164,7 @@ export function EntityHeader(props: {
     Icon: IconComponent;
     onClick: () => void;
   }[];
-  contextMenuItems?: React.JSX.Element[];
+  contextMenuItems?: EntityContextMenuItemDataWithNode[];
   /**
    * An array of relation types used to determine the parent entities in the hierarchy.
    * These relations are prioritized in the order provided, allowing for flexible

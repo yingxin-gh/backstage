@@ -27,8 +27,11 @@ import {
 } from '@backstage/frontend-plugin-api';
 import { Entity } from '@backstage/catalog-model';
 import { EntityProvider } from '@backstage/plugin-catalog-react';
+import {
+  EntityContextMenuItemBlueprint,
+  type EntityContextMenuItemData,
+} from '@backstage/plugin-catalog-react/alpha';
 import { AuthorizeResult } from '@backstage/plugin-permission-common';
-import { Button, Menu, MenuTrigger } from '@backstage/ui';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -41,13 +44,13 @@ import {
   RiFileCopyLine,
   type RemixiconComponentType,
 } from '@remixicon/react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import {
   copyEntityUrlContextMenuItem,
   inspectEntityContextMenuItem,
   unregisterEntityContextMenuItem,
 } from './contextMenuItems';
 import { rootRouteRef, unregisterRedirectRouteRef } from '../routes';
+import { EntityContextMenu } from './components/EntityContextMenu';
 
 const useCopyToClipboard = jest.mocked(useCopyToClipboardUnmocked);
 jest.mock('react-use/esm/useCopyToClipboard', () => jest.fn());
@@ -81,13 +84,16 @@ function renderMenuItem(
   extension: ExtensionDefinition,
   options: TestAppOptions = {},
 ) {
+  const tester = createExtensionTester(extension);
+  const item = {
+    data: tester.get(EntityContextMenuItemBlueprint.dataRefs.data),
+    node: tester.query(extension).node,
+  };
+
   return renderInTestApp(
     <SWRConfig value={{ provider: () => new Map() }}>
       <EntityProvider entity={entity}>
-        <MenuTrigger isOpen>
-          <Button>Menu</Button>
-          <Menu>{createExtensionTester(extension).reactElement()}</Menu>
-        </MenuTrigger>
+        <EntityContextMenu contextMenuItems={[item]} />
         <RouterProbe />
       </EntityProvider>
     </SWRConfig>,
@@ -96,6 +102,7 @@ function renderMenuItem(
 }
 
 async function findMenuItem(name: string) {
+  await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
   return screen.findByRole('menuitem', { name });
 }
 
@@ -107,14 +114,16 @@ function createDialog(close: jest.Mock): DialogApiDialog {
   };
 }
 
-function expectIcon(menuItem: HTMLElement, Icon: RemixiconComponentType) {
-  const container = document.createElement('div');
-  container.innerHTML = renderToStaticMarkup(<Icon size={16} />);
-
-  expect(menuItem.querySelector('svg path')).toHaveAttribute(
-    'd',
-    container.querySelector('svg path')?.getAttribute('d'),
+function expectIcon(
+  extension: ExtensionDefinition,
+  Icon: RemixiconComponentType,
+) {
+  const tester = createExtensionTester(extension);
+  const data: EntityContextMenuItemData = tester.get(
+    EntityContextMenuItemBlueprint.dataRefs.data,
   );
+
+  expect(data.icon?.type).toBe(Icon);
 }
 
 describe('context menu items', () => {
@@ -134,7 +143,7 @@ describe('context menu items', () => {
     });
 
     const menuItem = await findMenuItem('Copy entity URL');
-    expectIcon(menuItem, RiFileCopyLine);
+    expectIcon(copyEntityUrlContextMenuItem, RiFileCopyLine);
     await userEvent.click(menuItem);
 
     expect(copyToClipboard).toHaveBeenCalledWith(window.location.toString());
@@ -163,7 +172,7 @@ describe('context menu items', () => {
     renderMenuItem(inspectEntityContextMenuItem);
 
     const menuItem = await findMenuItem('Inspect entity');
-    expectIcon(menuItem, RiBugLine);
+    expectIcon(inspectEntityContextMenuItem, RiBugLine);
     await userEvent.click(menuItem);
 
     expect(screen.getByLabelText('search params')).toHaveTextContent(
@@ -184,7 +193,7 @@ describe('context menu items', () => {
     });
 
     const menuItem = await findMenuItem('Unregister entity');
-    expectIcon(menuItem, RiDeleteBinLine);
+    expectIcon(unregisterEntityContextMenuItem, RiDeleteBinLine);
     await waitFor(() =>
       expect(menuItem).toHaveAttribute('aria-disabled', 'true'),
     );

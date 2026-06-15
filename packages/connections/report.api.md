@@ -30,7 +30,7 @@ export type Connection<
   TAuthMethod extends string = string,
 > = {
   type: LookupConnectionType<T>['type'];
-  title?: string;
+  title: string;
   auth: string extends TAuthMethod
     ? AuthValue<T>[]
     : Extract<

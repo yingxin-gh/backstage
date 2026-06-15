@@ -251,6 +251,15 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
       throw new Error(`Action with id "${id}" is already registered`);
     }
 
+    if (!options.attributes) {
+      this.logger.warn(
+        `Action "${id}" is registered without attributes. ` +
+          `Set { readOnly, destructive, idempotent } explicitly so clients ` +
+          `can make informed decisions about the action. Defaulting to ` +
+          `{ readOnly: false, destructive: true, idempotent: false }.`,
+      );
+    }
+
     if (options.visibilityPermission) {
       this.permissionsRegistry.addPermissions([options.visibilityPermission]);
     }

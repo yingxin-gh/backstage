@@ -214,11 +214,8 @@ export class McpService {
           tools.push(parsed.data);
         }
 
-        try {
-          await auditorEvent.success({ meta: { toolCount: actions.length } });
-        } catch {
-          // best-effort
-        }
+        await auditorEvent.success({ meta: { toolCount: tools.length } });
+
         return { tools };
       } catch (err) {
         errorType = err instanceof Error ? err.name : 'Error';

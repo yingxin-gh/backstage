@@ -35,7 +35,7 @@ import {
   TracingService,
 } from '@backstage/backend-plugin-api/alpha';
 import { version } from '@backstage/plugin-mcp-actions-backend/package.json';
-import { NotFoundError } from '@backstage/errors';
+import { NotFoundError, toError } from '@backstage/errors';
 import { performance } from 'node:perf_hooks';
 
 import { handleErrors } from './handleErrors';
@@ -220,7 +220,7 @@ export class McpService {
       } catch (err) {
         errorType = err instanceof Error ? err.name : 'Error';
         await auditorEvent.fail({
-          error: err instanceof Error ? err : new Error(String(err)),
+          error: toError(err),
         });
         throw err;
       } finally {
@@ -333,7 +333,7 @@ export class McpService {
         errorType = err instanceof Error ? err.name : 'Error';
         if (!isError) {
           await auditorEvent.fail({
-            error: err instanceof Error ? err : new Error(String(err)),
+            error: toError(err),
           });
         }
         throw err;

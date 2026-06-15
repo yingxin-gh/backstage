@@ -75,6 +75,25 @@ describe('createConnectionType', () => {
         auth: [{ method: 'token', token: 'abc' }],
       }),
     ).toThrow();
+
+    // Optional title field should be accepted.
+    expect(
+      SingleAuthType.schema.parse({
+        type: 'single',
+        host: 'example.com',
+        title: 'My Production Instance',
+        auth: [{ method: 'token', token: 'abc' }],
+      }),
+    ).toMatchObject({ title: 'My Production Instance' });
+
+    // Omitting title should still work.
+    expect(
+      SingleAuthType.schema.parse({
+        type: 'single',
+        host: 'example.com',
+        auth: [{ method: 'token', token: 'abc' }],
+      }),
+    ).not.toHaveProperty('title');
   });
 
   it('builds a multi-auth-method connection type that discriminates on method', () => {

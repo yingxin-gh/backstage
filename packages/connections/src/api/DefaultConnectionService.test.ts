@@ -550,6 +550,51 @@ describe('DefaultConnectionsService', () => {
     });
   });
 
+  describe('title', () => {
+    it('includes the title when configured', async () => {
+      const service = DefaultConnectionsService.create({
+        logger: mockServices.logger.mock(),
+        config: mockConnectionsConfig([
+          {
+            type: 'github',
+            host: 'github.com',
+            title: 'GitHub Production',
+            auth: [{ method: 'token', token: 'my-token' }],
+          },
+        ]),
+      });
+
+      const connection = await service.forPlugin('catalog').find({
+        type: 'github',
+        url: 'https://github.com/my-org/my-repo',
+        authMethods: ['token'],
+      });
+
+      expect(connection?.title).toBe('GitHub Production');
+    });
+
+    it('omits the title when not configured', async () => {
+      const service = DefaultConnectionsService.create({
+        logger: mockServices.logger.mock(),
+        config: mockConnectionsConfig([
+          {
+            type: 'github',
+            host: 'github.com',
+            auth: [{ method: 'token', token: 'my-token' }],
+          },
+        ]),
+      });
+
+      const connection = await service.forPlugin('catalog').find({
+        type: 'github',
+        url: 'https://github.com/my-org/my-repo',
+        authMethods: ['token'],
+      });
+
+      expect(connection?.title).toBeUndefined();
+    });
+  });
+
   describe('config validation', () => {
     it('throws with the failing field when a connection is missing a required value', () => {
       expect(() =>

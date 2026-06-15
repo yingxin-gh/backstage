@@ -18,7 +18,7 @@ import type { ConnectionTypeKey, LookupConnectionType } from '../definitions';
 
 // Field names the framework owns at the connection level. Connection-type
 // authors must not declare these in their `configSchema`.
-export type ReservedConnectionFields = 'type' | 'auth' | 'match';
+export type ReservedConnectionFields = 'type' | 'auth' | 'match' | 'title';
 
 // Surfaced when a configSchema declares a reserved key — the message becomes
 // part of the type error so authors see why their schema was rejected.

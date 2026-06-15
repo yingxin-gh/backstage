@@ -53,6 +53,7 @@ export function createConnectionType<
   const schema = validated
     .extend({
       type: z.literal(type),
+      title: z.string().optional(),
       match: matchSchema,
       auth: z.array(
         authOptions.length === 1

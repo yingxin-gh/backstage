@@ -33,12 +33,9 @@ import type { HTMLAttributes } from 'react';
 import { JSX as JSX_2 } from 'react/jsx-runtime';
 import { Key } from 'react-aria-components';
 import type { LinkProps as LinkProps_2 } from 'react-aria-components';
-import { ListBox } from 'react-aria-components';
-import { ListBoxItem } from 'react-aria-components';
 import type { ListBoxItemProps } from 'react-aria-components';
 import type { ListBoxItemRenderProps } from 'react-aria-components';
 import type { ListBoxProps } from 'react-aria-components';
-import { ListLayout } from 'react-aria-components';
 import type { MenuItemProps as MenuItemProps_2 } from 'react-aria-components';
 import type { MenuProps as MenuProps_2 } from 'react-aria-components';
 import type { MenuSectionProps as MenuSectionProps_2 } from 'react-aria-components';
@@ -77,7 +74,6 @@ import type { ToggleButtonProps as ToggleButtonProps_2 } from 'react-aria-compon
 import type { TooltipProps as TooltipProps_2 } from 'react-aria-components';
 import { TooltipTriggerComponentProps } from 'react-aria-components';
 import { useAsyncList } from 'react-stately/useAsyncList';
-import { Virtualizer } from 'react-aria-components';
 
 // @public
 export const Accordion: ForwardRefExoticComponent<
@@ -2570,10 +2566,6 @@ export interface LinkProps
 // @public
 export const List: <T extends object>(props: ListProps<T>) => JSX_2.Element;
 
-export { ListBox };
-
-export { ListBoxItem };
-
 // @public
 export const ListDefinition: {
   readonly styles: {
@@ -2589,8 +2581,6 @@ export const ListDefinition: {
     readonly className: {};
   };
 };
-
-export { ListLayout };
 
 // @public
 export type ListOwnProps<T = object> = {
@@ -4708,8 +4698,6 @@ export type VirtualizedProp =
   | {
       estimatedRowHeight: number;
     };
-
-export { Virtualizer };
 
 // @public
 export const VisuallyHidden: (props: VisuallyHiddenProps) => JSX_2.Element;

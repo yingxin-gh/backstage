@@ -23,11 +23,3 @@ export type { Key } from 'react-aria-components';
 
 /** @public */
 export { Focusable } from 'react-aria-components';
-/** @public */
-export { ListBox } from 'react-aria-components';
-/** @public */
-export { ListBoxItem } from 'react-aria-components';
-/** @public */
-export { ListLayout } from 'react-aria-components';
-/** @public */
-export { Virtualizer } from 'react-aria-components';

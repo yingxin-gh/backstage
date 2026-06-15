@@ -23,7 +23,6 @@ import { toError } from '@backstage/errors';
 import { TracingService } from '@backstage/backend-plugin-api/alpha';
 import {
   AuditorService,
-  AuditorServiceEvent,
   HttpAuthService,
   LoggerService,
 } from '@backstage/backend-plugin-api';
@@ -69,17 +68,11 @@ export const createStreamableRouter = ({
       'network.protocol.name': 'http',
     };
 
-    let connectionEvent: AuditorServiceEvent;
-    try {
-      connectionEvent = await auditor.createEvent({
-        eventId: 'connection',
-        request: req,
-        meta: { transport: 'streamable', actionType: 'established' },
-      });
-    } catch {
-      // best-effort
-      connectionEvent = { success: async () => {}, fail: async () => {} };
-    }
+    const connectionEvent = await auditor.createEvent({
+      eventId: 'connection',
+      request: req,
+      meta: { transport: 'streamable', actionType: 'established' },
+    });
 
     try {
       const server = mcpService.getServer({
@@ -104,11 +97,7 @@ export const createStreamableRouter = ({
         transport.handleRequest(req, res, req.body),
       );
 
-      try {
-        await connectionEvent.success();
-      } catch {
-        // best-effort
-      }
+      await connectionEvent.success();
 
       res.on('close', async () => {
         transport.close();
@@ -118,16 +107,12 @@ export const createStreamableRouter = ({
 
         sessionDuration.record(durationSeconds, baseAttributes);
 
-        try {
-          const e = await auditor.createEvent({
-            eventId: 'connection',
-            request: req,
-            meta: { transport: 'streamable', actionType: 'closed' },
-          });
-          await e.success();
-        } catch {
-          // best-effort
-        }
+        const e = await auditor.createEvent({
+          eventId: 'connection',
+          request: req,
+          meta: { transport: 'streamable', actionType: 'closed' },
+        });
+        await e.success();
       });
     } catch (error) {
       const err = toError(error);
@@ -153,13 +138,7 @@ export const createStreamableRouter = ({
         'error.type': errorType,
       });
 
-      try {
-        await connectionEvent.fail({
-          error: error instanceof Error ? error : new Error(String(error)),
-        });
-      } catch {
-        // best-effort
-      }
+      await connectionEvent.fail({ error: toError(error) });
     }
   });
 

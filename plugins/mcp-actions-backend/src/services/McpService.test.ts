@@ -229,6 +229,7 @@ describe('McpService', () => {
       actions: fakeActions,
       metrics: metricsServiceMock.mock(),
       tracingService: tracingServiceMock.mock(),
+      auditor: mockServices.auditor.mock(),
       logger,
     });
 

@@ -157,12 +157,12 @@ async function verifyUrl(basePath, absUrl, docPages) {
       if (docPages.has(url.slice(0, -'.md'.length))) {
         return undefined;
       }
-      const changelogVersion = url.match(/\/(v[^/]+-changelog)\.md$/);
+      const changelogBase = url.match(/\/(v[^/]+)-changelog\.md$/);
       const sourceVersion = basePath.match(/docs\/releases\/(v[^-]+)\.md$/);
       if (
-        changelogVersion &&
+        changelogBase &&
         sourceVersion &&
-        changelogVersion[1].startsWith(sourceVersion[1])
+        changelogBase[1] === sourceVersion[1]
       ) {
         return undefined;
       }

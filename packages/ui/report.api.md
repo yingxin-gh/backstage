@@ -3842,6 +3842,7 @@ export const SkeletonDefinition: {
   readonly classNames: {
     readonly root: 'bui-Skeleton';
   };
+  readonly bg: 'consumer';
   readonly propDefs: {
     readonly width: {
       readonly default: 80;

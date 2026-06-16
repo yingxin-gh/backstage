@@ -562,6 +562,7 @@ untracked
 upsert
 upstreams
 upvote
+UIs
 URIs
 url
 URLs

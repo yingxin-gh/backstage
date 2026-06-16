@@ -20,7 +20,6 @@ import {
 } from '@backstage/backend-plugin-api';
 import {
   ConnectionTypeKey,
-  connectionTypeDisplayNames,
   getConnectionType,
   isConnectionTypeKey,
 } from '../definitions';
@@ -255,7 +254,7 @@ export class DefaultConnectionsService {
     for (const c of this.connections) {
       if (!c.title) {
         const type = c.type as ConnectionTypeKey;
-        const displayName = connectionTypeDisplayNames[type];
+        const displayName = getConnectionType(type).title;
         const host = (c as unknown as { host: string }).host;
         (c as { title?: string }).title =
           typeCounts.get(type)! > 1 ? `${displayName} (${host})` : displayName;

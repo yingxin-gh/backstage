@@ -53,18 +53,3 @@ export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
 export type ConnectionMatch = {
   plugins: string[];
 };
-
-export const connectionTypeDisplayNames: Record<ConnectionTypeKey, string> = {
-  'aws-codecommit': 'AWS CodeCommit',
-  'aws-s3': 'AWS S3',
-  'azure-blob-storage': 'Azure Blob Storage',
-  azure: 'Azure DevOps',
-  'bitbucket-cloud': 'Bitbucket Cloud',
-  'bitbucket-server': 'Bitbucket Server',
-  gerrit: 'Gerrit',
-  gitea: 'Gitea',
-  github: 'GitHub',
-  gitlab: 'GitLab',
-  'google-gcs': 'Google Cloud Storage',
-  harness: 'Harness',
-};

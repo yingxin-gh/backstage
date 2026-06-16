@@ -57,6 +57,7 @@ export type ConnectionType<
   TAuthMethods extends readonly ConnectionAuthMethod[] = readonly ConnectionAuthMethod[],
 > = {
   type: TType;
+  title: string;
   configSchema: TConfigSchema;
   authMethods: TAuthMethods;
   schema: z.ZodType;

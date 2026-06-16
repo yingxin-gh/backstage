@@ -25,6 +25,7 @@ describe('createConnectionType', () => {
 
     const SingleAuthType = createConnectionType({
       type: 'single',
+      title: 'Single',
       configSchema: z.object({ host: z.string() }),
       authMethods: [tokenAuth],
     });
@@ -99,6 +100,7 @@ describe('createConnectionType', () => {
   it('builds a multi-auth-method connection type that discriminates on method', () => {
     const MultiAuthType = createConnectionType({
       type: 'multi',
+      title: 'Multi',
       configSchema: z.object({ host: z.string() }),
       authMethods: [
         { method: 'token', configSchema: z.object({ token: z.string() }) },

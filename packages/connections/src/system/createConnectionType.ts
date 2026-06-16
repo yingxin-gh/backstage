@@ -33,10 +33,12 @@ export function createConnectionType<
 >({
   configSchema,
   type,
+  title,
   authMethods,
   matchAuth,
 }: {
   type: TType;
+  title: string;
   configSchema: WithoutReservedFields<TConfigSchema>;
   authMethods: TAuthMethods;
   matchAuth?: MatchAuth<TAuthMethods>;
@@ -67,6 +69,7 @@ export function createConnectionType<
     .strict();
   return {
     type,
+    title,
     configSchema: validated,
     authMethods,
     schema,

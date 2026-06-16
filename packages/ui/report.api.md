@@ -4361,6 +4361,55 @@ export const TextDefinition: {
 };
 
 // @public
+export const TextAreaField: ForwardRefExoticComponent<
+  TextAreaFieldProps & RefAttributes<HTMLDivElement>
+>;
+
+// @public
+export const TextAreaFieldDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly classNames: {
+    readonly root: 'bui-TextAreaField';
+    readonly textArea: 'bui-TextArea';
+  };
+  readonly bg: 'consumer';
+  readonly propDefs: {
+    readonly size: {
+      readonly dataAttribute: true;
+      readonly default: 'small';
+    };
+    readonly autoResize: {
+      readonly dataAttribute: true;
+    };
+    readonly className: {};
+    readonly placeholder: {};
+    readonly rows: {};
+    readonly label: {};
+    readonly description: {};
+    readonly secondaryLabel: {};
+  };
+};
+
+// @public (undocumented)
+export type TextAreaFieldOwnProps = {
+  size?: 'small' | 'medium' | Partial<Record<Breakpoint, 'small' | 'medium'>>;
+  className?: string;
+  placeholder?: string;
+  rows?: number;
+  autoResize?: boolean;
+  label?: FieldLabelProps['label'];
+  description?: FieldLabelProps['description'];
+  secondaryLabel?: FieldLabelProps['secondaryLabel'];
+};
+
+// @public (undocumented)
+export interface TextAreaFieldProps
+  extends Omit<TextFieldProps_2, 'className' | 'description'>,
+    TextAreaFieldOwnProps {}
+
+// @public
 export const TextField: ForwardRefExoticComponent<
   TextFieldProps & RefAttributes<HTMLDivElement>
 >;

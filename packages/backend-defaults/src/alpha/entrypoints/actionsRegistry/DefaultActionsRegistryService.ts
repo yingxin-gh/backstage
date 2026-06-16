@@ -252,7 +252,7 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
     }
 
     const missingAttributes = (
-      ['destructive', 'idempotent', 'readOnly'] as const
+      ['readOnly', 'destructive', 'idempotent'] as const
     ).filter(key => options.attributes?.[key] === undefined);
 
     if (missingAttributes.length > 0) {

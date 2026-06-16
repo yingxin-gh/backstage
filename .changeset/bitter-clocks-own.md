@@ -2,4 +2,4 @@
 '@backstage/backend-defaults': patch
 ---
 
-Add a small startup-time logger.warn in `DefaultActionsRegistryService.register()` when an action is registered without an explicit `attributes` block.
+Add a startup-time warning in `DefaultActionsRegistryService` when an action is registered without explicit attributes, or with only some of the `readOnly`, `destructive`, and `idempotent` attributes set.

@@ -40,14 +40,23 @@ function EntityContextMenuItemContent(props: {
   data: EntityContextMenuItemData;
 }) {
   const { icon, useProps } = props.data;
-  const { title, disabled, ...menuItemProps } = useProps();
+  const { title, disabled, onClick, ...menuItemProps } = useProps();
+  const onAction = onClick
+    ? () => {
+        const result = onClick();
+        if (result) {
+          // Prevent rejected async actions from becoming unhandled rejections.
+          void result.catch(() => {});
+        }
+      }
+    : undefined;
 
   if ('href' in menuItemProps) {
     return (
       <MenuItem
         iconStart={icon}
         href={menuItemProps.href}
-        onAction={menuItemProps.onClick}
+        onAction={onAction}
         isDisabled={disabled}
       >
         {title}
@@ -56,11 +65,7 @@ function EntityContextMenuItemContent(props: {
   }
 
   return (
-    <MenuItem
-      iconStart={icon}
-      onAction={menuItemProps.onClick}
-      isDisabled={disabled}
-    >
+    <MenuItem iconStart={icon} onAction={onAction} isDisabled={disabled}>
       {title}
     </MenuItem>
   );

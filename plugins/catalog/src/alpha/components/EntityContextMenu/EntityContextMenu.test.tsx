@@ -228,4 +228,34 @@ describe('EntityContextMenu', () => {
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
+
+  it('handles rejections from supplied async actions', async () => {
+    let rejectAction: (error: Error) => void = () => {};
+    const action = new Promise<void>((_, reject) => {
+      rejectAction = reject;
+    });
+    const catchSpy = jest.spyOn(action, 'catch');
+
+    await renderInTestApp(
+      <EntityContextMenu
+        contextMenuItems={[
+          createContextMenuItem({
+            icon: <span />,
+            useProps: () => ({
+              title: 'Rejected action',
+              onClick: () => action,
+            }),
+          }),
+        ]}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+    await userEvent.click(
+      await screen.findByRole('menuitem', { name: 'Rejected action' }),
+    );
+
+    expect(catchSpy).toHaveBeenCalledWith(expect.any(Function));
+    rejectAction(new Error('Action failed'));
+  });
 });

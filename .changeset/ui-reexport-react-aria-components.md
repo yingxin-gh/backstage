@@ -2,4 +2,4 @@
 '@backstage/ui': minor
 ---
 
-Added re-exports of `Selection`, `SortDirection`, `Key`, `Focusable`, `ListBox`, `ListBoxItem`, `ListLayout`, and `Virtualizer` from `react-aria-components`. Consumers can now import these directly from `@backstage/ui` instead of depending on `react-aria-components`, avoiding version mismatches.
+Added re-exports from `react-aria-components`. The types `Selection`, `SortDirection`, and `Key` are available as type-only exports (use `import type`), while `Focusable` is a runtime export. Consumers can now import these directly from `@backstage/ui` instead of depending on `react-aria-components`, avoiding version mismatches.

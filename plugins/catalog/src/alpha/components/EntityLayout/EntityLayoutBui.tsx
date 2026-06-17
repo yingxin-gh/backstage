@@ -142,7 +142,7 @@ export function EntityLayoutBui(props: {
   NotFoundComponent?: ReactNode;
   groupDefinitions: EntityContentGroupDefinitions;
   defaultContentOrder: 'title' | 'natural';
-  contextMenuItems?: React.JSX.Element[];
+  contextMenuItems?: ComponentProps<typeof EntityHeaderBui>['contextMenuItems'];
   HeaderComponent?: ComponentType<EntityHeaderLayoutProps>;
 }) {
   const {

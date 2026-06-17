@@ -41,7 +41,6 @@ export const EntityHeaderBlueprint = createExtensionBlueprint({
   attachTo: { id: 'page:catalog/entity', input: 'headers' },
   dataRefs: {
     filterFunction: entityFilterFunctionDataRef,
-    filterExpression: entityFilterExpressionDataRef,
     element: coreExtensionData.reactElement,
   },
   configSchema: {

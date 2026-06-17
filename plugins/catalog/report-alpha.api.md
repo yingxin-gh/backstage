@@ -1343,13 +1343,6 @@ const _default: OverridableFrontendPlugin<
               }
             >
           | ConfigurableExtensionDataRef<
-              string,
-              'catalog.entity-filter-expression',
-              {
-                optional: true;
-              }
-            >
-          | ConfigurableExtensionDataRef<
               (props: EntityHeaderLayoutProps) => JSX_2.Element,
               'catalog.entity-header-layout.component',
               {}
@@ -1364,13 +1357,6 @@ const _default: OverridableFrontendPlugin<
           | ConfigurableExtensionDataRef<
               (entity: Entity) => boolean,
               'catalog.entity-filter-function',
-              {
-                optional: true;
-              }
-            >
-          | ConfigurableExtensionDataRef<
-              string,
-              'catalog.entity-filter-expression',
               {
                 optional: true;
               }

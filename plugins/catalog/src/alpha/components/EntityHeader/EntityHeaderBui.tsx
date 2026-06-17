@@ -47,7 +47,10 @@ import {
 import { RiStarFill, RiStarLine } from '@remixicon/react';
 import useAsync from 'react-use/esm/useAsync';
 import { catalogTranslationRef } from '../../translation';
-import { EntityContextMenu } from '../EntityContextMenu';
+import {
+  EntityContextMenu,
+  type EntityContextMenuItemDataWithNode,
+} from '../EntityContextMenu';
 
 function useOwnerUsers(entity: Entity | undefined): HeaderMetadataUser[] {
   const catalogApi = useApi(catalogApiRef);
@@ -182,7 +185,7 @@ function FavoriteEntityButton(props: { entity: Entity }) {
 export function EntityHeaderBui(props: {
   tabs: HeaderNavTabItem[];
   activeTabId?: string;
-  contextMenuItems?: React.JSX.Element[];
+  contextMenuItems?: EntityContextMenuItemDataWithNode[];
 }) {
   const { entity } = useAsyncEntity();
   const routeParams = useRouteRefParams(entityRouteRef);

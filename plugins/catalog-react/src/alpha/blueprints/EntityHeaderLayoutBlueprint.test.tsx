@@ -51,7 +51,7 @@ describe('EntityHeaderLayoutBlueprint', () => {
     expect(screen.getByText('/overview')).toBeInTheDocument();
   });
 
-  it('emits function and expression filters through the established model', () => {
+  it('emits function filters for params and configured predicates', () => {
     const filter = (_entity: Entity) => true;
 
     expect(
@@ -66,16 +66,33 @@ describe('EntityHeaderLayoutBlueprint', () => {
       ).get(EntityHeaderLayoutBlueprint.dataRefs.filterFunction),
     ).toBe(filter);
 
+    const configuredFilter = createExtensionTester(
+      EntityHeaderLayoutBlueprint.make({
+        name: 'configured-filter',
+        params: {
+          loader: async () => () => <div />,
+        },
+      }),
+      { config: { filter: { kind: 'component' } } },
+    ).get(EntityHeaderLayoutBlueprint.dataRefs.filterFunction);
+
+    expect(configuredFilter).toBeDefined();
     expect(
-      createExtensionTester(
-        EntityHeaderLayoutBlueprint.make({
-          name: 'expression-filter',
-          params: {
-            loader: async () => () => <div />,
-          },
-        }),
-        { config: { filter: 'kind:component' } },
-      ).get(EntityHeaderLayoutBlueprint.dataRefs.filterExpression),
-    ).toBe('kind:component');
+      configuredFilter!({
+        apiVersion: 'backstage.io/v1alpha1',
+        kind: 'Component',
+        metadata: { name: 'example' },
+      }),
+    ).toBe(true);
+    expect(
+      configuredFilter!({
+        apiVersion: 'backstage.io/v1alpha1',
+        kind: 'API',
+        metadata: { name: 'example' },
+      }),
+    ).toBe(false);
+    expect(EntityHeaderLayoutBlueprint.dataRefs).not.toHaveProperty(
+      'filterExpression',
+    );
   });
 });

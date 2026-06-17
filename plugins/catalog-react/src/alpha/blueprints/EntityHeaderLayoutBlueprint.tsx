@@ -18,24 +18,34 @@ import { Entity } from '@backstage/catalog-model';
 import {
   FilterPredicate,
   createZodV4FilterPredicateSchema,
+  filterPredicateToFilterFunction,
 } from '@backstage/filter-predicates';
 import {
   createExtensionBlueprint,
   createExtensionDataRef,
   ExtensionBoundary,
 } from '@backstage/frontend-plugin-api';
-import { type HeaderNavTabItem } from '@backstage/ui';
 import { JSX } from 'react';
-import { z } from 'zod/v4';
-import {
-  entityFilterExpressionDataRef,
-  entityFilterFunctionDataRef,
-} from './extensionData';
-import { resolveEntityFilterData } from './resolveEntityFilterData';
+import { entityFilterFunctionDataRef } from './extensionData';
 
 /** @alpha */
 export interface EntityHeaderLayoutProps {
-  tabs: HeaderNavTabItem[];
+  tabs: Array<
+    | {
+        id: string;
+        label: string;
+        href: string;
+      }
+    | {
+        id: string;
+        label: string;
+        items: Array<{
+          id: string;
+          label: string;
+          href: string;
+        }>;
+      }
+  >;
   activeTabId?: string;
 }
 
@@ -51,30 +61,36 @@ export const EntityHeaderLayoutBlueprint = createExtensionBlueprint({
   attachTo: { id: 'page:catalog/entity', input: 'headerLayouts' },
   output: [
     entityFilterFunctionDataRef.optional(),
-    entityFilterExpressionDataRef.optional(),
     entityHeaderLayoutComponentDataRef,
   ],
   dataRefs: {
     filterFunction: entityFilterFunctionDataRef,
-    filterExpression: entityFilterExpressionDataRef,
     component: entityHeaderLayoutComponentDataRef,
   },
   configSchema: {
-    filter: z
-      .union([z.string(), createZodV4FilterPredicateSchema()])
-      .optional(),
+    filter: createZodV4FilterPredicateSchema().optional(),
   },
   *factory(
     {
       loader,
       filter,
     }: {
-      filter?: string | FilterPredicate | ((entity: Entity) => boolean);
+      filter?: FilterPredicate | ((entity: Entity) => boolean);
       loader: () => Promise<(props: EntityHeaderLayoutProps) => JSX.Element>;
     },
     { node, config },
   ) {
-    yield* resolveEntityFilterData(filter, config, node);
+    if (config.filter) {
+      yield entityFilterFunctionDataRef(
+        filterPredicateToFilterFunction(config.filter),
+      );
+    } else if (typeof filter === 'function') {
+      yield entityFilterFunctionDataRef(filter);
+    } else if (filter) {
+      yield entityFilterFunctionDataRef(
+        filterPredicateToFilterFunction(filter),
+      );
+    }
     yield entityHeaderLayoutComponentDataRef(
       ExtensionBoundary.lazyComponent(node, loader),
     );

@@ -156,12 +156,10 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
     headerLayouts: createExtensionInput([
       EntityHeaderLayoutBlueprint.dataRefs.component,
       EntityHeaderLayoutBlueprint.dataRefs.filterFunction.optional(),
-      EntityHeaderLayoutBlueprint.dataRefs.filterExpression.optional(),
     ]),
     headers: createExtensionInput([
       EntityHeaderBlueprint.dataRefs.element.optional(),
       EntityHeaderBlueprint.dataRefs.filterFunction.optional(),
-      EntityHeaderBlueprint.dataRefs.filterExpression.optional(),
     ]),
     contents: createExtensionInput([
       coreExtensionData.reactElement,
@@ -230,15 +228,12 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
             const filterFunction = layout.get(
               EntityHeaderLayoutBlueprint.dataRefs.filterFunction,
             );
-            const filterExpression = layout.get(
-              EntityHeaderLayoutBlueprint.dataRefs.filterExpression,
-            );
             return {
               Component: layout.get(
                 EntityHeaderLayoutBlueprint.dataRefs.component,
               ),
-              filter: buildFilterFn(filterFunction, filterExpression),
-              hasFilter: Boolean(filterFunction || filterExpression),
+              filter: filterFunction ?? (() => true),
+              hasFilter: Boolean(filterFunction),
             };
           })
           .sort((a, b) => Number(b.hasFilter) - Number(a.hasFilter));
@@ -248,13 +243,10 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
             const filterFunction = header.get(
               EntityHeaderBlueprint.dataRefs.filterFunction,
             );
-            const filterExpression = header.get(
-              EntityHeaderBlueprint.dataRefs.filterExpression,
-            );
             return {
               element: header.get(EntityHeaderBlueprint.dataRefs.element),
-              filter: buildFilterFn(filterFunction, filterExpression),
-              hasFilter: Boolean(filterFunction || filterExpression),
+              filter: filterFunction ?? (() => true),
+              hasFilter: Boolean(filterFunction),
             };
           })
           .sort((a, b) => Number(b.hasFilter) - Number(a.hasFilter));

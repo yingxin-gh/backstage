@@ -33,14 +33,8 @@ export const TextAreaField = forwardRef<HTMLDivElement, TextAreaFieldProps>(
       TextAreaFieldDefinition,
       props,
     );
-    const {
-      classes,
-      label,
-      secondaryLabel,
-      placeholder,
-      description,
-      rows = 3,
-    } = ownProps;
+    const { classes, label, secondaryLabel, placeholder, description, rows } =
+      ownProps;
 
     useEffect(() => {
       if (!label && !restProps['aria-label'] && !restProps['aria-labelledby']) {

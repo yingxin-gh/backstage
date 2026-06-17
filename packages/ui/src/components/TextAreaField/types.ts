@@ -22,7 +22,7 @@ import type { FieldLabelProps } from '../FieldLabel/types';
 export type TextAreaFieldOwnProps = {
   /**
    * The size of the text area field
-   * @defaultValue 'medium'
+   * @defaultValue 'small'
    */
   size?: 'small' | 'medium' | Partial<Record<Breakpoint, 'small' | 'medium'>>;
 

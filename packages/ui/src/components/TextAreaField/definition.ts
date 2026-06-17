@@ -35,7 +35,7 @@ export const TextAreaFieldDefinition = defineComponent<TextAreaFieldOwnProps>()(
       autoResize: { dataAttribute: true },
       className: {},
       placeholder: {},
-      rows: {},
+      rows: { default: 3 },
       label: {},
       description: {},
       secondaryLabel: {},

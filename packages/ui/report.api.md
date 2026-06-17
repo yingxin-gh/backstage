@@ -4385,7 +4385,9 @@ export const TextAreaFieldDefinition: {
     };
     readonly className: {};
     readonly placeholder: {};
-    readonly rows: {};
+    readonly rows: {
+      readonly default: 3;
+    };
     readonly label: {};
     readonly description: {};
     readonly secondaryLabel: {};

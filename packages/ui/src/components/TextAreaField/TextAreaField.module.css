@@ -23,23 +23,6 @@
     font-family: var(--bui-font-regular);
     width: 100%;
     flex: 1;
-
-    &[data-on-bg='neutral-1'] .bui-TextArea {
-      background-color: var(--bui-bg-neutral-2);
-    }
-
-    &[data-on-bg='neutral-2'] .bui-TextArea {
-      background-color: var(--bui-bg-neutral-3);
-    }
-
-    &[data-on-bg='neutral-3'] .bui-TextArea {
-      background-color: var(--bui-bg-neutral-4);
-    }
-
-    &[data-autoresize='true'] .bui-TextArea {
-      field-sizing: content;
-      overflow: hidden;
-    }
   }
 
   .bui-TextArea {
@@ -51,12 +34,25 @@
     font-size: var(--bui-font-size-3);
     font-family: var(--bui-font-regular);
     font-weight: var(--bui-font-weight-regular);
-    line-height: 1.5;
+    line-height: 140%;
     color: var(--bui-fg-primary);
     transition: box-shadow 0.2s ease-in-out;
     width: 100%;
-    resize: none;
+    /* Keep the manual resize handle for fields that don't auto-resize. */
+    resize: vertical;
     overflow-y: auto;
+
+    .bui-TextAreaField[data-on-bg='neutral-1'] & {
+      background-color: var(--bui-bg-neutral-2);
+    }
+
+    .bui-TextAreaField[data-on-bg='neutral-2'] & {
+      background-color: var(--bui-bg-neutral-3);
+    }
+
+    .bui-TextAreaField[data-on-bg='neutral-3'] & {
+      background-color: var(--bui-bg-neutral-4);
+    }
 
     &[data-focused] {
       outline: none;
@@ -77,13 +73,24 @@
     }
 
     &[data-size='small'] {
-      font-size: var(--bui-font-size-3);
       padding: var(--bui-space-1_5) var(--bui-space-3);
     }
 
     &[data-size='medium'] {
-      font-size: var(--bui-font-size-4);
       padding: var(--bui-space-2) var(--bui-space-3);
+    }
+  }
+
+  /*
+   * When auto-resizing is enabled, grow the field with its content using
+   * field-sizing. This is gated behind @supports so browsers without it
+   * (e.g. Firefox) fall back to the default scrolling and manual resize.
+   */
+  @supports (field-sizing: content) {
+    .bui-TextAreaField[data-autoresize='true'] .bui-TextArea {
+      field-sizing: content;
+      resize: none;
+      overflow: hidden;
     }
   }
 }

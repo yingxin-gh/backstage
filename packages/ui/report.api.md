@@ -4323,43 +4323,6 @@ const Text_2: {
 };
 export { Text_2 as Text };
 
-// @public (undocumented)
-export type TextColors = 'primary' | 'secondary';
-
-// @public (undocumented)
-export type TextColorStatus = 'danger' | 'warning' | 'success' | 'info';
-
-// @public
-export const TextDefinition: {
-  readonly styles: {
-    readonly [key: string]: string;
-  };
-  readonly classNames: {
-    readonly root: 'bui-Text';
-  };
-  readonly propDefs: {
-    readonly as: {
-      readonly default: 'span';
-    };
-    readonly variant: {
-      readonly dataAttribute: true;
-      readonly default: 'body-medium';
-    };
-    readonly weight: {
-      readonly dataAttribute: true;
-      readonly default: 'regular';
-    };
-    readonly color: {
-      readonly dataAttribute: true;
-      readonly default: 'primary';
-    };
-    readonly truncate: {
-      readonly dataAttribute: true;
-    };
-    readonly className: {};
-  };
-};
-
 // @public
 export const TextAreaField: ForwardRefExoticComponent<
   TextAreaFieldProps & RefAttributes<HTMLDivElement>
@@ -4410,6 +4373,43 @@ export type TextAreaFieldOwnProps = {
 export interface TextAreaFieldProps
   extends Omit<TextFieldProps_2, 'className' | 'description'>,
     TextAreaFieldOwnProps {}
+
+// @public (undocumented)
+export type TextColors = 'primary' | 'secondary';
+
+// @public (undocumented)
+export type TextColorStatus = 'danger' | 'warning' | 'success' | 'info';
+
+// @public
+export const TextDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly classNames: {
+    readonly root: 'bui-Text';
+  };
+  readonly propDefs: {
+    readonly as: {
+      readonly default: 'span';
+    };
+    readonly variant: {
+      readonly dataAttribute: true;
+      readonly default: 'body-medium';
+    };
+    readonly weight: {
+      readonly dataAttribute: true;
+      readonly default: 'regular';
+    };
+    readonly color: {
+      readonly dataAttribute: true;
+      readonly default: 'primary';
+    };
+    readonly truncate: {
+      readonly dataAttribute: true;
+    };
+    readonly className: {};
+  };
+};
 
 // @public
 export const TextField: ForwardRefExoticComponent<

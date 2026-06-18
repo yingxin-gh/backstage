@@ -4323,6 +4323,53 @@ const Text_2: {
 };
 export { Text_2 as Text };
 
+// @public
+export const TextAreaField: ForwardRefExoticComponent<
+  TextAreaFieldProps & RefAttributes<HTMLDivElement>
+>;
+
+// @public
+export const TextAreaFieldDefinition: {
+  readonly styles: {
+    readonly [key: string]: string;
+  };
+  readonly classNames: {
+    readonly root: 'bui-TextAreaField';
+    readonly textArea: 'bui-TextArea';
+  };
+  readonly bg: 'consumer';
+  readonly propDefs: {
+    readonly size: {
+      readonly dataAttribute: true;
+      readonly default: 'small';
+    };
+    readonly className: {};
+    readonly placeholder: {};
+    readonly rows: {
+      readonly default: 3;
+    };
+    readonly label: {};
+    readonly description: {};
+    readonly secondaryLabel: {};
+  };
+};
+
+// @public (undocumented)
+export type TextAreaFieldOwnProps = {
+  size?: 'small' | 'medium' | Partial<Record<Breakpoint, 'small' | 'medium'>>;
+  className?: string;
+  placeholder?: string;
+  rows?: number;
+  label?: FieldLabelProps['label'];
+  description?: FieldLabelProps['description'];
+  secondaryLabel?: FieldLabelProps['secondaryLabel'];
+};
+
+// @public (undocumented)
+export interface TextAreaFieldProps
+  extends Omit<TextFieldProps_2, 'className' | 'description'>,
+    TextAreaFieldOwnProps {}
+
 // @public (undocumented)
 export type TextColors = 'primary' | 'secondary';
 

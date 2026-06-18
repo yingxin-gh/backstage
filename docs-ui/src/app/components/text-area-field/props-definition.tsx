@@ -41,16 +41,6 @@ export const textAreaFieldPropDefs: Record<string, PropDef> = {
     description:
       'Number of visible text lines, controlling the initial and minimum height.',
   },
-  autoResize: {
-    type: 'boolean',
-    default: 'false',
-    description: (
-      <>
-        Grow the text area with its content instead of scrolling. When{' '}
-        <Chip>false</Chip>, the text area keeps a fixed height and scrolls.
-      </>
-    ),
-  },
   placeholder: {
     type: 'string',
     description: 'Text displayed when the text area is empty.',

@@ -38,7 +38,7 @@
     color: var(--bui-fg-primary);
     transition: box-shadow 0.2s ease-in-out;
     width: 100%;
-    /* Keep the manual resize handle for fields that don't auto-resize. */
+    /* Keep the manual resize handle so users can expand the field. */
     resize: vertical;
     overflow-y: auto;
 
@@ -78,19 +78,6 @@
 
     &[data-size='medium'] {
       padding: var(--bui-space-2) var(--bui-space-3);
-    }
-  }
-
-  /*
-   * When auto-resizing is enabled, grow the field with its content using
-   * field-sizing. This is gated behind @supports so browsers without it
-   * (e.g. Firefox) fall back to the default scrolling and manual resize.
-   */
-  @supports (field-sizing: content) {
-    .bui-TextAreaField[data-autoresize='true'] .bui-TextArea {
-      field-sizing: content;
-      resize: none;
-      overflow: hidden;
     }
   }
 }

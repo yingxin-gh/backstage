@@ -23,7 +23,7 @@ import { useDefinition } from '../../hooks/useDefinition';
 import { TextAreaFieldDefinition } from './definition';
 
 /**
- * A multi-line text input with an integrated label, optional auto-resizing, and inline error display.
+ * A multi-line text input with an integrated label and inline error display.
  *
  * @public
  */

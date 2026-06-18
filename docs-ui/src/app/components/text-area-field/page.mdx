@@ -6,9 +6,8 @@ import {
   withLabelSnippet,
   sizesSnippet,
   withDescriptionSnippet,
-  autoResizeSnippet,
 } from './snippets';
-import { WithLabel, Sizes, WithDescription, AutoResize } from './components';
+import { WithLabel, Sizes, WithDescription } from './components';
 import { PageTitle } from '@/components/PageTitle';
 import { Theming } from '@/components/Theming';
 import { TextAreaFieldDefinition } from '../../../utils/definitions';
@@ -22,7 +21,7 @@ export const reactAriaUrls = {
 
 <PageTitle
   title="TextAreaField"
-  description="A multi-line text input with label, description, validation, and optional auto-resizing."
+  description="A multi-line text input with label, description, and validation."
 />
 
 <Snippet
@@ -63,17 +62,6 @@ export const reactAriaUrls = {
   open
   preview={<WithDescription />}
   code={withDescriptionSnippet}
-  layout="side-by-side"
-/>
-
-### Auto resize
-
-<Snippet
-  align="center"
-  py={4}
-  open
-  preview={<AutoResize />}
-  code={autoResizeSnippet}
   layout="side-by-side"
 />
 

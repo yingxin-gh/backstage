@@ -4343,9 +4343,6 @@ export const TextAreaFieldDefinition: {
       readonly dataAttribute: true;
       readonly default: 'small';
     };
-    readonly autoResize: {
-      readonly dataAttribute: true;
-    };
     readonly className: {};
     readonly placeholder: {};
     readonly rows: {
@@ -4363,7 +4360,6 @@ export type TextAreaFieldOwnProps = {
   className?: string;
   placeholder?: string;
   rows?: number;
-  autoResize?: boolean;
   label?: FieldLabelProps['label'];
   description?: FieldLabelProps['description'];
   secondaryLabel?: FieldLabelProps['secondaryLabel'];

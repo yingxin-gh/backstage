@@ -25,9 +25,6 @@ const meta = preview.meta({
     isRequired: {
       control: 'boolean',
     },
-    autoResize: {
-      control: 'boolean',
-    },
   },
 });
 
@@ -88,17 +85,6 @@ export const Scrolling = meta.story({
     defaultValue: Array.from(
       { length: 12 },
       (_, i) => `Line ${i + 1}: this content scrolls within a fixed height.`,
-    ).join('\n'),
-  },
-});
-
-export const AutoResize = meta.story({
-  args: {
-    ...WithLabel.input.args,
-    autoResize: true,
-    defaultValue: Array.from(
-      { length: 6 },
-      (_, i) => `Line ${i + 1}: this text area grows with its content.`,
     ).join('\n'),
   },
 });

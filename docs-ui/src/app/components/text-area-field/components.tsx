@@ -48,15 +48,3 @@ export const WithDescription = () => {
     />
   );
 };
-
-export const AutoResize = () => {
-  return (
-    <TextAreaField
-      name="message"
-      label="Message"
-      autoResize
-      placeholder="This field grows as you type"
-      style={{ maxWidth: '300px' }}
-    />
-  );
-};

@@ -39,12 +39,6 @@ export type TextAreaFieldOwnProps = {
    */
   rows?: number;
 
-  /**
-   * Grow the text area with its content instead of scrolling
-   * @defaultValue false
-   */
-  autoResize?: boolean;
-
   label?: FieldLabelProps['label'];
   description?: FieldLabelProps['description'];
   secondaryLabel?: FieldLabelProps['secondaryLabel'];

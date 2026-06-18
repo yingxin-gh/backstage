@@ -19,10 +19,3 @@ export const withDescriptionSnippet = `<TextAreaField
   label="Message"
   description="Share as much detail as you like."
 />`;
-
-export const autoResizeSnippet = `<TextAreaField
-  name="message"
-  label="Message"
-  autoResize
-  placeholder="This field grows as you type"
-/>`;

@@ -52,22 +52,4 @@ describe('TextAreaField', () => {
 
     expect(screen.getByText('(Required)')).toBeInTheDocument();
   });
-
-  it('opts into content-based sizing when autoResize is enabled', () => {
-    render(<TextAreaField label="Message" autoResize defaultValue="hello" />, {
-      wrapper: Wrapper,
-    });
-
-    const textArea = screen.getByRole('textbox');
-    expect(textArea.closest('[data-autoresize="true"]')).not.toBeNull();
-  });
-
-  it('keeps a fixed height for scrolling when autoResize is disabled', () => {
-    render(<TextAreaField label="Message" defaultValue="hello" />, {
-      wrapper: Wrapper,
-    });
-
-    const textArea = screen.getByRole('textbox');
-    expect(textArea.closest('[data-autoresize="true"]')).toBeNull();
-  });
 });

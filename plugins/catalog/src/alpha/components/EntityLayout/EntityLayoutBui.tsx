@@ -104,18 +104,17 @@ function EntityLayoutContent(props: {
   const { entity, loading, error } = useAsyncEntity();
   const { t } = useTranslationRef(catalogTranslationRef);
 
-  if (loading) {
-    return <Progress />;
-  }
+  let content: ReactNode;
   if (error) {
-    return (
+    content = (
       <Container>
         <Alert status="danger" title={error.toString()} />
       </Container>
     );
-  }
-  if (!entity) {
-    return (
+  } else if (entity) {
+    content = <Container>{props.content ?? <NotFoundErrorPage />}</Container>;
+  } else if (!loading) {
+    content = (
       <Container>
         {props.NotFoundComponent ?? (
           <Alert
@@ -134,7 +133,13 @@ function EntityLayoutContent(props: {
       </Container>
     );
   }
-  return <Container>{props.content ?? <NotFoundErrorPage />}</Container>;
+
+  return (
+    <>
+      {loading && <Progress />}
+      {content}
+    </>
+  );
 }
 
 export function EntityLayoutBui(props: {

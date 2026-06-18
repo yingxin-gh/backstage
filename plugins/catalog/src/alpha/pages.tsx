@@ -15,6 +15,8 @@
  */
 
 import { convertLegacyRouteRef } from '@backstage/core-compat-api';
+import { stringifyEntityRef } from '@backstage/catalog-model';
+import { useRouteRefParams } from '@backstage/core-plugin-api';
 import {
   coreExtensionData,
   createExtensionInput,
@@ -274,10 +276,14 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
         ));
 
         const Component = () => {
+          const routeParams = useRouteRefParams(entityRouteRef);
           const entityFromUrl = useEntityFromUrl();
-          const entity = entityFromUrl.loading
-            ? undefined
-            : entityFromUrl.entity;
+          const entity =
+            entityFromUrl.entity &&
+            stringifyEntityRef(entityFromUrl.entity) ===
+              stringifyEntityRef(routeParams)
+              ? entityFromUrl.entity
+              : undefined;
           const entityProviderProps = { ...entityFromUrl, entity };
           const filteredMenuItems = entity
             ? menuItems

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { useEffect } from 'react';
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
@@ -32,6 +33,7 @@ import {
   entityRouteRef,
   MockStarredEntitiesApi,
   starredEntitiesApiRef,
+  useAsyncEntity,
 } from '@backstage/plugin-catalog-react';
 import { convertLegacyRouteRef } from '@backstage/core-compat-api';
 import { rootRouteRef } from '../routes';
@@ -630,6 +632,88 @@ describe('Entity page', () => {
   });
 
   describe('Entity Page Headers', () => {
+    it('keeps entity content mounted while refreshing the current entity', async () => {
+      let resolveRefresh!: (entity: Entity | undefined) => void;
+      const refreshResponse = new Promise<Entity | undefined>(resolve => {
+        resolveRefresh = resolve;
+      });
+      const getEntityByRef = jest
+        .fn()
+        .mockResolvedValueOnce(entityMock)
+        .mockReturnValueOnce(refreshResponse);
+      let mounts = 0;
+      let unmounts = 0;
+
+      function RefreshContent() {
+        const { refresh } = useAsyncEntity();
+        useEffect(() => {
+          mounts += 1;
+          return () => {
+            unmounts += 1;
+          };
+        }, []);
+        return <button onClick={refresh}>Refresh entity</button>;
+      }
+
+      const refreshContent = EntityContentBlueprint.make({
+        name: 'refresh',
+        params: {
+          path: '/refresh',
+          title: 'Refresh',
+          loader: async () => <RefreshContent />,
+        },
+      });
+      const refreshHeader = EntityHeaderLayoutBlueprint.make({
+        name: 'refresh',
+        params: {
+          filter: { kind: 'component' },
+          loader: async () => () => <header>Refresh header</header>,
+        },
+      });
+      const tester = createExtensionTester(
+        Object.assign({ namespace: 'catalog' }, catalogEntityPage),
+      )
+        .add(refreshContent)
+        .add(refreshHeader);
+
+      await renderInTestApp(tester.reactElement(), {
+        apis: [
+          catalogApiMock.mock({ getEntityByRef }),
+          [starredEntitiesApiRef, mockStarredEntitiesApi],
+        ],
+        mountPath: '/catalog/:namespace/:kind/:name',
+        initialRouteEntries: [`${entityPath}/refresh`],
+        config: {
+          app: { title: 'Custom app' },
+          backend: { baseUrl: 'http://localhost:7000' },
+        },
+        mountedRoutes: {
+          '/catalog': convertLegacyRouteRef(rootRouteRef),
+          '/catalog/:namespace/:kind/:name':
+            convertLegacyRouteRef(entityRouteRef),
+        },
+      });
+
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Refresh entity' }),
+      );
+      expect(await screen.findByRole('progressbar')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Refresh entity' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Refresh header')).toBeInTheDocument();
+      expect(mounts).toBe(1);
+      expect(unmounts).toBe(0);
+
+      await act(async () => resolveRefresh(entityMock));
+      expect(
+        await screen.findByRole('button', { name: 'Refresh entity' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Refresh header')).toBeInTheDocument();
+      expect(mounts).toBe(1);
+      expect(unmounts).toBe(0);
+    });
+
     it('Should use the default header', async () => {
       const tester = createExtensionTester(
         Object.assign({ namespace: 'catalog' }, catalogEntityPage),

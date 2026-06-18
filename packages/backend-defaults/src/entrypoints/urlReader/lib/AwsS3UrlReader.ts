@@ -77,13 +77,26 @@ export function parseUrl(
     config.host.endsWith('.amazonaws.com.cn')
   ) {
     const match = host.match(
-      /^(?:([a-z0-9.-]+)\.)?s3(?:[.-]([a-z0-9-]+))?\.amazonaws\.com(\.cn)?$/,
+      /^((?:([a-z0-9.-]+)\.)?s3(?:[.-]([a-z0-9-]+))?\.amazonaws\.com(\.cn)?|(?:([a-z0-9.-]+)\.)?bucket\.(vpce-[a-z0-9-]+)\.s3(?:[.-]([a-z0-9-]+))?\.vpce\.amazonaws\.com(\.cn)?)$/,
     );
     if (!match) {
       throw new Error(`Invalid AWS S3 URL ${url}`);
     }
 
-    const [, hostBucket, hostRegion] = match;
+    const [, , hostBucket, hostRegion, , vpcBucket, , vpcRegion] = match;
+
+    if (vpcBucket && vpcRegion) {
+      if (config.s3ForcePathStyle) {
+        throw new Error(
+          `Invalid AWS S3 URL ${url} - path style access is not supported for VPC endpoint URLs`,
+        );
+      }
+      return {
+        path: pathname,
+        bucket: vpcBucket,
+        region: vpcRegion,
+      };
+    }
 
     if (config.s3ForcePathStyle || !hostBucket) {
       const slashIndex = pathname.indexOf('/');

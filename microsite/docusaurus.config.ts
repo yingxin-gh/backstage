@@ -506,7 +506,7 @@ const config: Config = {
       },
       items: [
         {
-          to: 'docs/overview/what-is-backstage',
+          to: '/docs/landing-page/doc-landing-page',
           label: 'Docs',
           position: 'left',
         },

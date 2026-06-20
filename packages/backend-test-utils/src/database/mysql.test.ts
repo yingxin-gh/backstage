@@ -31,7 +31,7 @@ describe('startMysqlContainer', () => {
     'successfully launches the container and can stop it without problems',
     async () => {
       const { connection, stopContainer } = await startMysqlContainer(
-        'mysql:8',
+        'mysql:8.4',
       );
       const db = knexFactory({ client: 'mysql2', connection });
       try {

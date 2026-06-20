@@ -2,4 +2,4 @@
 '@backstage/backend-test-utils': patch
 ---
 
-The MySQL test database image has been pinned from the floating `mysql:8` tag to `mysql:8.4`, fixing container startup failures caused by a removed configuration flag in newer MySQL 8.4.x releases. The connection pool has been reduced and idle connections are now reaped automatically, improving stability under CI load.
+Fixed MySQL test database failures by pinning the Docker image from the floating `mysql:8` tag to `mysql:8.4` and replacing a startup flag that was removed in MySQL 8.4. Connection pool reduced from 50 to 5 per test database, idle connections are now reaped after 5 seconds, and container connection limits raised to 1000 for both MySQL and Postgres to handle parallel Jest workers on high-core machines.

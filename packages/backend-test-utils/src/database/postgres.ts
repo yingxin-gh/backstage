@@ -62,6 +62,7 @@ export async function startPostgresContainer(image: string): Promise<{
       POSTGRES_PASSWORD: password,
     })
     .withTmpFs({ '/var/lib/postgresql/data': 'rw' })
+    .withCommand(['-c', 'max_connections=1000'])
     .start();
 
   const host = container.getHost();

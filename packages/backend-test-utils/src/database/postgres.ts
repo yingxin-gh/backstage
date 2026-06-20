@@ -54,6 +54,7 @@ export async function startPostgresContainer(image: string): Promise<{
   const { GenericContainer } =
     require('testcontainers') as typeof import('testcontainers');
 
+  // See note in mysql.ts about why we don't enable .withReuse() here.
   const container = await new GenericContainer(image)
     .withExposedPorts(5432)
     .withEnvironment({

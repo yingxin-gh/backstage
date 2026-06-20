@@ -57,6 +57,12 @@ export async function startMysqlContainer(image: string): Promise<{
   const { GenericContainer } =
     require('testcontainers') as typeof import('testcontainers');
 
+  // Note: testcontainers supports .withReuse() to share a single container
+  // across parallel Jest workers, which would reduce memory from ~640 MB per
+  // worker to one shared instance. We intentionally don't enable it because
+  // reused containers bypass ryuk cleanup and linger indefinitely until
+  // manually stopped. See https://github.com/backstage/backstage/pull/34653
+  // for the exploration and tradeoffs.
   const container = await new GenericContainer(image)
     .withExposedPorts(3306)
     .withEnvironment({ MYSQL_ROOT_PASSWORD: password })

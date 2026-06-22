@@ -57,7 +57,10 @@ function observeResize(
  *
  * @internal
  */
-export function useIsTruncated<T extends HTMLElement = HTMLElement>() {
+export function useIsTruncated<T extends HTMLElement = HTMLElement>(): {
+  ref: React.RefObject<T>;
+  truncated: boolean;
+} {
   const ref = useRef<T>(null);
   const [truncated, setTruncated] = useState(false);
 

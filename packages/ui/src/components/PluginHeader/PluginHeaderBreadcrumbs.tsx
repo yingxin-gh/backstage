@@ -68,7 +68,7 @@ function BreadcrumbLink(props: { entry: PluginHeaderBreadcrumbEntry }) {
         standalone
         variant="body-medium"
         truncate
-        ref={ref as React.Ref<HTMLAnchorElement>}
+        ref={ref}
       >
         {entry.label}
       </Link>
@@ -87,11 +87,7 @@ function BreadcrumbText(props: { entry: PluginHeaderBreadcrumbEntry }) {
   return (
     <BreadcrumbTooltipWrapper label={entry.label} showTooltip={truncated}>
       <Focusable excludeFromTabOrder={!truncated}>
-        <Text
-          variant="body-medium"
-          truncate
-          ref={ref as React.Ref<HTMLParagraphElement>}
-        >
+        <Text variant="body-medium" truncate ref={ref}>
           {entry.label}
         </Text>
       </Focusable>
@@ -213,7 +209,7 @@ export function PluginHeaderBreadcrumbs(props: {
   }
 
   return (
-    <nav id="Breadcrumbs" className={className}>
+    <nav id="Breadcrumbs" aria-label="Breadcrumbs" className={className}>
       <RACBreadcrumbs>
         {ancestorItems}
         <CurrentSegment entry={current} isSingleEntry={isSingleEntry} />

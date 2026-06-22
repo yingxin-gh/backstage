@@ -8,3 +8,5 @@ These breadcrumbs:
 
 - Collapses middle segments if 5 or more segments
 - Shows tooltip if text is truncated
+
+**Affected components:** PluginHeader

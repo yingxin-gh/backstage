@@ -20,6 +20,7 @@ import { Text } from '../Text';
 import { MenuTrigger, Menu, MenuItem } from '../Menu';
 import { RiArrowRightSLine } from '@remixicon/react';
 import {
+  Focusable,
   Breadcrumb as RACBreadcrumb,
   Breadcrumbs as RACBreadcrumbs,
   Button as RACButton,
@@ -48,10 +49,8 @@ function BreadcrumbTooltipWrapper(props: {
 }) {
   const { showTooltip, label, children } = props;
 
-  if (!showTooltip) return children;
-
   return (
-    <TooltipTrigger delay={300}>
+    <TooltipTrigger delay={300} isDisabled={!showTooltip}>
       {children}
       <Tooltip>{label}</Tooltip>
     </TooltipTrigger>
@@ -77,6 +76,29 @@ function BreadcrumbLink(props: { entry: PluginHeaderBreadcrumbEntry }) {
   );
 }
 
+/**
+ * Renders a text in the breadcrumbs trail.
+ * If it is truncated, it becomes focusable (requirement for the tooltip to work)
+ */
+function BreadcrumbText(props: { entry: PluginHeaderBreadcrumbEntry }) {
+  const { entry } = props;
+  const { ref, truncated } = useIsTruncated<HTMLParagraphElement>();
+
+  return (
+    <BreadcrumbTooltipWrapper label={entry.label} showTooltip={truncated}>
+      <Focusable excludeFromTabOrder={!truncated}>
+        <Text
+          variant="body-medium"
+          truncate
+          ref={ref as React.Ref<HTMLParagraphElement>}
+        >
+          {entry.label}
+        </Text>
+      </Focusable>
+    </BreadcrumbTooltipWrapper>
+  );
+}
+
 /** Renders an ellipsis button that opens a menu with the collapsed breadcrumb items. */
 function CollapsedSegment(props: {
   items: PluginHeaderBreadcrumbEntry[];
@@ -86,22 +108,20 @@ function CollapsedSegment(props: {
   const ariaLabel = 'Show more breadcrumbs';
   return (
     <RACBreadcrumb key="collapsed">
-      <BreadcrumbTooltipWrapper label={ariaLabel} showTooltip>
-        <MenuTrigger>
-          <RACButton aria-label={ariaLabel} className={ellipsisClassName}>
-            <Text as="span" variant="body-medium">
-              …
-            </Text>
-          </RACButton>
-          <Menu>
-            {items.map(item => (
-              <MenuItem key={item.href} href={item.href}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </Menu>
-        </MenuTrigger>
-      </BreadcrumbTooltipWrapper>
+      <MenuTrigger>
+        <RACButton aria-label={ariaLabel} className={ellipsisClassName}>
+          <Text as="span" variant="body-medium">
+            …
+          </Text>
+        </RACButton>
+        <Menu>
+          {items.map(item => (
+            <MenuItem key={item.href} href={item.href}>
+              {item.label}
+            </MenuItem>
+          ))}
+        </Menu>
+      </MenuTrigger>
       <BreadcrumbSeparator />
     </RACBreadcrumb>
   );
@@ -123,7 +143,7 @@ function AncestorSegment(props: { entry: PluginHeaderBreadcrumbEntry }) {
  * - RAC Breadcrumbs will attach `data-current` to this segment
  * - If it's the only entry (eg. we are on the root page of the Plugin), it will render as a link
  * - Otherwise renders as text
- * - never truncates
+ * - If truncated, will be focusable and show a breadcrumb
  */
 function CurrentSegment(props: {
   entry: PluginHeaderBreadcrumbEntry;
@@ -135,7 +155,7 @@ function CurrentSegment(props: {
       {isSingleEntry ? (
         <BreadcrumbLink entry={entry} />
       ) : (
-        <Text variant="body-medium">{entry.label}</Text>
+        <BreadcrumbText entry={entry} />
       )}
     </RACBreadcrumb>
   );
@@ -175,19 +195,21 @@ export function PluginHeaderBreadcrumbs(props: {
     ancestorItems = (
       <>
         {root.map(entry => (
-          <AncestorSegment entry={entry} />
+          <AncestorSegment key={entry.href} entry={entry} />
         ))}
         <CollapsedSegment
           items={collapsed}
           ellipsisClassName={ellipsisClassName}
         />
         {leading.map(entry => (
-          <AncestorSegment entry={entry} />
+          <AncestorSegment key={entry.href} entry={entry} />
         ))}
       </>
     );
   } else {
-    ancestorItems = rest.map(entry => <AncestorSegment entry={entry} />);
+    ancestorItems = rest.map(entry => (
+      <AncestorSegment key={entry.href} entry={entry} />
+    ));
   }
 
   return (

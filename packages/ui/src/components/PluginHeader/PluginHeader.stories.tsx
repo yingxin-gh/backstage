@@ -487,7 +487,11 @@ export const WithBreadcrumbsAndAllOptions = WithCustomActions.extend({
           'Setup page with a very long title that should truncate at some point',
         href: '/docs/guides/setup',
       },
-      { label: 'Introduction', href: '/docs/guides/setup/introduction' },
+      {
+        label:
+          'Introduction with a very long title that should truncate at some point',
+        href: '/docs/guides/setup/introduction',
+      },
     ],
   },
 });

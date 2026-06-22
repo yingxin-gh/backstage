@@ -78,6 +78,7 @@
     flex-direction: row;
     align-items: center;
     gap: var(--bui-space-2);
+    min-width: 0;
   }
 
   .bui-PluginHeaderToolbarName {
@@ -86,7 +87,15 @@
     align-items: center;
     gap: var(--bui-space-2);
     margin: 0;
+    min-width: 0;
+  }
+
+  .bui-PluginHeaderToolbarName:not(:has(.bui-PluginHeaderBreadcrumbs)) {
     flex-shrink: 0;
+  }
+
+  .bui-PluginHeaderBreadcrumbs {
+    min-width: 0;
   }
 
   .bui-PluginHeaderBreadcrumbs ol {
@@ -96,6 +105,7 @@
     margin: 0;
     padding: 0;
     gap: var(--bui-plugin-header-breadcrumbs-gap);
+    min-width: 0;
   }
 
   .bui-PluginHeaderBreadcrumbs ol li {
@@ -110,6 +120,8 @@
     }
 
     &[data-current] {
+      flex: 1;
+      min-width: 0;
       max-width: var(--bui-plugin-header-breadcrumbs-current-max-width);
     }
 

@@ -26,7 +26,7 @@ import {
 } from '../wiring';
 import { ExtensionBoundary, PageLayout, PageLayoutTab } from '../components';
 import { useApi } from '../apis/system';
-import { useSubPageWrapper } from '../components/SubPageWrapperContext';
+import { BreadcrumbRegistration } from '../breadcrumbs';
 import { routeResolutionApiRef } from '../apis/definitions/RouteResolutionApi';
 import { pluginHeaderActionsApiRef } from '../apis/definitions/PluginHeaderActionsApi';
 import { RouteResolutionApi } from '../apis/definitions/RouteResolutionApi';
@@ -141,8 +141,6 @@ export const PageBlueprint = createExtensionBlueprint({
 
         const headerActionsApi = useApi(pluginHeaderActionsApiRef);
         const headerActions = headerActionsApi.getPluginHeaderActions(pluginId);
-        const SubPageWrapper = useSubPageWrapper();
-
         return (
           <PageLayout
             title={resolvedTitle}
@@ -162,15 +160,18 @@ export const PageBlueprint = createExtensionBlueprint({
                 const path = page.get(coreExtensionData.routePath);
                 const tabTitle = page.get(coreExtensionData.title);
                 const element = page.get(coreExtensionData.reactElement);
-                const wrapped = SubPageWrapper ? (
-                  <SubPageWrapper label={tabTitle || path} href={path}>
-                    {element}
-                  </SubPageWrapper>
-                ) : (
-                  element
-                );
                 return (
-                  <Route key={index} path={`${path}/*`} element={wrapped} />
+                  <Route
+                    key={index}
+                    path={`${path}/*`}
+                    element={
+                      <BreadcrumbRegistration
+                        entry={{ label: tabTitle || path, href: path }}
+                      >
+                        {element}
+                      </BreadcrumbRegistration>
+                    }
+                  />
                 );
               })}
             </Routes>

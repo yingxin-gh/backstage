@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
+export type { BreadcrumbEntry } from './types';
+
 export {
-  ExtensionBoundary,
-  type ExtensionBoundaryProps,
-} from './ExtensionBoundary';
-export {
-  createSwappableComponent,
-  type CreateSwappableComponentOptions,
-  type SwappableComponentRef,
-} from './createSwappableComponent';
-export { useAppNode } from './AppNodeProvider';
-export * from './DefaultSwappableComponents';
-export {
-  PageLayout,
-  type PageLayoutProps,
-  type PageLayoutTab,
-  type PageTab,
-} from './PageLayout';
+  useBreadcrumbs,
+  BreadcrumbRegistration,
+  BreadcrumbsRegistryProvider,
+} from './useBreadcrumbs';

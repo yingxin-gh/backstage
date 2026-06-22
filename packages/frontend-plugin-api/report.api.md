@@ -8,7 +8,6 @@ import { ApiRef as ApiRef_2 } from '@backstage/frontend-plugin-api';
 import { ComponentType } from 'react';
 import type { Config } from '@backstage/config';
 import { ConfigurableExtensionDataRef as ConfigurableExtensionDataRef_2 } from '@backstage/frontend-plugin-api';
-import { Context } from 'react';
 import { Expand } from '@backstage/types';
 import { ExpandRecursive } from '@backstage/types';
 import { ExtensionBlueprint as ExtensionBlueprint_2 } from '@backstage/frontend-plugin-api';
@@ -381,6 +380,25 @@ export const bitbucketServerAuthApiRef: ApiRef_2<
 > & {
   readonly $$type: '@backstage/ApiRef';
 };
+
+// @public
+export interface BreadcrumbEntry {
+  // (undocumented)
+  href: string;
+  // (undocumented)
+  label: string;
+}
+
+// @public
+export function BreadcrumbRegistration(props: {
+  entry: BreadcrumbEntry;
+  children: ReactNode;
+}): JSX_3.Element;
+
+// @public
+export function BreadcrumbsRegistryProvider(props: {
+  children: ReactNode;
+}): JSX_3.Element;
 
 // @public
 export type ConfigApi = Config;
@@ -2532,21 +2550,6 @@ export const SubPageBlueprint: ExtensionBlueprint_2<{
 }>;
 
 // @public
-export const SubPageWrapperContext: Context<
-  ComponentType<SubPageWrapperProps> | undefined
->;
-
-// @public
-export interface SubPageWrapperProps {
-  // (undocumented)
-  children: ReactNode;
-  // (undocumented)
-  href: string;
-  // (undocumented)
-  label: string;
-}
-
-// @public
 export interface SubRouteRef<
   TParams extends AnyRouteRefParams = AnyRouteRefParams,
 > {
@@ -2805,6 +2808,9 @@ export function useApiHolder(): ApiHolder;
 
 // @public
 export function useAppNode(): AppNode | undefined;
+
+// @public
+export function useBreadcrumbs(): BreadcrumbEntry[];
 
 // @public
 export function useRouteRef<TParams extends AnyRouteRefParams>(

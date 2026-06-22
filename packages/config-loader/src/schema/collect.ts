@@ -55,6 +55,7 @@ export const internal = {
 export async function collectConfigSchemas(
   packageNames: string[],
   packagePaths: string[],
+  options?: { excludePackageDependencies?: boolean },
 ): Promise<ConfigSchemaPackageEntry[]> {
   const schemas = new Array<ConfigSchemaPackageEntry>();
   const tsSchemaPaths = new Array<{ packageName: string; path: string }>();
@@ -150,11 +151,13 @@ export async function collectConfigSchemas(
       }
     }
 
-    await Promise.all(
-      depNames.map(depName =>
-        processItem({ name: depName, parentPath: pkgPath }),
-      ),
-    );
+    if (!options?.excludePackageDependencies) {
+      await Promise.all(
+        depNames.map(depName =>
+          processItem({ name: depName, parentPath: pkgPath }),
+        ),
+      );
+    }
   }
 
   await Promise.all([

@@ -254,6 +254,32 @@ describe('collectConfigSchemas', () => {
     );
   });
 
+  it('should optionally skip schemas in package dependencies', async () => {
+    mockDir.setContent({
+      node_modules: {
+        a: {
+          'package.json': JSON.stringify({
+            name: 'a',
+            version: '1',
+            dependencies: { b: '1' },
+          }),
+        },
+        b: {
+          'package.json': JSON.stringify({
+            name: 'b',
+            version: '1',
+            configSchema: mockSchema,
+          }),
+        },
+      },
+    });
+    process.chdir(mockDir.path);
+
+    await expect(
+      collectConfigSchemas(['a'], [], { excludePackageDependencies: true }),
+    ).resolves.toEqual([]);
+  });
+
   it('should schema of different types', async () => {
     mockDir.setContent({
       node_modules: {

@@ -37,6 +37,8 @@ export type LoadConfigSchemaOptions =
       | {
           dependencies: string[];
           packagePaths?: string[];
+          /** @internal */
+          excludePackageDependencies?: boolean;
         }
       | {
           serialized: JsonObject;
@@ -73,6 +75,9 @@ export async function loadConfigSchema(
     schemas = await collectConfigSchemas(
       options.dependencies,
       options.packagePaths ?? [],
+      {
+        excludePackageDependencies: options.excludePackageDependencies,
+      },
     );
   } else {
     const { serialized } = options;

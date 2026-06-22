@@ -62,6 +62,10 @@ export interface EmbeddedDbConnectionConfig {
   port?: number;
   user?: string;
   password?: string;
+  flags?: {
+    postgres?: string[];
+    initdb?: string[];
+  };
 }
 
 export interface StartEmbeddedDbOptions {
@@ -127,6 +131,12 @@ async function startEmbeddedDbInternal(
     password,
     port,
     persistent: false,
+    ...(userConfig?.flags?.postgres
+      ? { postgresFlags: userConfig.flags.postgres }
+      : {}),
+    ...(userConfig?.flags?.initdb
+      ? { initdbFlags: userConfig.flags.initdb }
+      : {}),
     onError(messageOrError) {
       console.error(`[embedded-postgres]`, messageOrError);
     },
@@ -213,13 +223,24 @@ async function readDatabaseConfig(
     const password = config.getOptionalString(
       'backend.database.connection.password',
     );
+    const postgresFlags = config.getOptionalStringArray(
+      'backend.database.connection.flags.postgres',
+    );
+    const initdbFlags = config.getOptionalStringArray(
+      'backend.database.connection.flags.initdb',
+    );
+    const flags =
+      postgresFlags !== undefined || initdbFlags !== undefined
+        ? { postgres: postgresFlags, initdb: initdbFlags }
+        : undefined;
 
     const connection =
       host !== undefined ||
       port !== undefined ||
       user !== undefined ||
-      password !== undefined
-        ? { host, port, user, password }
+      password !== undefined ||
+      flags !== undefined
+        ? { host, port, user, password, flags }
         : undefined;
 
     return { client, connection };

@@ -20,6 +20,7 @@ import {
   isAbsolute as isAbsolutePath,
   resolve as resolvePath,
 } from 'node:path';
+import { z } from 'zod';
 import { getPortPromise } from 'portfinder';
 import { ForwardedError } from '@backstage/errors';
 import { ConfigSources } from '@backstage/config-loader';
@@ -67,6 +68,19 @@ export interface EmbeddedDbConnectionConfig {
     initdb?: string[];
   };
 }
+
+const connectionSchema: z.ZodType<EmbeddedDbConnectionConfig> = z.object({
+  host: z.string().optional(),
+  port: z.number().optional(),
+  user: z.string().optional(),
+  password: z.string().optional(),
+  flags: z
+    .object({
+      postgres: z.array(z.string()).optional(),
+      initdb: z.array(z.string()).optional(),
+    })
+    .optional(),
+});
 
 export interface StartEmbeddedDbOptions {
   configPaths?: string[];
@@ -210,38 +224,14 @@ async function readDatabaseConfig(
       return undefined;
     }
 
-    // Only read structured connection config if the value is an object;
-    // it can also be a plain string (e.g. ':memory:' for better-sqlite3).
+    // Parse the raw connection value with zod rather than reading sub-keys
+    // through the config reader, because the config reader's fallback chain
+    // throws when a lower-priority config file has connection as a string.
     const rawConnection = config.getOptional('backend.database.connection');
-    if (typeof rawConnection === 'string' || rawConnection === undefined) {
-      return { client };
-    }
-
-    const host = config.getOptionalString('backend.database.connection.host');
-    const port = config.getOptionalNumber('backend.database.connection.port');
-    const user = config.getOptionalString('backend.database.connection.user');
-    const password = config.getOptionalString(
-      'backend.database.connection.password',
-    );
-    const postgresFlags = config.getOptionalStringArray(
-      'backend.database.connection.flags.postgres',
-    );
-    const initdbFlags = config.getOptionalStringArray(
-      'backend.database.connection.flags.initdb',
-    );
-    const flags =
-      postgresFlags !== undefined || initdbFlags !== undefined
-        ? { postgres: postgresFlags, initdb: initdbFlags }
-        : undefined;
-
-    const connection =
-      host !== undefined ||
-      port !== undefined ||
-      user !== undefined ||
-      password !== undefined ||
-      flags !== undefined
-        ? { host, port, user, password, flags }
-        : undefined;
+    const connectionResult = connectionSchema.safeParse(rawConnection);
+    const connection = connectionResult.success
+      ? connectionResult.data
+      : undefined;
 
     return { client, connection };
   } finally {

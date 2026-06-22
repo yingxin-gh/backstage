@@ -379,7 +379,7 @@ async function compileTsSchemas(
       throw new Error(`Invalid schema in ${path}, missing Config export`);
     }
 
-    const namespace = createHash('sha1')
+    const namespace = createHash('sha256')
       .update(packageName)
       .update('\0')
       .update(path.split(sep).join('/'))

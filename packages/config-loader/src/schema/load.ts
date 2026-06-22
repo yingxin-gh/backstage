@@ -37,7 +37,11 @@ export type LoadConfigSchemaOptions =
       | {
           dependencies: string[];
           packagePaths?: string[];
-          /** @internal */
+          /**
+           * Whether to exclude schemas from package dependencies.
+           *
+           * Defaults to `false`.
+           */
           excludePackageDependencies?: boolean;
         }
       | {

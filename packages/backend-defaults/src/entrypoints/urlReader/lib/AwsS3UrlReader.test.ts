@@ -177,6 +177,33 @@ describe('parseUrl', () => {
     });
   });
 
+  it('supports AWS PrivateLink for Amazon S3 formats', () => {
+    expect(
+      parseUrl(
+        'https://my.bucket-3.bucket.vpce-12345678901234567-foobar.s3.eu-central-1.vpce.amazonaws.com/a/puppy.jpg',
+        {
+          host: 'amazonaws.com',
+        },
+      ),
+    ).toEqual({
+      path: 'a/puppy.jpg',
+      bucket: 'my.bucket-3',
+      region: 'eu-central-1',
+    });
+
+    expect(() =>
+      parseUrl(
+        'https://my.bucket-3.bucket.vpce-12345678901234567-foobar.s3.eu-central-1.vpce.amazonaws.com/a/puppy.jpg',
+        {
+          host: 'amazonaws.com',
+          s3ForcePathStyle: true,
+        },
+      ),
+    ).toThrow(
+      `Invalid AWS S3 URL https://my.bucket-3.bucket.vpce-12345678901234567-foobar.s3.eu-central-1.vpce.amazonaws.com/a/puppy.jpg - path style access is not supported for VPC endpoint URLs`,
+    );
+  });
+
   it('supports all non-aws formats', () => {
     expect(
       parseUrl('https://my-host.com/my.bucket-3/a/puppy.jpg', {

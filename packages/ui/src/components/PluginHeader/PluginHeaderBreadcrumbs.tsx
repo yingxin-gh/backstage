@@ -195,19 +195,21 @@ export function PluginHeaderBreadcrumbs(props: {
     ancestorItems = (
       <>
         {root.map(entry => (
-          <AncestorSegment entry={entry} />
+          <AncestorSegment key={entry.href} entry={entry} />
         ))}
         <CollapsedSegment
           items={collapsed}
           ellipsisClassName={ellipsisClassName}
         />
         {leading.map(entry => (
-          <AncestorSegment entry={entry} />
+          <AncestorSegment key={entry.href} entry={entry} />
         ))}
       </>
     );
   } else {
-    ancestorItems = rest.map(entry => <AncestorSegment entry={entry} />);
+    ancestorItems = rest.map(entry => (
+      <AncestorSegment key={entry.href} entry={entry} />
+    ));
   }
 
   return (

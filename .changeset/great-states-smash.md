@@ -6,5 +6,5 @@ Add `breadcrumbs` prop & breadcrumbs to `PluginHeader`. When passed `breadcrumbs
 
 These breadcrumbs:
 
-- Collapses middle segments if more than 5 segments
+- Collapses middle segments if 5 or more segments
 - Shows tooltip if text is truncated

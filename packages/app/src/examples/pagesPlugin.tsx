@@ -27,7 +27,7 @@ import {
   createExtensionInput,
   coreExtensionData,
 } from '@backstage/frontend-plugin-api';
-import { BreadcrumbRegistration } from '@backstage/ui';
+import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 

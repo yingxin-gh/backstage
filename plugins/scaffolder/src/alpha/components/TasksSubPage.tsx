@@ -16,7 +16,7 @@
 
 import { Routes, Route, useParams } from 'react-router-dom';
 import { Content } from '@backstage/core-components';
-import { BreadcrumbRegistration } from '@backstage/ui';
+import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import { OngoingTaskBody } from '../../components/OngoingTask';
 import { ListTaskPageContent } from '../../components/ListTasksPage';
 

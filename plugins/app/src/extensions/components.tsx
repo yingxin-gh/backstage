@@ -28,9 +28,9 @@ import {
 } from '@backstage/core-components';
 import {
   BreadcrumbRegistration,
-  PluginHeader,
   useBreadcrumbs,
-} from '@backstage/ui';
+} from '@backstage/frontend-plugin-api';
+import { PluginHeader } from '@backstage/ui';
 import Button from '@material-ui/core/Button';
 import { useMemo } from 'react';
 import { useResolvedPath } from 'react-router-dom';

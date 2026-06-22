@@ -61,7 +61,7 @@ import {
 import { scaffolderTranslationRef } from '../../translation';
 import { DEFAULT_SCAFFOLDER_FIELD_EXTENSIONS } from '../../extensions/default';
 import { buildTechDocsURL } from '@backstage/plugin-techdocs-react';
-import { BreadcrumbRegistration } from '@backstage/ui';
+import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import {
   TECHDOCS_ANNOTATION,
   TECHDOCS_EXTERNAL_ANNOTATION,

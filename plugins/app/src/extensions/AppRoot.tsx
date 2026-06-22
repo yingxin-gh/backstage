@@ -32,15 +32,14 @@ import {
   routeResolutionApiRef,
   pluginWrapperApiRef,
   useAnalytics,
-  SubPageWrapperProps,
-  SubPageWrapperContext,
+  BreadcrumbsRegistryProvider,
 } from '@backstage/frontend-plugin-api';
 import {
   AppRootWrapperBlueprint,
   RouterBlueprint,
   SignInPageBlueprint,
 } from '@backstage/plugin-app-react';
-import { BreadcrumbRegistration, BUIProvider } from '@backstage/ui';
+import { BUIProvider } from '@backstage/ui';
 import {
   DiscoveryApi,
   ErrorApi,
@@ -208,14 +207,6 @@ export interface AppRouterProps {
   extraElements?: Array<JSX.Element>;
 }
 
-function BreadcrumbRegistrationWrapper(props: SubPageWrapperProps) {
-  return (
-    <BreadcrumbRegistration entry={{ label: props.label, href: props.href }}>
-      {props.children}
-    </BreadcrumbRegistration>
-  );
-}
-
 function DefaultRouter(props: PropsWithChildren<{}>) {
   const configApi = useApi(configApiRef);
   const basePath = getBasePath(configApi);
@@ -293,11 +284,11 @@ export function AppRouter(props: AppRouterProps) {
     return (
       <RouterComponent>
         <BUIProvider useAnalytics={useAnalytics}>
-          <SubPageWrapperContext.Provider value={BreadcrumbRegistrationWrapper}>
+          <BreadcrumbsRegistryProvider>
             {...extraElements}
             <RouteTracker routeObjects={routeObjects} />
             {children}
-          </SubPageWrapperContext.Provider>
+          </BreadcrumbsRegistryProvider>
         </BUIProvider>
       </RouterComponent>
     );
@@ -306,7 +297,7 @@ export function AppRouter(props: AppRouterProps) {
   return (
     <RouterComponent>
       <BUIProvider useAnalytics={useAnalytics}>
-        <SubPageWrapperContext.Provider value={BreadcrumbRegistrationWrapper}>
+        <BreadcrumbsRegistryProvider>
           {...extraElements}
           <RouteTracker routeObjects={routeObjects} />
           <SignInPageWrapper
@@ -315,7 +306,7 @@ export function AppRouter(props: AppRouterProps) {
           >
             {children}
           </SignInPageWrapper>
-        </SubPageWrapperContext.Provider>
+        </BreadcrumbsRegistryProvider>
       </BUIProvider>
     </RouterComponent>
   );

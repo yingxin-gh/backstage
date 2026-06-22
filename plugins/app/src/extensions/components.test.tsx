@@ -26,7 +26,7 @@ import {
   coreExtensionData,
   createExtension,
 } from '@backstage/frontend-plugin-api';
-import { BreadcrumbRegistration } from '@backstage/ui';
+import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 
 describe('PageLayout', () => {
   it('should register a breadcrumb for the plugin root page', async () => {

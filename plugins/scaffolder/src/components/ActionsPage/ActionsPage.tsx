@@ -26,14 +26,8 @@ import {
   MarkdownContent,
   Page,
 } from '@backstage/core-components';
-import {
-  BreadcrumbRegistration,
-  Flex,
-  List,
-  ListRow,
-  SearchField,
-  Text,
-} from '@backstage/ui';
+import { Flex, List, ListRow, SearchField, Text } from '@backstage/ui';
+import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
 import {

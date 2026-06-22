@@ -18,7 +18,7 @@ import { useAsync, useMountEffect } from '@react-hookz/web';
 import { useCallback, useMemo } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Content } from '@backstage/core-components';
-import { BreadcrumbRegistration } from '@backstage/ui';
+import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import { useApi } from '@backstage/core-plugin-api';
 import { makeStyles } from '@material-ui/core/styles';
 import { RequirePermission } from '@backstage/plugin-permission-react';

@@ -120,9 +120,14 @@ export const PageLayout = SwappableComponentBlueprint.make({
           </>
         );
 
+        // in practice title is always provided by PageBlueprint (falls back to pluginId).
+        if (!title) {
+          return content;
+        }
+
         return (
           <BreadcrumbRegistration
-            entry={{ label: title ?? '', href: titleLink ?? '/' }}
+            entry={{ label: title, href: titleLink ?? (parentPath || '/') }}
           >
             {content}
           </BreadcrumbRegistration>

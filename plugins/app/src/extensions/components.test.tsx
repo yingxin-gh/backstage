@@ -22,11 +22,11 @@ import {
   renderInTestApp,
 } from '@backstage/frontend-test-utils';
 import {
+  BreadcrumbRegistration,
   PageBlueprint,
   coreExtensionData,
   createExtension,
 } from '@backstage/frontend-plugin-api';
-import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 
 describe('PageLayout', () => {
   it('should register a breadcrumb for the plugin root page', async () => {

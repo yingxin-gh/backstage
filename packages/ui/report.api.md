@@ -493,25 +493,6 @@ export type BoxUtilityProps = {
   maxHeight?: Responsive<string>;
 };
 
-// @public
-export interface BreadcrumbEntry {
-  // (undocumented)
-  href: string;
-  // (undocumented)
-  label: string;
-}
-
-// @public
-export function BreadcrumbRegistration(props: {
-  entry: BreadcrumbEntry;
-  children: ReactNode;
-}): JSX_2.Element;
-
-// @public
-export function BreadcrumbsRegistryProvider(props: {
-  children: ReactNode;
-}): JSX_2.Element;
-
 // @public (undocumented)
 export type Breakpoint = 'initial' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -3055,8 +3036,10 @@ export const PluginHeaderDefinition: {
 
 // @public
 export interface PluginHeaderOwnProps {
+  // Warning: (ae-forgotten-export) The symbol "PluginHeaderBreadcrumbEntry" needs to be exported by the entry point index.d.ts
+  //
   // (undocumented)
-  breadcrumbs?: BreadcrumbEntry[];
+  breadcrumbs?: PluginHeaderBreadcrumbEntry[];
   // (undocumented)
   className?: string;
   // (undocumented)
@@ -4596,9 +4579,6 @@ export function useBgConsumer(): BgContextValue;
 
 // @public
 export function useBgProvider(bg?: Responsive<ProviderBg>): BgContextValue;
-
-// @public
-export function useBreadcrumbs(): BreadcrumbEntry[];
 
 // @public (undocumented)
 export const useBreakpoint: () => {

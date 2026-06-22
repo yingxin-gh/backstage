@@ -18,9 +18,9 @@ import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { BUIProvider } from '../../provider';
 import { PluginHeaderBreadcrumbs } from './PluginHeaderBreadcrumbs';
-import type { BreadcrumbEntry } from '../../hooks/useBreadcrumbs';
+import type { PluginHeaderBreadcrumbEntry } from './types';
 
-function renderBreadcrumbs(entries: BreadcrumbEntry[]) {
+function renderBreadcrumbs(entries: PluginHeaderBreadcrumbEntry[]) {
   return render(
     <MemoryRouter>
       <BUIProvider>

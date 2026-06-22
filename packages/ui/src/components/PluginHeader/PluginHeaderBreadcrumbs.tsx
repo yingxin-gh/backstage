@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { BreadcrumbEntry } from '../../hooks/useBreadcrumbs';
+import type { PluginHeaderBreadcrumbEntry } from './types';
 import { Link } from '../Link';
 import { Text } from '../Text';
 import { MenuTrigger, Menu, MenuItem } from '../Menu';
@@ -59,7 +59,7 @@ function BreadcrumbTooltipWrapper(props: {
 }
 
 /** Renders a link in the breadcrumbs trail */
-function BreadcrumbLink(props: { entry: BreadcrumbEntry }) {
+function BreadcrumbLink(props: { entry: PluginHeaderBreadcrumbEntry }) {
   const { entry } = props;
   const { ref, truncated } = useIsTruncated<HTMLAnchorElement>();
   return (
@@ -79,7 +79,7 @@ function BreadcrumbLink(props: { entry: BreadcrumbEntry }) {
 
 /** Renders an ellipsis button that opens a menu with the collapsed breadcrumb items. */
 function CollapsedSegment(props: {
-  items: BreadcrumbEntry[];
+  items: PluginHeaderBreadcrumbEntry[];
   ellipsisClassName?: string;
 }) {
   const { items, ellipsisClassName } = props;
@@ -108,7 +108,7 @@ function CollapsedSegment(props: {
 }
 
 /** Renders a non-current breadcrumb segment as a link with a trailing separator. */
-function AncestorSegment(props: { entry: BreadcrumbEntry }) {
+function AncestorSegment(props: { entry: PluginHeaderBreadcrumbEntry }) {
   const { entry } = props;
   return (
     <RACBreadcrumb key={entry.href}>
@@ -126,7 +126,7 @@ function AncestorSegment(props: { entry: BreadcrumbEntry }) {
  * - never truncates
  */
 function CurrentSegment(props: {
-  entry: BreadcrumbEntry;
+  entry: PluginHeaderBreadcrumbEntry;
   isSingleEntry: boolean;
 }) {
   const { entry, isSingleEntry } = props;
@@ -153,7 +153,7 @@ function CurrentSegment(props: {
  * @internal
  */
 export function PluginHeaderBreadcrumbs(props: {
-  entries: BreadcrumbEntry[];
+  entries: PluginHeaderBreadcrumbEntry[];
   className?: string;
   ellipsisClassName?: string;
 }) {

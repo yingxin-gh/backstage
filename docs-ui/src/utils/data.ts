@@ -181,9 +181,4 @@ export const hooks: Page[] = [
     title: 'useBreakpoint',
     slug: 'use-breakpoint',
   },
-  {
-    title: 'useBreadcrumbs',
-    slug: 'use-breadcrumbs',
-    status: 'new',
-  },
 ];

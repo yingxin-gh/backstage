@@ -3014,6 +3014,14 @@ export interface PasswordFieldProps
 export const PluginHeader: (props: PluginHeaderProps) => JSX_2.Element;
 
 // @public
+export interface PluginHeaderBreadcrumbEntry {
+  // (undocumented)
+  href: string;
+  // (undocumented)
+  label: string;
+}
+
+// @public
 export const PluginHeaderDefinition: {
   readonly styles: {
     readonly [key: string]: string;
@@ -3025,12 +3033,15 @@ export const PluginHeaderDefinition: {
     readonly toolbarControls: 'bui-PluginHeaderToolbarControls';
     readonly toolbarIcon: 'bui-PluginHeaderToolbarIcon';
     readonly toolbarName: 'bui-PluginHeaderToolbarName';
+    readonly breadcrumbs: 'bui-PluginHeaderBreadcrumbs';
+    readonly breadcrumbsEllipsis: 'bui-PluginHeaderBreadcrumbsEllipsis';
     readonly tabs: 'bui-PluginHeaderTabsWrapper';
   };
   readonly propDefs: {
     readonly icon: {};
     readonly title: {};
     readonly titleLink: {};
+    readonly breadcrumbs: {};
     readonly customActions: {};
     readonly tabs: {};
     readonly onTabSelectionChange: {};
@@ -3040,6 +3051,8 @@ export const PluginHeaderDefinition: {
 
 // @public
 export interface PluginHeaderOwnProps {
+  // (undocumented)
+  breadcrumbs?: PluginHeaderBreadcrumbEntry[];
   // (undocumented)
   className?: string;
   // (undocumented)

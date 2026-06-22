@@ -3007,6 +3007,14 @@ export interface PasswordFieldProps
 export const PluginHeader: (props: PluginHeaderProps) => JSX_2.Element;
 
 // @public
+export interface PluginHeaderBreadcrumbEntry {
+  // (undocumented)
+  href: string;
+  // (undocumented)
+  label: string;
+}
+
+// @public
 export const PluginHeaderDefinition: {
   readonly styles: {
     readonly [key: string]: string;
@@ -3036,8 +3044,6 @@ export const PluginHeaderDefinition: {
 
 // @public
 export interface PluginHeaderOwnProps {
-  // Warning: (ae-forgotten-export) The symbol "PluginHeaderBreadcrumbEntry" needs to be exported by the entry point index.d.ts
-  //
   // (undocumented)
   breadcrumbs?: PluginHeaderBreadcrumbEntry[];
   // (undocumented)

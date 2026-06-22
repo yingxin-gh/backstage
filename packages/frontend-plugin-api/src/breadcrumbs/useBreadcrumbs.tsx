@@ -15,59 +15,44 @@
  */
 
 import {
-  createContext,
-  useContext,
+  useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
+import {
+  createVersionedContext,
+  createVersionedValueMap,
+  useVersionedContext,
+} from '@backstage/version-bridge';
 import type { BreadcrumbEntry } from './types';
 
 interface InternalEntry extends BreadcrumbEntry {
   depth: number;
 }
 
-interface BreadcrumbsStore {
-  register(entry: InternalEntry): () => void;
-  subscribe(listener: () => void): () => void;
-  getEntries(): BreadcrumbEntry[];
+interface Registration {
+  update(label: string, href: string): void;
+  unregister(): void;
 }
 
-function createBreadcrumbsStore(): BreadcrumbsStore {
-  const entries: InternalEntry[] = [];
-  const listeners = new Set<() => void>();
-
-  function notify() {
-    listeners.forEach(l => l());
-  }
-
-  return {
-    register(entry: InternalEntry) {
-      entries.push(entry);
-      entries.sort((a, b) => a.depth - b.depth);
-      notify();
-      return () => {
-        const idx = entries.indexOf(entry);
-        if (idx >= 0) {
-          entries.splice(idx, 1);
-          notify();
-        }
-      };
-    },
-    subscribe(listener: () => void) {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    getEntries() {
-      return entries.map(({ label, href }) => ({ label, href }));
-    },
-  };
+interface BreadcrumbsContextValue {
+  breadcrumbs: BreadcrumbEntry[];
+  register: (entry: InternalEntry) => Registration;
 }
 
-const StoreContext = createContext<BreadcrumbsStore | undefined>(undefined);
-const DepthContext = createContext(0);
+const CONTEXT_KEY = 'breadcrumbs-context';
+const DEPTH_KEY = 'breadcrumbs-depth';
+
+type ContextMap = { 1: BreadcrumbsContextValue };
+type DepthMap = { 1: number };
+
+const BreadcrumbsContext = createVersionedContext<ContextMap>(CONTEXT_KEY);
+const DepthContext = createVersionedContext<DepthMap>(DEPTH_KEY);
+
+const EMPTY: BreadcrumbEntry[] = [];
 
 /**
  * Provides the breadcrumb registry to the component tree. Place this near the
@@ -77,11 +62,38 @@ const DepthContext = createContext(0);
  * @public
  */
 export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
-  const [store] = useState(createBreadcrumbsStore);
+  const [entries, setEntries] = useState<InternalEntry[]>([]);
+
+  const register = useCallback((entry: InternalEntry): Registration => {
+    const record = { ...entry };
+    setEntries(prev => [...prev, record].sort((a, b) => a.depth - b.depth));
+    return {
+      update(label: string, href: string) {
+        if (record.label === label && record.href === href) return;
+        record.label = label;
+        record.href = href;
+        setEntries(prev => [...prev]);
+      },
+      unregister() {
+        setEntries(prev => prev.filter(e => e !== record));
+      },
+    };
+  }, []);
+
+  const breadcrumbs = useMemo(
+    () => entries.map(({ label, href }) => ({ label, href })),
+    [entries],
+  );
+
+  const value = useMemo(
+    () => createVersionedValueMap({ 1: { breadcrumbs, register } }),
+    [breadcrumbs, register],
+  );
+
   return (
-    <StoreContext.Provider value={store}>
+    <BreadcrumbsContext.Provider value={value}>
       {props.children}
-    </StoreContext.Provider>
+    </BreadcrumbsContext.Provider>
   );
 }
 
@@ -92,20 +104,8 @@ export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
  * @public
  */
 export function useBreadcrumbs(): BreadcrumbEntry[] {
-  const store = useContext(StoreContext);
-  const [entries, setEntries] = useState<BreadcrumbEntry[]>(
-    () => store?.getEntries() ?? [],
-  );
-
-  useEffect(() => {
-    if (!store) return undefined;
-    setEntries(store.getEntries());
-    return store.subscribe(() => {
-      setEntries(store.getEntries());
-    });
-  }, [store]);
-
-  return entries;
+  const ctx = useVersionedContext<ContextMap>(CONTEXT_KEY);
+  return ctx?.atVersion(1)?.breadcrumbs ?? EMPTY;
 }
 
 /**
@@ -119,17 +119,35 @@ export function BreadcrumbRegistration(props: {
   entry: BreadcrumbEntry;
   children: ReactNode;
 }) {
-  const store = useContext(StoreContext);
-  const depth = useContext(DepthContext);
+  const ctx = useVersionedContext<ContextMap>(CONTEXT_KEY);
+  const register = ctx?.atVersion(1)?.register;
+  const depthCtx = useVersionedContext<DepthMap>(DEPTH_KEY);
+  const depth = depthCtx?.atVersion(1) ?? 0;
   const { label, href } = props.entry;
+  const registrationRef = useRef<Registration | null>(null);
 
   useEffect(() => {
-    if (!store) return undefined;
-    return store.register({ label, href, depth });
-  }, [store, depth, label, href]);
+    if (!register) return undefined;
+    const reg = register({ label, href, depth });
+    registrationRef.current = reg;
+    return () => {
+      reg.unregister();
+      registrationRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [register, depth]);
+
+  useEffect(() => {
+    registrationRef.current?.update(label, href);
+  }, [label, href]);
+
+  const depthValue = useMemo(
+    () => createVersionedValueMap({ 1: depth + 1 }),
+    [depth],
+  );
 
   return (
-    <DepthContext.Provider value={depth + 1}>
+    <DepthContext.Provider value={depthValue}>
       {props.children}
     </DepthContext.Provider>
   );

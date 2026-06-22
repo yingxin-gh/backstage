@@ -129,6 +129,34 @@ describe('useBreadcrumbs', () => {
     expect(screen.getByText('Current Page (/current)')).toBeInTheDocument();
   });
 
+  it('should update a breadcrumb label in place without removing it', () => {
+    function DynamicBreadcrumb() {
+      const [label, setLabel] = useState('Draft');
+      return (
+        <BreadcrumbRegistration entry={{ label, href: '/doc' }}>
+          <BreadcrumbDisplay />
+          <button onClick={() => setLabel('Published')}>publish</button>
+        </BreadcrumbRegistration>
+      );
+    }
+
+    render(
+      <BreadcrumbsRegistryProvider>
+        <DynamicBreadcrumb />
+      </BreadcrumbsRegistryProvider>,
+    );
+
+    expect(screen.getByText('Draft (/doc)')).toBeInTheDocument();
+
+    act(() => {
+      screen.getByText('publish').click();
+    });
+
+    const items = screen.getByTestId('breadcrumbs').querySelectorAll('li');
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent('Published (/doc)');
+  });
+
   it('should return an empty array outside of a provider', () => {
     render(<BreadcrumbDisplay />);
 

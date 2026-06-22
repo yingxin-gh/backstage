@@ -104,9 +104,11 @@ export const PageLayout = SwappableComponentBlueprint.make({
 
         const breadcrumbs = useBreadcrumbs();
 
-        const content = noHeader ? (
-          <>{children}</>
-        ) : (
+        if (noHeader) {
+          return <>{children}</>;
+        }
+
+        const content = (
           <>
             <PluginHeader
               title={title}

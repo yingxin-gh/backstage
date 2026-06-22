@@ -58,7 +58,7 @@ describe('PageLayout', () => {
     });
 
     expect(
-      screen.queryByRole('list', { name: 'Breadcrumbs' }),
+      screen.queryByRole('navigation', { name: 'Breadcrumbs' }),
     ).not.toBeInTheDocument();
   });
 
@@ -115,7 +115,7 @@ describe('PageLayout', () => {
       });
 
       await waitFor(() => {
-        const breadcrumbList = screen.getByRole('list', {
+        const breadcrumbList = screen.getByRole('navigation', {
           name: 'Breadcrumbs',
         });
         const breadcrumbLink = within(breadcrumbList).getByRole('link', {
@@ -147,7 +147,7 @@ describe('PageLayout', () => {
       });
 
       await waitFor(() => {
-        const breadcrumbList = screen.getByRole('list', {
+        const breadcrumbList = screen.getByRole('navigation', {
           name: 'Breadcrumbs',
         });
         const breadcrumbLink = within(breadcrumbList).getByRole('link', {
@@ -178,7 +178,7 @@ describe('PageLayout', () => {
       });
 
       await waitFor(() => {
-        const breadcrumbList = screen.getByRole('list', {
+        const breadcrumbList = screen.getByRole('navigation', {
           name: 'Breadcrumbs',
         });
         const breadcrumbLink = within(breadcrumbList).getByRole('link', {
@@ -223,7 +223,7 @@ describe('PageLayout', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Overview content')).toBeInTheDocument();
-        const breadcrumbList = screen.getByRole('list', {
+        const breadcrumbList = screen.getByRole('navigation', {
           name: 'Breadcrumbs',
         });
         expect(breadcrumbList).toHaveTextContent('My Plugin');
@@ -286,7 +286,7 @@ describe('PageLayout', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Task detail: abc-123')).toBeInTheDocument();
-        const breadcrumbList = screen.getByRole('list', {
+        const breadcrumbList = screen.getByRole('navigation', {
           name: 'Breadcrumbs',
         });
         expect(breadcrumbList).toHaveTextContent('Create');

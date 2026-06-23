@@ -251,20 +251,6 @@ export class DefaultActionsRegistryService implements ActionsRegistryService {
       throw new Error(`Action with id "${id}" is already registered`);
     }
 
-    const missingAttributes = (
-      ['readOnly', 'destructive', 'idempotent'] as const
-    ).filter(key => options.attributes?.[key] === undefined);
-
-    if (missingAttributes.length > 0) {
-      this.logger.warn(
-        `Action "${id}" is registered without the following attributes: ${missingAttributes.join(
-          ', ',
-        )}. ` +
-          `Set { readOnly, destructive, idempotent } explicitly so clients ` +
-          `can make informed decisions about the action. Defaults will be applied.`,
-      );
-    }
-
     if (options.visibilityPermission) {
       this.permissionsRegistry.addPermissions([options.visibilityPermission]);
     }

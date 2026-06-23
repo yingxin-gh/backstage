@@ -312,7 +312,7 @@ export const catalogTranslationRef: TranslationRef<
     readonly 'entityContextMenu.inspectMenuTitle': 'Inspect entity';
     readonly 'entityContextMenu.copyURLMenuTitle': 'Copy entity URL';
     readonly 'entityContextMenu.unregisterMenuTitle': 'Unregister entity';
-    readonly 'entityContextMenu.moreButtonAriaLabel': 'more';
+    readonly 'entityContextMenu.moreButtonAriaLabel': 'More actions';
     readonly 'entityLabelsCard.title': 'Labels';
     readonly 'entityLabelsCard.readMoreButtonTitle': 'Read more';
     readonly 'entityLabelsCard.columnKeyLabel': 'Label';

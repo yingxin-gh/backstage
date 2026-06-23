@@ -13,6 +13,7 @@ import { ExtensionBlueprint } from '@backstage/frontend-plugin-api';
 import { ExtensionDataRef } from '@backstage/frontend-plugin-api';
 import { ExtensionDefinition } from '@backstage/frontend-plugin-api';
 import { FilterPredicate } from '@backstage/filter-predicates';
+import { IconElement } from '@backstage/frontend-plugin-api';
 import { IconLinkVerticalProps } from '@backstage/core-components';
 import { JSX as JSX_2 } from 'react';
 import { JSX as JSX_3 } from 'react/jsx-runtime';
@@ -454,13 +455,17 @@ export const EntityContextMenuItemBlueprint: ExtensionBlueprint<{
   kind: 'entity-context-menu-item';
   params: EntityContextMenuItemParams;
   output:
-    | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
     | ExtensionDataRef<
         (entity: Entity) => boolean,
         'catalog.entity-filter-function',
         {
           optional: true;
         }
+      >
+    | ExtensionDataRef<
+        EntityContextMenuItemData,
+        'catalog.entity-context-menu-item-data',
+        {}
       >;
   inputs: {};
   config: {
@@ -470,6 +475,11 @@ export const EntityContextMenuItemBlueprint: ExtensionBlueprint<{
     filter?: FilterPredicate | undefined;
   };
   dataRefs: {
+    data: ConfigurableExtensionDataRef<
+      EntityContextMenuItemData,
+      'catalog.entity-context-menu-item-data',
+      {}
+    >;
     filterFunction: ConfigurableExtensionDataRef<
       (entity: Entity) => boolean,
       'catalog.entity-filter-function',
@@ -479,9 +489,15 @@ export const EntityContextMenuItemBlueprint: ExtensionBlueprint<{
 }>;
 
 // @alpha (undocumented)
+export type EntityContextMenuItemData = {
+  icon: IconElement;
+  useProps: UseProps;
+};
+
+// @alpha (undocumented)
 export type EntityContextMenuItemParams = {
   useProps: UseProps;
-  icon: JSX_2.Element;
+  icon: IconElement;
   filter?: FilterPredicate | ((entity: Entity) => boolean);
 };
 
@@ -712,6 +728,7 @@ export type UseProps = () =>
   | {
       title: ReactNode;
       href: string;
+      onClick?: () => void | Promise<void>;
       disabled?: boolean;
     }
   | {

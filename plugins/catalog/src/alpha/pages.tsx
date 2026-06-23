@@ -167,7 +167,7 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
       EntityContentBlueprint.dataRefs.icon.optional(),
     ]),
     contextMenuItems: createExtensionInput([
-      coreExtensionData.reactElement,
+      EntityContextMenuItemBlueprint.dataRefs.data,
       EntityContextMenuItemBlueprint.dataRefs.filterFunction.optional(),
     ]),
   },
@@ -207,7 +207,8 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
         const { EntityLayout } = await import('./components/EntityLayout');
 
         const menuItems = inputs.contextMenuItems.map(item => ({
-          element: item.get(coreExtensionData.reactElement),
+          data: item.get(EntityContextMenuItemBlueprint.dataRefs.data),
+          node: item.node,
           filter:
             item.get(EntityContextMenuItemBlueprint.dataRefs.filterFunction) ??
             (() => true),
@@ -237,7 +238,9 @@ export const catalogEntityPage = PageBlueprint.makeWithOverrides({
           const entityFromUrl = useEntityFromUrl();
           const { entity } = entityFromUrl;
           const filteredMenuItems = entity
-            ? menuItems.filter(i => i.filter(entity)).map(i => i.element)
+            ? menuItems
+                .filter(i => i.filter(entity))
+                .map(({ data, node }) => ({ data, node }))
             : [];
 
           const header = headers.find(

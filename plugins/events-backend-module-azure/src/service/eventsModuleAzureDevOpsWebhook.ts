@@ -26,7 +26,8 @@ import { createAzureDevOpsWebhookValidator } from '../http/createAzureDevOpsWebh
  * registering an HTTP POST ingress for Azure DevOps webhook events.
  *
  * When `events.modules.azureDevOps.webhookSecret` is configured,
- * incoming requests are validated using Basic authentication.
+ * incoming requests are validated against the `x-ado-webhook-secret`
+ * custom header using timing-safe comparison.
  *
  * @public
  */

@@ -340,7 +340,7 @@ describe('CatalogClient', () => {
     });
 
     it('merges filter and query into $all predicate when both are provided', async () => {
-      expect.assertions(4);
+      expect.assertions(3);
       const entity = {
         apiVersion: '1',
         kind: 'Component',
@@ -353,9 +353,11 @@ describe('CatalogClient', () => {
         http.post(`${mockBaseUrl}/entities/by-refs`, async ({ request }) => {
           expect(new URL(request.url).search).toBe('');
           const body = await request.json();
-          expect(body.entityRefs).toEqual(['k:n/a']);
-          expect(body.query).toEqual({
-            $all: [{ kind: 'Component' }, { kind: 'API' }],
+          expect(body).toMatchObject({
+            entityRefs: ['k:n/a'],
+            query: {
+              $all: [{ kind: 'Component' }, { kind: 'API' }],
+            },
           });
           return HttpResponse.json({ items: [entity] });
         }),
@@ -374,7 +376,7 @@ describe('CatalogClient', () => {
     });
 
     it('sends filter as query parameter when only filter is provided (backward compat)', async () => {
-      expect.assertions(4);
+      expect.assertions(3);
       const entity = {
         apiVersion: '1',
         kind: 'Component',
@@ -388,7 +390,6 @@ describe('CatalogClient', () => {
           expect(new URL(request.url).search).toBe('?filter=kind%3DAPI');
           const body = await request.json();
           expect(body).toEqual({ entityRefs: ['k:n/a'] });
-          expect(body.query).toBeUndefined();
           return HttpResponse.json({ items: [entity] });
         }),
       );
@@ -1352,7 +1353,7 @@ describe('CatalogClient', () => {
 
       server.use(
         http.post(`${mockBaseUrl}/locations/by-query`, async ({ request }) => {
-          const body = await request.json();
+          const body = (await request.json()) as { cursor?: string };
           if (body.cursor === 'cursor2') {
             return HttpResponse.json(secondPage);
           }

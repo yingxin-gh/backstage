@@ -399,7 +399,7 @@ export default {
           'integrations/azure/locations',
           'integrations/azure/discovery',
         ]),
-        sidebarElementWithIndex({ label: 'Azure Entra ID' }, [
+        sidebarElementWithIndex({ label: 'Microsoft Entra ID' }, [
           'integrations/azure/org',
         ]),
         sidebarElementWithIndex({ label: 'Bitbucket Cloud' }, [

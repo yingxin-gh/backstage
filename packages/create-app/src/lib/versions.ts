@@ -56,6 +56,7 @@ import { version as ui } from '../../../ui/package.json';
 import { version as pluginApiDocs } from '../../../../plugins/api-docs/package.json';
 import { version as pluginAppVisualizer } from '../../../../plugins/app-visualizer/package.json';
 import { version as pluginAppBackend } from '../../../../plugins/app-backend/package.json';
+import { version as pluginAppModuleUserSettings } from '../../../../plugins/app-module-user-settings/package.json';
 import { version as pluginAppReact } from '../../../../plugins/app-react/package.json';
 import { version as pluginAuth } from '../../../../plugins/auth/package.json';
 import { version as pluginAuthBackend } from '../../../../plugins/auth-backend/package.json';
@@ -125,6 +126,7 @@ export const packageVersions = {
   '@backstage/repo-tools': repoTools,
   '@backstage/plugin-api-docs': pluginApiDocs,
   '@backstage/plugin-app-backend': pluginAppBackend,
+  '@backstage/plugin-app-module-user-settings': pluginAppModuleUserSettings,
   '@backstage/plugin-app-react': pluginAppReact,
   '@backstage/plugin-app-visualizer': pluginAppVisualizer,
   '@backstage/plugin-auth': pluginAuth,

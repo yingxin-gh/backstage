@@ -27,7 +27,6 @@ import {
   Page,
 } from '@backstage/core-components';
 import { Flex, List, ListRow, SearchField, Text } from '@backstage/ui';
-import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -168,7 +167,7 @@ export const ActionPageContent = () => {
     );
   }
 
-  const content = (
+  return (
     <div
       style={{
         display: 'grid',
@@ -244,18 +243,6 @@ export const ActionPageContent = () => {
       )}
     </div>
   );
-
-  if (selectedActionId) {
-    return (
-      <BreadcrumbRegistration
-        entry={{ label: selectedActionId, href: `#${selectedActionId}` }}
-      >
-        {content}
-      </BreadcrumbRegistration>
-    );
-  }
-
-  return content;
 };
 
 export type ActionsPageProps = {

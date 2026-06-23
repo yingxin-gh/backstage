@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-import { ComponentProps, ReactNode, ReactElement } from 'react';
+import { ComponentProps, ReactNode } from 'react';
 
 import Alert from '@material-ui/lab/Alert';
 
-import {
-  attachComponentData,
-  useElementFilter,
-  useRouteRefParams,
-} from '@backstage/core-plugin-api';
+import { useRouteRefParams } from '@backstage/core-plugin-api';
 import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 import {
   Content,
@@ -31,7 +27,6 @@ import {
   Progress,
   WarningPanel,
 } from '@backstage/core-components';
-import { Entity } from '@backstage/catalog-model';
 import {
   entityRouteRef,
   useAsyncEntity,
@@ -41,20 +36,9 @@ import { catalogTranslationRef } from '../../translation';
 import { EntityHeader } from '../EntityHeader';
 import { EntityTabs } from '../EntityTabs';
 import { EntityContentGroupDefinitions } from '@backstage/plugin-catalog-react/alpha';
+import { EntityLayoutRoute, useEntityLayoutRoutes } from './entityLayoutRoutes';
 
-export type EntityLayoutRouteProps = {
-  path: string;
-  title: string;
-  group?: string;
-  icon?: string | ReactElement;
-  children: JSX.Element;
-  if?: (entity: Entity) => boolean;
-};
-
-const dataKey = 'plugin.catalog.entityLayoutRoute';
-const Route: (props: EntityLayoutRouteProps) => null = () => null;
-attachComponentData(Route, dataKey, true);
-attachComponentData(Route, 'core.gatherMountPoints', true); // This causes all mount points that are discovered within this route to use the path of the route itself
+export type { EntityLayoutRouteProps } from './entityLayoutRoutes';
 
 /** @public */
 export interface EntityLayoutProps {
@@ -113,35 +97,7 @@ export const EntityLayout = (props: EntityLayoutProps) => {
   const { kind } = useRouteRefParams(entityRouteRef);
   const { entity, loading, error } = useAsyncEntity();
 
-  const routes = useElementFilter(
-    children,
-    elements =>
-      elements
-        .selectByComponentData({
-          key: dataKey,
-          withStrictError:
-            'Child of EntityLayout must be an EntityLayout.Route',
-        })
-        .getElements<EntityLayoutRouteProps>() // all nodes, element data, maintain structure or not?
-        .flatMap(({ props: elementProps }) => {
-          if (!entity) {
-            return [];
-          }
-          if (elementProps.if && !elementProps.if(entity)) {
-            return [];
-          }
-          return [
-            {
-              path: elementProps.path,
-              title: elementProps.title,
-              group: elementProps.group,
-              children: elementProps.children,
-              icon: elementProps.icon,
-            },
-          ];
-        }),
-    [entity],
-  );
+  const routes = useEntityLayoutRoutes(children, entity);
 
   const { t } = useTranslationRef(catalogTranslationRef);
 
@@ -194,4 +150,4 @@ export const EntityLayout = (props: EntityLayoutProps) => {
   );
 };
 
-EntityLayout.Route = Route;
+EntityLayout.Route = EntityLayoutRoute;

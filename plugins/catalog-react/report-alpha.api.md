@@ -543,7 +543,7 @@ export interface EntityDataTableProps {
   loading?: boolean;
 }
 
-// @alpha (undocumented)
+// @alpha @deprecated (undocumented)
 export const EntityHeaderBlueprint: ExtensionBlueprint<{
   kind: 'entity-header';
   params: {
@@ -592,6 +592,70 @@ export const EntityHeaderBlueprint: ExtensionBlueprint<{
     >;
   };
 }>;
+
+// @alpha (undocumented)
+export const EntityHeaderLayoutBlueprint: ExtensionBlueprint<{
+  kind: 'entity-header-layout';
+  params: {
+    filter?: FilterPredicate | ((entity: Entity) => boolean);
+    loader: () => Promise<(props: EntityHeaderLayoutProps) => JSX_2.Element>;
+  };
+  output:
+    | ExtensionDataRef<
+        (entity: Entity) => boolean,
+        'catalog.entity-filter-function',
+        {
+          optional: true;
+        }
+      >
+    | ExtensionDataRef<
+        (props: EntityHeaderLayoutProps) => JSX_2.Element,
+        'catalog.entity-header-layout.component',
+        {}
+      >;
+  inputs: {};
+  config: {
+    filter: FilterPredicate | undefined;
+  };
+  configInput: {
+    filter?: FilterPredicate | undefined;
+  };
+  dataRefs: {
+    filterFunction: ConfigurableExtensionDataRef<
+      (entity: Entity) => boolean,
+      'catalog.entity-filter-function',
+      {}
+    >;
+    component: ConfigurableExtensionDataRef<
+      (props: EntityHeaderLayoutProps) => JSX_2.Element,
+      'catalog.entity-header-layout.component',
+      {}
+    >;
+  };
+}>;
+
+// @alpha (undocumented)
+export interface EntityHeaderLayoutProps {
+  // (undocumented)
+  activeTabId?: string;
+  // (undocumented)
+  tabs: Array<
+    | {
+        id: string;
+        label: string;
+        href: string;
+      }
+    | {
+        id: string;
+        label: string;
+        items: Array<{
+          id: string;
+          label: string;
+          href: string;
+        }>;
+      }
+  >;
+}
 
 // @alpha (undocumented)
 export const EntityIconLinkBlueprint: ExtensionBlueprint<{

@@ -22,6 +22,10 @@ export {
 } from './EntityContentLayoutBlueprint';
 export { EntityHeaderBlueprint } from './EntityHeaderBlueprint';
 export {
+  EntityHeaderLayoutBlueprint,
+  type EntityHeaderLayoutProps,
+} from './EntityHeaderLayoutBlueprint';
+export {
   defaultEntityContentGroups,
   defaultEntityContentGroupDefinitions,
   type EntityContentGroupDefinitions,

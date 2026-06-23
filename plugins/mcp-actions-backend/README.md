@@ -80,7 +80,7 @@ export const myPlugin = createBackendPlugin({
 
 When registering an action, set the `attributes` field to describe the action's behaviour. This allows clients to make informed decisions, for example: warning users before invoking a destructive action, or allowing a read-only action to run without confirmation.
 
-The defaults are conservative, when unset, an action is assumed to be destructive, non-idempotent, and not read-only. **Always set these explicitly so clients can correctly represent the action's capabilities.**
+The defaults are conservative. When unset, an action is assumed to be destructive, non-idempotent, and not read-only. **Always set these explicitly so clients can correctly represent the action's capabilities.**
 
 See the [Action Attributes Reference](../../docs/backend-system/core-services/actions-registry.md#action-attributes-reference) for the full attribute definitions and defaults.
 

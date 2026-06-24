@@ -22,4 +22,5 @@
 export interface BreadcrumbEntry {
   href: string;
   label: string;
+  depth: number;
 }

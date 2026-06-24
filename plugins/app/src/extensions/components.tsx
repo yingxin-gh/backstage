@@ -28,7 +28,7 @@ import {
 } from '@backstage/core-components';
 import {
   BreadcrumbRegistration,
-  useBreadcrumbs,
+  useBreadcrumbEntries,
 } from '@backstage/frontend-plugin-api';
 import { PluginHeader } from '@backstage/ui';
 import Button from '@material-ui/core/Button';
@@ -102,7 +102,7 @@ export const PageLayout = SwappableComponentBlueprint.make({
           [tabs, parentPath],
         );
 
-        const breadcrumbs = useBreadcrumbs();
+        const { items: breadcrumbs } = useBreadcrumbEntries();
 
         if (noHeader) {
           return <>{children}</>;

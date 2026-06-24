@@ -29,18 +29,14 @@ import {
 } from '@backstage/version-bridge';
 import type { BreadcrumbEntry } from './types';
 
-interface InternalEntry extends BreadcrumbEntry {
-  depth: number;
-}
-
 interface Registration {
   update(label: string, href: string): void;
   unregister(): void;
 }
 
 interface BreadcrumbsContextValue {
-  breadcrumbs: BreadcrumbEntry[];
-  register: (entry: InternalEntry) => Registration;
+  breadcrumbs: { items: BreadcrumbEntry[] };
+  register: (entry: BreadcrumbEntry) => Registration;
 }
 
 const CONTEXT_KEY = 'breadcrumbs-context';
@@ -52,19 +48,19 @@ type DepthMap = { 1: number };
 const BreadcrumbsContext = createVersionedContext<ContextMap>(CONTEXT_KEY);
 const DepthContext = createVersionedContext<DepthMap>(DEPTH_KEY);
 
-const EMPTY: BreadcrumbEntry[] = [];
+const EMPTY: { items: BreadcrumbEntry[] } = { items: [] };
 
 /**
  * Provides the breadcrumb registry to the component tree. Place this near the
  * top of the app so that all nested {@link BreadcrumbRegistration} components
- * can register entries and {@link useBreadcrumbs} consumers can read them.
+ * can register entries and {@link useBreadcrumbEntries} consumers can read them.
  *
  * @public
  */
 export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
-  const [entries, setEntries] = useState<InternalEntry[]>([]);
+  const [entries, setEntries] = useState<BreadcrumbEntry[]>([]);
 
-  const register = useCallback((entry: InternalEntry): Registration => {
+  const register = useCallback((entry: BreadcrumbEntry): Registration => {
     const record = { ...entry };
     setEntries(prev => [...prev, record].sort((a, b) => a.depth - b.depth));
     return {
@@ -81,7 +77,9 @@ export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
   }, []);
 
   const breadcrumbs = useMemo(
-    () => entries.map(({ label, href }) => ({ label, href })),
+    () => ({
+      items: entries.map(({ label, href, depth }) => ({ label, href, depth })),
+    }),
     [entries],
   );
 
@@ -98,12 +96,12 @@ export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
 }
 
 /**
- * Returns the current breadcrumb trail registered by page components anywhere
+ * Returns the current breadcrumb entries registered by page components anywhere
  * in the tree. Call this in components that render breadcrumbs (e.g. PluginHeader).
  *
  * @public
  */
-export function useBreadcrumbs(): BreadcrumbEntry[] {
+export function useBreadcrumbEntries(): { items: BreadcrumbEntry[] } {
   const ctx = useVersionedContext<ContextMap>(CONTEXT_KEY);
   return ctx?.atVersion(1)?.breadcrumbs ?? EMPTY;
 }
@@ -116,7 +114,7 @@ export function useBreadcrumbs(): BreadcrumbEntry[] {
  * @public
  */
 export function BreadcrumbRegistration(props: {
-  entry: BreadcrumbEntry;
+  entry: Omit<BreadcrumbEntry, 'depth'>;
   children: ReactNode;
 }) {
   const ctx = useVersionedContext<ContextMap>(CONTEXT_KEY);

@@ -384,6 +384,8 @@ export const bitbucketServerAuthApiRef: ApiRef_2<
 // @public
 export interface BreadcrumbEntry {
   // (undocumented)
+  depth: number;
+  // (undocumented)
   href: string;
   // (undocumented)
   label: string;
@@ -391,7 +393,7 @@ export interface BreadcrumbEntry {
 
 // @public
 export function BreadcrumbRegistration(props: {
-  entry: BreadcrumbEntry;
+  entry: Omit<BreadcrumbEntry, 'depth'>;
   children: ReactNode;
 }): JSX_3.Element;
 
@@ -2810,7 +2812,9 @@ export function useApiHolder(): ApiHolder;
 export function useAppNode(): AppNode | undefined;
 
 // @public
-export function useBreadcrumbs(): BreadcrumbEntry[];
+export function useBreadcrumbEntries(): {
+  items: BreadcrumbEntry[];
+};
 
 // @public
 export function useRouteRef<TParams extends AnyRouteRefParams>(

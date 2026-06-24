@@ -19,11 +19,11 @@ import { useState } from 'react';
 import {
   BreadcrumbsRegistryProvider,
   BreadcrumbRegistration,
-  useBreadcrumbs,
+  useBreadcrumbEntries,
 } from './useBreadcrumbs';
 
 function BreadcrumbDisplay() {
-  const entries = useBreadcrumbs();
+  const { items: entries } = useBreadcrumbEntries();
   return (
     <ul data-testid="breadcrumbs">
       {entries.map((e, i) => (
@@ -36,8 +36,8 @@ function BreadcrumbDisplay() {
   );
 }
 
-describe('useBreadcrumbs', () => {
-  it('should return an empty array when no breadcrumbs are registered', () => {
+describe('useBreadcrumbEntries', () => {
+  it('should return empty items when no breadcrumbs are registered', () => {
     render(
       <BreadcrumbsRegistryProvider>
         <BreadcrumbDisplay />
@@ -157,7 +157,7 @@ describe('useBreadcrumbs', () => {
     expect(items[0]).toHaveTextContent('Published (/doc)');
   });
 
-  it('should return an empty array outside of a provider', () => {
+  it('should return empty items outside of a provider', () => {
     render(<BreadcrumbDisplay />);
 
     expect(screen.getByTestId('breadcrumbs').children).toHaveLength(0);

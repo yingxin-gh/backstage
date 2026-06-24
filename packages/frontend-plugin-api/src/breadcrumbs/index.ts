@@ -17,7 +17,7 @@
 export type { BreadcrumbEntry } from './types';
 
 export {
-  useBreadcrumbs,
+  useBreadcrumbEntries,
   BreadcrumbRegistration,
   BreadcrumbsRegistryProvider,
 } from './useBreadcrumbs';

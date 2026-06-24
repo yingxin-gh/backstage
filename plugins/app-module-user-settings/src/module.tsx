@@ -26,6 +26,7 @@ import {
 import { UserSettingsStorage } from '@backstage/plugin-user-settings';
 import { signalApiRef } from '@backstage/plugin-signals-react';
 
+/** @public */
 export const appModuleUserSettings = createFrontendModule({
   pluginId: 'app',
   extensions: [

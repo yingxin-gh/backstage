@@ -506,7 +506,7 @@ const config: Config = {
       },
       items: [
         {
-          to: '/landing-page/doc-landing-page',
+          to: '/docs/landing-page/doc-landing-page',
           label: 'Docs',
           position: 'left',
         },

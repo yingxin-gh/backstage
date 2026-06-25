@@ -41,7 +41,7 @@ describe('eventsModuleAzureDevOpsWebhook', () => {
   it('should not register ingress when no secret configured', async () => {
     let addedIngress: HttpPostIngressOptions | undefined;
     const extensionPoint = {
-      addHttpPostIngress: (ingress: any) => {
+      addHttpPostIngress: (ingress: HttpPostIngressOptions) => {
         addedIngress = ingress;
       },
     };
@@ -62,7 +62,7 @@ describe('eventsModuleAzureDevOpsWebhook', () => {
   it('should be correctly wired and set up with secret', async () => {
     let addedIngress: HttpPostIngressOptions | undefined;
     const extensionPoint = {
-      addHttpPostIngress: (ingress: any) => {
+      addHttpPostIngress: (ingress: HttpPostIngressOptions) => {
         addedIngress = ingress;
       },
     };

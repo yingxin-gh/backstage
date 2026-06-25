@@ -50,9 +50,8 @@ export function createAzureDevOpsWebhookValidator(
     request: RequestDetails,
     context: RequestValidationContext,
   ): Promise<void> => {
-    const headerSecret = request.headers['x-ado-webhook-secret'] as
-      | string
-      | undefined;
+    const raw = request.headers['x-ado-webhook-secret'];
+    const headerSecret = Array.isArray(raw) ? raw[0] : raw;
 
     const headerBuffer =
       typeof headerSecret === 'string' ? Buffer.from(headerSecret) : undefined;

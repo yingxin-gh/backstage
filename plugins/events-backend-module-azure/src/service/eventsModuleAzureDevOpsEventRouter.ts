@@ -25,9 +25,6 @@ import { AzureDevOpsEventRouter } from '../router/AzureDevOpsEventRouter';
  *
  * @public
  */
-/**
- * @public
- */
 export default createBackendModule({
   pluginId: 'events',
   moduleId: 'azure-dev-ops-event-router',

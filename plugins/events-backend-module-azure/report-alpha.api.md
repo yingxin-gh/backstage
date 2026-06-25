@@ -5,7 +5,7 @@
 ```ts
 import { BackendFeature } from '@backstage/backend-plugin-api';
 
-// @alpha (undocumented)
+// @public (undocumented)
 export const eventsModuleAzureDevOpsEventRouter: BackendFeature;
 
 // @alpha (undocumented)

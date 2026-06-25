@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import { createAzureDevOpsWebhookValidator } from '../http/createAzureDevOpsWebh
  * Module for the events-backend plugin,
  * registering an HTTP POST ingress for Azure DevOps webhook events.
  *
- * When `events.modules.azureDevOps.webhookSecret` is configured,
- * incoming requests are validated against the `x-ado-webhook-secret`
+ * The ingress is only registered when
+ * `events.modules.azureDevOps.webhookSecret` is configured.
+ * Incoming requests are validated against the `x-ado-webhook-secret`
  * custom header using timing-safe comparison.
  *
  * @public
@@ -41,10 +42,13 @@ export default createBackendModule({
         events: eventsExtensionPoint,
       },
       async init({ config, events }) {
-        events.addHttpPostIngress({
-          topic: 'azureDevOps',
-          validator: createAzureDevOpsWebhookValidator(config),
-        });
+        const validator = createAzureDevOpsWebhookValidator(config);
+        if (validator) {
+          events.addHttpPostIngress({
+            topic: 'azureDevOps',
+            validator,
+          });
+        }
       },
     });
   },

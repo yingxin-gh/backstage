@@ -25,7 +25,10 @@ import { AzureDevOpsEventRouter } from '../router/AzureDevOpsEventRouter';
  *
  * @public
  */
-const eventsModuleAzureDevOpsEventRouter = createBackendModule({
+/**
+ * @public
+ */
+export default createBackendModule({
   pluginId: 'events',
   moduleId: 'azure-dev-ops-event-router',
   register(env) {
@@ -42,7 +45,3 @@ const eventsModuleAzureDevOpsEventRouter = createBackendModule({
     });
   },
 });
-
-/** @public */
-export { eventsModuleAzureDevOpsEventRouter };
-export default eventsModuleAzureDevOpsEventRouter;

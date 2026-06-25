@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ describe('eventsModuleAzureDevOpsWebhook', () => {
     } as RequestDetails;
   };
 
-  it('should register ingress without validator when no secret configured', async () => {
+  it('should not register ingress when no secret configured', async () => {
     let addedIngress: HttpPostIngressOptions | undefined;
     const extensionPoint = {
       addHttpPostIngress: (ingress: any) => {
@@ -56,9 +56,7 @@ describe('eventsModuleAzureDevOpsWebhook', () => {
       ],
     });
 
-    expect(addedIngress).not.toBeUndefined();
-    expect(addedIngress?.topic).toEqual('azureDevOps');
-    expect(addedIngress?.validator).toBeUndefined();
+    expect(addedIngress).toBeUndefined();
   });
 
   it('should be correctly wired and set up with secret', async () => {

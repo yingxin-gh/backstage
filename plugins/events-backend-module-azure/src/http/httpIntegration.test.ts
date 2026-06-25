@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ describe('Azure DevOps webhook HTTP integration', () => {
     expect(eventsService.published).toHaveLength(0);
   });
 
-  it('should accept requests without validation when no secret is configured', async () => {
+  it('should not register the ingress when no secret is configured', async () => {
     const eventsService = new TestEventsService();
     const eventsServiceFactory = createServiceFactory({
       service: eventsServiceRef,
@@ -133,20 +133,13 @@ describe('Azure DevOps webhook HTTP integration', () => {
       ],
     });
 
-    const payload = {
-      eventType: 'git.push',
-      resource: { repository: { name: 'my-repo' } },
-    };
-
     const response = await request(server)
       .post('/api/events/http/azureDevOps')
       .type('application/json')
       .timeout(1000)
-      .send(JSON.stringify(payload));
+      .send(JSON.stringify({ eventType: 'git.push' }));
 
-    expect(response.status).toBe(202);
-    expect(eventsService.published).toHaveLength(1);
-    expect(eventsService.published[0].topic).toEqual('azureDevOps');
-    expect(eventsService.published[0].eventPayload).toEqual(payload);
+    expect(response.status).toBe(404);
+    expect(eventsService.published).toHaveLength(0);
   });
 });

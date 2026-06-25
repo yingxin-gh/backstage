@@ -15,7 +15,7 @@
  */
 
 import { createBackendFeatureLoader } from '@backstage/backend-plugin-api';
-import { eventsModuleAzureDevOpsEventRouter as _router } from './service/eventsModuleAzureDevOpsEventRouter';
+import eventsModuleAzureDevOpsEventRouter from './service/eventsModuleAzureDevOpsEventRouter';
 
 /** @alpha */
 const _feature = createBackendFeatureLoader({
@@ -29,4 +29,4 @@ const _feature = createBackendFeatureLoader({
 export default _feature;
 
 /** @alpha */
-export const eventsModuleAzureDevOpsEventRouter = _router;
+export { eventsModuleAzureDevOpsEventRouter };

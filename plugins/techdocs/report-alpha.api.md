@@ -262,7 +262,7 @@ const _default: OverridableFrontendPlugin<
     }>;
     'page:techdocs': OverridableExtensionDefinition<{
       config: {
-        initialFilter: 'all' | 'owned' | 'starred' | undefined;
+        initialFilter: 'all' | 'owned' | 'starred';
         path: string | undefined;
         title: string | undefined;
       };

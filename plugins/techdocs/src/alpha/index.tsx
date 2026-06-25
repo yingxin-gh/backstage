@@ -148,7 +148,7 @@ const techDocsSearchFilterResultTypeExtension =
  */
 const techDocsPage = PageBlueprint.makeWithOverrides({
   configSchema: {
-    initialFilter: z.enum(['all', 'owned', 'starred']).optional(),
+    initialFilter: z.enum(['all', 'owned', 'starred']).default('owned'),
   },
   factory(originalFactory, { config }) {
     return originalFactory({

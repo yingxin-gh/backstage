@@ -55,9 +55,7 @@ export function createAzureDevOpsWebhookValidator(
       | undefined;
 
     const headerBuffer =
-      typeof headerSecret === 'string'
-        ? Buffer.from(headerSecret)
-        : undefined;
+      typeof headerSecret === 'string' ? Buffer.from(headerSecret) : undefined;
 
     if (
       headerBuffer &&

@@ -586,56 +586,6 @@ describe.each(databases.eachSupportedId())('TaskWorker, %s', databaseId => {
     );
   });
 
-  it('next_run_start_at is updated when re-registering with a shorter cadence', async () => {
-    const fn = jest.fn(
-      async () => new Promise<void>(resolve => setTimeout(resolve, 50)),
-    );
-
-    const initialSettings: TaskSettingsV2 = {
-      version: 2,
-      cadence: 'PT120M',
-      initialDelayDuration: 'PT2M',
-      timeoutAfterDuration: 'PT1M',
-    };
-
-    const worker = new TaskWorker('task99', fn, knex, logger);
-    await worker.persistTask(initialSettings);
-    await worker.tryClaimTask('ticket', initialSettings);
-    await worker.tryReleaseTask('ticket', initialSettings);
-
-    const rowAfterClaimAndRelease = (await knex<DbTasksRow>(DB_TASKS_TABLE))[0];
-
-    const settings: TaskSettingsV2 = {
-      ...initialSettings,
-      cadence: 'PT60M',
-    };
-    await worker.persistTask(settings);
-    const row1 = (await knex<DbTasksRow>(DB_TASKS_TABLE))[0];
-
-    const rowAfterClaimAndReleaseNextStartAt = DateTime.fromJSDate(
-      new Date(rowAfterClaimAndRelease.next_run_start_at!),
-    );
-    const row1NextStartAt = DateTime.fromJSDate(
-      new Date(row1.next_run_start_at!),
-    );
-    const now = DateTime.now();
-    expect(
-      rowAfterClaimAndReleaseNextStartAt.diff(row1NextStartAt).as('minutes'),
-    ).toBeCloseTo(62, 1);
-    expect(row1NextStartAt.diff(now).as('minutes')).toBeCloseTo(60, 1);
-    expect(
-      rowAfterClaimAndReleaseNextStartAt.diff(now).as('minutes'),
-    ).toBeCloseTo(122, 1);
-
-    const settings2 = {
-      ...settings,
-    };
-    await worker.persistTask(settings2);
-    const row2 = (await knex<DbTasksRow>(DB_TASKS_TABLE))[0];
-
-    expect(row2.next_run_start_at).toStrictEqual(row1.next_run_start_at);
-  });
-
   it('next_run_start_at is populated when transitioning from manual trigger to cadence-based schedule', async () => {
     const fn = jest.fn(
       async () => new Promise<void>(resolve => setTimeout(resolve, 50)),

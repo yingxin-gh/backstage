@@ -2,4 +2,4 @@
 '@backstage/backend-defaults': patch
 ---
 
-Fixed a bug in the scheduler where tasks transitioning from manual trigger to a cadence-based schedule would become permanently unscheduled. The SQL CASE expression in `persistTask()` did not handle NULL `next_run_start_at` values, causing the comparison `value < NULL` to evaluate to NULL in SQL three-valued logic and always take the ELSE branch, preserving the existing NULL forever.
+Fixed a bug where scheduled tasks that were initially registered with a manual trigger and later re-registered with a duration or cron cadence would never be scheduled to run.

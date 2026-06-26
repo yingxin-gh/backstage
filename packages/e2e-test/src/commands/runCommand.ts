@@ -526,6 +526,14 @@ async function testBackendStart(appDir: string, ...args: string[]) {
     const errors: Error[] = [];
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       if (attempt > 1) {
+        if (child.exitCode !== null) {
+          errors.push(
+            new Error(
+              `Backend process exited with code ${child.exitCode} before fetch could succeed`,
+            ),
+          );
+          break;
+        }
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
       try {
@@ -560,6 +568,10 @@ async function testBackendStart(appDir: string, ...args: string[]) {
     successful = true;
   } catch (error) {
     print('');
+    print(`Backend stdout:\n${stdout}`);
+    if (stderr) {
+      print(`Backend stderr:\n${stderr}`);
+    }
     throw new Error(`Backend failed to startup: ${error}`);
   } finally {
     print('Stopping the child process');

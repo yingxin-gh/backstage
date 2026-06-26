@@ -547,7 +547,9 @@ async function testBackendStart(appDir: string, ...args: string[]) {
           JSON.parse(content);
         } catch (parseError) {
           throw new Error(
-            `Failed to parse entities JSON response: ${parseError}\n${content}`,
+            `Failed to parse entities JSON response: ${stringifyError(
+              parseError,
+            )}\n${content}`,
           );
         }
         errors.length = 0;
@@ -559,7 +561,7 @@ async function testBackendStart(appDir: string, ...args: string[]) {
     if (errors.length > 0) {
       throw new Error(
         `Failed to fetch entities after ${maxAttempts} attempts:\n${errors
-          .map((e, i) => `  attempt ${i + 1}: ${e.message}`)
+          .map(e => `  - ${e.message}`)
           .join('\n')}`,
       );
     }

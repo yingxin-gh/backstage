@@ -230,19 +230,13 @@ async function main(args) {
     process.env.PATCH_RELEASE_BRANCH ||
     `patch-release-pr-${prNumbers.join('-')}`;
 
-  // Check if branch already exists (for CI workflows using fixed branch name)
+  // Always start fresh from the release base to keep the PR diff clean
   try {
-    await run(
-      'git',
-      'show-ref',
-      '--verify',
-      '--quiet',
-      `refs/heads/${branchName}`,
-    );
-    await run('git', 'checkout', branchName);
+    await run('git', 'branch', '-D', branchName);
   } catch {
-    await run('git', 'checkout', '-b', branchName);
+    // Branch didn't exist locally, that's fine
   }
+  await run('git', 'checkout', '-b', branchName);
 
   const appliedPrNumbers = [];
 
@@ -344,15 +338,27 @@ async function main(args) {
     )}`,
   );
 
+  // Copy patch files from master so they appear in the PR diff
+  for (const prNumber of appliedPrNumbers) {
+    const patchFileName = `pr-${prNumber}.txt`;
+    const patchFilePath = path.join(rootDir, '.patches', patchFileName);
+    try {
+      const content = await run(
+        'git',
+        'show',
+        `origin/master:.patches/${patchFileName}`,
+      );
+      await fs.writeFile(patchFilePath, content);
+    } catch {
+      // Patch file may not exist on master (e.g. added in a separate PR)
+    }
+  }
+
   console.log('Running "yarn install" ...');
   await run('yarn', 'install');
 
   console.log('Running "yarn release" ...');
   await run('yarn', 'release');
-
-  // Note: Patch files are not deleted here because this script runs in the patch
-  // release branch, not master. The cleanup_patch-files.yml workflow handles
-  // deletion from master after the patch release PR is merged.
 
   await run('git', 'add', '.');
   await run(

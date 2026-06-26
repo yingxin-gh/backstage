@@ -81,9 +81,9 @@ export async function runCommand(opts: OptionValues) {
       '--config',
       productionConfig,
     );
+    // Brief pause to let the OS reclaim the port from the previous backend
+    await new Promise(resolve => setTimeout(resolve, 3000));
   }
-  // Brief pause to let the OS reclaim the port from the previous backend
-  await new Promise(resolve => setTimeout(resolve, 3000));
   print('Testing the Database backend startup');
   await testBackendStart(appDir);
 
@@ -521,8 +521,12 @@ async function testBackendStart(appDir: string, ...args: string[]) {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     print('Try to fetch entities from the backend');
-    let lastError: Error | undefined;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    const maxAttempts = 3;
+    const errors: Error[] = [];
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (attempt > 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
       try {
         const res = await fetch('http://localhost:7007/api/catalog/entities');
         if (!res.ok) {
@@ -531,16 +535,25 @@ async function testBackendStart(appDir: string, ...args: string[]) {
           );
         }
         const content = await res.text();
-        JSON.parse(content);
-        lastError = undefined;
+        try {
+          JSON.parse(content);
+        } catch (parseError) {
+          throw new Error(
+            `Failed to parse entities JSON response: ${parseError}\n${content}`,
+          );
+        }
+        errors.length = 0;
         break;
       } catch (error) {
-        lastError = error as Error;
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        errors.push(error as Error);
       }
     }
-    if (lastError) {
-      throw lastError;
+    if (errors.length > 0) {
+      throw new Error(
+        `Failed to fetch entities after ${maxAttempts} attempts:\n${errors
+          .map((e, i) => `  attempt ${i + 1}: ${e.message}`)
+          .join('\n')}`,
+      );
     }
     print('Entities fetched successfully');
     successful = true;

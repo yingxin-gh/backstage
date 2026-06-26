@@ -344,10 +344,10 @@ async function main(args) {
   for (const prNumber of appliedPrNumbers) {
     const patchFileName = `pr-${prNumber}.txt`;
     try {
-      const content = await run(
+      const { stdout: content } = await execFile(
         'git',
-        'show',
-        `origin/master:.patches/${patchFileName}`,
+        ['show', `origin/master:.patches/${patchFileName}`],
+        { cwd: rootDir },
       );
       await fs.writeFile(path.join(patchesDir, patchFileName), content);
     } catch {

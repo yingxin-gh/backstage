@@ -191,7 +191,7 @@ function createConfig(dir, extraConfig = {}) {
         // this file resolves fine within the monorepo but breaks config schema
         // extraction in consuming apps, since only the declaration itself is
         // published. We therefore catch unused imports here explicitly.
-        files: ['config.d.ts'],
+        files: ['**/config.d.ts'],
         rules: {
           'no-unused-vars': 'off',
           'unused-imports/no-unused-imports': 'error',

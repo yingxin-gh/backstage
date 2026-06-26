@@ -82,6 +82,8 @@ export async function runCommand(opts: OptionValues) {
       productionConfig,
     );
   }
+  // Brief pause to let the OS reclaim the port from the previous backend
+  await new Promise(resolve => setTimeout(resolve, 3000));
   print('Testing the Database backend startup');
   await testBackendStart(appDir);
 
@@ -516,23 +518,29 @@ async function testBackendStart(appDir: string, ...args: string[]) {
       // Skipping the whole block
       throw new Error(stderr);
     }
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     print('Try to fetch entities from the backend');
-    // Try fetch entities, should be ok
-    const res = await fetch('http://localhost:7007/api/catalog/entities');
-    if (!res.ok) {
-      throw new Error(
-        `Failed to fetch entities: ${res.status} ${res.statusText}`,
-      );
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch('http://localhost:7007/api/catalog/entities');
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch entities: ${res.status} ${res.statusText}`,
+          );
+        }
+        const content = await res.text();
+        JSON.parse(content);
+        lastError = undefined;
+        break;
+      } catch (error) {
+        lastError = error as Error;
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
-    const content = await res.text();
-    try {
-      JSON.parse(content);
-    } catch (error) {
-      throw new Error(
-        `Failed to parse entities JSON response: ${error}\n${content}`,
-      );
+    if (lastError) {
+      throw lastError;
     }
     print('Entities fetched successfully');
     successful = true;

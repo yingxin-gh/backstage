@@ -28,6 +28,7 @@ import mysql from 'mysql2/promise';
 import pgtools from 'pgtools';
 
 import { OptionValues } from 'commander';
+import { isError, stringifyError } from '@backstage/errors';
 import { findOwnPaths, runOutput, run } from '@backstage/cli-common';
 
 /* eslint-disable-next-line no-restricted-syntax */
@@ -545,7 +546,7 @@ async function testBackendStart(appDir: string, ...args: string[]) {
         errors.length = 0;
         break;
       } catch (error) {
-        errors.push(error as Error);
+        errors.push(isError(error) ? error : new Error(stringifyError(error)));
       }
     }
     if (errors.length > 0) {

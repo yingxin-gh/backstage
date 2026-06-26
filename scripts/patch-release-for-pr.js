@@ -339,18 +339,19 @@ async function main(args) {
   );
 
   // Copy patch files from master so they appear in the PR diff
+  const patchesDir = path.join(rootDir, '.patches');
+  await fs.ensureDir(patchesDir);
   for (const prNumber of appliedPrNumbers) {
     const patchFileName = `pr-${prNumber}.txt`;
-    const patchFilePath = path.join(rootDir, '.patches', patchFileName);
     try {
       const content = await run(
         'git',
         'show',
         `origin/master:.patches/${patchFileName}`,
       );
-      await fs.writeFile(patchFilePath, content);
+      await fs.writeFile(path.join(patchesDir, patchFileName), content);
     } catch {
-      // Patch file may not exist on master (e.g. added in a separate PR)
+      console.log(`Patch file ${patchFileName} not found on master, skipping`);
     }
   }
 
@@ -370,12 +371,8 @@ async function main(args) {
     'Generate Release',
   );
 
-  // Use force push if using a specific branch name (for CI workflows)
-  if (process.env.PATCH_RELEASE_BRANCH) {
-    await run('git', 'push', 'origin', '-u', '--force-with-lease', branchName);
-  } else {
-    await run('git', 'push', 'origin', '-u', branchName);
-  }
+  // Always force push since we rebuild the branch from scratch each time
+  await run('git', 'push', 'origin', '-u', '--force-with-lease', branchName);
 
   // Generate PR body using only applied patches
   let body;

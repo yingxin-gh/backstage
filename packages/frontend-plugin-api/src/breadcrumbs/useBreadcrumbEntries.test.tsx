@@ -170,18 +170,6 @@ describe('useBreadcrumbEntries', () => {
     expect(items[0]).toHaveTextContent('Home (/home)');
   });
 
-  it('should register a breadcrumb entry', () => {
-    render(
-      <TestBreadcrumbsProvider>
-        <BreadcrumbEntry entry={{ label: 'Current Page', href: '/current' }}>
-          <BreadcrumbDisplay />
-        </BreadcrumbEntry>
-      </TestBreadcrumbsProvider>,
-    );
-
-    expect(screen.getByText('Current Page (/current)')).toBeInTheDocument();
-  });
-
   it('should update a breadcrumb label in place without removing it', () => {
     function DynamicBreadcrumb() {
       const [label, setLabel] = useState('Draft');

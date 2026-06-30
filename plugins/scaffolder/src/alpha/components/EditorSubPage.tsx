@@ -170,7 +170,7 @@ export function EditorSubPage() {
             path="template"
             element={
               <BreadcrumbEntry
-                entry={{ label: 'Template Editor', href: 'template' }}
+                entry={{ label: 'Edit Template', href: 'template' }}
               >
                 <EditorContent fieldExtensions={fieldExtensions} />
               </BreadcrumbEntry>

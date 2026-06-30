@@ -22,8 +22,11 @@ import { ListTaskPageContent } from '../../components/ListTasksPage';
 
 function TaskDetailWithBreadcrumb() {
   const { taskId } = useParams<{ taskId: string }>();
+  if (!taskId) {
+    return <OngoingTaskBody />;
+  }
   return (
-    <BreadcrumbEntry entry={{ label: taskId ?? 'Task', href: taskId ?? '' }}>
+    <BreadcrumbEntry entry={{ label: taskId, href: taskId }}>
       <OngoingTaskBody />
     </BreadcrumbEntry>
   );

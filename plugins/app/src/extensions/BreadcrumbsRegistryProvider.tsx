@@ -15,16 +15,11 @@
  */
 
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import type { BreadcrumbEntryData } from '@backstage/frontend-plugin-api';
 import {
   createVersionedContext,
   createVersionedValueMap,
 } from '@backstage/version-bridge';
-
-interface BreadcrumbEntryData {
-  href: string;
-  label: string;
-  depth: number;
-}
 
 interface Registration {
   update(label: string, href: string): void;

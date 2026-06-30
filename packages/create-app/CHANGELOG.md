@@ -1,5 +1,12 @@
 # @backstage/create-app
 
+## 0.8.5-next.1
+
+### Patch Changes
+
+- fc4cae1: Added the user settings backend plugin to the create-app templates, enabling database-backed user settings persistence for newly created Backstage apps out of the box. The frontend storage API is also wired up to use backend-persisted storage instead of browser local storage, via the new `@backstage/plugin-app-module-user-settings` module.
+- 3acdf87: Pinned `@types/node` to `22.20.0` in the seed lockfile to prevent yarn from resolving the `*` wildcard (from `@jest/environment-jsdom-abstract`) to `@types/node@26.0.0`, which breaks `tsc:full` due to incompatible `EventEmitter` types in `tarn`.
+
 ## 0.8.5-next.0
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @backstage/backend-defaults
 
+## 0.17.5-next.1
+
+### Patch Changes
+
+- d62c384: Fixed a bug where scheduled tasks that were initially registered with a manual trigger and later re-registered with a duration or cron cadence would never be scheduled to run.
+- Updated dependencies
+  - @backstage/config-loader@1.11.0-next.1
+
 ## 0.17.4-next.0
 
 ### Patch Changes

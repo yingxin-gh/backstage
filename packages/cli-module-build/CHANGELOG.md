@@ -1,5 +1,13 @@
 # @backstage/cli-module-build
 
+## 0.1.5-next.1
+
+### Patch Changes
+
+- 3cce70f: Increase generated frontend static asset filename hashes to 12 characters to reduce the chance of collisions across long-lived cached builds.
+- Updated dependencies
+  - @backstage/config-loader@1.11.0-next.1
+
 ## 0.1.5-next.0
 
 ### Patch Changes

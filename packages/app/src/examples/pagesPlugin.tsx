@@ -26,8 +26,8 @@ import {
   createExtensionBlueprint,
   createExtensionInput,
   coreExtensionData,
+  BreadcrumbEntry,
 } from '@backstage/frontend-plugin-api';
-import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
@@ -171,22 +171,20 @@ const Page1 = PageBlueprint.make({
                   <Route
                     path="/"
                     element={
-                      <BreadcrumbRegistration
-                        entry={{ label: 'Page 1', href: '/' }}
-                      >
+                      <BreadcrumbEntry entry={{ label: 'Page 1', href: '/' }}>
                         <h2>This is also page 1</h2>
-                      </BreadcrumbRegistration>
+                      </BreadcrumbEntry>
                     }
                   />
 
                   <Route
                     path="/page2"
                     element={
-                      <BreadcrumbRegistration
+                      <BreadcrumbEntry
                         entry={{ label: 'Page 2', href: '/page2' }}
                       >
                         <h2>This is page 2</h2>
-                      </BreadcrumbRegistration>
+                      </BreadcrumbEntry>
                     }
                   />
                 </Routes>

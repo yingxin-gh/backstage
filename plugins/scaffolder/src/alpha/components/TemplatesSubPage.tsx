@@ -61,7 +61,7 @@ import {
 import { scaffolderTranslationRef } from '../../translation';
 import { DEFAULT_SCAFFOLDER_FIELD_EXTENSIONS } from '../../extensions/default';
 import { buildTechDocsURL } from '@backstage/plugin-techdocs-react';
-import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
+import { BreadcrumbEntry } from '@backstage/frontend-plugin-api';
 import {
   TECHDOCS_ANNOTATION,
   TECHDOCS_EXTERNAL_ANNOTATION,
@@ -178,9 +178,7 @@ function TemplateWizardWithBreadcrumb(props: {
 }) {
   const { templateName } = useParams<{ templateName: string }>();
   return (
-    <BreadcrumbRegistration
-      entry={{ label: templateName ?? 'Template', href: '.' }}
-    >
+    <BreadcrumbEntry entry={{ label: templateName ?? 'Template', href: '.' }}>
       <SecretsContextProvider>
         <TemplateWizardPageContent
           customFieldExtensions={props.customFieldExtensions}
@@ -188,7 +186,7 @@ function TemplateWizardWithBreadcrumb(props: {
           formProps={props.formProps}
         />
       </SecretsContextProvider>
-    </BreadcrumbRegistration>
+    </BreadcrumbEntry>
   );
 }
 

@@ -27,7 +27,7 @@ import {
   Progress as ProgressComponent,
 } from '@backstage/core-components';
 import {
-  BreadcrumbRegistration,
+  BreadcrumbEntry,
   useBreadcrumbEntries,
 } from '@backstage/frontend-plugin-api';
 import { PluginHeader } from '@backstage/ui';
@@ -128,11 +128,11 @@ export const PageLayout = SwappableComponentBlueprint.make({
         }
 
         return (
-          <BreadcrumbRegistration
+          <BreadcrumbEntry
             entry={{ label: title, href: titleLink ?? (parentPath || '/') }}
           >
             {content}
-          </BreadcrumbRegistration>
+          </BreadcrumbEntry>
         );
       },
     }),

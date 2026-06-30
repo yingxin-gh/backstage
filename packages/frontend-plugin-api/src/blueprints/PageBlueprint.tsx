@@ -26,7 +26,7 @@ import {
 } from '../wiring';
 import { ExtensionBoundary, PageLayout, PageLayoutTab } from '../components';
 import { useApi } from '../apis/system';
-import { BreadcrumbRegistration } from '../breadcrumbs';
+import { BreadcrumbEntry } from '../breadcrumbs';
 import { routeResolutionApiRef } from '../apis/definitions/RouteResolutionApi';
 import { pluginHeaderActionsApiRef } from '../apis/definitions/PluginHeaderActionsApi';
 import { RouteResolutionApi } from '../apis/definitions/RouteResolutionApi';
@@ -165,11 +165,11 @@ export const PageBlueprint = createExtensionBlueprint({
                     key={index}
                     path={`${path}/*`}
                     element={
-                      <BreadcrumbRegistration
+                      <BreadcrumbEntry
                         entry={{ label: tabTitle || path, href: path }}
                       >
                         {element}
-                      </BreadcrumbRegistration>
+                      </BreadcrumbEntry>
                     }
                   />
                 );

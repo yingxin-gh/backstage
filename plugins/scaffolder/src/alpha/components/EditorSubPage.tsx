@@ -18,7 +18,7 @@ import { useAsync, useMountEffect } from '@react-hookz/web';
 import { useCallback, useMemo } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Content } from '@backstage/core-components';
-import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
+import { BreadcrumbEntry } from '@backstage/frontend-plugin-api';
 import { useApi } from '@backstage/core-plugin-api';
 import { makeStyles } from '@material-ui/core/styles';
 import { RequirePermission } from '@backstage/plugin-permission-react';
@@ -169,31 +169,31 @@ export function EditorSubPage() {
           <Route
             path="template"
             element={
-              <BreadcrumbRegistration
+              <BreadcrumbEntry
                 entry={{ label: 'Template Editor', href: 'template' }}
               >
                 <EditorContent fieldExtensions={fieldExtensions} />
-              </BreadcrumbRegistration>
+              </BreadcrumbEntry>
             }
           />
           <Route
             path="template-form"
             element={
-              <BreadcrumbRegistration
+              <BreadcrumbEntry
                 entry={{ label: 'Template Form', href: 'template-form' }}
               >
                 <FormPreviewContent fieldExtensions={fieldExtensions} />
-              </BreadcrumbRegistration>
+              </BreadcrumbEntry>
             }
           />
           <Route
             path="custom-fields"
             element={
-              <BreadcrumbRegistration
+              <BreadcrumbEntry
                 entry={{ label: 'Custom Fields', href: 'custom-fields' }}
               >
                 <CustomFieldsContent fieldExtensions={fieldExtensions} />
-              </BreadcrumbRegistration>
+              </BreadcrumbEntry>
             }
           />
         </Routes>

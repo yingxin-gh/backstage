@@ -19,7 +19,7 @@
  *
  * @public
  */
-export interface BreadcrumbEntry {
+export interface BreadcrumbEntryData {
   href: string;
   label: string;
   depth: number;

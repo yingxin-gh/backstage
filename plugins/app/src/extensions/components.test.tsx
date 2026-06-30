@@ -22,7 +22,7 @@ import {
   renderInTestApp,
 } from '@backstage/frontend-test-utils';
 import {
-  BreadcrumbRegistration,
+  BreadcrumbEntry,
   PageBlueprint,
   coreExtensionData,
   createExtension,
@@ -235,11 +235,11 @@ describe('PageLayout', () => {
       function TaskDetail() {
         const { taskId } = useParams<{ taskId: string }>();
         return (
-          <BreadcrumbRegistration
+          <BreadcrumbEntry
             entry={{ label: taskId ?? 'Task', href: taskId ?? '' }}
           >
             <div>Task detail: {taskId}</div>
-          </BreadcrumbRegistration>
+          </BreadcrumbEntry>
         );
       }
 

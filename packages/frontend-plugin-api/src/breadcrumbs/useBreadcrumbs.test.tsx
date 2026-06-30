@@ -18,7 +18,7 @@ import { render, screen, act } from '@testing-library/react';
 import { useState } from 'react';
 import {
   BreadcrumbsRegistryProvider,
-  BreadcrumbRegistration,
+  BreadcrumbEntry,
   useBreadcrumbEntries,
 } from './useBreadcrumbs';
 
@@ -50,9 +50,9 @@ describe('useBreadcrumbEntries', () => {
   it('should register a breadcrumb entry and display it', () => {
     render(
       <BreadcrumbsRegistryProvider>
-        <BreadcrumbRegistration entry={{ label: 'Home', href: '/home' }}>
+        <BreadcrumbEntry entry={{ label: 'Home', href: '/home' }}>
           <BreadcrumbDisplay />
-        </BreadcrumbRegistration>
+        </BreadcrumbEntry>
       </BreadcrumbsRegistryProvider>,
     );
 
@@ -62,13 +62,13 @@ describe('useBreadcrumbEntries', () => {
   it('should register multiple breadcrumbs in component tree order', () => {
     render(
       <BreadcrumbsRegistryProvider>
-        <BreadcrumbRegistration entry={{ label: 'Home', href: '/home' }}>
-          <BreadcrumbRegistration
+        <BreadcrumbEntry entry={{ label: 'Home', href: '/home' }}>
+          <BreadcrumbEntry
             entry={{ label: 'Settings', href: '/home/settings' }}
           >
             <BreadcrumbDisplay />
-          </BreadcrumbRegistration>
-        </BreadcrumbRegistration>
+          </BreadcrumbEntry>
+        </BreadcrumbEntry>
       </BreadcrumbsRegistryProvider>,
     );
 
@@ -82,17 +82,15 @@ describe('useBreadcrumbEntries', () => {
     function Toggle() {
       const [showChild, setShowChild] = useState(true);
       return (
-        <BreadcrumbRegistration entry={{ label: 'Home', href: '/home' }}>
+        <BreadcrumbEntry entry={{ label: 'Home', href: '/home' }}>
           {showChild && (
-            <BreadcrumbRegistration
-              entry={{ label: 'Settings', href: '/settings' }}
-            >
+            <BreadcrumbEntry entry={{ label: 'Settings', href: '/settings' }}>
               <div />
-            </BreadcrumbRegistration>
+            </BreadcrumbEntry>
           )}
           <BreadcrumbDisplay />
           <button onClick={() => setShowChild(false)}>remove</button>
-        </BreadcrumbRegistration>
+        </BreadcrumbEntry>
       );
     }
 
@@ -118,11 +116,9 @@ describe('useBreadcrumbEntries', () => {
   it('should register a breadcrumb entry', () => {
     render(
       <BreadcrumbsRegistryProvider>
-        <BreadcrumbRegistration
-          entry={{ label: 'Current Page', href: '/current' }}
-        >
+        <BreadcrumbEntry entry={{ label: 'Current Page', href: '/current' }}>
           <BreadcrumbDisplay />
-        </BreadcrumbRegistration>
+        </BreadcrumbEntry>
       </BreadcrumbsRegistryProvider>,
     );
 
@@ -133,10 +129,10 @@ describe('useBreadcrumbEntries', () => {
     function DynamicBreadcrumb() {
       const [label, setLabel] = useState('Draft');
       return (
-        <BreadcrumbRegistration entry={{ label, href: '/doc' }}>
+        <BreadcrumbEntry entry={{ label, href: '/doc' }}>
           <BreadcrumbDisplay />
           <button onClick={() => setLabel('Published')}>publish</button>
-        </BreadcrumbRegistration>
+        </BreadcrumbEntry>
       );
     }
 

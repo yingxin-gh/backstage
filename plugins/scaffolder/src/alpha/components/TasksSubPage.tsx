@@ -16,18 +16,16 @@
 
 import { Routes, Route, useParams } from 'react-router-dom';
 import { Content } from '@backstage/core-components';
-import { BreadcrumbRegistration } from '@backstage/frontend-plugin-api';
+import { BreadcrumbEntry } from '@backstage/frontend-plugin-api';
 import { OngoingTaskBody } from '../../components/OngoingTask';
 import { ListTaskPageContent } from '../../components/ListTasksPage';
 
 function TaskDetailWithBreadcrumb() {
   const { taskId } = useParams<{ taskId: string }>();
   return (
-    <BreadcrumbRegistration
-      entry={{ label: taskId ?? 'Task', href: taskId ?? '' }}
-    >
+    <BreadcrumbEntry entry={{ label: taskId ?? 'Task', href: taskId ?? '' }}>
       <OngoingTaskBody />
-    </BreadcrumbRegistration>
+    </BreadcrumbEntry>
   );
 }
 

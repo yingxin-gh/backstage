@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-export type { BreadcrumbEntry } from './types';
+export type { BreadcrumbEntryData } from './types';
 
 export {
   useBreadcrumbEntries,
-  BreadcrumbRegistration,
+  BreadcrumbEntry,
   BreadcrumbsRegistryProvider,
 } from './useBreadcrumbs';

@@ -27,7 +27,7 @@ import {
   createVersionedValueMap,
   useVersionedContext,
 } from '@backstage/version-bridge';
-import type { BreadcrumbEntry } from './types';
+import type { BreadcrumbEntryData } from './types';
 
 interface Registration {
   update(label: string, href: string): void;
@@ -35,8 +35,8 @@ interface Registration {
 }
 
 interface BreadcrumbsContextValue {
-  breadcrumbs: { items: BreadcrumbEntry[] };
-  register: (entry: BreadcrumbEntry) => Registration;
+  breadcrumbs: { items: BreadcrumbEntryData[] };
+  register: (entry: BreadcrumbEntryData) => Registration;
 }
 
 const CONTEXT_KEY = 'breadcrumbs-context';
@@ -48,19 +48,19 @@ type DepthMap = { 1: number };
 const BreadcrumbsContext = createVersionedContext<ContextMap>(CONTEXT_KEY);
 const DepthContext = createVersionedContext<DepthMap>(DEPTH_KEY);
 
-const EMPTY: { items: BreadcrumbEntry[] } = { items: [] };
+const EMPTY: { items: BreadcrumbEntryData[] } = { items: [] };
 
 /**
  * Provides the breadcrumb registry to the component tree. Place this near the
- * top of the app so that all nested {@link BreadcrumbRegistration} components
+ * top of the app so that all nested {@link BreadcrumbEntry} components
  * can register entries and {@link useBreadcrumbEntries} consumers can read them.
  *
  * @public
  */
 export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
-  const [entries, setEntries] = useState<BreadcrumbEntry[]>([]);
+  const [entries, setEntries] = useState<BreadcrumbEntryData[]>([]);
 
-  const register = useCallback((entry: BreadcrumbEntry): Registration => {
+  const register = useCallback((entry: BreadcrumbEntryData): Registration => {
     const record = { ...entry };
     setEntries(prev => [...prev, record].sort((a, b) => a.depth - b.depth));
     return {
@@ -101,7 +101,7 @@ export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
  *
  * @public
  */
-export function useBreadcrumbEntries(): { items: BreadcrumbEntry[] } {
+export function useBreadcrumbEntries(): { items: BreadcrumbEntryData[] } {
   const ctx = useVersionedContext<ContextMap>(CONTEXT_KEY);
   return ctx?.atVersion(1)?.breadcrumbs ?? EMPTY;
 }
@@ -113,8 +113,8 @@ export function useBreadcrumbEntries(): { items: BreadcrumbEntry[] } {
  *
  * @public
  */
-export function BreadcrumbRegistration(props: {
-  entry: Omit<BreadcrumbEntry, 'depth'>;
+export function BreadcrumbEntry(props: {
+  entry: Omit<BreadcrumbEntryData, 'depth'>;
   children: ReactNode;
 }) {
   const ctx = useVersionedContext<ContextMap>(CONTEXT_KEY);

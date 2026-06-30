@@ -20,7 +20,7 @@ import {
   createVersionedContext,
   createVersionedValueMap,
 } from '@backstage/version-bridge';
-import { BreadcrumbEntry, useBreadcrumbEntries } from './useBreadcrumbs';
+import { BreadcrumbEntry, useBreadcrumbEntries } from './useBreadcrumbEntries';
 import type { BreadcrumbEntryData } from './types';
 
 interface Registration {

@@ -32,8 +32,8 @@ import {
   routeResolutionApiRef,
   pluginWrapperApiRef,
   useAnalytics,
-  BreadcrumbsRegistryProvider,
 } from '@backstage/frontend-plugin-api';
+import { BreadcrumbsRegistryProvider } from './BreadcrumbsRegistryProvider';
 import {
   AppRootWrapperBlueprint,
   RouterBlueprint,

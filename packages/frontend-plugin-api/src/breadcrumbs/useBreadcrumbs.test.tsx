@@ -15,12 +15,69 @@
  */
 
 import { render, screen, act } from '@testing-library/react';
-import { useState } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import {
-  BreadcrumbsRegistryProvider,
-  BreadcrumbEntry,
-  useBreadcrumbEntries,
-} from './useBreadcrumbs';
+  createVersionedContext,
+  createVersionedValueMap,
+} from '@backstage/version-bridge';
+import { BreadcrumbEntry, useBreadcrumbEntries } from './useBreadcrumbs';
+import type { BreadcrumbEntryData } from './types';
+
+interface Registration {
+  update(label: string, href: string): void;
+  unregister(): void;
+}
+
+interface BreadcrumbsContextValue {
+  breadcrumbs: { items: BreadcrumbEntryData[] };
+  register: (entry: BreadcrumbEntryData) => Registration;
+}
+
+type ContextMap = { 1: BreadcrumbsContextValue };
+
+const BreadcrumbsContext = createVersionedContext<ContextMap>(
+  'breadcrumbs-context',
+);
+
+// Minimal copy of BreadcrumbsRegistryProvider from @backstage/plugin-app
+// for testing. Keep in sync with plugins/app/src/extensions/BreadcrumbsRegistryProvider.tsx.
+function TestBreadcrumbsProvider(props: { children: ReactNode }) {
+  const [entries, setEntries] = useState<BreadcrumbEntryData[]>([]);
+
+  const register = useCallback((entry: BreadcrumbEntryData) => {
+    const record = { ...entry };
+    setEntries(prev => [...prev, record].sort((a, b) => a.depth - b.depth));
+    return {
+      update(label: string, href: string) {
+        if (record.label === label && record.href === href) return;
+        record.label = label;
+        record.href = href;
+        setEntries(prev => [...prev]);
+      },
+      unregister() {
+        setEntries(prev => prev.filter(e => e !== record));
+      },
+    };
+  }, []);
+
+  const breadcrumbs = useMemo(
+    () => ({
+      items: entries.map(({ label, href, depth }) => ({ label, href, depth })),
+    }),
+    [entries],
+  );
+
+  const value = useMemo(
+    () => createVersionedValueMap({ 1: { breadcrumbs, register } }),
+    [breadcrumbs, register],
+  );
+
+  return (
+    <BreadcrumbsContext.Provider value={value}>
+      {props.children}
+    </BreadcrumbsContext.Provider>
+  );
+}
 
 function BreadcrumbDisplay() {
   const { items: entries } = useBreadcrumbEntries();
@@ -39,9 +96,9 @@ function BreadcrumbDisplay() {
 describe('useBreadcrumbEntries', () => {
   it('should return empty items when no breadcrumbs are registered', () => {
     render(
-      <BreadcrumbsRegistryProvider>
+      <TestBreadcrumbsProvider>
         <BreadcrumbDisplay />
-      </BreadcrumbsRegistryProvider>,
+      </TestBreadcrumbsProvider>,
     );
 
     expect(screen.getByTestId('breadcrumbs').children).toHaveLength(0);
@@ -49,11 +106,11 @@ describe('useBreadcrumbEntries', () => {
 
   it('should register a breadcrumb entry and display it', () => {
     render(
-      <BreadcrumbsRegistryProvider>
+      <TestBreadcrumbsProvider>
         <BreadcrumbEntry entry={{ label: 'Home', href: '/home' }}>
           <BreadcrumbDisplay />
         </BreadcrumbEntry>
-      </BreadcrumbsRegistryProvider>,
+      </TestBreadcrumbsProvider>,
     );
 
     expect(screen.getByText('Home (/home)')).toBeInTheDocument();
@@ -61,7 +118,7 @@ describe('useBreadcrumbEntries', () => {
 
   it('should register multiple breadcrumbs in component tree order', () => {
     render(
-      <BreadcrumbsRegistryProvider>
+      <TestBreadcrumbsProvider>
         <BreadcrumbEntry entry={{ label: 'Home', href: '/home' }}>
           <BreadcrumbEntry
             entry={{ label: 'Settings', href: '/home/settings' }}
@@ -69,7 +126,7 @@ describe('useBreadcrumbEntries', () => {
             <BreadcrumbDisplay />
           </BreadcrumbEntry>
         </BreadcrumbEntry>
-      </BreadcrumbsRegistryProvider>,
+      </TestBreadcrumbsProvider>,
     );
 
     const items = screen.getByTestId('breadcrumbs').querySelectorAll('li');
@@ -95,9 +152,9 @@ describe('useBreadcrumbEntries', () => {
     }
 
     render(
-      <BreadcrumbsRegistryProvider>
+      <TestBreadcrumbsProvider>
         <Toggle />
-      </BreadcrumbsRegistryProvider>,
+      </TestBreadcrumbsProvider>,
     );
 
     expect(
@@ -115,11 +172,11 @@ describe('useBreadcrumbEntries', () => {
 
   it('should register a breadcrumb entry', () => {
     render(
-      <BreadcrumbsRegistryProvider>
+      <TestBreadcrumbsProvider>
         <BreadcrumbEntry entry={{ label: 'Current Page', href: '/current' }}>
           <BreadcrumbDisplay />
         </BreadcrumbEntry>
-      </BreadcrumbsRegistryProvider>,
+      </TestBreadcrumbsProvider>,
     );
 
     expect(screen.getByText('Current Page (/current)')).toBeInTheDocument();
@@ -137,9 +194,9 @@ describe('useBreadcrumbEntries', () => {
     }
 
     render(
-      <BreadcrumbsRegistryProvider>
+      <TestBreadcrumbsProvider>
         <DynamicBreadcrumb />
-      </BreadcrumbsRegistryProvider>,
+      </TestBreadcrumbsProvider>,
     );
 
     expect(screen.getByText('Draft (/doc)')).toBeInTheDocument();

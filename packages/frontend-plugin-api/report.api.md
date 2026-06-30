@@ -391,11 +391,6 @@ export interface BreadcrumbEntryData {
 }
 
 // @public
-export function BreadcrumbsRegistryProvider(props: {
-  children: ReactNode;
-}): JSX_3.Element;
-
-// @public
 export type ConfigApi = Config;
 
 // @public

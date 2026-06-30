@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import {
   createVersionedContext,
   createVersionedValueMap,
@@ -39,61 +32,16 @@ interface BreadcrumbsContextValue {
   register: (entry: BreadcrumbEntryData) => Registration;
 }
 
+// This key must match the one used by BreadcrumbsRegistryProvider in @backstage/plugin-app.
 const CONTEXT_KEY = 'breadcrumbs-context';
 const DEPTH_KEY = 'breadcrumbs-depth';
 
 type ContextMap = { 1: BreadcrumbsContextValue };
 type DepthMap = { 1: number };
 
-const BreadcrumbsContext = createVersionedContext<ContextMap>(CONTEXT_KEY);
 const DepthContext = createVersionedContext<DepthMap>(DEPTH_KEY);
 
 const EMPTY: { items: BreadcrumbEntryData[] } = { items: [] };
-
-/**
- * Provides the breadcrumb registry to the component tree. Place this near the
- * top of the app so that all nested {@link BreadcrumbEntry} components
- * can register entries and {@link useBreadcrumbEntries} consumers can read them.
- *
- * @public
- */
-export function BreadcrumbsRegistryProvider(props: { children: ReactNode }) {
-  const [entries, setEntries] = useState<BreadcrumbEntryData[]>([]);
-
-  const register = useCallback((entry: BreadcrumbEntryData): Registration => {
-    const record = { ...entry };
-    setEntries(prev => [...prev, record].sort((a, b) => a.depth - b.depth));
-    return {
-      update(label: string, href: string) {
-        if (record.label === label && record.href === href) return;
-        record.label = label;
-        record.href = href;
-        setEntries(prev => [...prev]);
-      },
-      unregister() {
-        setEntries(prev => prev.filter(e => e !== record));
-      },
-    };
-  }, []);
-
-  const breadcrumbs = useMemo(
-    () => ({
-      items: entries.map(({ label, href, depth }) => ({ label, href, depth })),
-    }),
-    [entries],
-  );
-
-  const value = useMemo(
-    () => createVersionedValueMap({ 1: { breadcrumbs, register } }),
-    [breadcrumbs, register],
-  );
-
-  return (
-    <BreadcrumbsContext.Provider value={value}>
-      {props.children}
-    </BreadcrumbsContext.Provider>
-  );
-}
 
 /**
  * Returns the current breadcrumb entries registered by page components anywhere

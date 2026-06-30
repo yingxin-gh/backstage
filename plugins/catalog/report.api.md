@@ -312,7 +312,7 @@ export const catalogTranslationRef: TranslationRef<
     readonly 'entityContextMenu.inspectMenuTitle': 'Inspect entity';
     readonly 'entityContextMenu.copyURLMenuTitle': 'Copy entity URL';
     readonly 'entityContextMenu.unregisterMenuTitle': 'Unregister entity';
-    readonly 'entityContextMenu.moreButtonAriaLabel': 'more';
+    readonly 'entityContextMenu.moreButtonAriaLabel': 'More actions';
     readonly 'entityLabelsCard.title': 'Labels';
     readonly 'entityLabelsCard.readMoreButtonTitle': 'Read more';
     readonly 'entityLabelsCard.columnKeyLabel': 'Label';
@@ -321,6 +321,9 @@ export const catalogTranslationRef: TranslationRef<
     readonly 'entityLabels.ownerLabel': 'Owner';
     readonly 'entityLabels.warningPanelTitle': 'Entity not found';
     readonly 'entityLabels.lifecycleLabel': 'Lifecycle';
+    readonly 'entityLabels.systemLabel': 'System';
+    readonly 'entityLabels.domainLabel': 'Domain';
+    readonly 'entityLabels.partOfLabel': 'Part of';
     readonly 'entityLinksCard.title': 'Links';
     readonly 'entityLinksCard.readMoreButtonTitle': 'Read more';
     readonly 'entityLinksCard.emptyDescription': 'No links defined for this entity. You can add links to your entity YAML as shown in the highlighted example below:';

@@ -13,7 +13,9 @@ import { defaultEntityContentGroups } from '@backstage/plugin-catalog-react/alph
 import { Entity } from '@backstage/catalog-model';
 import { EntityCardType } from '@backstage/plugin-catalog-react/alpha';
 import { EntityContentLayoutProps } from '@backstage/plugin-catalog-react/alpha';
+import { EntityContextMenuItemData } from '@backstage/plugin-catalog-react/alpha';
 import { EntityContextMenuItemParams } from '@backstage/plugin-catalog-react/alpha';
+import { EntityHeaderLayoutProps } from '@backstage/plugin-catalog-react/alpha';
 import { EntityListContextProps } from '@backstage/plugin-catalog-react';
 import { EntityListPagination } from '@backstage/plugin-catalog-react';
 import { EntityOwnerPickerProps } from '@backstage/plugin-catalog-react';
@@ -211,7 +213,7 @@ export const catalogTranslationRef: TranslationRef<
     readonly 'entityContextMenu.inspectMenuTitle': 'Inspect entity';
     readonly 'entityContextMenu.copyURLMenuTitle': 'Copy entity URL';
     readonly 'entityContextMenu.unregisterMenuTitle': 'Unregister entity';
-    readonly 'entityContextMenu.moreButtonAriaLabel': 'more';
+    readonly 'entityContextMenu.moreButtonAriaLabel': 'More actions';
     readonly 'entityLabelsCard.title': 'Labels';
     readonly 'entityLabelsCard.readMoreButtonTitle': 'Read more';
     readonly 'entityLabelsCard.columnKeyLabel': 'Label';
@@ -220,6 +222,9 @@ export const catalogTranslationRef: TranslationRef<
     readonly 'entityLabels.ownerLabel': 'Owner';
     readonly 'entityLabels.warningPanelTitle': 'Entity not found';
     readonly 'entityLabels.lifecycleLabel': 'Lifecycle';
+    readonly 'entityLabels.systemLabel': 'System';
+    readonly 'entityLabels.domainLabel': 'Domain';
+    readonly 'entityLabels.partOfLabel': 'Part of';
     readonly 'entityLinksCard.title': 'Links';
     readonly 'entityLinksCard.readMoreButtonTitle': 'Read more';
     readonly 'entityLinksCard.emptyDescription': 'No links defined for this entity. You can add links to your entity YAML as shown in the highlighted example below:';
@@ -1005,13 +1010,17 @@ const _default: OverridableFrontendPlugin<
         filter?: FilterPredicate | undefined;
       };
       output:
-        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
         | ExtensionDataRef<
             (entity: Entity) => boolean,
             'catalog.entity-filter-function',
             {
               optional: true;
             }
+          >
+        | ExtensionDataRef<
+            EntityContextMenuItemData,
+            'catalog.entity-context-menu-item-data',
+            {}
           >;
       inputs: {};
       params: EntityContextMenuItemParams;
@@ -1026,13 +1035,17 @@ const _default: OverridableFrontendPlugin<
         filter?: FilterPredicate | undefined;
       };
       output:
-        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
         | ExtensionDataRef<
             (entity: Entity) => boolean,
             'catalog.entity-filter-function',
             {
               optional: true;
             }
+          >
+        | ExtensionDataRef<
+            EntityContextMenuItemData,
+            'catalog.entity-context-menu-item-data',
+            {}
           >;
       inputs: {};
       params: EntityContextMenuItemParams;
@@ -1047,13 +1060,17 @@ const _default: OverridableFrontendPlugin<
         filter?: FilterPredicate | undefined;
       };
       output:
-        | ExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
         | ExtensionDataRef<
             (entity: Entity) => boolean,
             'catalog.entity-filter-function',
             {
               optional: true;
             }
+          >
+        | ExtensionDataRef<
+            EntityContextMenuItemData,
+            'catalog.entity-context-menu-item-data',
+            {}
           >;
       inputs: {};
       params: EntityContextMenuItemParams;
@@ -1317,6 +1334,25 @@ const _default: OverridableFrontendPlugin<
             internal: false;
           }
         >;
+        headerLayouts: ExtensionInput<
+          | ConfigurableExtensionDataRef<
+              (entity: Entity) => boolean,
+              'catalog.entity-filter-function',
+              {
+                optional: true;
+              }
+            >
+          | ConfigurableExtensionDataRef<
+              (props: EntityHeaderLayoutProps) => JSX_2.Element,
+              'catalog.entity-header-layout.component',
+              {}
+            >,
+          {
+            singleton: false;
+            optional: false;
+            internal: false;
+          }
+        >;
         headers: ExtensionInput<
           | ConfigurableExtensionDataRef<
               (entity: Entity) => boolean,
@@ -1388,7 +1424,11 @@ const _default: OverridableFrontendPlugin<
           }
         >;
         contextMenuItems: ExtensionInput<
-          | ConfigurableExtensionDataRef<JSX_2.Element, 'core.reactElement', {}>
+          | ConfigurableExtensionDataRef<
+              EntityContextMenuItemData,
+              'catalog.entity-context-menu-item-data',
+              {}
+            >
           | ConfigurableExtensionDataRef<
               (entity: Entity) => boolean,
               'catalog.entity-filter-function',

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Backstage Authors
+ * Copyright 2026 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,12 @@
  */
 
 /**
- * Core API used by Backstage frontend plugins.
+ * A single breadcrumb entry registered by a page component.
  *
- * @packageDocumentation
+ * @public
  */
-
-export * from './analytics';
-export * from './apis';
-export * from './blueprints';
-export * from './components';
-export * from './icons';
-export * from './routing';
-export * from './schema';
-export * from './apis/system';
-export * from './translation';
-export * from './breadcrumbs';
-export * from './wiring';
-
-export type {
-  ProgressProps,
-  NotFoundErrorPageProps,
-  ErrorDisplayProps,
-} from './types';
+export interface BreadcrumbEntryData {
+  href: string;
+  label: string;
+  depth: number;
+}

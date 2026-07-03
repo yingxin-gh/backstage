@@ -22,9 +22,9 @@ import {
 } from '@backstage/backend-plugin-api';
 import { ConnectionsService, DefaultConnectionsService } from './api';
 
-function createConnectionsServiceFactory(
-  service: ServiceRef<ConnectionsService, 'plugin', 'singleton'>,
-) {
+function createConnectionsServiceFactory<
+  TInstances extends 'singleton' | 'multiton',
+>(service: ServiceRef<ConnectionsService, 'plugin', TInstances>) {
   return createServiceFactory({
     service,
     deps: {

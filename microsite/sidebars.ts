@@ -398,6 +398,8 @@ export default {
         sidebarElementWithIndex({ label: 'Azure DevOps' }, [
           'integrations/azure/locations',
           'integrations/azure/discovery',
+        ]),
+        sidebarElementWithIndex({ label: 'Microsoft Entra ID' }, [
           'integrations/azure/org',
         ]),
         sidebarElementWithIndex({ label: 'Bitbucket Cloud' }, [

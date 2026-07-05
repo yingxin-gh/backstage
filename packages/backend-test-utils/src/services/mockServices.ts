@@ -26,7 +26,6 @@ import { permissionsRegistryServiceFactory } from '@backstage/backend-defaults/p
 import { rootHealthServiceFactory } from '@backstage/backend-defaults/rootHealth';
 import { rootHttpRouterServiceFactory } from '@backstage/backend-defaults/rootHttpRouter';
 import { rootLifecycleServiceFactory } from '@backstage/backend-defaults/rootLifecycle';
-import { rootSystemMetadataServiceFactory } from '@backstage/backend-defaults/rootSystemMetadata';
 import { urlReaderServiceFactory } from '@backstage/backend-defaults/urlReader';
 import {
   AuthService,

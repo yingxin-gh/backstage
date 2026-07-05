@@ -259,7 +259,9 @@ export class InternalOpenApiDocumentationProvider implements EntityProvider {
     const pluginsToMerge = Array.from(
       new Set(
         explicitPlugins ??
-          (await this.rootSystemMetadata.getInstalledPlugins()).map(p => p.pluginId),
+          (await this.rootSystemMetadata.getInstalledPlugins()).map(
+            p => p.pluginId,
+          ),
       ),
     );
     const configToMerge = this.config.getOptional(

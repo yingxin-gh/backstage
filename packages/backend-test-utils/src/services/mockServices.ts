@@ -26,6 +26,7 @@ import { permissionsRegistryServiceFactory } from '@backstage/backend-defaults/p
 import { rootHealthServiceFactory } from '@backstage/backend-defaults/rootHealth';
 import { rootHttpRouterServiceFactory } from '@backstage/backend-defaults/rootHttpRouter';
 import { rootLifecycleServiceFactory } from '@backstage/backend-defaults/rootLifecycle';
+import { rootSystemMetadataServiceFactory } from '@backstage/backend-defaults/rootSystemMetadata';
 import { urlReaderServiceFactory } from '@backstage/backend-defaults/urlReader';
 import {
   AuthService,
@@ -35,6 +36,7 @@ import {
   DiscoveryService,
   HttpAuthService,
   RootInstanceMetadataService,
+  RootSystemMetadataService,
   PermissionsService,
   RootConfigService,
   SchedulerService,
@@ -578,6 +580,24 @@ export namespace mockServices {
     export const factory = simpleFactoryWithOptions(
       coreServices.rootInstanceMetadata,
       rootInstanceMetadata,
+    );
+  }
+
+  export function rootSystemMetadata(): RootSystemMetadataService {
+    return {
+      getInstalledPlugins: () => Promise.resolve([]),
+    };
+  }
+  export namespace rootSystemMetadata {
+    export const mock = createServiceMock(
+      coreServices.rootSystemMetadata,
+      () => ({
+        getInstalledPlugins: jest.fn(),
+      }),
+    );
+    export const factory = simpleFactoryWithOptions(
+      coreServices.rootSystemMetadata,
+      rootSystemMetadata,
     );
   }
 }

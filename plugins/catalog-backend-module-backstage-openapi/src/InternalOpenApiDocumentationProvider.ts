@@ -256,11 +256,12 @@ export class InternalOpenApiDocumentationProvider implements EntityProvider {
     const explicitPlugins = this.config.getOptionalStringArray(
       'catalog.providers.backstageOpenapi.plugins',
     );
-    const pluginsToMerge = explicitPlugins
-      ? explicitPlugins
-      : (await this.rootSystemMetadata.getInstalledPlugins()).map(
-          p => p.pluginId,
-        );
+    const pluginsToMerge = Array.from(
+      new Set(
+        explicitPlugins ??
+          (await this.rootSystemMetadata.getInstalledPlugins()).map(p => p.pluginId),
+      ),
+    );
     const configToMerge = this.config.getOptional(
       'catalog.providers.backstageOpenapi.entityOverrides',
     );

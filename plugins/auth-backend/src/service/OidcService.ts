@@ -33,6 +33,52 @@ import matcher from 'matcher';
 import { OfflineAccessService } from './OfflineAccessService';
 import { validateCimdUrl, fetchCimdMetadata } from './CimdClient';
 
+const WILDCARD_PORT = /:\*(?=\/|$)/;
+
+function parseUrlPattern(pattern: string) {
+  const hasWildcardPort =
+    pattern.includes('://') && WILDCARD_PORT.test(pattern);
+  const patternWithParseablePort = hasWildcardPort
+    ? pattern.replace(WILDCARD_PORT, ':1')
+    : pattern;
+
+  try {
+    return {
+      url: new URL(patternWithParseablePort),
+      hasWildcardPort,
+      matchesAnyPath: hasWildcardPort && pattern.endsWith(':*'),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function matchesUrlPattern(url: URL, pattern: string): boolean {
+  if (pattern === '*') {
+    return true;
+  }
+
+  const parsedPattern = parseUrlPattern(pattern);
+  if (!parsedPattern) {
+    return false;
+  }
+
+  const pathPattern = parsedPattern.matchesAnyPath
+    ? '*'
+    : parsedPattern.url.pathname || '*';
+
+  const protocolMatches = url.protocol === parsedPattern.url.protocol;
+  const hostnameMatches = matcher.isMatch(
+    url.hostname,
+    parsedPattern.url.hostname || '*',
+  );
+  const portMatches =
+    parsedPattern.hasWildcardPort || url.port === parsedPattern.url.port;
+  const pathnameMatches = matcher.isMatch(url.pathname, pathPattern);
+
+  return protocolMatches && hostnameMatches && portMatches && pathnameMatches;
+}
+
 function validateRedirectUri(
   redirectUri: string,
   allowedPatterns: string[],
@@ -40,7 +86,7 @@ function validateRedirectUri(
   const parsed = new URL(redirectUri);
   const normalized = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
 
-  if (!allowedPatterns.some(pattern => matcher.isMatch(normalized, pattern))) {
+  if (!allowedPatterns.some(pattern => matchesUrlPattern(parsed, pattern))) {
     throw new InputError(`Invalid redirect_uri '${normalized}'`);
   }
 }
@@ -375,7 +421,7 @@ export class OidcService {
 
     if (
       !cimd.allowedClientIdPatterns.some(pattern =>
-        matcher.isMatch(opts.clientId, pattern),
+        matchesUrlPattern(opts.cimdUrl, pattern),
       )
     ) {
       throw new InputError(`Invalid client_id '${opts.clientId}'`);

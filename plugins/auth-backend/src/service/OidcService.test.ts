@@ -319,7 +319,7 @@ describe('OidcService', () => {
         );
 
         for (const redirectUri of [
-          // Wildcards must not match across component boundaries
+          // A wildcard only matches within a single URL component
           'https://example.org/.spotify.com/cb',
           'https://example.net/x/.spotify.com/cb',
           // Scheme must match exactly
@@ -470,22 +470,21 @@ describe('OidcService', () => {
 
         await expect(
           service.registerClient({
-            clientName: 'Evil Client',
-            redirectUris: ['http://localhost:3000@attacker.example/callback'],
+            clientName: 'Test Client',
+            redirectUris: ['http://localhost:3000@example.org/callback'],
           }),
         ).rejects.toThrow('Invalid redirect_uri');
 
         await expect(
           service.registerClient({
-            clientName: 'Evil Client',
+            clientName: 'Test Client',
             redirectUris: ['http://user:pass@example.com/callback'],
           }),
         ).rejects.toThrow('Invalid redirect_uri');
 
-        // Userinfo must be rejected even when the hostname is allowlisted
         await expect(
           service.registerClient({
-            clientName: 'Evil Client',
+            clientName: 'Test Client',
             redirectUris: ['http://user:pass@localhost:3000/callback'],
           }),
         ).rejects.toThrow('Invalid redirect_uri');

@@ -28,11 +28,11 @@ function isBackendFilter(f: any): f is { getCatalogFilters: () => any } {
 }
 
 function isEntityTextFilter(f: any): f is EntityTextFilter {
-  return !!(f as EntityTextFilter)?.getFullTextFilters;
+  return typeof f?.getFullTextFilters === 'function';
 }
 
 function isEntityOrderFilter(f: any): f is EntityOrderFilter {
-  return !!(f as EntityOrderFilter)?.getOrderFilters;
+  return typeof f?.getOrderFilters === 'function';
 }
 
 function getBackendFilterObject(

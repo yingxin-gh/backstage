@@ -431,6 +431,14 @@ describe('OidcService', () => {
             redirectUris: ['http://user:pass@example.com/callback'],
           }),
         ).rejects.toThrow('Invalid redirect_uri');
+
+        // Userinfo must be rejected even when the hostname is allowlisted
+        await expect(
+          service.registerClient({
+            clientName: 'Evil Client',
+            redirectUris: ['http://user:pass@localhost:3000/callback'],
+          }),
+        ).rejects.toThrow('Invalid redirect_uri');
       });
 
       it('should create a client with default values', async () => {

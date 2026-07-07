@@ -86,6 +86,10 @@ function validateRedirectUri(
   const parsed = new URL(redirectUri);
   const normalized = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
 
+  if (parsed.username || parsed.password) {
+    throw new InputError(`Invalid redirect_uri '${normalized}'`);
+  }
+
   if (!allowedPatterns.some(pattern => matchesUrlPattern(parsed, pattern))) {
     throw new InputError(`Invalid redirect_uri '${normalized}'`);
   }

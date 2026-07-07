@@ -322,7 +322,7 @@ const httpProjectCatalogDynamic = all_projects_response.flatMap(project => {
       ) {
         return new HttpResponse(null, { status: 200 });
       }
-      return new HttpResponse('Not Found', { status: 404 });
+      return new HttpResponse(null, { status: 404, statusText: 'Not Found' });
     },
   );
 });

@@ -340,7 +340,7 @@ describe('CatalogClient', () => {
     });
 
     it('merges filter and query into $all predicate when both are provided', async () => {
-      expect.assertions(3);
+      expect.assertions(4);
       const entity = {
         apiVersion: '1',
         kind: 'Component',
@@ -353,11 +353,9 @@ describe('CatalogClient', () => {
         http.post(`${mockBaseUrl}/entities/by-refs`, async ({ request }) => {
           expect(new URL(request.url).search).toBe('');
           const body = await request.json();
-          expect(body).toMatchObject({
-            entityRefs: ['k:n/a'],
-            query: {
-              $all: [{ kind: 'Component' }, { kind: 'API' }],
-            },
+          expect(body.entityRefs).toEqual(['k:n/a']);
+          expect(body.query).toEqual({
+            $all: [{ kind: 'Component' }, { kind: 'API' }],
           });
           return HttpResponse.json({ items: [entity] });
         }),

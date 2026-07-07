@@ -320,8 +320,8 @@ describe('OidcService', () => {
 
         for (const redirectUri of [
           // Wildcards must not match across component boundaries
-          'https://attacker.com/.spotify.com/cb',
-          'https://evil.com/x/.spotify.com/cb',
+          'https://example.org/.spotify.com/cb',
+          'https://example.net/x/.spotify.com/cb',
           // Scheme must match exactly
           'http://app.spotify.com/oauth/cb',
           // Port must match exactly unless the pattern uses ':*'
@@ -331,7 +331,7 @@ describe('OidcService', () => {
         ]) {
           await expect(
             service.registerClient({
-              clientName: 'Evil Client',
+              clientName: 'Other Client',
               redirectUris: [redirectUri],
             }),
           ).rejects.toThrow('Invalid redirect_uri');
@@ -1288,7 +1288,7 @@ describe('OidcService', () => {
 
           for (const clientId of [
             cimdClientId, // https://example.com/oauth-metadata.json
-            'https://attacker.com/.trusted.com/oauth-metadata.json',
+            'https://example.org/.trusted.com/oauth-metadata.json',
             'https://sub.trusted.com:8443/oauth-metadata.json',
           ]) {
             await expect(
@@ -1375,8 +1375,8 @@ describe('OidcService', () => {
           ).rejects.toThrow('Invalid redirect_uri');
 
           for (const redirectUri of [
-            'https://attacker.com/.example.com/cb',
-            'https://evil.com/x/.example.com/cb',
+            'https://example.org/.example.com/cb',
+            'https://example.net/x/.example.com/cb',
           ]) {
             mockFetchCimdMetadata.mockResolvedValue({
               ...cimdMetadata,

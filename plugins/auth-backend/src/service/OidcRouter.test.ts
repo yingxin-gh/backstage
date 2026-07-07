@@ -473,8 +473,8 @@ describe('OidcRouter', () => {
         await request(server)
           .post('/api/auth/v1/register')
           .send({
-            client_name: 'Evil Client',
-            redirect_uris: ['https://attacker.com/.spotify.com/cb'],
+            client_name: 'Other Client',
+            redirect_uris: ['https://example.org/.spotify.com/cb'],
             response_types: ['code'],
             grant_types: ['authorization_code'],
             scope: 'openid',

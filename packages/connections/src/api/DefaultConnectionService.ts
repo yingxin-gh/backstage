@@ -268,14 +268,17 @@ export class DefaultConnectionsService {
       const type = c.type as ConnectionTypeKey;
       const connectionType = getConnectionType(type);
       for (const auth of c.auth) {
-        if (!auth.title) {
-          const authMethod = connectionType.authMethods.find(
-            am => am.method === auth.method,
+        const authMethod = connectionType.authMethods.find(
+          am => am.method === auth.method,
+        );
+        // The config schema only allows methods declared by the connection
+        // type, so failing to find one means that invariant has been broken.
+        if (!authMethod) {
+          throw new Error(
+            `Unknown auth method "${auth.method}" for connection type "${type}"`,
           );
-          if (authMethod) {
-            (auth as { title?: string }).title = authMethod.title;
-          }
         }
+        auth.title ??= authMethod.title;
       }
     }
   }

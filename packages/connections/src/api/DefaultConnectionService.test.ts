@@ -734,6 +734,7 @@ describe('DefaultConnectionsService', () => {
                 privateKey: 'pk',
                 clientId: 'client',
                 clientSecret: 'secret',
+                orgs: ['other-org'],
               },
             ],
           },

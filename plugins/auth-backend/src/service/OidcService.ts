@@ -36,7 +36,11 @@ import { validateCimdUrl, fetchCimdMetadata } from './CimdClient';
 const WILDCARD_PORT = /:\*(?=\/|$)/;
 const EXPLICIT_PROTOCOL = /^[a-z][a-z0-9+.-]*:/i;
 
-function parseUrlPattern(pattern: string) {
+function createUrlPatternMatcher(pattern: string): (url: URL) => boolean {
+  if (pattern === '*') {
+    return () => true;
+  }
+
   if (!EXPLICIT_PROTOCOL.test(pattern)) {
     throw new Error(
       `Invalid URL pattern '${pattern}', an explicit protocol is required`,
@@ -47,42 +51,25 @@ function parseUrlPattern(pattern: string) {
   // section; in patterns such as 'cursor:*' the '*' is part of the path
   const hasWildcardPort =
     pattern.includes('://') && WILDCARD_PORT.test(pattern);
-  const patternWithParseablePort = hasWildcardPort
-    ? pattern.replace(WILDCARD_PORT, ':1')
-    : pattern;
+  const matchesAnyPath = hasWildcardPort && pattern.endsWith(':*');
 
+  let patternUrl: URL;
   try {
-    return {
-      url: new URL(patternWithParseablePort),
-      hasWildcardPort,
-      matchesAnyPath: hasWildcardPort && pattern.endsWith(':*'),
-    };
+    patternUrl = new URL(
+      hasWildcardPort ? pattern.replace(WILDCARD_PORT, ':1') : pattern,
+    );
   } catch {
     throw new Error(`Invalid URL pattern '${pattern}'`);
   }
-}
 
-function matchesUrlPattern(url: URL, pattern: string): boolean {
-  if (pattern === '*') {
-    return true;
-  }
+  const hostnamePattern = patternUrl.hostname || '*';
+  const pathPattern = matchesAnyPath ? '*' : patternUrl.pathname || '*';
 
-  const parsedPattern = parseUrlPattern(pattern);
-
-  const pathPattern = parsedPattern.matchesAnyPath
-    ? '*'
-    : parsedPattern.url.pathname || '*';
-
-  const protocolMatches = url.protocol === parsedPattern.url.protocol;
-  const hostnameMatches = matcher.isMatch(
-    url.hostname,
-    parsedPattern.url.hostname || '*',
-  );
-  const portMatches =
-    parsedPattern.hasWildcardPort || url.port === parsedPattern.url.port;
-  const pathnameMatches = matcher.isMatch(url.pathname, pathPattern);
-
-  return protocolMatches && hostnameMatches && portMatches && pathnameMatches;
+  return url =>
+    url.protocol === patternUrl.protocol &&
+    matcher.isMatch(url.hostname, hostnamePattern) &&
+    (hasWildcardPort || url.port === patternUrl.port) &&
+    matcher.isMatch(url.pathname, pathPattern);
 }
 
 function validateRedirectUri(
@@ -96,7 +83,8 @@ function validateRedirectUri(
     throw new InputError(`Invalid redirect_uri '${normalized}'`);
   }
 
-  if (!allowedPatterns.some(pattern => matchesUrlPattern(parsed, pattern))) {
+  const allowedMatchers = allowedPatterns.map(createUrlPatternMatcher);
+  if (!allowedMatchers.some(matches => matches(parsed))) {
     throw new InputError(`Invalid redirect_uri '${normalized}'`);
   }
 }
@@ -429,11 +417,10 @@ export class OidcService {
       throw new InputError('Client ID metadata documents not enabled');
     }
 
-    if (
-      !cimd.allowedClientIdPatterns.some(pattern =>
-        matchesUrlPattern(opts.cimdUrl, pattern),
-      )
-    ) {
+    const clientIdMatchers = cimd.allowedClientIdPatterns.map(
+      createUrlPatternMatcher,
+    );
+    if (!clientIdMatchers.some(matches => matches(opts.cimdUrl))) {
       throw new InputError(`Invalid client_id '${opts.clientId}'`);
     }
 

@@ -51,7 +51,6 @@ function createUrlPatternMatcher(pattern: string): (url: URL) => boolean {
   // section; in patterns such as 'cursor:*' the '*' is part of the path
   const hasWildcardPort =
     pattern.includes('://') && WILDCARD_PORT.test(pattern);
-  const matchesAnyPath = hasWildcardPort && pattern.endsWith(':*');
 
   let patternUrl: URL;
   try {
@@ -63,7 +62,9 @@ function createUrlPatternMatcher(pattern: string): (url: URL) => boolean {
   }
 
   const hostnamePattern = patternUrl.hostname || '*';
-  const pathPattern = matchesAnyPath ? '*' : patternUrl.pathname || '*';
+  // The path is never empty for http(s) URLs, only for non-special
+  // schemes such as in 'cursor://*', where any path is matched instead
+  const pathPattern = patternUrl.pathname || '*';
 
   return url =>
     url.protocol === patternUrl.protocol &&
@@ -91,11 +92,11 @@ function validateRedirectUri(
 
 const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 const LOOPBACK_REDIRECT_PATTERNS = [
-  'http://localhost:*',
+  'http://localhost:*/*',
   'http://localhost/*',
-  'http://127.0.0.1:*',
+  'http://127.0.0.1:*/*',
   'http://127.0.0.1/*',
-  'http://[::1]:*',
+  'http://[::1]:*/*',
   'http://[::1]/*',
 ];
 

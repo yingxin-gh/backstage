@@ -338,6 +338,34 @@ describe('OidcService', () => {
         }
       });
 
+      it('should not treat a wildcard port as a wildcard path', async () => {
+        const { service } = await createOidcService({
+          databaseId,
+          config: {
+            auth: {
+              experimentalDynamicClientRegistration: {
+                allowedRedirectUriPatterns: ['http://localhost:*'],
+              },
+            },
+          },
+        });
+
+        const client = await service.registerClient({
+          clientName: 'Test Client',
+          redirectUris: ['http://localhost:7007/'],
+        });
+        expect(client).toEqual(
+          expect.objectContaining({ redirectUris: ['http://localhost:7007/'] }),
+        );
+
+        await expect(
+          service.registerClient({
+            clientName: 'Test Client',
+            redirectUris: ['http://localhost:7007/callback'],
+          }),
+        ).rejects.toThrow('Invalid redirect_uri');
+      });
+
       it('should reject allowlist patterns without an explicit protocol', async () => {
         const { service } = await createOidcService({
           databaseId,
@@ -367,7 +395,7 @@ describe('OidcService', () => {
             auth: {
               experimentalDynamicClientRegistration: {
                 allowedRedirectUriPatterns: [
-                  'http://[::1]:*',
+                  'http://[::1]:*/*',
                   'http://[::1]/*',
                 ],
               },
@@ -434,7 +462,7 @@ describe('OidcService', () => {
           config: {
             auth: {
               experimentalDynamicClientRegistration: {
-                allowedRedirectUriPatterns: ['http://localhost:*'],
+                allowedRedirectUriPatterns: ['http://localhost:*/*'],
               },
             },
           },
@@ -1492,7 +1520,7 @@ describe('OidcService', () => {
                   enabled: true,
                   allowedClientIdPatterns: ['*'],
                   allowedRedirectUriPatterns: [
-                    'http://[::1]:*',
+                    'http://[::1]:*/*',
                     'http://[::1]/*',
                   ],
                 },
@@ -1530,7 +1558,7 @@ describe('OidcService', () => {
                   enabled: true,
                   allowedClientIdPatterns: ['*'],
                   allowedRedirectUriPatterns: [
-                    'http://127.0.0.1:*',
+                    'http://127.0.0.1:*/*',
                     'http://127.0.0.1/*',
                   ],
                 },
@@ -1567,7 +1595,7 @@ describe('OidcService', () => {
                 clientIdMetadataDocuments: {
                   enabled: true,
                   allowedClientIdPatterns: ['*'],
-                  allowedRedirectUriPatterns: ['http://localhost:*'],
+                  allowedRedirectUriPatterns: ['http://localhost:*/*'],
                 },
               },
             },
@@ -1591,7 +1619,7 @@ describe('OidcService', () => {
                 clientIdMetadataDocuments: {
                   enabled: true,
                   allowedClientIdPatterns: ['*'],
-                  allowedRedirectUriPatterns: ['http://localhost:*'],
+                  allowedRedirectUriPatterns: ['http://localhost:*/*'],
                 },
               },
             },

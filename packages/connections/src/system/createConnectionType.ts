@@ -47,6 +47,7 @@ export function createConnectionType<
     am.configSchema
       .extend({
         method: z.literal(am.method),
+        title: z.string().min(1).optional(),
         match: matchSchema,
       })
       .strict(),

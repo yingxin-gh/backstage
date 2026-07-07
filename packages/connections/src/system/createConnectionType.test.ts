@@ -20,6 +20,7 @@ describe('createConnectionType', () => {
   it('builds a single-auth-method connection type whose schema validates correctly', () => {
     const tokenAuth = {
       method: 'token',
+      title: 'Token',
       configSchema: z.object({ token: z.string() }),
     } as const;
 
@@ -95,6 +96,24 @@ describe('createConnectionType', () => {
         auth: [{ method: 'token', token: 'abc' }],
       }),
     ).not.toHaveProperty('title');
+
+    // Optional auth method title field should be accepted.
+    expect(
+      SingleAuthType.schema.parse({
+        type: 'single',
+        host: 'example.com',
+        auth: [{ method: 'token', title: 'Production Token', token: 'abc' }],
+      }).auth[0],
+    ).toMatchObject({ title: 'Production Token' });
+
+    // Auth method title must not be empty when provided.
+    expect(() =>
+      SingleAuthType.schema.parse({
+        type: 'single',
+        host: 'example.com',
+        auth: [{ method: 'token', title: '', token: 'abc' }],
+      }),
+    ).toThrow();
   });
 
   it('builds a multi-auth-method connection type that discriminates on method', () => {
@@ -103,9 +122,14 @@ describe('createConnectionType', () => {
       title: 'Multi',
       configSchema: z.object({ host: z.string() }),
       authMethods: [
-        { method: 'token', configSchema: z.object({ token: z.string() }) },
+        {
+          method: 'token',
+          title: 'Token',
+          configSchema: z.object({ token: z.string() }),
+        },
         {
           method: 'app',
+          title: 'App',
           configSchema: z.object({
             appId: z.number(),
             privateKey: z.string(),

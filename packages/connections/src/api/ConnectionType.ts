@@ -42,6 +42,7 @@ export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
   TAuthMethod extends any
     ? {
         method: TAuthMethod['method'];
+        title: string;
       } & z.infer<TAuthMethod['configSchema']>
     : never;
 
@@ -76,6 +77,7 @@ export type ConnectionAuthMethod<
   TConfigSchema extends z.ZodObject = z.ZodObject,
 > = {
   method: TMethod;
+  title: string;
   configSchema: TConfigSchema;
 };
 

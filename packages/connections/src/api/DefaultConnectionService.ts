@@ -191,6 +191,7 @@ export class DefaultConnectionsService {
     }
 
     this.#assignDefaultTitles();
+    this.#assignDefaultAuthTitles();
 
     this.logger.info(
       `Loaded ${this.connections.length} connection${
@@ -258,6 +259,23 @@ export class DefaultConnectionsService {
         const host = (c as unknown as { host: string }).host;
         (c as { title?: string }).title =
           typeCounts.get(type)! > 1 ? `${displayName} (${host})` : displayName;
+      }
+    }
+  }
+
+  #assignDefaultAuthTitles(): void {
+    for (const c of this.connections) {
+      const type = c.type as ConnectionTypeKey;
+      const connectionType = getConnectionType(type);
+      for (const auth of c.auth) {
+        if (!auth.title) {
+          const authMethod = connectionType.authMethods.find(
+            am => am.method === auth.method,
+          );
+          if (authMethod) {
+            (auth as { title?: string }).title = authMethod.title;
+          }
+        }
       }
     }
   }

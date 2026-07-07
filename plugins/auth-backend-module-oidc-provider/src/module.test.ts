@@ -150,10 +150,7 @@ describe('authModuleOidcProvider', () => {
     backstageServer = backend.server;
     const port = backend.server.port();
     appUrl = `http://localhost:${port}`;
-    mswServer.use(
-      http.all(`http://127.0.0.1:${port}/*`, passthrough),
-      http.all(`http://localhost:${port}/*`, passthrough),
-    );
+    mswServer.use(http.all(`http://*:${port}/*`, passthrough));
   });
 
   afterEach(() => {

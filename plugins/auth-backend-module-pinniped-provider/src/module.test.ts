@@ -158,10 +158,7 @@ describe('authModulePinnipedProvider', () => {
     server = backend.server;
     port = backend.server.port();
 
-    mswServer.use(
-      http.all(`http://127.0.0.1:${port}/*`, passthrough),
-      http.all(`http://localhost:${port}/*`, passthrough),
-    );
+    mswServer.use(http.all(`http://*:${port}/*`, passthrough));
   });
 
   it('should start', async () => {

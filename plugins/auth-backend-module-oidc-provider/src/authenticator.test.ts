@@ -79,6 +79,7 @@ describe('oidcAuthenticator', () => {
         nonce =
           new URL(request.url).searchParams.get('nonce') ??
           'nonceGeneratedByAuthServer';
+        return HttpResponse.text('');
       }),
       http.post('https://oidc.test/oauth2/token', async ({ request }) => {
         const formBody = new URLSearchParams(await request.text());

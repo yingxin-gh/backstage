@@ -313,7 +313,7 @@ describe('pinnipedAuthenticator', () => {
     });
 
     it('caches oidc metadata after a success', async () => {
-      // we start with 1 because the supervisor was called once already when we initialize.
+      // Count metadata fetches after this handler is installed; the first start() should fetch once, the second should use cache.
       let supervisorCalls: number = 0;
 
       mswServer.use(
@@ -333,7 +333,7 @@ describe('pinnipedAuthenticator', () => {
     });
 
     it('refreshes oidc metadata when current one in cache expires', async () => {
-      // we start with 1 because the supervisor was called once already when we initialize.
+      // Count metadata fetches after this handler is installed; expect a refetch once the cache TTL expires.
       let supervisorCalls: number = 0;
       const fixedTime = DateTime.local();
       jest.spyOn(DateTime, 'local').mockImplementation(() => fixedTime);

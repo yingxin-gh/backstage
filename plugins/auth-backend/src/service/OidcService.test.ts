@@ -338,6 +338,28 @@ describe('OidcService', () => {
         }
       });
 
+      it('should reject allowlist patterns without an explicit protocol', async () => {
+        const { service } = await createOidcService({
+          databaseId,
+          config: {
+            auth: {
+              experimentalDynamicClientRegistration: {
+                allowedRedirectUriPatterns: ['*.spotify.com/*'],
+              },
+            },
+          },
+        });
+
+        await expect(
+          service.registerClient({
+            clientName: 'Test Client',
+            redirectUris: ['https://app.spotify.com/oauth/cb'],
+          }),
+        ).rejects.toThrow(
+          "Invalid URL pattern '*.spotify.com/*', an explicit protocol is required",
+        );
+      });
+
       it('should accept IPv6 loopback redirect URI', async () => {
         const { service } = await createOidcService({
           databaseId,

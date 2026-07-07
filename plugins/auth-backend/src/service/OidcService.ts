@@ -34,8 +34,17 @@ import { OfflineAccessService } from './OfflineAccessService';
 import { validateCimdUrl, fetchCimdMetadata } from './CimdClient';
 
 const WILDCARD_PORT = /:\*(?=\/|$)/;
+const EXPLICIT_PROTOCOL = /^[a-z][a-z0-9+.-]*:/i;
 
 function parseUrlPattern(pattern: string) {
+  if (!EXPLICIT_PROTOCOL.test(pattern)) {
+    throw new Error(
+      `Invalid URL pattern '${pattern}', an explicit protocol is required`,
+    );
+  }
+
+  // A ':*' port wildcard can only appear in patterns with an authority
+  // section; in patterns such as 'cursor:*' the '*' is part of the path
   const hasWildcardPort =
     pattern.includes('://') && WILDCARD_PORT.test(pattern);
   const patternWithParseablePort = hasWildcardPort
@@ -49,7 +58,7 @@ function parseUrlPattern(pattern: string) {
       matchesAnyPath: hasWildcardPort && pattern.endsWith(':*'),
     };
   } catch {
-    return undefined;
+    throw new Error(`Invalid URL pattern '${pattern}'`);
   }
 }
 
@@ -59,9 +68,6 @@ function matchesUrlPattern(url: URL, pattern: string): boolean {
   }
 
   const parsedPattern = parseUrlPattern(pattern);
-  if (!parsedPattern) {
-    return false;
-  }
 
   const pathPattern = parsedPattern.matchesAnyPath
     ? '*'

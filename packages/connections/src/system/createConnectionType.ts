@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { z } from 'zod/v4';
+import type { JsonObject } from '@backstage/types';
 import type {
   ConnectionAuthMethod,
   ConnectionType,
@@ -26,6 +27,22 @@ const matchSchema = z
   .object({ plugins: z.array(z.string()) })
   .strict()
   .optional();
+
+const connectionTypeValidators = new WeakMap<ConnectionType, z.ZodType>();
+
+/** @public */
+export function parseConnectionTypeConfig(
+  connectionType: ConnectionType,
+  value: unknown,
+): unknown {
+  const validator = connectionTypeValidators.get(connectionType);
+  if (!validator) {
+    throw new Error(
+      `No validator found for connection type "${connectionType.type}"`,
+    );
+  }
+  return validator.parse(value);
+}
 
 export function createConnectionType<
   TType extends string,
@@ -70,12 +87,16 @@ export function createConnectionType<
       ),
     })
     .strict();
-  return {
+  const connectionType = {
     type,
     title,
     configSchema: validated,
     authMethods: validatedAuthMethods,
-    schema,
+    schema: {
+      ...schema.toJSONSchema({ target: 'draft-07', io: 'input' }),
+    } as JsonObject,
     matchAuth,
   };
+  connectionTypeValidators.set(connectionType, schema);
+  return connectionType;
 }

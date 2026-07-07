@@ -26,3 +26,4 @@ export type {
   ConnectionTypeKey,
   LookupConnectionType,
 } from './definitions/types';
+export { parseConnectionTypeConfig } from './system/createConnectionType';

@@ -4,14 +4,15 @@
 
 ```ts
 import { $strip } from 'zod/v4/core';
+import type { JsonObject } from '@backstage/types';
 import type { z } from 'zod/v4';
-import { ZodArray } from 'zod';
-import { ZodBoolean } from 'zod';
-import { ZodNumber } from 'zod';
-import { ZodObject } from 'zod';
-import { ZodOptional } from 'zod';
-import { ZodString } from 'zod';
-import { ZodUnion } from 'zod';
+import { ZodArray } from 'zod/v4';
+import { ZodBoolean } from 'zod/v4';
+import { ZodNumber } from 'zod/v4';
+import { ZodObject } from 'zod/v4';
+import { ZodOptional } from 'zod/v4';
+import { ZodString } from 'zod/v4';
+import { ZodUnion } from 'zod/v4';
 
 // @public (undocumented)
 export type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
@@ -81,7 +82,7 @@ export type ConnectionType<
   title: string;
   configSchema: TConfigSchema;
   authMethods: TAuthMethods;
-  schema: z.ZodType;
+  schema: JsonObject;
   matchAuth?(
     authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
     query: string,
@@ -557,6 +558,12 @@ export const connectionTypes: {
 // @public (undocumented)
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
   T extends ConnectionTypeKey ? (typeof connectionTypes)[T] : T;
+
+// @public (undocumented)
+export function parseConnectionTypeConfig(
+  connectionType: ConnectionType,
+  value: unknown,
+): unknown;
 
 // (No @packageDocumentation comment for this package)
 ```

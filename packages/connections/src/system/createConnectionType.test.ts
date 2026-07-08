@@ -103,8 +103,8 @@ describe('createConnectionType', () => {
         type: 'single',
         host: 'example.com',
         auth: [{ method: 'token', title: 'Production Token', token: 'abc' }],
-      }).auth[0],
-    ).toMatchObject({ title: 'Production Token' });
+      }),
+    ).toMatchObject({ auth: [{ title: 'Production Token' }] });
 
     // Auth method title must not be empty when provided.
     expect(() =>

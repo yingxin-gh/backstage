@@ -71,7 +71,9 @@ function getBackendFilterObject(
 export const toStreamRequest = (
   filters: DefaultEntityFilters,
 ): StreamEntitiesRequest | undefined => {
-  const filterValues = Object.values(filters).filter(Boolean);
+  const filterValues = Object.values(filters).filter(
+    (f): f is NonNullable<typeof f> => f !== null && f !== undefined,
+  );
 
   const backendFilters = filterValues
     .flatMap(f => {

@@ -18,6 +18,7 @@ import type {
   ConnectionAuthMethod,
   ConnectionType,
   MatchAuth,
+  WithoutReservedAuthMethods,
   WithoutReservedFields,
 } from '../api/ConnectionType';
 
@@ -40,10 +41,11 @@ export function createConnectionType<
   type: TType;
   title: string;
   configSchema: WithoutReservedFields<TConfigSchema>;
-  authMethods: TAuthMethods;
+  authMethods: WithoutReservedAuthMethods<TAuthMethods>;
   matchAuth?: MatchAuth<TAuthMethods>;
 }): ConnectionType<TType, TConfigSchema, TAuthMethods> {
-  const authOptions = authMethods.map(am =>
+  const validatedAuthMethods = authMethods as TAuthMethods;
+  const authOptions = validatedAuthMethods.map(am =>
     am.configSchema
       .extend({
         method: z.literal(am.method),
@@ -72,7 +74,7 @@ export function createConnectionType<
     type,
     title,
     configSchema: validated,
-    authMethods,
+    authMethods: validatedAuthMethods,
     schema,
     matchAuth,
   };

@@ -116,6 +116,26 @@ describe('createConnectionType', () => {
     ).toThrow();
   });
 
+  it('rejects framework-owned auth method config fields at compile time', () => {
+    const reservedAuth = {
+      method: 'token',
+      title: 'Token',
+      configSchema: z.object({
+        method: z.string(),
+        match: z.object({ plugins: z.array(z.string()) }),
+        title: z.string(),
+      }),
+    } as const;
+
+    createConnectionType({
+      type: 'reserved-auth',
+      title: 'Reserved Auth',
+      configSchema: z.object({ host: z.string() }),
+      // @ts-expect-error - auth method config must not declare framework-owned fields
+      authMethods: [reservedAuth],
+    });
+  });
+
   it('builds a multi-auth-method connection type that discriminates on method', () => {
     const MultiAuthType = createConnectionType({
       type: 'multi',

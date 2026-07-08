@@ -30,7 +30,12 @@ const matchSchema = z
 
 const connectionTypeValidators = new WeakMap<ConnectionType, z.ZodType>();
 
-/** @public */
+/**
+ * Parses and validates a full connection object (including framework-owned fields
+ * like `auth`, `match`, and `title`) for the given connection type.
+ *
+ * @public
+ */
 export function parseConnectionTypeConfig(
   connectionType: ConnectionType,
   value: unknown,

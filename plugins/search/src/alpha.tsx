@@ -23,7 +23,6 @@ import { z } from 'zod/v4';
 import {
   CatalogIcon,
   Content,
-  DocsIcon,
   useSidebarPinState,
 } from '@backstage/core-components';
 import {
@@ -159,11 +158,6 @@ export const searchPage = PageBlueprint.makeWithOverrides({
                           value: 'software-catalog',
                           name: 'Software Catalog',
                           icon: <CatalogIcon />,
-                        },
-                        {
-                          value: 'techdocs',
-                          name: 'Documentation',
-                          icon: <DocsIcon />,
                         },
                       ].concat(resultTypes)}
                     />

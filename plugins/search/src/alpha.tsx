@@ -195,17 +195,14 @@ export const searchPage = PageBlueprint.makeWithOverrides({
                         className={classes.filter}
                         label="Kind"
                         name="kind"
-                        values={[
-                          'API',
-                          'Component',
-                          'Domain',
-                          'Group',
-                          'Location',
-                          'Resource',
-                          'System',
-                          'Template',
-                          'User',
-                        ]}
+                        values={async () => {
+                          const { facets } = await catalogApi.getEntityFacets({
+                            facets: ['kind'],
+                          });
+                          return (facets.kind ?? [])
+                            .map(facet => facet.value)
+                            .sort((a, b) => a.localeCompare(b));
+                        }}
                       />
                       <SearchFilter.Checkbox
                         className={classes.filter}

@@ -73,7 +73,9 @@ export type ConnectionType<
   type: TType;
   title: string;
   authMethods: TAuthMethods;
-  schema: JsonObject;
+  schema: JsonObject & {
+    parse(value: unknown): unknown;
+  };
   matchAuth?(
     authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
     query: string,
@@ -377,12 +379,6 @@ export const connectionTypes: {
 // @public (undocumented)
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
   T extends ConnectionTypeKey ? (typeof connectionTypes)[T] : T;
-
-// @public
-export function parseConnectionTypeConfig(
-  connectionType: ConnectionType,
-  value: unknown,
-): unknown;
 
 // (No @packageDocumentation comment for this package)
 ```

@@ -23,7 +23,6 @@ import type {
   ConnectionsService,
   ConnectionTypeKey,
 } from '@backstage/connections';
-import { parseConnectionTypeConfig } from '@backstage/connections';
 import { getConnectionType, isConnectionTypeKey } from './lookup';
 import type { RootConnection } from './types';
 import { JsonObject } from '@backstage/types';
@@ -242,8 +241,7 @@ export class DefaultConnectionsService {
       throw new InputError(`Unrecognised connection type ${connection.type}`);
     }
 
-    return parseConnectionTypeConfig(
-      getConnectionType(connection.type),
+    return getConnectionType(connection.type).schema.parse(
       connection,
     ) as RootConnection;
   }

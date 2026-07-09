@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 import { mockServices } from '@backstage/backend-test-utils';
-import {
-  connectionTypes,
-  parseConnectionTypeConfig,
-} from '@backstage/connections';
+import { connectionTypes } from '@backstage/connections';
 import { getLegacyIntegrations } from './getLegacyIntegrations';
 
 const AwsCodeCommitConnectionType = connectionTypes['aws-codecommit'];
@@ -207,9 +204,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(GithubConnectionType, converted),
-      ).not.toThrow();
+      expect(() => GithubConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 
@@ -324,9 +319,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(GitlabConnectionType, converted),
-      ).not.toThrow();
+      expect(() => GitlabConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 
@@ -401,7 +394,7 @@ describe('getLegacyIntegrations', () => {
 
       const [converted] = getLegacyIntegrations(config);
       expect(() =>
-        parseConnectionTypeConfig(BitbucketCloudConnectionType, converted),
+        BitbucketCloudConnectionType.schema.parse(converted),
       ).not.toThrow();
     });
   });
@@ -479,7 +472,7 @@ describe('getLegacyIntegrations', () => {
 
       const [converted] = getLegacyIntegrations(config);
       expect(() =>
-        parseConnectionTypeConfig(BitbucketServerConnectionType, converted),
+        BitbucketServerConnectionType.schema.parse(converted),
       ).not.toThrow();
     });
   });
@@ -583,9 +576,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(AzureConnectionType, converted),
-      ).not.toThrow();
+      expect(() => AzureConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 
@@ -638,9 +629,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(GerritConnectionType, converted),
-      ).not.toThrow();
+      expect(() => GerritConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 
@@ -687,9 +676,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(GiteaConnectionType, converted),
-      ).not.toThrow();
+      expect(() => GiteaConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 
@@ -788,7 +775,7 @@ describe('getLegacyIntegrations', () => {
 
       const [converted] = getLegacyIntegrations(config);
       expect(() =>
-        parseConnectionTypeConfig(AwsCodeCommitConnectionType, converted),
+        AwsCodeCommitConnectionType.schema.parse(converted),
       ).not.toThrow();
     });
   });
@@ -871,9 +858,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(AwsS3ConnectionType, converted),
-      ).not.toThrow();
+      expect(() => AwsS3ConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 
@@ -939,7 +924,7 @@ describe('getLegacyIntegrations', () => {
 
       const [converted] = getLegacyIntegrations(config);
       expect(() =>
-        parseConnectionTypeConfig(GoogleGcsConnectionType, converted),
+        GoogleGcsConnectionType.schema.parse(converted),
       ).not.toThrow();
     });
   });
@@ -1087,7 +1072,7 @@ describe('getLegacyIntegrations', () => {
 
       const [converted] = getLegacyIntegrations(config);
       expect(() =>
-        parseConnectionTypeConfig(AzureBlobStorageConnectionType, converted),
+        AzureBlobStorageConnectionType.schema.parse(converted),
       ).not.toThrow();
     });
   });
@@ -1127,9 +1112,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       const [converted] = getLegacyIntegrations(config);
-      expect(() =>
-        parseConnectionTypeConfig(HarnessConnectionType, converted),
-      ).not.toThrow();
+      expect(() => HarnessConnectionType.schema.parse(converted)).not.toThrow();
     });
   });
 });

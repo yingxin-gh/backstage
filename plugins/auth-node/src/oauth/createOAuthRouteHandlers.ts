@@ -135,6 +135,23 @@ export function createOAuthRouteHandlers<TProfile>(
     ): Promise<void> {
       const env = req.query.env?.toString();
       const origin = req.query.origin?.toString();
+      if (origin !== undefined) {
+        let parsedOrigin: URL;
+        try {
+          parsedOrigin = new URL(origin);
+        } catch (error) {
+          throw new InputError(
+            `App origin is invalid, failed to parse: ${error.message}`,
+          );
+        }
+
+        if (
+          typeof isOriginAllowed === 'function' &&
+          !isOriginAllowed(parsedOrigin.origin)
+        ) {
+          throw new NotAllowedError(`Origin '${origin}' is not allowed`);
+        }
+      }
       const redirectUrl = req.query.redirectUrl?.toString();
       const flow = req.query.flow?.toString();
 

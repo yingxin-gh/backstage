@@ -36,10 +36,10 @@ describe('Auth0Strategy', () => {
     domain: 'test.auth0.com',
     passReqToCallback: true as const,
     store: {
-      store(_req: express.Request, cb: Function) {
+      store(_req: express.Request, cb: any) {
         cb(null, null);
       },
-      verify(_req: express.Request, _state: string, cb: Function) {
+      verify(_req: express.Request, _state: string, cb: any) {
         cb(null, true);
       },
     },

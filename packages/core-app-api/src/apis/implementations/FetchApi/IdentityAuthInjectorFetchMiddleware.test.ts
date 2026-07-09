@@ -82,6 +82,9 @@ describe('IdentityAuthInjectorFetchMiddleware', () => {
       middleware.allowUrl('https://gateway.example.com/api/catalog'),
     ).toEqual(true);
     expect(
+      middleware.allowUrl('https://gateway.example.com/api/catalog?x=1'),
+    ).toEqual(true);
+    expect(
       middleware.allowUrl(
         'https://gateway.example.com/api/catalog/entities/by-query',
       ),

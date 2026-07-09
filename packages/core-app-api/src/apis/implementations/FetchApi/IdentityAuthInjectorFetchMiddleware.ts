@@ -163,7 +163,7 @@ function buildUrlPatternMatcher(pattern: string): (url: string) => boolean {
     source += escapeRegExp(parts[i]);
   }
 
-  const regex = new RegExp(`^${source}(?:/|$)`);
+  const regex = new RegExp(`^${source}(?:/|$|[?#])`);
   return url => regex.test(url);
 }
 

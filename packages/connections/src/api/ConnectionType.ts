@@ -65,11 +65,11 @@ export type WithoutReservedAuthMethods<
 
 /** @public */
 export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
-  TAuthMethod extends any
+  TAuthMethod extends ConnectionAuthMethod<infer TMethod, infer TConfig>
     ? {
-        method: TAuthMethod['method'];
+        method: TMethod;
         title: string;
-      } & z.infer<TAuthMethod['configSchema']>
+      } & TConfig
     : never;
 
 export type MatchAuth<TAuthMethods extends readonly ConnectionAuthMethod[]> = (
@@ -80,12 +80,11 @@ export type MatchAuth<TAuthMethods extends readonly ConnectionAuthMethod[]> = (
 /** @public */
 export type ConnectionType<
   TType extends string = string,
-  TConfigSchema extends z.ZodObject = z.ZodObject,
+  _TConfig extends object = object,
   TAuthMethods extends readonly ConnectionAuthMethod[] = readonly ConnectionAuthMethod[],
 > = {
   type: TType;
   title: string;
-  configSchema: TConfigSchema;
   authMethods: TAuthMethods;
   schema: JsonObject;
   // Method shorthand keeps parameter checking bivariant so a narrow
@@ -100,11 +99,10 @@ export type ConnectionType<
 /** @public */
 export type ConnectionAuthMethod<
   TMethod extends string = string,
-  TConfigSchema extends z.ZodObject = z.ZodObject,
+  _TConfig extends object = object,
 > = {
   method: TMethod;
   title: string;
-  configSchema: TConfigSchema;
 };
 
 /** @public */

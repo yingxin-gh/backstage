@@ -35,7 +35,11 @@ describe('createConnectionType', () => {
     });
 
     expect(SingleAuthType.type).toBe('single');
-    expect(SingleAuthType.authMethods).toEqual([tokenAuth]);
+    expect(SingleAuthType.authMethods).toEqual([
+      { method: 'token', title: 'Token' },
+    ]);
+    expect(SingleAuthType).not.toHaveProperty('configSchema');
+    expect(SingleAuthType.authMethods[0]).not.toHaveProperty('configSchema');
     expect(SingleAuthType.schema).toMatchObject({
       type: 'object',
       properties: {

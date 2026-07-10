@@ -1,13 +1,13 @@
 {
-  "name": "@backstage/connections-backend",
+  "name": "@backstage/connections-node",
   "version": "0.0.0",
-  "description": "Backend service implementation for the Backstage connections framework",
+  "description": "Node.js service implementation for the Backstage connections framework",
   "backstage": {
     "role": "node-library",
     "pluginId": "connections",
     "pluginPackages": [
       "@backstage/connections",
-      "@backstage/connections-backend"
+      "@backstage/connections-node"
     ]
   },
   "publishConfig": {
@@ -22,7 +22,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/backstage/backstage",
-    "directory": "packages/connections-backend"
+    "directory": "packages/connections-node"
   },
   "license": "Apache-2.0",
   "main": "src/index.ts",

@@ -16,13 +16,10 @@
 import type {
   AuthValue,
   Connection,
+  ConnectionMatch,
   ConnectionType,
   ConnectionTypeKey,
 } from '@backstage/connections';
-
-type ConnectionMatch = {
-  plugins: string[];
-};
 
 type RootAuthValue<T extends ConnectionType | ConnectionTypeKey> =
   AuthValue<T> extends infer A

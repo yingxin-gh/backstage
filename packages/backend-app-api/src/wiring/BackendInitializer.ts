@@ -53,7 +53,7 @@ import { BackendStartupResult } from './types';
 import { BackendStartupError } from './BackendStartupError';
 import { createAllowBootFailurePredicate } from './createAllowBootFailurePredicate';
 import type { ConnectionsService } from '@backstage/connections';
-import { connectionsServiceRef } from '@backstage/connections-backend';
+import { connectionsServiceRef } from '@backstage/connections-node';
 import { withDeclaredConnections } from './withDeclaredConnections';
 
 export interface BackendRegisterInit {

@@ -1,6 +1,6 @@
-# Connections Backend
+# Connections Node
 
-The backend service implementation for `@backstage/connections`. It loads
+The Node.js service implementation for `@backstage/connections`. It loads
 connections from configuration, adapts legacy `integrations` configuration,
 and exposes the connections service to backend plugins and modules.
 
@@ -9,5 +9,5 @@ and exposes the connections service to backend plugins and modules.
 Install the package via Yarn:
 
 ```sh
-yarn add @backstage/connections-backend
+yarn add @backstage/connections-node
 ```

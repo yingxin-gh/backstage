@@ -49,7 +49,7 @@
     "@backstage/backend-plugin-api": "workspace:^",
     "@backstage/config": "workspace:^",
     "@backstage/connections": "workspace:^",
-    "@backstage/connections-backend": "workspace:^",
+    "@backstage/connections-node": "workspace:^",
     "@backstage/errors": "workspace:^"
   },
   "devDependencies": {

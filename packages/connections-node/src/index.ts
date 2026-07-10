@@ -15,7 +15,7 @@
  */
 
 /**
- * Backend service implementation for the Backstage connections framework.
+ * Node.js service implementation for the Backstage connections framework.
  *
  * @packageDocumentation
  */

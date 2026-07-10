@@ -21,7 +21,7 @@ import { createRouter } from './router';
 import {
   connectionsServiceRef,
   declareConnection,
-} from '@backstage/connections-backend';
+} from '@backstage/connections-node';
 
 /**
  * connectionsExampleBackendPlugin backend plugin

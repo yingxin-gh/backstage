@@ -23,6 +23,7 @@ export type {
 } from './api/ConnectionType';
 export { connectionTypes } from './definitions/types';
 export type {
+  ConnectionMatch,
   ConnectionTypeKey,
   LookupConnectionType,
 } from './definitions/types';

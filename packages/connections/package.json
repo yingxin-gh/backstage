@@ -7,7 +7,7 @@
     "pluginId": "connections",
     "pluginPackages": [
       "@backstage/connections",
-      "@backstage/connections-backend"
+      "@backstage/connections-node"
     ]
   },
   "publishConfig": {

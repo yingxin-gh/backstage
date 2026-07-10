@@ -1,12 +1,19 @@
 {
-  "name": "@backstage/backend-app-api",
-  "version": "1.7.2-next.0",
-  "description": "Core API used by Backstage backend apps",
+  "name": "@backstage/connections-backend",
+  "version": "0.0.0",
+  "description": "Backend service implementation for the Backstage connections framework",
   "backstage": {
-    "role": "node-library"
+    "role": "node-library",
+    "pluginId": "connections",
+    "pluginPackages": [
+      "@backstage/connections",
+      "@backstage/connections-backend"
+    ]
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "types": "dist/index.d.ts"
   },
   "keywords": [
     "backstage"
@@ -15,26 +22,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/backstage/backstage",
-    "directory": "packages/backend-app-api"
+    "directory": "packages/connections-backend"
   },
   "license": "Apache-2.0",
-  "exports": {
-    ".": "./src/index.ts",
-    "./package.json": "./package.json"
-  },
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "typesVersions": {
-    "*": {
-      "package.json": [
-        "package.json"
-      ]
-    }
-  },
   "files": [
-    "dist",
-    "config.d.ts",
-    "migrations/**/*.{js,d.ts}"
+    "dist"
   ],
   "scripts": {
     "build": "backstage-cli package build",
@@ -49,14 +43,12 @@
     "@backstage/backend-plugin-api": "workspace:^",
     "@backstage/config": "workspace:^",
     "@backstage/connections": "workspace:^",
-    "@backstage/connections-backend": "workspace:^",
-    "@backstage/errors": "workspace:^"
+    "@backstage/errors": "workspace:^",
+    "@backstage/types": "workspace:^",
+    "zod": "^3.25.76 || ^4.0.0"
   },
   "devDependencies": {
-    "@backstage/backend-defaults": "workspace:^",
     "@backstage/backend-test-utils": "workspace:^",
-    "@backstage/cli": "workspace:^",
-    "@backstage/types": "workspace:^"
-  },
-  "configSchema": "config.d.ts"
+    "@backstage/cli": "workspace:^"
+  }
 }

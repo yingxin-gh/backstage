@@ -13,16 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export type { ConnectionsService } from './api/ConnectionsService';
-export type { Connection, AuthValue } from './api/Connection';
-export type {
+import type {
+  AuthValue,
+  Connection,
   ConnectionType,
-  ConnectionAuthMethod,
-  ConnectionAuthMethodKey,
-  ConnectionAuthValue,
-} from './api/ConnectionType';
-export { connectionTypes } from './definitions/types';
-export type {
   ConnectionTypeKey,
-  LookupConnectionType,
-} from './definitions/types';
+} from '@backstage/connections';
+
+type ConnectionMatch = {
+  plugins: string[];
+};
+
+type RootAuthValue<T extends ConnectionType | ConnectionTypeKey> =
+  AuthValue<T> extends infer A
+    ? A extends any
+      ? Omit<A, 'title'> & { title?: string; match?: ConnectionMatch }
+      : never
+    : never;
+
+/** The configuration shape of a connection before plugin filtering. */
+export type RootConnection<
+  T extends ConnectionType | ConnectionTypeKey = ConnectionType,
+> = Omit<Connection<T>, 'auth' | 'title'> & {
+  title?: string;
+  match?: ConnectionMatch;
+  auth: RootAuthValue<T>[];
+};

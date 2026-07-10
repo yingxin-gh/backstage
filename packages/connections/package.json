@@ -3,10 +3,11 @@
   "version": "0.1.1-next.1",
   "description": "Connections framework used by Backstage to better manage external connections used by integrations and plugins",
   "backstage": {
-    "role": "node-library",
+    "role": "common-library",
     "pluginId": "connections",
     "pluginPackages": [
-      "@backstage/connections"
+      "@backstage/connections",
+      "@backstage/connections-backend"
     ]
   },
   "publishConfig": {
@@ -40,14 +41,10 @@
     "test": "backstage-cli package test"
   },
   "dependencies": {
-    "@backstage/backend-plugin-api": "workspace:^",
-    "@backstage/config": "workspace:^",
-    "@backstage/errors": "workspace:^",
     "@backstage/types": "workspace:^",
     "zod": "^3.25.76 || ^4.0.0"
   },
   "devDependencies": {
-    "@backstage/backend-test-utils": "workspace:^",
     "@backstage/cli": "workspace:^"
   }
 }

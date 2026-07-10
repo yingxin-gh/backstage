@@ -4,13 +4,6 @@
 
 ```ts
 import { $strip } from 'zod/v4/core';
-import type { BackendModuleRegistrationPoints } from '@backstage/backend-plugin-api';
-import type { BackendPluginRegistrationPoints } from '@backstage/backend-plugin-api';
-import type { ConnectionRegistration } from '@backstage/backend-plugin-api/alpha';
-import { LoggerService } from '@backstage/backend-plugin-api';
-import { RootConfigService } from '@backstage/backend-plugin-api';
-import { ServiceFactory } from '@backstage/backend-plugin-api';
-import { ServiceRef } from '@backstage/backend-plugin-api';
 import type { z } from 'zod/v4';
 import { ZodArray } from 'zod';
 import { ZodBoolean } from 'zod';
@@ -77,20 +70,6 @@ export interface ConnectionsService {
     authMethods: readonly [TAuthMethod, ...TAuthMethod[]];
   }): Promise<Connection<TType, TAuthMethod>>;
 }
-
-// @public (undocumented)
-export const connectionsServiceFactory: ServiceFactory<
-  ConnectionsService,
-  'plugin',
-  'singleton'
->;
-
-// @public (undocumented)
-export const connectionsServiceRef: ServiceRef<
-  ConnectionsService,
-  'plugin',
-  'singleton'
->;
 
 // @public (undocumented)
 export type ConnectionType<
@@ -574,28 +553,6 @@ export const connectionTypes: {
     ]
   >;
 };
-
-// @public
-export function declareConnection(
-  reg: BackendPluginRegistrationPoints | BackendModuleRegistrationPoints,
-  registration: ConnectionRegistration,
-): void;
-
-// @public (undocumented)
-export class DefaultConnectionsService {
-  // (undocumented)
-  static create(options: {
-    logger: LoggerService;
-    config: RootConfigService;
-  }): DefaultConnectionsService;
-  // (undocumented)
-  forPlugin(
-    pluginId: string,
-    options?: {
-      logger: LoggerService;
-    },
-  ): ConnectionsService;
-}
 
 // @public (undocumented)
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =

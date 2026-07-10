@@ -20,7 +20,7 @@ import {
 import {
   connectionsServiceRef,
   declareConnection,
-} from '@backstage/connections';
+} from '@backstage/connections-backend';
 import { NotFoundError } from '@backstage/errors';
 
 /**

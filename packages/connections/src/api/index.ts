@@ -22,4 +22,3 @@ export type {
   ConnectionAuthMethodKey,
   ConnectionAuthValue,
 } from './ConnectionType';
-export { DefaultConnectionsService } from './DefaultConnectionService';

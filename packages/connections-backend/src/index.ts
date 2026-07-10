@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export type { ConnectionsService } from './api/ConnectionsService';
-export type { Connection, AuthValue } from './api/Connection';
-export type {
-  ConnectionType,
-  ConnectionAuthMethod,
-  ConnectionAuthMethodKey,
-  ConnectionAuthValue,
-} from './api/ConnectionType';
-export { connectionTypes } from './definitions/types';
-export type {
-  ConnectionTypeKey,
-  LookupConnectionType,
-} from './definitions/types';
+
+/**
+ * Backend service implementation for the Backstage connections framework.
+ *
+ * @packageDocumentation
+ */
+
+export { connectionsServiceRef, connectionsServiceFactory } from './service';
+export { DefaultConnectionsService } from './DefaultConnectionsService';
+export { declareConnection } from './declareConnection';

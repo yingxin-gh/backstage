@@ -21,4 +21,5 @@ export type {
   ConnectionAuthMethod,
   ConnectionAuthMethodKey,
   ConnectionAuthValue,
+  PortableSchema,
 } from './ConnectionType';

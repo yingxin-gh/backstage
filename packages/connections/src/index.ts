@@ -20,6 +20,7 @@ export type {
   ConnectionAuthMethod,
   ConnectionAuthMethodKey,
   ConnectionAuthValue,
+  PortableSchema,
 } from './api/ConnectionType';
 export { connectionTypes } from './definitions/types';
 export type {

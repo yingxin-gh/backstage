@@ -63,9 +63,13 @@ describe('NotificationsClient', () => {
       server.use(
         http.get(`${mockBaseUrl}/notifications`, ({ request }) => {
           const url = new URL(request.url);
-          expect(url.searchParams.toString()).toBe(
-            'limit=10&offset=0&search=find+me&read=true&createdAfter=1970-01-01T00%3A00%3A00.005Z',
-          );
+          expect(Object.fromEntries(url.searchParams)).toEqual({
+            limit: '10',
+            offset: '0',
+            search: 'find me',
+            read: 'true',
+            createdAfter: '1970-01-01T00:00:00.005Z',
+          });
           return HttpResponse.json(expectedResp);
         }),
       );
@@ -83,9 +87,11 @@ describe('NotificationsClient', () => {
       server.use(
         http.get(`${mockBaseUrl}/notifications`, ({ request }) => {
           const url = new URL(request.url);
-          expect(url.searchParams.toString()).toBe(
-            `limit=10&offset=0&topic=${testTopic}`,
-          );
+          expect(Object.fromEntries(url.searchParams)).toEqual({
+            limit: '10',
+            offset: '0',
+            topic: testTopic,
+          });
           return HttpResponse.json(expectedResp);
         }),
       );
@@ -174,9 +180,11 @@ describe('NotificationsClient', () => {
       server.use(
         http.get(`${mockBaseUrl}/topics`, ({ request }) => {
           const url = new URL(request.url);
-          expect(url.searchParams.toString()).toBe(
-            'search=find+me&read=true&createdAfter=1970-01-01T00%3A00%3A00.005Z',
-          );
+          expect(Object.fromEntries(url.searchParams)).toEqual({
+            search: 'find me',
+            read: 'true',
+            createdAfter: '1970-01-01T00:00:00.005Z',
+          });
           return HttpResponse.json(expectedResp);
         }),
       );

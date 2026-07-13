@@ -102,7 +102,10 @@ export function createConnectionType<
     },
     schema() {
       if (!cachedJsonSchema) {
-        cachedJsonSchema = schema.toJSONSchema({ target: 'draft-07', io: 'input' }) as JsonObject;
+        cachedJsonSchema = schema.toJSONSchema({
+          target: 'draft-07',
+          io: 'input',
+        }) as JsonObject;
       }
       return { schema: structuredClone(cachedJsonSchema) };
     },

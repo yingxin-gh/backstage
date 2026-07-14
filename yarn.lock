@@ -5962,7 +5962,7 @@ __metadata:
     "@backstage/cli": "workspace:^"
     "@backstage/plugin-notifications-common": "workspace:^"
     "@backstage/test-utils": "workspace:^"
-    msw: "npm:^1.0.0"
+    msw: "npm:^2.0.0"
   languageName: unknown
   linkType: soft
 
@@ -5987,7 +5987,7 @@ __metadata:
     "@testing-library/react": "npm:^16.0.0"
     "@types/react": "npm:^18.0.0"
     lodash: "npm:^4.17.21"
-    msw: "npm:^1.0.0"
+    msw: "npm:^2.0.0"
     notistack: "npm:^3.0.1"
     react: "npm:^18.0.2"
     react-aria-components: "npm:~1.17.0"

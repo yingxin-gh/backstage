@@ -324,6 +324,29 @@ describe('toStreamRequest', () => {
     });
   });
 
+  describe('with undefined filter values', () => {
+    it('does not throw when a filter entry is undefined', () => {
+      const mockBackendFilter = {
+        getCatalogFilters: () => ({
+          kind: ['Component'],
+        }),
+      };
+
+      const filters: DefaultEntityFilters = {
+        kind: mockBackendFilter as any,
+        text: undefined,
+      };
+
+      const result = toStreamRequest(filters);
+
+      expect(result).toEqual({
+        filter: {
+          kind: ['Component'],
+        },
+      });
+    });
+  });
+
   describe('with combined filters', () => {
     it('combines backend, text, and order filters', () => {
       const mockBackendFilter = {

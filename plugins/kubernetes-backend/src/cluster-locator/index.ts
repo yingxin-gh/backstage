@@ -65,13 +65,18 @@ class CombinedClustersSupplier implements KubernetesClustersSupplier {
       this.clusterSuppliers.map(supplier => supplier.getClusters(options)),
     );
     const clusters: ClusterDetails[] = [];
-    for (const result of results) {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
       if (result.status === 'fulfilled') {
         clusters.push(...result.value);
       } else {
+        const reason =
+          result.reason instanceof Error
+            ? result.reason
+            : new Error(String(result.reason));
         this.logger.error(
-          'Failed to retrieve clusters from supplier',
-          result.reason,
+          `Failed to retrieve clusters from supplier at index ${i}`,
+          reason,
         );
       }
     }

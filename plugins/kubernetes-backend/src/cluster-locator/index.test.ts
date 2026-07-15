@@ -279,7 +279,7 @@ describe('getCombinedClusterSupplier', () => {
     expect(result).toHaveLength(1);
     expect(result[0].name).toBe('cluster1');
     expect(errorSpy).toHaveBeenCalledWith(
-      'Failed to retrieve clusters from supplier',
+      expect.stringContaining('Failed to retrieve clusters from supplier'),
       expect.any(Error),
     );
   });

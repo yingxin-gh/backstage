@@ -15,6 +15,7 @@
  */
 
 import { Config } from '@backstage/config';
+import { toError } from '@backstage/errors';
 import { Duration } from 'luxon';
 import { ConfigClusterLocator } from './ConfigClusterLocator';
 import { GkeClusterLocator } from './GkeClusterLocator';
@@ -70,13 +71,9 @@ class CombinedClustersSupplier implements KubernetesClustersSupplier {
       if (result.status === 'fulfilled') {
         clusters.push(...result.value);
       } else {
-        const reason =
-          result.reason instanceof Error
-            ? result.reason
-            : new Error(String(result.reason));
         this.logger.error(
-          `Failed to retrieve clusters from supplier at index ${i}`,
-          reason,
+          `Failed to retrieve clusters from cluster locator method #${i + 1}`,
+          toError(result.reason),
         );
       }
     }

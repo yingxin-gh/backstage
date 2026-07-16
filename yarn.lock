@@ -2964,6 +2964,7 @@ __metadata:
   resolution: "@backstage/connections@workspace:packages/connections"
   dependencies:
     "@backstage/cli": "workspace:^"
+    "@backstage/errors": "workspace:^"
     "@backstage/types": "workspace:^"
     zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown

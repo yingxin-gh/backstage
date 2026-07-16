@@ -2,4 +2,4 @@
 '@backstage/connections': minor
 ---
 
-Changed connection types to expose portable configuration schemas with JSON Schema generation and strongly typed parsing, without exposing the underlying Zod schemas.
+Changed connection types to use portable configuration schemas as the source of root connection types, with JSON Schema generation and strongly typed parsing that do not expose the underlying Zod schemas.

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { z } from 'zod/v4';
+import { InputError } from '@backstage/errors';
 import { createConnectionType } from './createConnectionType';
 
 describe('createConnectionType', () => {
@@ -153,6 +154,39 @@ describe('createConnectionType', () => {
       configSchema: z.object({ host: z.string() }),
       // @ts-expect-error - auth method config must not declare framework-owned fields
       authMethods: [reservedAuth],
+    });
+  });
+
+  it('wraps schema validation failures in an InputError', () => {
+    const connectionType = createConnectionType({
+      type: 'wrapped-error',
+      title: 'Wrapped Error',
+      configSchema: z.object({ host: z.string() }),
+      authMethods: [
+        {
+          method: 'none',
+          title: 'None',
+          configSchema: z.object({}),
+        },
+      ],
+    });
+
+    let error: unknown;
+    try {
+      connectionType.configSchema.parse({
+        type: 'wrapped-error',
+        auth: [{ method: 'none' }],
+      });
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    expect(error).toBeInstanceOf(InputError);
+    expect(error).toMatchObject({
+      message: expect.stringContaining(
+        'Invalid configuration for connection type "wrapped-error"',
+      ),
+      cause: expect.any(z.ZodError),
     });
   });
 

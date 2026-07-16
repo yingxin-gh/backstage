@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import { z } from 'zod/v4';
+import { InputError } from '@backstage/errors';
 import type { JsonObject } from '@backstage/types';
 import type {
-  ConnectionAuthMethod,
   ConnectionType,
   MatchAuth,
   WithoutReservedAuthMethods,
@@ -32,15 +32,41 @@ type ConnectionAuthMethodSchema<
   configSchema: TConfigSchema;
 };
 
-type ConnectionAuthMethodsFromSchemas<
+type ConfigFromSchema<TConfigSchema extends z.ZodObject> =
+  z.infer<TConfigSchema> extends Record<string, never>
+    ? Record<never, never>
+    : z.infer<TConfigSchema>;
+
+type RootConnectionAuthFromSchema<
+  TAuthMethod extends ConnectionAuthMethodSchema,
+> = TAuthMethod extends ConnectionAuthMethodSchema<
+  infer TMethod,
+  infer TConfigSchema
+>
+  ? ConfigFromSchema<TConfigSchema> & {
+      method: TMethod;
+      title?: string;
+      match?: { plugins: string[] };
+    }
+  : never;
+
+type RootConnectionFromSchemas<
+  TType extends string,
+  TConfigSchema extends z.ZodObject,
+  TAuthMethods extends readonly ConnectionAuthMethodSchema[],
+> = ConfigFromSchema<TConfigSchema> & {
+  type: TType;
+  title?: string;
+  match?: { plugins: string[] };
+  auth: Array<RootConnectionAuthFromSchema<TAuthMethods[number]>>;
+};
+
+type RootConnectionAuthMethodsFromSchemas<
   TAuthMethods extends readonly ConnectionAuthMethodSchema[],
 > = {
-  readonly [I in keyof TAuthMethods]: TAuthMethods[I] extends ConnectionAuthMethodSchema<
-    infer TMethod,
-    infer TConfigSchema
-  >
-    ? ConnectionAuthMethod<TMethod, z.infer<TConfigSchema>>
-    : never;
+  readonly [I in keyof TAuthMethods]: RootConnectionAuthFromSchema<
+    TAuthMethods[I]
+  >;
 };
 
 const matchSchema = z
@@ -63,11 +89,11 @@ export function createConnectionType<
   title: string;
   configSchema: WithoutReservedFields<TConfigSchema>;
   authMethods: WithoutReservedAuthMethods<TAuthMethods>;
-  matchAuth?: MatchAuth<ConnectionAuthMethodsFromSchemas<TAuthMethods>>;
+  matchAuth?: MatchAuth<
+    RootConnectionAuthMethodsFromSchemas<TAuthMethods>[number]
+  >;
 }): ConnectionType<
-  TType,
-  z.infer<TConfigSchema>,
-  ConnectionAuthMethodsFromSchemas<TAuthMethods>
+  RootConnectionFromSchemas<TType, TConfigSchema, TAuthMethods>
 > {
   const validatedAuthMethods = authMethods as TAuthMethods;
   const authOptions = validatedAuthMethods.map(am =>
@@ -98,7 +124,14 @@ export function createConnectionType<
   let cachedJsonSchema: JsonObject | undefined;
   const portableSchema = {
     parse(input: unknown) {
-      return schema.parse(input);
+      try {
+        return schema.parse(input);
+      } catch (cause) {
+        throw new InputError(
+          `Invalid configuration for connection type "${type}"`,
+          cause,
+        );
+      }
     },
     schema() {
       if (!cachedJsonSchema) {
@@ -120,9 +153,7 @@ export function createConnectionType<
     configSchema: portableSchema,
     matchAuth,
   } as unknown as ConnectionType<
-    TType,
-    z.infer<TConfigSchema>,
-    ConnectionAuthMethodsFromSchemas<TAuthMethods>
+    RootConnectionFromSchemas<TType, TConfigSchema, TAuthMethods>
   >;
   return connectionType;
 }

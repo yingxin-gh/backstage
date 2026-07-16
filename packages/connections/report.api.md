@@ -7,14 +7,15 @@ import type { JsonObject } from '@backstage/types';
 
 // @public (undocumented)
 export type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
-  ConnectionAuthValue<LookupConnectionType<T>['authMethods'][number]>;
+  ConnectionAuthValue<
+    ConnectionTypeConfig<LookupConnectionType<T>>['auth'][number]
+  >;
 
 // @public (undocumented)
 export type Connection<
   T extends ConnectionType | ConnectionTypeKey = ConnectionType,
   TAuthMethod extends string = string,
 > = {
-  type: LookupConnectionType<T>['type'];
   title: string;
   auth: string extends TAuthMethod
     ? AuthValue<T>[]
@@ -24,18 +25,10 @@ export type Connection<
           method: TAuthMethod;
         }
       >;
-} & (LookupConnectionType<T> extends ConnectionType<any, infer TConfig, any>
-  ? TConfig
-  : never);
-
-// @public (undocumented)
-export type ConnectionAuthMethod<
-  TMethod extends string = string,
-  _TConfig extends object = object,
-> = {
-  method: TMethod;
-  title: string;
-};
+} & Omit<
+  ConnectionTypeConfig<LookupConnectionType<T>>,
+  'auth' | 'match' | 'title'
+>;
 
 // @public (undocumented)
 export type ConnectionAuthMethodKey<
@@ -43,13 +36,15 @@ export type ConnectionAuthMethodKey<
 > = LookupConnectionType<T>['authMethods'][number]['method'];
 
 // @public (undocumented)
-export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
-  TAuthMethod extends ConnectionAuthMethod<infer TMethod, infer TConfig>
-    ? {
-        method: TMethod;
-        title: string;
-      } & TConfig
-    : never;
+export type ConnectionAuthValue<
+  TAuthConfig extends {
+    method: string;
+  },
+> = TAuthConfig extends any
+  ? Omit<TAuthConfig, 'title' | 'match'> & {
+      title: string;
+    }
+  : never;
 
 // @public (undocumented)
 export interface ConnectionsService {
@@ -66,40 +61,51 @@ export interface ConnectionsService {
 
 // @public (undocumented)
 export type ConnectionType<
-  TType extends string = string,
-  TConfig extends object = object,
-  TAuthMethods extends readonly ConnectionAuthMethod[] = readonly ConnectionAuthMethod[],
-> = {
-  type: TType;
-  title: string;
-  authMethods: TAuthMethods;
-  configSchema: PortableSchema<
-    TConfig & {
-      type: TType;
+  TRootConfig extends {
+    type: string;
+    title?: string;
+    match?: {
+      plugins: string[];
+    };
+    auth: readonly {
+      method: string;
       title?: string;
       match?: {
         plugins: string[];
       };
-      auth: Array<
-        ConnectionAuthValue<TAuthMethods[number]> extends infer TAuth
-          ? TAuth extends any
-            ? Omit<TAuth, 'title'> & {
-                title?: string;
-                match?: {
-                  plugins: string[];
-                };
-              }
-            : never
-          : never
-      >;
-    },
-    unknown
-  >;
+    }[];
+  } = {
+    type: string;
+    title?: string;
+    match?: {
+      plugins: string[];
+    };
+    auth: readonly {
+      method: string;
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+    }[];
+  },
+> = {
+  type: TRootConfig['type'];
+  title: string;
+  configSchema: PortableSchema<TRootConfig, unknown>;
+  authMethods: readonly {
+    method: TRootConfig['auth'][number]['method'];
+    title: string;
+  }[];
   matchAuth?(
-    authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
+    authMethods: ConnectionAuthValue<TRootConfig['auth'][number]>[],
     query: string,
-  ): ConnectionAuthValue<TAuthMethods[number]> | undefined;
+  ): ConnectionAuthValue<TRootConfig['auth'][number]> | undefined;
 };
+
+// @public (undocumented)
+export type ConnectionTypeConfig<T extends ConnectionType> = ReturnType<
+  T['configSchema']['parse']
+>;
 
 // @public (undocumented)
 export type ConnectionTypeKey = keyof typeof connectionTypes;
@@ -107,291 +113,552 @@ export type ConnectionTypeKey = keyof typeof connectionTypes;
 // @public (undocumented)
 export const connectionTypes: {
   readonly 'aws-codecommit': ConnectionType<
-    'aws-codecommit',
     {
       host: string;
       region: string;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'accessKey',
-        {
-          accessKeyId: string;
-          secretAccessKey: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'assumeRole',
-        {
-          roleArn: string;
-          externalId?: string | undefined;
-        }
-      >,
-    ]
+    } & {
+      type: 'aws-codecommit';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            accessKeyId: string;
+            secretAccessKey: string;
+          } & {
+            method: 'accessKey';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            roleArn: string;
+            externalId?: string | undefined;
+          } & {
+            method: 'assumeRole';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly 'aws-s3': ConnectionType<
-    'aws-s3',
     {
       host: string;
       endpoint?: string | undefined;
       s3ForcePathStyle?: boolean | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'accessKey',
-        {
-          accessKeyId: string;
-          secretAccessKey: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'assumeRole',
-        {
-          roleArn: string;
-          externalId?: string | undefined;
-        }
-      >,
-    ]
+    } & {
+      type: 'aws-s3';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            accessKeyId: string;
+            secretAccessKey: string;
+          } & {
+            method: 'accessKey';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            roleArn: string;
+            externalId?: string | undefined;
+          } & {
+            method: 'assumeRole';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly 'azure-blob-storage': ConnectionType<
-    'azure-blob-storage',
     {
       host: string;
       accountName?: string | undefined;
       endpoint?: string | undefined;
       endpointSuffix?: string | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'accountKey',
-        {
-          accountKey: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'sasToken',
-        {
-          sasToken: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'connectionString',
-        {
-          connectionString: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'aadCredential',
-        {
-          clientId: string;
-          tenantId: string;
-          clientSecret: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'azure-blob-storage';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            accountKey: string;
+          } & {
+            method: 'accountKey';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            sasToken: string;
+          } & {
+            method: 'sasToken';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            connectionString: string;
+          } & {
+            method: 'connectionString';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            clientId: string;
+            tenantId: string;
+            clientSecret: string;
+          } & {
+            method: 'aadCredential';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly azure: ConnectionType<
-    'azure',
     {
       host: string;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'pat',
-        {
-          personalAccessToken: string;
-          orgs?: string[] | undefined;
-        }
-      >,
-      ConnectionAuthMethod<
-        'clientCredentials',
-        {
-          clientId: string;
-          clientSecret: string;
-          tenantId: string;
-          orgs?: string[] | undefined;
-        }
-      >,
-      ConnectionAuthMethod<
-        'managedIdentity',
-        {
-          clientId: string;
-          tenantId?: string | undefined;
-          managedIdentityClientId?: string | undefined;
-          orgs?: string[] | undefined;
-        }
-      >,
-    ]
+    } & {
+      type: 'azure';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            personalAccessToken: string;
+            orgs?: string[] | undefined;
+          } & {
+            method: 'pat';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            clientId: string;
+            clientSecret: string;
+            tenantId: string;
+            orgs?: string[] | undefined;
+          } & {
+            method: 'clientCredentials';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            clientId: string;
+            tenantId?: string | undefined;
+            managedIdentityClientId?: string | undefined;
+            orgs?: string[] | undefined;
+          } & {
+            method: 'managedIdentity';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly 'bitbucket-cloud': ConnectionType<
-    'bitbucket-cloud',
     {
       host: string;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'token',
-        {
-          username: string;
-          token: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'appPassword',
-        {
-          username: string;
-          appPassword: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'oauth',
-        {
-          clientId: string;
-          clientSecret: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'bitbucket-cloud';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            username: string;
+            token: string;
+          } & {
+            method: 'token';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            username: string;
+            appPassword: string;
+          } & {
+            method: 'appPassword';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            clientId: string;
+            clientSecret: string;
+          } & {
+            method: 'oauth';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly 'bitbucket-server': ConnectionType<
-    'bitbucket-server',
     {
       host: string;
       apiBaseUrl?: string | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'token',
-        {
-          token: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'basic',
-        {
-          username: string;
-          password: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'bitbucket-server';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            token: string;
+          } & {
+            method: 'token';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            username: string;
+            password: string;
+          } & {
+            method: 'basic';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly gerrit: ConnectionType<
-    'gerrit',
     {
       host: string;
       gitilesBaseUrl: string;
       baseUrl?: string | undefined;
       cloneUrl?: string | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'basic',
-        {
-          username: string;
-          password: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'gerrit';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            username: string;
+            password: string;
+          } & {
+            method: 'basic';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly gitea: ConnectionType<
-    'gitea',
     {
       host: string;
       baseUrl?: string | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'basic',
-        {
-          username: string;
-          password: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'gitea';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            username: string;
+            password: string;
+          } & {
+            method: 'basic';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly github: ConnectionType<
-    'github',
     {
       host: string;
       apiBaseUrl?: string | undefined;
       rawBaseUrl?: string | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'token',
-        {
-          token: string;
-        }
-      >,
-      ConnectionAuthMethod<
-        'app',
-        {
-          appId: string | number;
-          privateKey: string;
-          clientId: string;
-          clientSecret: string;
-          webhookSecret?: string | undefined;
-          publicAccess?: boolean | undefined;
-          orgs?: string[] | undefined;
-        }
-      >,
-    ]
+    } & {
+      type: 'github';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            token: string;
+          } & {
+            method: 'token';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            appId: string | number;
+            privateKey: string;
+            clientId: string;
+            clientSecret: string;
+            webhookSecret?: string | undefined;
+            publicAccess?: boolean | undefined;
+            orgs?: string[] | undefined;
+          } & {
+            method: 'app';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly gitlab: ConnectionType<
-    'gitlab',
     {
       host: string;
       apiBaseUrl?: string | undefined;
       baseUrl?: string | undefined;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'token',
-        {
-          token: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'gitlab';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            token: string;
+          } & {
+            method: 'token';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly 'google-gcs': ConnectionType<
-    'google-gcs',
     {
       host: string;
-    },
-    readonly [
-      ConnectionAuthMethod<'none', Record<string, never>>,
-      ConnectionAuthMethod<
-        'serviceAccount',
-        {
-          clientEmail: string;
-          privateKey: string;
-        }
-      >,
-    ]
+    } & {
+      type: 'google-gcs';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: (
+        | (Record<never, never> & {
+            method: 'none';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+        | ({
+            clientEmail: string;
+            privateKey: string;
+          } & {
+            method: 'serviceAccount';
+            title?: string;
+            match?:
+              | {
+                  plugins: string[];
+                }
+              | undefined;
+          })
+      )[];
+    }
   >;
   readonly harness: ConnectionType<
-    'harness',
     {
       host: string;
-    },
-    readonly [
-      ConnectionAuthMethod<
-        'token',
-        {
-          token: string;
-          apiKey?: string | undefined;
-        }
-      >,
-    ]
+    } & {
+      type: 'harness';
+      title?: string;
+      match?: {
+        plugins: string[];
+      };
+      auth: ({
+        token: string;
+        apiKey?: string | undefined;
+      } & {
+        method: 'token';
+        title?: string;
+        match?:
+          | {
+              plugins: string[];
+            }
+          | undefined;
+      })[];
+    }
   >;
 };
 

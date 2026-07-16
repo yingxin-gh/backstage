@@ -52,7 +52,10 @@ export type WithoutReservedAuthMethodFields<TSchema extends z.ZodObject> =
     : never;
 
 export type WithoutReservedAuthMethods<
-  TAuthMethods extends readonly ConnectionAuthMethod[],
+  TAuthMethods extends readonly {
+    method: string;
+    title: string;
+  }[],
 > = {
   [I in keyof TAuthMethods]: TAuthMethods[I] extends {
     configSchema: infer TConfigSchema extends z.ZodObject;
@@ -64,18 +67,15 @@ export type WithoutReservedAuthMethods<
 };
 
 /** @public */
-export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
-  TAuthMethod extends ConnectionAuthMethod<infer TMethod, infer TConfig>
-    ? {
-        method: TMethod;
-        title: string;
-      } & TConfig
+export type ConnectionAuthValue<TAuthConfig extends { method: string }> =
+  TAuthConfig extends any
+    ? Omit<TAuthConfig, 'title' | 'match'> & { title: string }
     : never;
 
-export type MatchAuth<TAuthMethods extends readonly ConnectionAuthMethod[]> = (
-  authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
+export type MatchAuth<TAuthConfig extends { method: string }> = (
+  authMethods: ConnectionAuthValue<TAuthConfig>[],
   query: string,
-) => ConnectionAuthValue<TAuthMethods[number]> | undefined;
+) => ConnectionAuthValue<TAuthConfig> | undefined;
 
 /** @public */
 export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
@@ -85,48 +85,46 @@ export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
 
 /** @public */
 export type ConnectionType<
-  TType extends string = string,
-  TConfig extends object = object,
-  TAuthMethods extends readonly ConnectionAuthMethod[] = readonly ConnectionAuthMethod[],
-> = {
-  type: TType;
-  title: string;
-  authMethods: TAuthMethods;
-  configSchema: PortableSchema<
-    TConfig & {
-      type: TType;
+  TRootConfig extends {
+    type: string;
+    title?: string;
+    match?: { plugins: string[] };
+    auth: readonly {
+      method: string;
       title?: string;
       match?: { plugins: string[] };
-      auth: Array<
-        ConnectionAuthValue<TAuthMethods[number]> extends infer TAuth
-          ? TAuth extends any
-            ? Omit<TAuth, 'title'> & {
-                title?: string;
-                match?: { plugins: string[] };
-              }
-            : never
-          : never
-      >;
-    },
-    unknown
-  >;
+    }[];
+  } = {
+    type: string;
+    title?: string;
+    match?: { plugins: string[] };
+    auth: readonly {
+      method: string;
+      title?: string;
+      match?: { plugins: string[] };
+    }[];
+  },
+> = {
+  type: TRootConfig['type'];
+  title: string;
+  configSchema: PortableSchema<TRootConfig, unknown>;
+  authMethods: readonly {
+    method: TRootConfig['auth'][number]['method'];
+    title: string;
+  }[];
   // Method shorthand keeps parameter checking bivariant so a narrow
-  // ConnectionType (e.g. github) is still assignable to ConnectionType<string>.
+  // ConnectionType (e.g. github) is still assignable to ConnectionType.
   // TODO a default match auth method so this is no longer optional
   matchAuth?(
-    authMethods: ConnectionAuthValue<TAuthMethods[number]>[],
+    authMethods: ConnectionAuthValue<TRootConfig['auth'][number]>[],
     query: string,
-  ): ConnectionAuthValue<TAuthMethods[number]> | undefined;
+  ): ConnectionAuthValue<TRootConfig['auth'][number]> | undefined;
 };
 
 /** @public */
-export type ConnectionAuthMethod<
-  TMethod extends string = string,
-  _TConfig extends object = object,
-> = {
-  method: TMethod;
-  title: string;
-};
+export type ConnectionTypeConfig<T extends ConnectionType> = ReturnType<
+  T['configSchema']['parse']
+>;
 
 /** @public */
 export type ConnectionAuthMethodKey<

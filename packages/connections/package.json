@@ -37,6 +37,7 @@
     "test": "backstage-cli package test"
   },
   "dependencies": {
+    "@backstage/errors": "workspace:^",
     "@backstage/types": "workspace:^",
     "zod": "^3.25.76 || ^4.0.0"
   },

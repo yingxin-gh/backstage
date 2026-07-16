@@ -41,7 +41,7 @@ export const connectionTypes = {
   gitlab: GitlabConnectionType,
   'google-gcs': GoogleGcsConnectionType,
   harness: HarnessConnectionType,
-} as const satisfies { [K in string]: ConnectionType<K> };
+} as const satisfies { [K in string]: ConnectionType };
 
 /** @public */
 export type ConnectionTypeKey = keyof typeof connectionTypes;

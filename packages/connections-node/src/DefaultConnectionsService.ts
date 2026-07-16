@@ -41,6 +41,9 @@ function describeError(error: unknown): string {
   if (e.name === 'ZodError') {
     return z.prettifyError(e as unknown as z.ZodError);
   }
+  if (e.cause instanceof z.ZodError) {
+    return z.prettifyError(e.cause);
+  }
   return e.message;
 }
 

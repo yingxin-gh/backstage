@@ -77,22 +77,28 @@ export type MatchAuth<TAuthConfig extends { method: string }> = (
   query: string,
 ) => ConnectionAuthValue<TAuthConfig> | undefined;
 
-/** @public */
+/**
+ * A schema that can validate values and expose a JSON-serializable schema.
+ *
+ * @public
+ */
 export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
+  /** Parses an input value into the validated output type. */
   parse: (input: TInput) => TOutput;
+  /** Returns a defensive copy of the JSON Schema representation. */
   schema: () => { schema: JsonObject };
 };
 
-/** @public */
+/**
+ * Describes a connection type and its portable configuration schemas.
+ *
+ * @public
+ */
 export type ConnectionType<
-  TRootConfig extends {
+  T extends {
     type: string;
-    title?: string;
-    match?: { plugins: string[] };
     auth: readonly {
       method: string;
-      title?: string;
-      match?: { plugins: string[] };
     }[];
   } = {
     type: string;
@@ -105,26 +111,31 @@ export type ConnectionType<
     }[];
   },
 > = {
-  type: TRootConfig['type'];
+  type: T['type'];
   title: string;
-  configSchema: PortableSchema<TRootConfig, unknown>;
-  authMethods: readonly {
-    method: TRootConfig['auth'][number]['method'];
-    title: string;
-  }[];
+  /** Schema for a complete connection configuration. */
+  configSchema: PortableSchema<T, unknown>;
+  /** Supported auth methods and their method-specific configuration schemas. */
+  authMethods: readonly (T['auth'][number] extends infer TAuth
+    ? TAuth extends { method: string }
+      ? {
+          method: TAuth['method'];
+          title: string;
+          configSchema: PortableSchema<
+            Omit<TAuth, 'method' | 'match' | 'title'>,
+            unknown
+          >;
+        }
+      : never
+    : never)[];
   // Method shorthand keeps parameter checking bivariant so a narrow
   // ConnectionType (e.g. github) is still assignable to ConnectionType.
   // TODO a default match auth method so this is no longer optional
   matchAuth?(
-    authMethods: ConnectionAuthValue<TRootConfig['auth'][number]>[],
+    authMethods: ConnectionAuthValue<T['auth'][number]>[],
     query: string,
-  ): ConnectionAuthValue<TRootConfig['auth'][number]> | undefined;
+  ): ConnectionAuthValue<T['auth'][number]> | undefined;
 };
-
-/** @public */
-export type ConnectionTypeConfig<T extends ConnectionType> = ReturnType<
-  T['configSchema']['parse']
->;
 
 /** @public */
 export type ConnectionAuthMethodKey<

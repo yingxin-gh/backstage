@@ -15,7 +15,6 @@
  */
 import type {
   ConnectionType,
-  ConnectionTypeConfig,
   ConnectionTypeKey,
   LookupConnectionType,
 } from '@backstage/connections';
@@ -23,4 +22,4 @@ import type {
 /** The configuration shape of a connection before plugin filtering. */
 export type RootConnection<
   T extends ConnectionType | ConnectionTypeKey = ConnectionType,
-> = ConnectionTypeConfig<LookupConnectionType<T>>;
+> = ReturnType<LookupConnectionType<T>['configSchema']['parse']>;

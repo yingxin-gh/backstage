@@ -34,9 +34,17 @@ describe('createConnectionType', () => {
 
     expect(SingleAuthType.type).toBe('single');
     expect(SingleAuthType.authMethods).toEqual([
-      { method: 'token', title: 'Token' },
+      expect.objectContaining({ method: 'token', title: 'Token' }),
     ]);
-    expect(SingleAuthType.authMethods[0]).not.toHaveProperty('configSchema');
+    expect(
+      SingleAuthType.authMethods[0].configSchema.schema().schema,
+    ).toMatchObject({
+      type: 'object',
+      properties: { token: { type: 'string' } },
+    });
+    expect(
+      SingleAuthType.authMethods[0].configSchema.parse({ token: 'abc' }).token,
+    ).toBe('abc');
     expect(SingleAuthType.configSchema.schema().schema).toMatchObject({
       type: 'object',
       properties: {
@@ -244,6 +252,23 @@ describe('createConnectionType', () => {
         },
       ],
     });
+
+    const tokenAuthMethod = MultiAuthType.authMethods.find(
+      authMethod => authMethod.method === 'token',
+    );
+    expect(tokenAuthMethod?.configSchema.parse({ token: 'abc' }).token).toBe(
+      'abc',
+    );
+
+    const appAuthMethod = MultiAuthType.authMethods.find(
+      authMethod => authMethod.method === 'app',
+    );
+    expect(
+      appAuthMethod?.configSchema.parse({
+        appId: 1,
+        privateKey: 'pk',
+      }).appId,
+    ).toBe(1);
 
     // Both auth methods accepted in the same connection.
     expect(() =>

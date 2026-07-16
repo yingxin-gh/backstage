@@ -19,6 +19,7 @@ import type { JsonObject } from '@backstage/types';
 import type {
   ConnectionType,
   MatchAuth,
+  PortableSchema,
   WithoutReservedAuthMethods,
   WithoutReservedFields,
 } from '../api/ConnectionType';
@@ -74,6 +75,34 @@ const matchSchema = z
   .strict()
   .optional();
 
+function createPortableSchema<TSchema extends z.ZodType>(
+  schema: TSchema,
+  errorMessage: string,
+): PortableSchema<z.infer<TSchema>, unknown> {
+  let cachedJsonSchema: JsonObject | undefined;
+  return {
+    parse(input: unknown) {
+      try {
+        return schema.parse(input);
+      } catch (cause) {
+        if (cause instanceof z.ZodError) {
+          throw new InputError(errorMessage, cause);
+        }
+        throw cause;
+      }
+    },
+    schema() {
+      if (!cachedJsonSchema) {
+        cachedJsonSchema = schema.toJSONSchema({
+          target: 'draft-07',
+          io: 'input',
+        }) as JsonObject;
+      }
+      return { schema: structuredClone(cachedJsonSchema) };
+    },
+  };
+}
+
 export function createConnectionType<
   TType extends string,
   TConfigSchema extends z.ZodObject,
@@ -121,38 +150,23 @@ export function createConnectionType<
       ),
     })
     .strict();
-  let cachedJsonSchema: JsonObject | undefined;
-  const portableSchema = {
-    parse(input: unknown) {
-      try {
-        return schema.parse(input);
-      } catch (cause) {
-        if (cause instanceof z.ZodError) {
-          throw new InputError(
-            `Invalid configuration for connection type "${type}"`,
-            cause,
-          );
-        }
-        throw cause;
-      }
-    },
-    schema() {
-      if (!cachedJsonSchema) {
-        cachedJsonSchema = schema.toJSONSchema({
-          target: 'draft-07',
-          io: 'input',
-        }) as JsonObject;
-      }
-      return { schema: structuredClone(cachedJsonSchema) };
-    },
-  };
+  const portableSchema = createPortableSchema(
+    schema,
+    `Invalid configuration for connection type "${type}"`,
+  );
   const connectionType = {
     type,
     title,
-    authMethods: validatedAuthMethods.map(({ method, title: authTitle }) => ({
-      method,
-      title: authTitle,
-    })),
+    authMethods: validatedAuthMethods.map(
+      ({ method, title: authTitle, configSchema: authConfigSchema }) => ({
+        method,
+        title: authTitle,
+        configSchema: createPortableSchema(
+          authConfigSchema,
+          `Invalid configuration for auth method "${method}" of connection type "${type}"`,
+        ),
+      }),
+    ),
     configSchema: portableSchema,
     matchAuth,
   } as unknown as ConnectionType<

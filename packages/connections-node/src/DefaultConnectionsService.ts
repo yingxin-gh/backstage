@@ -41,8 +41,11 @@ function describeError(error: unknown): string {
   if (e.name === 'ZodError') {
     return z.prettifyError(e as unknown as z.ZodError);
   }
-  if (e.cause instanceof z.ZodError) {
-    return z.prettifyError(e.cause);
+  if (e.cause !== undefined) {
+    const cause = toError(e.cause);
+    if (cause.name === 'ZodError') {
+      return z.prettifyError(cause as unknown as z.ZodError);
+    }
   }
   return e.message;
 }
@@ -244,9 +247,7 @@ export class DefaultConnectionsService {
       throw new InputError(`Unrecognised connection type ${connection.type}`);
     }
 
-    return getConnectionType(connection.type).configSchema.parse(
-      connection,
-    ) as RootConnection;
+    return getConnectionType(connection.type).configSchema.parse(connection);
   }
 
   #assignDefaultTitles(): void {

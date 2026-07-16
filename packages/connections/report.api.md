@@ -8,7 +8,7 @@ import type { JsonObject } from '@backstage/types';
 // @public (undocumented)
 export type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
   ConnectionAuthValue<
-    ConnectionTypeConfig<LookupConnectionType<T>>['auth'][number]
+    ReturnType<LookupConnectionType<T>['configSchema']['parse']>['auth'][number]
   >;
 
 // @public (undocumented)
@@ -26,7 +26,7 @@ export type Connection<
         }
       >;
 } & Omit<
-  ConnectionTypeConfig<LookupConnectionType<T>>,
+  ReturnType<LookupConnectionType<T>['configSchema']['parse']>,
   'auth' | 'match' | 'title'
 >;
 
@@ -59,20 +59,12 @@ export interface ConnectionsService {
   }): Promise<Connection<TType, TAuthMethod>>;
 }
 
-// @public (undocumented)
+// @public
 export type ConnectionType<
-  TRootConfig extends {
+  T extends {
     type: string;
-    title?: string;
-    match?: {
-      plugins: string[];
-    };
     auth: readonly {
       method: string;
-      title?: string;
-      match?: {
-        plugins: string[];
-      };
     }[];
   } = {
     type: string;
@@ -89,23 +81,28 @@ export type ConnectionType<
     }[];
   },
 > = {
-  type: TRootConfig['type'];
+  type: T['type'];
   title: string;
-  configSchema: PortableSchema<TRootConfig, unknown>;
-  authMethods: readonly {
-    method: TRootConfig['auth'][number]['method'];
-    title: string;
-  }[];
+  configSchema: PortableSchema<T, unknown>;
+  authMethods: readonly (T['auth'][number] extends infer TAuth
+    ? TAuth extends {
+        method: string;
+      }
+      ? {
+          method: TAuth['method'];
+          title: string;
+          configSchema: PortableSchema<
+            Omit<TAuth, 'method' | 'match' | 'title'>,
+            unknown
+          >;
+        }
+      : never
+    : never)[];
   matchAuth?(
-    authMethods: ConnectionAuthValue<TRootConfig['auth'][number]>[],
+    authMethods: ConnectionAuthValue<T['auth'][number]>[],
     query: string,
-  ): ConnectionAuthValue<TRootConfig['auth'][number]> | undefined;
+  ): ConnectionAuthValue<T['auth'][number]> | undefined;
 };
-
-// @public (undocumented)
-export type ConnectionTypeConfig<T extends ConnectionType> = ReturnType<
-  T['configSchema']['parse']
->;
 
 // @public (undocumented)
 export type ConnectionTypeKey = keyof typeof connectionTypes;
@@ -666,7 +663,7 @@ export const connectionTypes: {
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
   T extends ConnectionTypeKey ? (typeof connectionTypes)[T] : T;
 
-// @public (undocumented)
+// @public
 export type PortableSchema<TOutput = unknown, TInput = TOutput> = {
   parse: (input: TInput) => TOutput;
   schema: () => {

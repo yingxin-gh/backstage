@@ -214,7 +214,11 @@ export const EntityOwnerPicker = (props?: EntityOwnerPickerProps) => {
           if (mode === 'owners-only') {
             // Stubs have no title; use string ref so entityPresentationSnapshot hits the API cache.
             const ref = typeof o === 'string' ? o : stringifyEntityRef(o);
-            return entityPresentationSnapshot(ref, undefined, entityPresentationApi).primaryTitle;
+            return entityPresentationSnapshot(
+              ref,
+              undefined,
+              entityPresentationApi,
+            ).primaryTitle;
           }
           const entity =
             typeof o === 'string'
@@ -247,7 +251,11 @@ export const EntityOwnerPicker = (props?: EntityOwnerPickerProps) => {
         filterOptions={x => x}
         renderOption={(entity, { selected }) => {
           return (
-            <RenderOptionLabel entity={entity} isSelected={selected} mode={mode} />
+            <RenderOptionLabel
+              entity={entity}
+              isSelected={selected}
+              mode={mode}
+            />
           );
         }}
         name="owner-picker"

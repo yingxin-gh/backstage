@@ -637,7 +637,10 @@ describe('<EntityOwnerPicker mode="owners-only" />', () => {
         }
         // Entity passed directly: use whatever's on the stub (no title → name only)
         const ref = stringifyEntityRef(entityOrRef);
-        const snapshot = { ...defaultEntityPresentation(entityOrRef), entityRef: ref };
+        const snapshot = {
+          ...defaultEntityPresentation(entityOrRef),
+          entityRef: ref,
+        };
         return { snapshot, promise: Promise.resolve(snapshot) };
       }),
     };

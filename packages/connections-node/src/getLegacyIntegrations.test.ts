@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 import { mockServices } from '@backstage/backend-test-utils';
+import { connectionTypes } from '@backstage/connections';
 import { getLegacyIntegrations } from './getLegacyIntegrations';
-import { AwsCodeCommitConnectionType } from '../schema/awsCodeCommit';
-import { AwsS3ConnectionType } from '../schema/awsS3';
-import { AzureBlobStorageConnectionType } from '../schema/azureBlobStorage';
-import { AzureConnectionType } from '../schema/azure';
-import { BitbucketCloudConnectionType } from '../schema/bitbucketCloud';
-import { BitbucketServerConnectionType } from '../schema/bitbucketServer';
-import { GerritConnectionType } from '../schema/gerrit';
-import { GiteaConnectionType } from '../schema/gitea';
-import { GithubConnectionType } from '../schema/github';
-import { GitlabConnectionType } from '../schema/gitlab';
-import { GoogleGcsConnectionType } from '../schema/googleGcs';
-import { HarnessConnectionType } from '../schema/harness';
+
+const AwsCodeCommitConnectionType = connectionTypes['aws-codecommit'];
+const AwsS3ConnectionType = connectionTypes['aws-s3'];
+const AzureBlobStorageConnectionType = connectionTypes['azure-blob-storage'];
+const AzureConnectionType = connectionTypes.azure;
+const BitbucketCloudConnectionType = connectionTypes['bitbucket-cloud'];
+const BitbucketServerConnectionType = connectionTypes['bitbucket-server'];
+const GerritConnectionType = connectionTypes.gerrit;
+const GiteaConnectionType = connectionTypes.gitea;
+const GithubConnectionType = connectionTypes.github;
+const GitlabConnectionType = connectionTypes.gitlab;
+const GoogleGcsConnectionType = connectionTypes['google-gcs'];
+const HarnessConnectionType = connectionTypes.harness;
 
 describe('getLegacyIntegrations', () => {
   it('returns an empty list when no integrations are configured', () => {

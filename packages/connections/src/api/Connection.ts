@@ -15,22 +15,11 @@
  */
 import type { z } from 'zod/v4';
 import type { ConnectionAuthValue, ConnectionType } from './ConnectionType';
-import {
-  ConnectionMatch,
-  ConnectionTypeKey,
-  LookupConnectionType,
-} from '../definitions';
+import { ConnectionTypeKey, LookupConnectionType } from '../definitions';
 
 /** @public */
 export type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
   ConnectionAuthValue<LookupConnectionType<T>['authMethods'][number]>;
-
-type RootAuthValue<T extends ConnectionType | ConnectionTypeKey> =
-  AuthValue<T> extends infer A
-    ? A extends any
-      ? Omit<A, 'title'> & { title?: string; match?: ConnectionMatch }
-      : never
-    : never;
 
 // A connection of a specific type.
 //
@@ -55,18 +44,4 @@ export type Connection<
 // `switch (c.type)` narrowing.
 export type AnyConnection = {
   [K in ConnectionTypeKey]: Connection<K>;
-}[ConnectionTypeKey];
-
-// The on-disk shape of a connection: the same as `Connection`, plus the
-// top-level `match` and per-auth `match` rules used for plugin scoping.
-export type RootConnection<
-  T extends ConnectionType | ConnectionTypeKey = ConnectionType,
-> = Omit<Connection<T>, 'auth' | 'title'> & {
-  title?: string;
-  match?: ConnectionMatch;
-  auth: RootAuthValue<T>[];
-};
-
-export type AnyRootConnection = {
-  [K in ConnectionTypeKey]: RootConnection<K>;
 }[ConnectionTypeKey];

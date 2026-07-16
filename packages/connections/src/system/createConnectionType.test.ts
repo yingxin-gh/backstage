@@ -190,6 +190,39 @@ describe('createConnectionType', () => {
     });
   });
 
+  it('does not wrap unexpected schema errors', () => {
+    const expectedError = new Error('Unexpected schema error');
+    const connectionType = createConnectionType({
+      type: 'unexpected-error',
+      title: 'Unexpected Error',
+      configSchema: z.object({
+        host: z.string().transform(() => {
+          throw expectedError;
+        }),
+      }),
+      authMethods: [
+        {
+          method: 'none',
+          title: 'None',
+          configSchema: z.object({}),
+        },
+      ],
+    });
+
+    let error: unknown;
+    try {
+      connectionType.configSchema.parse({
+        type: 'unexpected-error',
+        host: 'example.com',
+        auth: [{ method: 'none' }],
+      });
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    expect(error).toBe(expectedError);
+  });
+
   it('builds a multi-auth-method connection type that discriminates on method', () => {
     const MultiAuthType = createConnectionType({
       type: 'multi',

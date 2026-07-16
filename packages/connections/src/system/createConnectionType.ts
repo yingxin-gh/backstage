@@ -127,10 +127,13 @@ export function createConnectionType<
       try {
         return schema.parse(input);
       } catch (cause) {
-        throw new InputError(
-          `Invalid configuration for connection type "${type}"`,
-          cause,
-        );
+        if (cause instanceof z.ZodError) {
+          throw new InputError(
+            `Invalid configuration for connection type "${type}"`,
+            cause,
+          );
+        }
+        throw cause;
       }
     },
     schema() {

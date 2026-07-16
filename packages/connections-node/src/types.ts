@@ -16,7 +16,6 @@
 import type {
   AuthValue,
   Connection,
-  ConnectionMatch,
   ConnectionType,
   ConnectionTypeKey,
 } from '@backstage/connections';
@@ -24,7 +23,10 @@ import type {
 type RootAuthValue<T extends ConnectionType | ConnectionTypeKey> =
   AuthValue<T> extends infer A
     ? A extends any
-      ? Omit<A, 'title'> & { title?: string; match?: ConnectionMatch }
+      ? Omit<A, 'title'> & {
+          title?: string;
+          match?: { plugins: string[] };
+        }
       : never
     : never;
 
@@ -33,6 +35,6 @@ export type RootConnection<
   T extends ConnectionType | ConnectionTypeKey = ConnectionType,
 > = Omit<Connection<T>, 'auth' | 'title'> & {
   title?: string;
-  match?: ConnectionMatch;
+  match?: { plugins: string[] };
   auth: RootAuthValue<T>[];
 };

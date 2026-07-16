@@ -58,11 +58,6 @@ export type ConnectionAuthValue<TAuthMethod extends ConnectionAuthMethod> =
       } & z.infer<TAuthMethod['configSchema']>
     : never;
 
-// @public
-export type ConnectionMatch = {
-  plugins: string[];
-};
-
 // @public (undocumented)
 export interface ConnectionsService {
   // (undocumented)

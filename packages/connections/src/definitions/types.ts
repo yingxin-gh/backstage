@@ -49,12 +49,3 @@ export type ConnectionTypeKey = keyof typeof connectionTypes;
 /** @public */
 export type LookupConnectionType<T extends ConnectionTypeKey | ConnectionType> =
   T extends ConnectionTypeKey ? (typeof connectionTypes)[T] : T;
-
-/**
- * Matches a connection or authentication method to plugins.
- *
- * @public
- */
-export type ConnectionMatch = {
-  plugins: string[];
-};

@@ -2,4 +2,4 @@
 '@backstage/backend-app-api': patch
 ---
 
-Updated the backend runtime to use the connection service implementation from `@backstage/connections-node`.
+Updated the backend runtime to use the internal connection service implementation after the shared connection contract moved into `@backstage/connections`.

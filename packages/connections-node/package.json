@@ -4,17 +4,9 @@
   "description": "Node.js service implementation for the Backstage connections framework",
   "backstage": {
     "role": "node-library",
-    "pluginId": "connections",
-    "pluginPackages": [
-      "@backstage/connections",
-      "@backstage/connections-node"
-    ]
+    "inline": true
   },
-  "publishConfig": {
-    "access": "public",
-    "main": "dist/index.cjs.js",
-    "types": "dist/index.d.ts"
-  },
+  "private": true,
   "keywords": [
     "backstage"
   ],

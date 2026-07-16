@@ -2,4 +2,4 @@
 '@backstage/connections': minor
 ---
 
-Changed `@backstage/connections` into a common library so its connection types, schemas, and service contract can be used by isomorphic packages. Node.js service APIs have moved to `@backstage/connections-node`; update imports of `connectionsServiceRef`, `connectionsServiceFactory`, `DefaultConnectionsService`, and `declareConnection` to use the new package. Note that backend-only configuration types such as `RootConnection`/`AnyRootConnection` are no longer exported from `@backstage/connections` as part of this split.
+Changed `@backstage/connections` into a common library so its connection types, schemas, and service contract can be used by isomorphic packages. The Node.js service implementation is now internal. Backend-only APIs and configuration types, including `connectionsServiceRef`, `connectionsServiceFactory`, `DefaultConnectionsService`, `declareConnection`, `RootConnection`, and `AnyRootConnection`, are no longer exported from this package.

@@ -16,7 +16,7 @@
 import { connectionTypes } from '@backstage/connections';
 import { getConnectionType, isConnectionTypeKey } from './lookup';
 
-describe('definitions/lookup', () => {
+describe('lookup', () => {
   describe('getConnectionType', () => {
     it('returns the github connection type for "github"', () => {
       expect(getConnectionType('github')).toBe(connectionTypes.github);

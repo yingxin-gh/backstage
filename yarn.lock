@@ -2116,9 +2116,9 @@ __metadata:
     "@backstage/cli": "workspace:^"
     "@backstage/config": "workspace:^"
     "@backstage/connections": "workspace:^"
-    "@backstage/connections-node": "workspace:^"
     "@backstage/errors": "workspace:^"
     "@backstage/types": "workspace:^"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -2944,7 +2944,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@backstage/connections-node@workspace:^, @backstage/connections-node@workspace:packages/connections-node":
+"@backstage/connections-node@workspace:packages/connections-node":
   version: 0.0.0-use.local
   resolution: "@backstage/connections-node@workspace:packages/connections-node"
   dependencies:
@@ -5203,8 +5203,11 @@ __metadata:
     "@backstage/backend-plugin-api": "workspace:^"
     "@backstage/backend-test-utils": "workspace:^"
     "@backstage/cli": "workspace:^"
-    "@backstage/connections-node": "workspace:^"
+    "@backstage/config": "workspace:^"
+    "@backstage/connections": "workspace:^"
     "@backstage/errors": "workspace:^"
+    "@backstage/types": "workspace:^"
+    zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -5217,8 +5220,8 @@ __metadata:
     "@backstage/backend-test-utils": "workspace:^"
     "@backstage/catalog-client": "workspace:^"
     "@backstage/cli": "workspace:^"
+    "@backstage/config": "workspace:^"
     "@backstage/connections": "workspace:^"
-    "@backstage/connections-node": "workspace:^"
     "@backstage/errors": "workspace:^"
     "@backstage/plugin-catalog-node": "workspace:^"
     "@backstage/types": "workspace:^"

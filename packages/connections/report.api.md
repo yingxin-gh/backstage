@@ -104,11 +104,6 @@ export const connectionTypes: {
     >,
     readonly [
       {
-        readonly method: 'none';
-        readonly title: 'None';
-        readonly configSchema: ZodObject<{}, $strip>;
-      },
-      {
         readonly method: 'accessKey';
         readonly title: 'Access Key';
         readonly configSchema: ZodObject<

@@ -2964,8 +2964,9 @@ __metadata:
   resolution: "@backstage/connections@workspace:packages/connections"
   dependencies:
     "@backstage/cli": "workspace:^"
+    "@backstage/errors": "workspace:^"
     "@backstage/types": "workspace:^"
-    zod: "npm:^3.25.76 || ^4.0.0"
+    zod: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 
@@ -5226,8 +5227,10 @@ __metadata:
     "@backstage/plugin-catalog-node": "workspace:^"
     "@backstage/types": "workspace:^"
     "@types/express": "npm:^4.17.6"
+    "@types/supertest": "npm:^2.0.8"
     express: "npm:^4.22.0"
     express-promise-router: "npm:^4.1.0"
+    supertest: "npm:^7.0.0"
     zod: "npm:^3.25.76 || ^4.0.0"
   languageName: unknown
   linkType: soft

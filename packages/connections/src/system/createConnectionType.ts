@@ -125,6 +125,11 @@ export function createConnectionType<
   RootConnectionFromSchemas<TType, TConfigSchema, TAuthMethods>
 > {
   const validatedAuthMethods = authMethods as TAuthMethods;
+  if (validatedAuthMethods.length < 1) {
+    throw new InputError(
+      `Connection type "${type}" must declare at least one auth method`,
+    );
+  }
   const authOptions = validatedAuthMethods.map(am =>
     am.configSchema
       .extend({

@@ -749,7 +749,7 @@ describe('getLegacyIntegrations', () => {
       ).not.toHaveProperty('externalId');
     });
 
-    it('keeps missing credentials invalid rather than using none auth', () => {
+    it('keeps missing aws-codecommit credentials invalid rather than using none auth', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -1135,7 +1135,7 @@ describe('getLegacyIntegrations', () => {
       ).not.toThrow();
     });
 
-    it('keeps missing credentials invalid rather than using none auth', () => {
+    it('keeps missing harness credentials invalid rather than using none auth', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {

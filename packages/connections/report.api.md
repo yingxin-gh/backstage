@@ -120,15 +120,6 @@ export const connectionTypes: {
         plugins: string[];
       };
       auth: (
-        | (Record<never, never> & {
-            method: 'none';
-            title?: string;
-            match?:
-              | {
-                  plugins: string[];
-                }
-              | undefined;
-          })
         | ({
             accessKeyId: string;
             secretAccessKey: string;

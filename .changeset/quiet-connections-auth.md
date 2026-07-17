@@ -1,5 +1,5 @@
 ---
-'@backstage/connections': minor
+'@backstage/connections': patch
 ---
 
-**BREAKING**: Require every connection to configure at least one auth method. Use the `none` auth method for unauthenticated connections.
+Require every connection to configure at least one auth method. Use the `none` auth method for unauthenticated connections.

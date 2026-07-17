@@ -145,16 +145,14 @@ export function createConnectionType<
       type: z.literal(type),
       title: z.string().min(1).optional(),
       match: matchSchema,
-      auth: z
-        .array(
-          authOptions.length === 1
-            ? authOptions[0]
-            : z.discriminatedUnion(
-                'method',
-                authOptions as [(typeof authOptions)[0], ...typeof authOptions],
-              ),
-        )
-        .min(1),
+      auth: z.array(
+        authOptions.length === 1
+          ? authOptions[0]
+          : z.discriminatedUnion(
+              'method',
+              authOptions as [(typeof authOptions)[0], ...typeof authOptions],
+            ),
+      ),
     })
     .strict();
   const portableSchema = createPortableSchema(

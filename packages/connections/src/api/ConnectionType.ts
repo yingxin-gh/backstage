@@ -114,12 +114,7 @@ export type ConnectionType<
   type: T['type'];
   title: string;
   /** Schema for a complete connection configuration. */
-  configSchema: PortableSchema<
-    Omit<T, 'auth'> & {
-      auth: [T['auth'][number], ...T['auth'][number][]];
-    },
-    unknown
-  >;
+  configSchema: PortableSchema<T, unknown>;
   /** Supported auth methods and their method-specific configuration schemas. */
   authMethods: readonly (T['auth'][number] extends infer TAuth
     ? TAuth extends { method: string }

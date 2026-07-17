@@ -22,7 +22,7 @@ describe('AwsCodeCommitConnectionType', () => {
     ).toEqual(['accessKey', 'assumeRole']);
 
     expect(() =>
-      AwsCodeCommitConnectionType.schema.parse({
+      AwsCodeCommitConnectionType.configSchema.parse({
         type: 'aws-codecommit',
         host: 'us-east-1.console.aws.amazon.com',
         region: 'us-east-1',

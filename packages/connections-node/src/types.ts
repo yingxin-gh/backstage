@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 import type {
-  AuthValue,
-  Connection,
   ConnectionType,
   ConnectionTypeKey,
+  LookupConnectionType,
 } from '@backstage/connections';
-
-type RootAuthValue<T extends ConnectionType | ConnectionTypeKey> =
-  AuthValue<T> extends infer A
-    ? A extends any
-      ? Omit<A, 'title'> & {
-          title?: string;
-          match?: { plugins: string[] };
-        }
-      : never
-    : never;
 
 /** The configuration shape of a connection before plugin filtering. */
 export type RootConnection<
   T extends ConnectionType | ConnectionTypeKey = ConnectionType,
-> = Omit<Connection<T>, 'auth' | 'title'> & {
-  title?: string;
-  match?: { plugins: string[] };
-  auth: RootAuthValue<T>[];
-};
+> = ReturnType<LookupConnectionType<T>['configSchema']['parse']>;

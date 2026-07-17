@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { z } from 'zod/v4';
 import type { ConnectionAuthValue, ConnectionType } from './ConnectionType';
-import { ConnectionTypeKey, LookupConnectionType } from '../definitions';
+import type { ConnectionTypeKey, LookupConnectionType } from '../definitions';
 
 /** @public */
 export type AuthValue<T extends ConnectionType | ConnectionTypeKey> =
-  ConnectionAuthValue<LookupConnectionType<T>['authMethods'][number]>;
+  ConnectionAuthValue<
+    ReturnType<LookupConnectionType<T>['configSchema']['parse']>['auth'][number]
+  >;
 
 // A connection of a specific type.
 //
@@ -33,12 +34,14 @@ export type Connection<
   T extends ConnectionType | ConnectionTypeKey = ConnectionType,
   TAuthMethod extends string = string,
 > = {
-  type: LookupConnectionType<T>['type'];
   title: string;
   auth: string extends TAuthMethod
     ? AuthValue<T>[]
     : Extract<AuthValue<T>, { method: TAuthMethod }>;
-} & z.infer<LookupConnectionType<T>['configSchema']>;
+} & Omit<
+  ReturnType<LookupConnectionType<T>['configSchema']['parse']>,
+  'auth' | 'match' | 'title'
+>;
 
 // Discriminated union of every known connection type, suitable for
 // `switch (c.type)` narrowing.

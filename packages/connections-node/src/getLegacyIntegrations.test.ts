@@ -165,7 +165,7 @@ describe('getLegacyIntegrations', () => {
       ]);
     });
 
-    it('emits a connection with an empty auth array when neither token nor apps are configured', () => {
+    it('uses none auth when neither token nor apps are configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -175,7 +175,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'github', host: 'github.com', auth: [] },
+        { type: 'github', host: 'github.com', auth: [{ method: 'none' }] },
       ]);
     });
 
@@ -290,7 +290,7 @@ describe('getLegacyIntegrations', () => {
       ]);
     });
 
-    it('emits a connection with an empty auth array when no token is configured', () => {
+    it('uses none auth when no token is configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -300,7 +300,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'gitlab', host: 'gitlab.com', auth: [] },
+        { type: 'gitlab', host: 'gitlab.com', auth: [{ method: 'none' }] },
       ]);
     });
 
@@ -561,7 +561,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'azure', host: 'dev.azure.com', auth: [] },
+        { type: 'azure', host: 'dev.azure.com', auth: [{ method: 'none' }] },
       ]);
     });
 
@@ -749,7 +749,7 @@ describe('getLegacyIntegrations', () => {
       ).not.toHaveProperty('externalId');
     });
 
-    it('emits an empty auth array when no credentials are configured', () => {
+    it('keeps missing credentials invalid rather than using none auth', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -758,14 +758,16 @@ describe('getLegacyIntegrations', () => {
         },
       });
 
-      expect(getLegacyIntegrations(config)).toEqual([
-        {
-          type: 'aws-codecommit',
-          host: 'us-west-2.console.aws.amazon.com',
-          region: 'us-west-2',
-          auth: [],
-        },
-      ]);
+      const [converted] = getLegacyIntegrations(config);
+      expect(converted).toEqual({
+        type: 'aws-codecommit',
+        host: 'us-west-2.console.aws.amazon.com',
+        region: 'us-west-2',
+        auth: [],
+      });
+      expect(() =>
+        AwsCodeCommitConnectionType.configSchema.parse(converted),
+      ).toThrow();
     });
 
     it('produces output that validates against the aws-codecommit connection schema', () => {
@@ -847,7 +849,7 @@ describe('getLegacyIntegrations', () => {
           host: 'localhost:4566',
           endpoint: 'http://localhost:4566',
           s3ForcePathStyle: true,
-          auth: [],
+          auth: [{ method: 'none' }],
         },
       ]);
     });
@@ -906,7 +908,7 @@ describe('getLegacyIntegrations', () => {
       ]);
     });
 
-    it('emits an empty auth array when no credentials are configured (application default credentials)', () => {
+    it('uses none auth when no explicit credentials are configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -916,7 +918,11 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'google-gcs', host: 'storage.cloud.google.com', auth: [] },
+        {
+          type: 'google-gcs',
+          host: 'storage.cloud.google.com',
+          auth: [{ method: 'none' }],
+        },
       ]);
     });
 
@@ -1127,6 +1133,26 @@ describe('getLegacyIntegrations', () => {
       expect(() =>
         HarnessConnectionType.configSchema.parse(converted),
       ).not.toThrow();
+    });
+
+    it('keeps missing credentials invalid rather than using none auth', () => {
+      const config = mockServices.rootConfig({
+        data: {
+          integrations: {
+            harness: [{ host: 'app.harness.io' }],
+          },
+        },
+      });
+
+      const [converted] = getLegacyIntegrations(config);
+      expect(converted).toEqual({
+        type: 'harness',
+        host: 'app.harness.io',
+        auth: [],
+      });
+      expect(() =>
+        HarnessConnectionType.configSchema.parse(converted),
+      ).toThrow();
     });
   });
 });

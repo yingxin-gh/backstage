@@ -50,7 +50,7 @@ describe('createConnectionType', () => {
       properties: {
         type: { const: 'single' },
         host: { type: 'string' },
-        auth: { type: 'array' },
+        auth: { type: 'array', minItems: 1 },
       },
       additionalProperties: false,
     });
@@ -70,6 +70,14 @@ describe('createConnectionType', () => {
     expect(parsed.type).toBe('single');
     expect(parsed.host).toBe('example.com');
     expect(parsed.auth[0].token).toBe('abc');
+
+    const acceptsParsedConnection = (_connection: typeof parsed) => {};
+    acceptsParsedConnection({
+      type: 'single',
+      host: 'example.com',
+      // @ts-expect-error - parsed connections always contain an auth method
+      auth: [],
+    });
 
     // Wrong literal type should fail.
     expect(() =>
@@ -300,13 +308,13 @@ describe('createConnectionType', () => {
       }),
     ).toThrow();
 
-    // Empty auth array is allowed by the array schema.
+    // Empty auth array should fail; unauthenticated connections use "none".
     expect(() =>
       MultiAuthType.configSchema.parse({
         type: 'multi',
         host: 'example.com',
         auth: [],
       }),
-    ).not.toThrow();
+    ).toThrow();
   });
 });

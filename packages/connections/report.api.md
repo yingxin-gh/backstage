@@ -83,7 +83,12 @@ export type ConnectionType<
 > = {
   type: T['type'];
   title: string;
-  configSchema: PortableSchema<T, unknown>;
+  configSchema: PortableSchema<
+    Omit<T, 'auth'> & {
+      auth: [T['auth'][number], ...T['auth'][number][]];
+    },
+    unknown
+  >;
   authMethods: readonly (T['auth'][number] extends infer TAuth
     ? TAuth extends {
         method: string;

@@ -2966,7 +2966,7 @@ __metadata:
     "@backstage/cli": "workspace:^"
     "@backstage/errors": "workspace:^"
     "@backstage/types": "workspace:^"
-    zod: "npm:^3.25.76 || ^4.0.0"
+    zod: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 

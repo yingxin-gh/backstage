@@ -165,7 +165,7 @@ describe('getLegacyIntegrations', () => {
       ]);
     });
 
-    it('emits a connection with an empty auth array when neither token nor apps are configured', () => {
+    it('uses none auth when neither token nor apps are configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -175,7 +175,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'github', host: 'github.com', auth: [] },
+        { type: 'github', host: 'github.com', auth: [{ method: 'none' }] },
       ]);
     });
 
@@ -290,7 +290,7 @@ describe('getLegacyIntegrations', () => {
       ]);
     });
 
-    it('emits a connection with an empty auth array when no token is configured', () => {
+    it('uses none auth when no token is configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -300,7 +300,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'gitlab', host: 'gitlab.com', auth: [] },
+        { type: 'gitlab', host: 'gitlab.com', auth: [{ method: 'none' }] },
       ]);
     });
 
@@ -561,7 +561,7 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'azure', host: 'dev.azure.com', auth: [] },
+        { type: 'azure', host: 'dev.azure.com', auth: [{ method: 'none' }] },
       ]);
     });
 
@@ -749,7 +749,7 @@ describe('getLegacyIntegrations', () => {
       ).not.toHaveProperty('externalId');
     });
 
-    it('emits an empty auth array when no credentials are configured', () => {
+    it('emits an empty auth array when aws-codecommit credentials are not configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -847,7 +847,7 @@ describe('getLegacyIntegrations', () => {
           host: 'localhost:4566',
           endpoint: 'http://localhost:4566',
           s3ForcePathStyle: true,
-          auth: [],
+          auth: [{ method: 'none' }],
         },
       ]);
     });
@@ -906,7 +906,7 @@ describe('getLegacyIntegrations', () => {
       ]);
     });
 
-    it('emits an empty auth array when no credentials are configured (application default credentials)', () => {
+    it('uses none auth when no explicit credentials are configured', () => {
       const config = mockServices.rootConfig({
         data: {
           integrations: {
@@ -916,7 +916,11 @@ describe('getLegacyIntegrations', () => {
       });
 
       expect(getLegacyIntegrations(config)).toEqual([
-        { type: 'google-gcs', host: 'storage.cloud.google.com', auth: [] },
+        {
+          type: 'google-gcs',
+          host: 'storage.cloud.google.com',
+          auth: [{ method: 'none' }],
+        },
       ]);
     });
 

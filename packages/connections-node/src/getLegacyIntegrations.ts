@@ -72,7 +72,7 @@ function convertGithub(entries: Config[]): JsonObject[] {
       host: entry.getOptionalString('host'),
       apiBaseUrl: entry.getOptionalString('apiBaseUrl'),
       rawBaseUrl: entry.getOptionalString('rawBaseUrl'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -91,7 +91,7 @@ function convertGitlab(entries: Config[]): JsonObject[] {
       host: entry.getOptionalString('host'),
       apiBaseUrl: entry.getOptionalString('apiBaseUrl'),
       baseUrl: entry.getOptionalString('baseUrl'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -123,7 +123,7 @@ function convertAzure(entries: Config[]): JsonObject[] {
     return omitUndefined({
       type: 'azure',
       host: entry.getOptionalString('host'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -192,7 +192,7 @@ function convertBitbucketCloud(entries: Config[]): JsonObject[] {
     return {
       type: 'bitbucket-cloud',
       host: 'bitbucket.org',
-      auth,
+      auth: withNoneAuthFallback(auth),
     };
   });
 }
@@ -216,7 +216,7 @@ function convertBitbucketServer(entries: Config[]): JsonObject[] {
       type: 'bitbucket-server',
       host: entry.getOptionalString('host'),
       apiBaseUrl: entry.getOptionalString('apiBaseUrl'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -237,7 +237,7 @@ function convertGerrit(entries: Config[]): JsonObject[] {
       baseUrl: entry.getOptionalString('baseUrl'),
       gitilesBaseUrl: entry.getOptionalString('gitilesBaseUrl'),
       cloneUrl: entry.getOptionalString('cloneUrl'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -256,7 +256,7 @@ function convertGitea(entries: Config[]): JsonObject[] {
       type: 'gitea',
       host: entry.getOptionalString('host'),
       baseUrl: entry.getOptionalString('baseUrl'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -337,7 +337,7 @@ function convertAwsS3(entries: Config[]): JsonObject[] {
       host,
       endpoint,
       s3ForcePathStyle: entry.getOptionalBoolean('s3ForcePathStyle'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -381,7 +381,7 @@ function convertAzureBlobStorage(entries: Config[]): JsonObject[] {
       accountName: entry.getOptionalString('accountName'),
       endpoint,
       endpointSuffix: entry.getOptionalString('endpointSuffix'),
-      auth,
+      auth: withNoneAuthFallback(auth),
     });
   });
 }
@@ -396,8 +396,16 @@ function convertGoogleGcs(entries: Config[]): JsonObject[] {
       auth.push({ method: 'serviceAccount', clientEmail, privateKey });
     }
 
-    return { type: 'google-gcs', host: 'storage.cloud.google.com', auth };
+    return {
+      type: 'google-gcs',
+      host: 'storage.cloud.google.com',
+      auth: withNoneAuthFallback(auth),
+    };
   });
+}
+
+function withNoneAuthFallback(auth: JsonObject[]): JsonObject[] {
+  return auth.length > 0 ? auth : [{ method: 'none' }];
 }
 
 function omitUndefined(

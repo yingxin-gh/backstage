@@ -247,7 +247,15 @@ export class DefaultConnectionsService {
       throw new InputError(`Unrecognised connection type ${connection.type}`);
     }
 
-    return getConnectionType(connection.type).configSchema.parse(connection);
+    const parsed = getConnectionType(connection.type).configSchema.parse(
+      connection,
+    );
+    if (parsed.auth.length === 0) {
+      throw new InputError(
+        `Connection of type "${connection.type}" must configure at least one auth method`,
+      );
+    }
+    return parsed;
   }
 
   #assignDefaultTitles(): void {

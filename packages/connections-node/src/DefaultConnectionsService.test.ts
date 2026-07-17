@@ -752,6 +752,23 @@ describe('DefaultConnectionsService', () => {
   });
 
   describe('config validation', () => {
+    it('rejects a connection with an empty auth array', () => {
+      expect(() =>
+        DefaultConnectionsService.create({
+          logger: mockServices.logger.mock(),
+          config: mockConnectionsConfig([
+            {
+              type: 'github',
+              host: 'github.com',
+              auth: [],
+            },
+          ]),
+        }),
+      ).toThrow(
+        /Invalid connection of type "github".*must configure at least one auth method/s,
+      );
+    });
+
     it('throws with the failing field when a connection is missing a required value', () => {
       expect(() =>
         DefaultConnectionsService.create({

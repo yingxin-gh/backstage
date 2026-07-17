@@ -300,7 +300,8 @@ describe('createConnectionType', () => {
       }),
     ).toThrow();
 
-    // Empty auth array is allowed by the array schema.
+    // The connection configuration parser is responsible for rejecting an
+    // empty auth array, rather than the connection type schema.
     expect(() =>
       MultiAuthType.configSchema.parse({
         type: 'multi',

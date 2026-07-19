@@ -7,3 +7,4 @@ description: This plugin helps teams keep track of who is away and when, by addi
 documentation: https://github.com/CodeVerse-GP/leave-tracker/blob/main/plugins/team-leave-tracker/README.md
 npmPackageName: '@codeverse-gp/plugin-team-leave-tracker'
 addedDate: '2026-07-19'
+status: active

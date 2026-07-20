@@ -95,6 +95,17 @@ mcpActions:
   namespacedToolNames: false
 ```
 
+### Server Instructions
+
+You can provide instructions that describe how MCP clients should use the server and its tools. The server returns these instructions to clients during initialization.
+
+```yaml
+mcpActions:
+  instructions: 'Inspect existing catalog entities before creating new components.'
+```
+
+For named servers, configure instructions separately for each server.
+
 ### Multiple MCP Servers
 
 By default, the plugin serves a single MCP server at `/api/mcp-actions/v1` that exposes all available actions. You can split actions into multiple focused servers by configuring `mcpActions.servers`, where each key becomes a separate MCP server endpoint.
@@ -105,12 +116,14 @@ mcpActions:
     catalog:
       name: 'Backstage Catalog'
       description: 'Tools for interacting with the software catalog'
+      instructions: 'Inspect catalog entities before making changes.'
       filter:
         include:
           - id: 'catalog:*'
     scaffolder:
       name: 'Backstage Scaffolder'
       description: 'Tools for creating new software from templates'
+      instructions: 'Use this server after checking the catalog.'
       filter:
         include:
           - id: 'scaffolder:*'

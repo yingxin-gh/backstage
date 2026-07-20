@@ -99,6 +99,7 @@ export const mcpPlugin = createBackendPlugin({
           const serverConfig = {
             name: config.getOptionalString('mcpActions.name') ?? 'backstage',
             description: config.getOptionalString('mcpActions.description'),
+            instructions: config.getOptionalString('mcpActions.instructions'),
             includeRules: [],
             excludeRules: [],
           };

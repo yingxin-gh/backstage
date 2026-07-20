@@ -152,7 +152,12 @@ export class McpService {
           description: serverConfig.description,
         }),
       },
-      { capabilities: { tools: {} } },
+      {
+        capabilities: { tools: {} },
+        ...(serverConfig?.instructions && {
+          instructions: serverConfig.instructions,
+        }),
+      },
     );
 
     server.setRequestHandler(ListToolsRequestSchema, async () => {

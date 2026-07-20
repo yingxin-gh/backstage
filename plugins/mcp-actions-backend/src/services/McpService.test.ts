@@ -806,7 +806,7 @@ describe('McpService', () => {
     });
   });
 
-  describe('server name and description', () => {
+  describe('server metadata and instructions', () => {
     it('should default server name to backstage when no config is provided', async () => {
       const mcpService = await McpService.create({
         actions: actionsRegistryServiceMock(),
@@ -831,7 +831,7 @@ describe('McpService', () => {
       expect(serverInfo?.description).toBeUndefined();
     });
 
-    it('should use name and description from server config', async () => {
+    it('should use name, description, and instructions from server config', async () => {
       const mcpService = await McpService.create({
         actions: actionsRegistryServiceMock(),
         metrics: metricsServiceMock.mock(),
@@ -843,6 +843,7 @@ describe('McpService', () => {
         serverConfig: {
           name: 'My Custom Server',
           description: 'A custom MCP server for testing',
+          instructions: 'Use this server to test MCP actions.',
           includeRules: [],
           excludeRules: [],
         },
@@ -859,6 +860,9 @@ describe('McpService', () => {
       const serverInfo = client.getServerVersion();
       expect(serverInfo?.name).toBe('My Custom Server');
       expect(serverInfo?.description).toBe('A custom MCP server for testing');
+      expect(client.getInstructions()).toBe(
+        'Use this server to test MCP actions.',
+      );
     });
 
     it('should omit description when not provided in config', async () => {

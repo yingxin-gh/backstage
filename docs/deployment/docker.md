@@ -37,6 +37,10 @@ The required steps in the host build are to install dependencies with
 `yarn install`, generate type definitions using `yarn tsc`, and build the backend
 package with `yarn build:backend`.
 
+:::note
+Run these commands with the same Node version as the Docker base image. Using a different version will cause native modules to fail at runtime.
+:::
+
 In a CI workflow it might look something like this, from the root:
 
 ```bash

@@ -21,7 +21,12 @@ import {
   SchedulerServiceTaskScheduleDefinition,
   readSchedulerServiceTaskScheduleDefinitionFromConfig,
 } from '@backstage/backend-plugin-api';
+import {
+  connectionsServiceRef,
+  declareConnection,
+} from '@backstage/connections-node';
 import { Config } from '@backstage/config';
+import { DefaultGithubCredentialsProvider } from '@backstage/integration';
 import {
   buildDefaultUserTransformer,
   GithubMultiOrgEntityProvider,
@@ -70,6 +75,10 @@ export const catalogModuleGithubOrgEntityProvider = createBackendModule({
   pluginId: 'catalog',
   moduleId: 'github-org-entity-provider',
   register(env) {
+    declareConnection(env, {
+      type: 'github',
+      description: 'Imports GitHub users and teams into the catalog',
+    });
     let userTransformer: UserTransformer | undefined;
     let teamTransformer: TeamTransformer | undefined;
 
@@ -99,10 +108,21 @@ export const catalogModuleGithubOrgEntityProvider = createBackendModule({
         events: eventsServiceRef,
         logger: coreServices.logger,
         scheduler: coreServices.scheduler,
+        connections: connectionsServiceRef,
       },
 
-      async init({ catalog, cache, config, events, logger, scheduler }) {
+      async init({
+        catalog,
+        cache,
+        config,
+        events,
+        logger,
+        scheduler,
+        connections,
+      }) {
         const definitions = readDefinitionsFromConfig(config);
+        const githubCredentialsProvider =
+          DefaultGithubCredentialsProvider.fromConnections(connections);
 
         for (const definition of definitions) {
           catalog.addEntityProvider(
@@ -127,6 +147,7 @@ export const catalogModuleGithubOrgEntityProvider = createBackendModule({
               alwaysUseDefaultNamespace:
                 definitions.length === 1 && definition.orgs?.length === 1,
               pageSizes: definition.pageSizes,
+              githubCredentialsProvider,
               excludeSuspendedUsers: definition.excludeSuspendedUsers,
               cache,
               experimental_checkForSuspendedUsersWithRest:

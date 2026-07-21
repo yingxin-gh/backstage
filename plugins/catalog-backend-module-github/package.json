@@ -54,6 +54,7 @@
     "@backstage/backend-plugin-api": "workspace:^",
     "@backstage/catalog-model": "workspace:^",
     "@backstage/config": "workspace:^",
+    "@backstage/connections": "workspace:^",
     "@backstage/errors": "workspace:^",
     "@backstage/integration": "workspace:^",
     "@backstage/plugin-catalog-common": "workspace:^",
@@ -70,7 +71,8 @@
     "git-url-parse": "^15.0.0",
     "lodash": "^4.17.21",
     "minimatch": "^10.2.1",
-    "octokit": "^3.0.0"
+    "octokit": "^3.0.0",
+    "zod": "^3.25.76 || ^4.0.0"
   },
   "devDependencies": {
     "@backstage/backend-defaults": "workspace:^",

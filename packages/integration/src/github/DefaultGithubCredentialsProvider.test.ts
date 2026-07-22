@@ -15,13 +15,13 @@
  */
 
 import { ScmIntegrations } from '../ScmIntegrations';
-import { GithubIntegrationConfig } from './config';
+import type { GithubIntegrationConfig } from './config';
 import { SingleInstanceGithubCredentialsProvider } from './SingleInstanceGithubCredentialsProvider';
 
 import { DefaultGithubCredentialsProvider } from './DefaultGithubCredentialsProvider';
 import { ConfigReader } from '@backstage/config';
-import { GithubCredentials } from './types';
-import { ConnectionsService } from '@backstage/connections';
+import type { GithubCredentials } from './types';
+import type { ConnectionsService } from '@backstage/connections';
 
 const resultBuilder = (host: string): GithubCredentials => {
   return {
@@ -175,6 +175,35 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         rawBaseUrl: undefined,
         token: 'connection-token',
       });
+    });
+
+    it('rejects invalid GitHub App IDs from the connections service', async () => {
+      const find = jest.fn().mockResolvedValue({
+        type: 'github',
+        title: 'GitHub',
+        host: 'github.com',
+        auth: {
+          method: 'app',
+          appId: 'not-a-number',
+          privateKey: 'private-key',
+          clientId: 'client-id',
+          clientSecret: 'client-secret',
+        },
+      });
+      const provider = DefaultGithubCredentialsProvider.fromConnections({
+        find: find as ConnectionsService['find'],
+      });
+
+      await expect(
+        provider.getCredentials({
+          url: 'https://github.com/backstage/backstage',
+        }),
+      ).rejects.toThrow(
+        'Invalid GitHub App ID "not-a-number", expected a finite number',
+      );
+      expect(
+        SingleInstanceGithubCredentialsProvider.create,
+      ).not.toHaveBeenCalled();
     });
   });
 

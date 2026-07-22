@@ -18,7 +18,8 @@ import { GithubCredentials, GithubCredentialsProvider } from './types';
 import { ScmIntegrationRegistry } from '../registry';
 import { SingleInstanceGithubCredentialsProvider } from './SingleInstanceGithubCredentialsProvider';
 import type { ConnectionsService } from '@backstage/connections';
-import { GithubIntegrationConfig } from './config';
+import { InputError } from '@backstage/errors';
+import type { GithubIntegrationConfig } from './config';
 
 /**
  * Handles the creation and caching of credentials for GitHub integrations.
@@ -111,9 +112,16 @@ export class DefaultGithubCredentialsProvider
         };
 
         if (auth.method === 'app') {
+          const appId = Number(auth.appId);
+          if (!Number.isFinite(appId)) {
+            throw new InputError(
+              `Invalid GitHub App ID "${auth.appId}", expected a finite number`,
+            );
+          }
+
           config.apps = [
             {
-              appId: Number(auth.appId),
+              appId,
               privateKey: auth.privateKey,
               clientId: auth.clientId,
               clientSecret: auth.clientSecret,

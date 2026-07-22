@@ -44,13 +44,19 @@ export class DefaultOctokitProvider implements OctokitProviderService {
   }
 
   async getOctokit(url: string): Promise<Octokit> {
-    // TODO(freben): Be smart and cache these more granularly, e.g. by
-    // organization or even repo.
     const integration = this.#integrations.github.byUrl(url);
     if (!integration) {
       throw new Error(`No integration found for url: ${url}`);
     }
-    const key = integration.config.host;
+    const organization = new URL(url).pathname
+      .split('/')
+      .filter(Boolean)[0]
+      ?.toLowerCase();
+
+    // GitHub connections select auth by organization. Partitioning the cache
+    // on the same boundary prevents a client from reusing an auth callback
+    // that captured a URL for a different organization on the same host.
+    const key = `${integration.config.host}:${organization ?? ''}`;
 
     if (this.#octokitCache.has(key)) {
       return this.#octokitCache.get(key)!;

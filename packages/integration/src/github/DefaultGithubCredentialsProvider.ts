@@ -97,9 +97,12 @@ export class DefaultGithubCredentialsProvider
 
       // Keep one provider per host and selected auth method. In particular,
       // reusing an App provider preserves its installation-token cache.
-      const providerKey = `${connection.host}:${auth.method}:${
-        auth.method === 'app' ? auth.appId : ''
-      }`;
+      const providerKey =
+        auth.method === 'token'
+          ? `${connection.host}:token:${auth.token}`
+          : auth.method === 'app'
+            ? `${connection.host}:app:${String(auth.appId)}:${(auth.orgs ?? []).join(',')}:${String(auth.publicAccess ?? false)}`
+            : `${connection.host}:none`;
 
       let provider = this.providers.get(providerKey);
       if (!provider) {

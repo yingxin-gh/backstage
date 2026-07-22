@@ -16,6 +16,7 @@
 
 import {
   HTMLAttributes,
+  UIEvent,
   cloneElement,
   createContext,
   forwardRef,
@@ -41,9 +42,16 @@ const renderRow = (props: ListChildComponentProps) => {
 const OuterElementContext = createContext<ListboxProps>({});
 
 const OuterElementType = forwardRef<HTMLDivElement, ListboxProps>(
-  (props, ref) => {
-    const outerProps = useContext(OuterElementContext);
-    return <div ref={ref} {...props} {...outerProps} />;
+  ({ onScroll: rrOnScroll, ...props }, ref) => {
+    const { onScroll: outerOnScroll, ...outerProps } =
+      useContext(OuterElementContext);
+    // Compose both handlers: spreading outerProps last would silently overwrite
+    // react-window's onScroll, breaking virtualization.
+    const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+      rrOnScroll?.(e);
+      outerOnScroll?.(e);
+    };
+    return <div ref={ref} onScroll={handleScroll} {...props} {...outerProps} />;
   },
 );
 

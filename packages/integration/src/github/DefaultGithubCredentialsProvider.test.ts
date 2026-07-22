@@ -179,32 +179,118 @@ describe('DefaultGithubCredentialsProvider tests', () => {
     });
 
     it('rejects invalid GitHub App IDs from the connections service', async () => {
-      const find = jest.fn().mockResolvedValue({
+      for (const appId of ['not-a-number', '1.2', '9007199254740992', '0']) {
+        const find = jest.fn().mockResolvedValue({
+          type: 'github',
+          title: 'GitHub',
+          host: 'github.com',
+          auth: {
+            method: 'app',
+            appId,
+            privateKey: 'private-key',
+            clientId: 'client-id',
+            clientSecret: 'client-secret',
+          },
+        });
+        const provider = DefaultGithubCredentialsProvider.fromConnections({
+          find: find as ConnectionsService['find'],
+        });
+
+        await expect(
+          provider.getCredentials({
+            url: 'https://github.com/backstage/backstage',
+          }),
+        ).rejects.toThrow(
+          `Invalid GitHub App ID "${appId}", expected a positive safe integer`,
+        );
+      }
+      expect(
+        SingleInstanceGithubCredentialsProvider.create,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('reuses providers for equivalent GitHub App organization sets', async () => {
+      const connection = {
         type: 'github',
         title: 'GitHub',
         host: 'github.com',
         auth: {
           method: 'app',
-          appId: 'not-a-number',
+          appId: '123',
           privateKey: 'private-key',
           clientId: 'client-id',
           clientSecret: 'client-secret',
+          orgs: ['Backstage', 'Spotify'],
         },
-      });
+      };
+      const find = jest
+        .fn()
+        .mockResolvedValueOnce(connection)
+        .mockResolvedValueOnce({
+          ...connection,
+          auth: {
+            ...connection.auth,
+            orgs: ['spotify', 'backstage'],
+          },
+        });
       const provider = DefaultGithubCredentialsProvider.fromConnections({
         find: find as ConnectionsService['find'],
       });
 
-      await expect(
-        provider.getCredentials({
-          url: 'https://github.com/backstage/backstage',
-        }),
-      ).rejects.toThrow(
-        'Invalid GitHub App ID "not-a-number", expected a finite number',
-      );
+      await provider.getCredentials({
+        url: 'https://github.com/backstage/backstage',
+      });
+      await provider.getCredentials({
+        url: 'https://github.com/spotify/backstage',
+      });
+
       expect(
         SingleInstanceGithubCredentialsProvider.create,
-      ).not.toHaveBeenCalled();
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        SingleInstanceGithubCredentialsProvider.create,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          apps: [
+            expect.objectContaining({
+              allowedInstallationOwners: ['backstage', 'spotify'],
+            }),
+          ],
+        }),
+      );
+    });
+
+    it('does not reuse token providers after credential rotation', async () => {
+      const connection = {
+        type: 'github',
+        title: 'GitHub',
+        host: 'github.com',
+        auth: {
+          method: 'token',
+          token: 'first-token',
+        },
+      };
+      const find = jest
+        .fn()
+        .mockResolvedValueOnce(connection)
+        .mockResolvedValueOnce({
+          ...connection,
+          auth: { method: 'token', token: 'second-token' },
+        });
+      const provider = DefaultGithubCredentialsProvider.fromConnections({
+        find: find as ConnectionsService['find'],
+      });
+
+      await provider.getCredentials({
+        url: 'https://github.com/backstage/backstage',
+      });
+      await provider.getCredentials({
+        url: 'https://github.com/backstage/community',
+      });
+
+      expect(
+        SingleInstanceGithubCredentialsProvider.create,
+      ).toHaveBeenCalledTimes(2);
     });
 
     it('reports how to configure a missing GitHub connection', async () => {

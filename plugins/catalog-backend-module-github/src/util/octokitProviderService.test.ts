@@ -37,7 +37,11 @@ describe('DefaultOctokitProvider', () => {
       },
     });
     const githubCredentials: GithubCredentialsProvider = {
-      getCredentials: jest.fn(),
+      getCredentials: jest.fn().mockResolvedValue({
+        type: 'token',
+        token: 'token',
+        headers: { Authorization: 'token token' },
+      }),
     };
     const provider = new DefaultOctokitProvider(config, githubCredentials);
 

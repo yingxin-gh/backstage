@@ -108,50 +108,58 @@ export class DefaultGithubCredentialsProvider
         });
       const { auth } = connection;
 
-      // Keep one provider per host and selected auth method. In particular,
-      // reusing an App provider preserves its installation-token cache.
-      const providerKey =
-        auth.method === 'token'
-          ? `${connection.host}:token:${auth.token}`
-          : auth.method === 'app'
-            ? `${connection.host}:app:${String(auth.appId)}:${(auth.orgs ?? []).join(',')}:${String(auth.publicAccess ?? false)}`
-            : `${connection.host}:none`;
+      // Adapt the connection schema to the existing provider configuration so
+      // credential creation and token caching stay in one implementation.
+      const config: GithubIntegrationConfig = {
+        host: connection.host,
+        apiBaseUrl: connection.apiBaseUrl,
+        rawBaseUrl: connection.rawBaseUrl,
+      };
 
-      let provider = this.providers.get(providerKey);
-      if (!provider) {
-        // Adapt the connection schema to the existing provider configuration
-        // so credential creation and token caching stay in one implementation.
-        const config: GithubIntegrationConfig = {
-          host: connection.host,
-          apiBaseUrl: connection.apiBaseUrl,
-          rawBaseUrl: connection.rawBaseUrl,
-        };
-
-        if (auth.method === 'app') {
-          const appId = Number(auth.appId);
-          if (!Number.isFinite(appId)) {
-            throw new InputError(
-              `Invalid GitHub App ID "${auth.appId}", expected a finite number`,
-            );
-          }
-
-          config.apps = [
-            {
-              appId,
-              privateKey: auth.privateKey,
-              clientId: auth.clientId,
-              clientSecret: auth.clientSecret,
-              webhookSecret: auth.webhookSecret,
-              publicAccess: auth.publicAccess,
-              allowedInstallationOwners: auth.orgs,
-            },
-          ];
-        } else if (auth.method === 'token') {
-          config.token = auth.token;
+      // Reusing an App provider preserves its installation-token cache. App
+      // organizations are canonicalized because GitHub owner matching is
+      // case-insensitive and does not depend on ordering. Static token
+      // providers have no internal token cache, so they are recreated rather
+      // than placing their secret token in a cache key.
+      let providerKey: string | undefined;
+      if (auth.method === 'app') {
+        const appId = Number(auth.appId);
+        if (!Number.isSafeInteger(appId) || appId <= 0) {
+          throw new InputError(
+            `Invalid GitHub App ID "${auth.appId}", expected a positive safe integer`,
+          );
         }
+        const normalizedOrgs = auth.orgs?.length
+          ? Array.from(
+              new Set(auth.orgs.map(org => org.toLocaleLowerCase('en-US'))),
+            ).sort()
+          : undefined;
+        config.apps = [
+          {
+            appId,
+            privateKey: auth.privateKey,
+            clientId: auth.clientId,
+            clientSecret: auth.clientSecret,
+            webhookSecret: auth.webhookSecret,
+            publicAccess: auth.publicAccess,
+            allowedInstallationOwners: normalizedOrgs,
+          },
+        ];
+        providerKey = `${connection.host}:app:${appId}:${JSON.stringify(
+          normalizedOrgs ?? [],
+        )}:${String(auth.publicAccess ?? false)}`;
+      } else if (auth.method === 'token') {
+        config.token = auth.token;
+      } else {
+        providerKey = `${connection.host}:none`;
+      }
 
+      let provider = providerKey ? this.providers.get(providerKey) : undefined;
+      if (!provider) {
         provider = SingleInstanceGithubCredentialsProvider.create(config);
-        this.providers.set(providerKey, provider);
+        if (providerKey) {
+          this.providers.set(providerKey, provider);
+        }
       }
 
       return provider.getCredentials(opts);

@@ -18,7 +18,7 @@ import { GithubCredentials, GithubCredentialsProvider } from './types';
 import { ScmIntegrationRegistry } from '../registry';
 import { SingleInstanceGithubCredentialsProvider } from './SingleInstanceGithubCredentialsProvider';
 import type { ConnectionsService } from '@backstage/connections';
-import { InputError } from '@backstage/errors';
+import { InputError, NotFoundError } from '@backstage/errors';
 import type { GithubIntegrationConfig } from './config';
 
 /**
@@ -51,7 +51,10 @@ export class DefaultGithubCredentialsProvider
    * @public
    */
   static fromConnections(connections: ConnectionsService) {
-    return new DefaultGithubCredentialsProvider(new Map(), connections);
+    return new DefaultGithubCredentialsProvider(
+      new Map<string, GithubCredentialsProvider>(),
+      connections,
+    );
   }
 
   private constructor(
@@ -88,11 +91,21 @@ export class DefaultGithubCredentialsProvider
       // Ask the connections service to select auth for this URL. A host may
       // have different GitHub Apps for different organizations, so this
       // selection cannot be done once when the provider is created.
-      const connection = await this.connections.find({
-        type: 'github',
-        url: opts.url,
-        authMethods: ['app', 'token', 'none'],
-      });
+      const connection = await this.connections
+        .find({
+          type: 'github',
+          url: opts.url,
+          authMethods: ['app', 'token', 'none'],
+        })
+        .catch(error => {
+          if (error instanceof NotFoundError) {
+            throw new InputError(
+              `No GitHub connection found for ${opts.url}. Configure a matching entry under connections or integrations.github`,
+              error,
+            );
+          }
+          throw error;
+        });
       const { auth } = connection;
 
       // Keep one provider per host and selected auth method. In particular,

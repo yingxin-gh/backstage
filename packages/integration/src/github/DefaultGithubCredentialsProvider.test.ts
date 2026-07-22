@@ -22,6 +22,7 @@ import { DefaultGithubCredentialsProvider } from './DefaultGithubCredentialsProv
 import { ConfigReader } from '@backstage/config';
 import type { GithubCredentials } from './types';
 import type { ConnectionsService } from '@backstage/connections';
+import { InputError, NotFoundError } from '@backstage/errors';
 
 const resultBuilder = (host: string): GithubCredentials => {
   return {
@@ -204,6 +205,46 @@ describe('DefaultGithubCredentialsProvider tests', () => {
       expect(
         SingleInstanceGithubCredentialsProvider.create,
       ).not.toHaveBeenCalled();
+    });
+
+    it('reports how to configure a missing GitHub connection', async () => {
+      const cause = new NotFoundError(
+        'Connection not found for type "github" with host "github.com"',
+      );
+      const provider = DefaultGithubCredentialsProvider.fromConnections({
+        find: jest.fn().mockRejectedValue(cause),
+      });
+
+      let thrown: unknown;
+      try {
+        await provider.getCredentials({
+          url: 'https://github.com/backstage/backstage',
+        });
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(InputError);
+      expect(thrown).toHaveProperty('cause', cause);
+      expect(thrown).toHaveProperty(
+        'message',
+        expect.stringContaining(
+          'No GitHub connection found for https://github.com/backstage/backstage. Configure a matching entry under connections or integrations.github',
+        ),
+      );
+    });
+
+    it('preserves other connection lookup errors', async () => {
+      const cause = new Error('lookup failed');
+      const provider = DefaultGithubCredentialsProvider.fromConnections({
+        find: jest.fn().mockRejectedValue(cause),
+      });
+
+      await expect(
+        provider.getCredentials({
+          url: 'https://github.com/backstage/backstage',
+        }),
+      ).rejects.toBe(cause);
     });
   });
 

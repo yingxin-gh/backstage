@@ -28,23 +28,56 @@ const app = (appId: number, orgs?: string[]) => ({
 describe('GithubConnectionType', () => {
   describe('matchAuth', () => {
     it('selects an app matching the organization', () => {
+      const unrestricted = app(3);
       const first = app(1, ['first']);
       const second = app(2, ['second']);
 
       expect(
         GithubConnectionType.matchAuth?.(
-          [first, second],
+          [unrestricted, first, second],
           'https://github.com/second/repository',
         ),
       ).toBe(second);
     });
 
-    it('falls back to the only app when the organization does not match', () => {
-      const onlyApp = app(1, ['another-org']);
+    it('falls back to an unrestricted app when the organization does not match', () => {
+      const unrestricted = app(3);
+      const token = {
+        method: 'token' as const,
+        title: 'Token',
+        token: 'token',
+      };
 
       expect(
         GithubConnectionType.matchAuth?.(
-          [onlyApp],
+          [app(1, ['first']), token, unrestricted, app(2, ['second'])],
+          'https://github.com/example/repository',
+        ),
+      ).toBe(unrestricted);
+    });
+
+    it('treats an app with no organizations as unrestricted', () => {
+      const unrestricted = app(3, []);
+
+      expect(
+        GithubConnectionType.matchAuth?.(
+          [app(1, ['first']), unrestricted],
+          'https://github.com/example/repository',
+        ),
+      ).toBe(unrestricted);
+    });
+
+    it('falls back to the only app when the organization does not match', () => {
+      const onlyApp = app(1, ['another-org']);
+      const token = {
+        method: 'token' as const,
+        title: 'Token',
+        token: 'token',
+      };
+
+      expect(
+        GithubConnectionType.matchAuth?.(
+          [onlyApp, token],
           'https://github.com/example/repository',
         ),
       ).toBe(onlyApp);

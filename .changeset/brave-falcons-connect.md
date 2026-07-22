@@ -2,4 +2,4 @@
 '@backstage/connections': patch
 ---
 
-Updated GitHub authentication selection to use the only configured GitHub App when no organization-specific App matches.
+Updated GitHub authentication selection to prefer an organization-specific App, then an unrestricted App, and finally the only configured App before falling back to token or anonymous authentication.

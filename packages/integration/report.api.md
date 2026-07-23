@@ -297,6 +297,11 @@ export function buildGerritGitilesArchiveUrlFromLocation(
   url: string,
 ): string;
 
+// @alpha
+export const createGitHubCredentialsProviderFromConnection: (
+  connections: ConnectionsService,
+) => DefaultGithubCredentialsProvider;
+
 // @public
 export class DefaultAzureCredentialsManager implements AzureCredentialsManager {
   static fromIntegrations(
@@ -324,10 +329,6 @@ export class DefaultAzureDevOpsCredentialsProvider
 export class DefaultGithubCredentialsProvider
   implements GithubCredentialsProvider
 {
-  // @alpha
-  static createGitHubCredentialsProviderFromConnection(
-    connections: ConnectionsService,
-  ): DefaultGithubCredentialsProvider;
   // (undocumented)
   static fromIntegrations(
     integrations: ScmIntegrationRegistry,

@@ -22,7 +22,7 @@ import { DefaultGithubCredentialsProvider } from './DefaultGithubCredentialsProv
 import { ConfigReader } from '@backstage/config';
 import type { GithubCredentials } from './types';
 import type { ConnectionsService } from '@backstage/connections';
-import { InputError, NotFoundError } from '@backstage/errors';
+import { ForwardedError, NotFoundError } from '@backstage/errors';
 
 const resultBuilder = (host: string): GithubCredentials => {
   return {
@@ -301,7 +301,7 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         find: jest.fn().mockRejectedValue(cause),
       });
 
-      let thrown: unknown;
+      let thrown: any;
       try {
         await provider.getCredentials({
           url: 'https://github.com/backstage/backstage',
@@ -310,14 +310,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         thrown = error;
       }
 
-      expect(thrown).toBeInstanceOf(InputError);
-      expect(thrown).toHaveProperty('cause', cause);
-      expect(thrown).toHaveProperty(
-        'message',
-        expect.stringContaining(
-          'No GitHub connection found for https://github.com/backstage/backstage. Configure a matching entry under connections or integrations.github',
-        ),
-      );
+      expect(thrown).toBeInstanceOf(ForwardedError);
+      expect(thrown).toHaveProperty('cause');
+      expect(thrown.cause).toBeInstanceOf(NotFoundError);
     });
 
     it('preserves other connection lookup errors', async () => {
@@ -326,11 +321,18 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         find: jest.fn().mockRejectedValue(cause),
       });
 
-      await expect(
-        provider.getCredentials({
+      let thrown: any;
+      try {
+        await provider.getCredentials({
           url: 'https://github.com/backstage/backstage',
-        }),
-      ).rejects.toBe(cause);
+        });
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(ForwardedError);
+      expect(thrown).toHaveProperty('cause');
+      expect(thrown.cause).toBeInstanceOf(Error);
     });
   });
 

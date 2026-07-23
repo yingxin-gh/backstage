@@ -53,7 +53,10 @@ export const GithubConnectionType = createConnectionType({
     },
   ],
   matchAuth: (authMethods, query) => {
-    const org = new URL(query).pathname.split('/').filter(Boolean)[0];
+    const org = new URL(query).pathname
+      .split('/')
+      .filter(Boolean)[0]
+      .toLocaleLowerCase();
     const apps = authMethods.filter(a => a.method === 'app');
     const appWithOrg = org ? apps.find(a => a.orgs?.includes(org)) : undefined;
     if (appWithOrg) return appWithOrg;

@@ -324,7 +324,8 @@ export class DefaultAzureDevOpsCredentialsProvider
 export class DefaultGithubCredentialsProvider
   implements GithubCredentialsProvider
 {
-  static fromConnections(
+  // @alpha
+  static createGitHubCredentialsProviderFromConnection(
     connections: ConnectionsService,
   ): DefaultGithubCredentialsProvider;
   // (undocumented)

@@ -48,9 +48,11 @@ export class DefaultGithubCredentialsProvider
    * Creates a credentials provider backed by the connections service.
    *
    * @param connections - The connections service used to resolve GitHub credentials.
-   * @public
+   * @alpha
    */
-  static fromConnections(connections: ConnectionsService) {
+  static createGitHubCredentialsProviderFromConnection(
+    connections: ConnectionsService,
+  ) {
     return new DefaultGithubCredentialsProvider(
       new Map<string, GithubCredentialsProvider>(),
       connections,

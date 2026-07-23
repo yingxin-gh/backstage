@@ -111,9 +111,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
           orgs: ['backstage'],
         },
       });
-      const provider = DefaultGithubCredentialsProvider.fromConnections({
-        find: find as ConnectionsService['find'],
-      });
+      const provider =
+        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          {
+            find: find as ConnectionsService['find'],
+          },
+        );
 
       await provider.getCredentials({
         url: 'https://github.com/backstage/backstage',
@@ -160,9 +163,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
           token: 'connection-token',
         },
       });
-      const provider = DefaultGithubCredentialsProvider.fromConnections({
-        find: find as ConnectionsService['find'],
-      });
+      const provider =
+        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          {
+            find: find as ConnectionsService['find'],
+          },
+        );
 
       await provider.getCredentials({
         url: 'https://github.example.com/backstage/backstage',
@@ -192,9 +198,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
             clientSecret: 'client-secret',
           },
         });
-        const provider = DefaultGithubCredentialsProvider.fromConnections({
-          find: find as ConnectionsService['find'],
-        });
+        const provider =
+          DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+            {
+              find: find as ConnectionsService['find'],
+            },
+          );
 
         await expect(
           provider.getCredentials({
@@ -233,9 +242,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
             orgs: ['spotify', 'backstage'],
           },
         });
-      const provider = DefaultGithubCredentialsProvider.fromConnections({
-        find: find as ConnectionsService['find'],
-      });
+      const provider =
+        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          {
+            find: find as ConnectionsService['find'],
+          },
+        );
 
       await provider.getCredentials({
         url: 'https://github.com/backstage/backstage',
@@ -277,9 +289,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
           ...connection,
           auth: { method: 'token', token: 'second-token' },
         });
-      const provider = DefaultGithubCredentialsProvider.fromConnections({
-        find: find as ConnectionsService['find'],
-      });
+      const provider =
+        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          {
+            find: find as ConnectionsService['find'],
+          },
+        );
 
       await provider.getCredentials({
         url: 'https://github.com/backstage/backstage',
@@ -297,9 +312,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
       const cause = new NotFoundError(
         'Connection not found for type "github" with host "github.com"',
       );
-      const provider = DefaultGithubCredentialsProvider.fromConnections({
-        find: jest.fn().mockRejectedValue(cause),
-      });
+      const provider =
+        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          {
+            find: jest.fn().mockRejectedValue(cause),
+          },
+        );
 
       let thrown: any;
       try {
@@ -317,9 +335,12 @@ describe('DefaultGithubCredentialsProvider tests', () => {
 
     it('preserves other connection lookup errors', async () => {
       const cause = new Error('lookup failed');
-      const provider = DefaultGithubCredentialsProvider.fromConnections({
-        find: jest.fn().mockRejectedValue(cause),
-      });
+      const provider =
+        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          {
+            find: jest.fn().mockRejectedValue(cause),
+          },
+        );
 
       let thrown: any;
       try {

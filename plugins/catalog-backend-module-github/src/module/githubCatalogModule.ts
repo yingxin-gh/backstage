@@ -76,7 +76,9 @@ export const githubCatalogModule = createBackendModule({
         connections,
       }) {
         const githubCredentialsProvider =
-          DefaultGithubCredentialsProvider.fromConnections(connections);
+          DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+            connections,
+          );
 
         catalogAnalyzers.addScmLocationAnalyzer(
           new GithubLocationAnalyzer({

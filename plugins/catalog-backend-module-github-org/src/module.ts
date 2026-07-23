@@ -122,7 +122,7 @@ export const catalogModuleGithubOrgEntityProvider = createBackendModule({
       }) {
         const definitions = readDefinitionsFromConfig(config);
         const githubCredentialsProvider =
-          DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          DefaultGithubCredentialsProvider.experimentalFromConnections(
             connections,
           );
 

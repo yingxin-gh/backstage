@@ -112,11 +112,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         },
       });
       const provider =
-        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-          {
-            find: find as ConnectionsService['find'],
-          },
-        );
+        DefaultGithubCredentialsProvider.experimentalFromConnections({
+          find: find as ConnectionsService['find'],
+        });
 
       await provider.getCredentials({
         url: 'https://github.com/backstage/backstage',
@@ -164,11 +162,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         },
       });
       const provider =
-        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-          {
-            find: find as ConnectionsService['find'],
-          },
-        );
+        DefaultGithubCredentialsProvider.experimentalFromConnections({
+          find: find as ConnectionsService['find'],
+        });
 
       await provider.getCredentials({
         url: 'https://github.example.com/backstage/backstage',
@@ -199,11 +195,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
           },
         });
         const provider =
-          DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-            {
-              find: find as ConnectionsService['find'],
-            },
-          );
+          DefaultGithubCredentialsProvider.experimentalFromConnections({
+            find: find as ConnectionsService['find'],
+          });
 
         await expect(
           provider.getCredentials({
@@ -243,11 +237,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
           },
         });
       const provider =
-        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-          {
-            find: find as ConnectionsService['find'],
-          },
-        );
+        DefaultGithubCredentialsProvider.experimentalFromConnections({
+          find: find as ConnectionsService['find'],
+        });
 
       await provider.getCredentials({
         url: 'https://github.com/backstage/backstage',
@@ -290,11 +282,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
           auth: { method: 'token', token: 'second-token' },
         });
       const provider =
-        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-          {
-            find: find as ConnectionsService['find'],
-          },
-        );
+        DefaultGithubCredentialsProvider.experimentalFromConnections({
+          find: find as ConnectionsService['find'],
+        });
 
       await provider.getCredentials({
         url: 'https://github.com/backstage/backstage',
@@ -313,11 +303,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
         'Connection not found for type "github" with host "github.com"',
       );
       const provider =
-        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-          {
-            find: jest.fn().mockRejectedValue(cause),
-          },
-        );
+        DefaultGithubCredentialsProvider.experimentalFromConnections({
+          find: jest.fn().mockRejectedValue(cause),
+        });
 
       let thrown: any;
       try {
@@ -336,11 +324,9 @@ describe('DefaultGithubCredentialsProvider tests', () => {
     it('preserves other connection lookup errors', async () => {
       const cause = new Error('lookup failed');
       const provider =
-        DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
-          {
-            find: jest.fn().mockRejectedValue(cause),
-          },
-        );
+        DefaultGithubCredentialsProvider.experimentalFromConnections({
+          find: jest.fn().mockRejectedValue(cause),
+        });
 
       let thrown: any;
       try {

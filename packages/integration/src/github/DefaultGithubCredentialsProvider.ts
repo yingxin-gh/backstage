@@ -48,21 +48,25 @@ export class DefaultGithubCredentialsProvider
    * Creates a credentials provider backed by the connections service.
    *
    * @param connections - The connections service used to resolve GitHub credentials.
-   * @alpha
+   * @internal
    */
-  static createGitHubCredentialsProviderFromConnection(
-    connections: ConnectionsService,
-  ) {
+  static experimentalFromConnections(connections: ConnectionsService) {
     return new DefaultGithubCredentialsProvider(
       new Map<string, GithubCredentialsProvider>(),
       connections,
     );
   }
 
+  private readonly providers: Map<string, GithubCredentialsProvider>;
+  readonly #connections?: ConnectionsService;
+
   private constructor(
-    private readonly providers: Map<string, GithubCredentialsProvider>,
-    private readonly connections?: ConnectionsService,
-  ) {}
+    providers: Map<string, GithubCredentialsProvider>,
+    connections?: ConnectionsService,
+  ) {
+    this.providers = providers;
+    this.#connections = connections;
+  }
 
   /**
    * Returns {@link GithubCredentials} for a given URL.
@@ -89,12 +93,12 @@ export class DefaultGithubCredentialsProvider
    * @returns A promise of {@link GithubCredentials}.
    */
   async getCredentials(opts: { url: string }): Promise<GithubCredentials> {
-    if (this.connections) {
+    if (this.#connections) {
       // Ask the connections service to select auth for this URL. A host may
       // have different GitHub Apps for different organizations, so this
       // selection cannot be done once when the provider is created.
 
-      const connection = await this.connections
+      const connection = await this.#connections
         .find({
           type: 'github',
           url: opts.url,

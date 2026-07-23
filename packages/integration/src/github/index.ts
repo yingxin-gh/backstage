@@ -31,3 +31,4 @@ export type {
   GithubCredentialType,
 } from './types';
 export { GithubIntegration, replaceGithubUrlType } from './GithubIntegration';
+export { createGitHubCredentialsProviderFromConnection } from './createGitHubCredentialsProviderFromConnection';

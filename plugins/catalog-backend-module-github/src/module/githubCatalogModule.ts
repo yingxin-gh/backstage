@@ -76,7 +76,7 @@ export const githubCatalogModule = createBackendModule({
         connections,
       }) {
         const githubCredentialsProvider =
-          DefaultGithubCredentialsProvider.createGitHubCredentialsProviderFromConnection(
+          DefaultGithubCredentialsProvider.experimentalFromConnections(
             connections,
           );
 

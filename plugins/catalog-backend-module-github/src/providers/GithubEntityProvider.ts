@@ -112,7 +112,6 @@ export class GithubEntityProvider implements EntityProvider, EventSubscriber {
       logger: LoggerService;
       schedule?: SchedulerServiceTaskRunner;
       scheduler?: SchedulerService;
-      githubCredentialsProvider?: GithubCredentialsProvider;
     },
   ): GithubEntityProvider[] {
     if (!options.schedule && !options.scheduler) {
@@ -141,7 +140,6 @@ export class GithubEntityProvider implements EntityProvider, EventSubscriber {
         options.logger,
         taskRunner,
         options.events,
-        options.githubCredentialsProvider,
       );
     });
   }
@@ -152,7 +150,6 @@ export class GithubEntityProvider implements EntityProvider, EventSubscriber {
     logger: LoggerService,
     taskRunner: SchedulerServiceTaskRunner,
     events?: EventsService,
-    githubCredentialsProvider?: GithubCredentialsProvider,
   ) {
     this.config = config;
     this.events = events;
@@ -162,7 +159,6 @@ export class GithubEntityProvider implements EntityProvider, EventSubscriber {
     });
     this.scheduleFn = this.createScheduleFn(taskRunner);
     this.githubCredentialsProvider =
-      githubCredentialsProvider ??
       SingleInstanceGithubCredentialsProvider.create(integration.config);
   }
 

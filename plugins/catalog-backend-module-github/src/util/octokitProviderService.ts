@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-import { RootConfigService } from '@backstage/backend-plugin-api';
 import {
+  coreServices,
+  createServiceFactory,
+  createServiceRef,
+  RootConfigService,
+} from '@backstage/backend-plugin-api';
+import {
+  DefaultGithubCredentialsProvider,
   GithubCredentialsProvider,
   ScmIntegrationRegistry,
   ScmIntegrations,
@@ -27,36 +33,29 @@ export interface OctokitProviderService {
   getOctokit: (url: string) => Promise<Octokit>;
 }
 
-export class DefaultOctokitProvider implements OctokitProviderService {
+class OctokitProviderImpl implements OctokitProviderService {
   readonly #integrations: ScmIntegrationRegistry;
   readonly #githubCredentials: GithubCredentialsProvider;
   readonly #octokitCache: Map<string, Octokit>;
   readonly #octokitCacheTtl: HumanDuration;
 
-  constructor(
-    config: RootConfigService,
-    githubCredentials: GithubCredentialsProvider,
-  ) {
+  constructor(config: RootConfigService) {
     this.#integrations = ScmIntegrations.fromConfig(config);
-    this.#githubCredentials = githubCredentials;
+    this.#githubCredentials = DefaultGithubCredentialsProvider.fromIntegrations(
+      this.#integrations,
+    );
     this.#octokitCache = new Map();
     this.#octokitCacheTtl = { hours: 1 };
   }
 
   async getOctokit(url: string): Promise<Octokit> {
+    // TODO(freben): Be smart and cache these more granularly, e.g. by
+    // organization or even repo.
     const integration = this.#integrations.github.byUrl(url);
     if (!integration) {
       throw new Error(`No integration found for url: ${url}`);
     }
-    const organization = new URL(url).pathname
-      .split('/')
-      .filter(Boolean)[0]
-      ?.toLowerCase();
-
-    // GitHub connections select auth by organization. Partitioning the cache
-    // on the same boundary prevents a client from reusing an auth callback
-    // that captured a URL for a different organization on the same host.
-    const key = `${integration.config.host}:${organization ?? ''}`;
+    const key = integration.config.host;
 
     if (this.#octokitCache.has(key)) {
       return this.#octokitCache.get(key)!;
@@ -89,3 +88,21 @@ export class DefaultOctokitProvider implements OctokitProviderService {
     return octokit;
   }
 }
+
+/**
+ * This will have to live here, until we have a proper shared one in an
+ * integrations layer.
+ */
+export const octokitProviderServiceRef =
+  createServiceRef<OctokitProviderService>({
+    id: 'octokitProvider',
+    scope: 'root',
+    defaultFactory: async service =>
+      createServiceFactory({
+        service,
+        deps: { config: coreServices.rootConfig },
+        async factory({ config }) {
+          return new OctokitProviderImpl(config);
+        },
+      }),
+  });

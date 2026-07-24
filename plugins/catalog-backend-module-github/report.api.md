@@ -102,7 +102,6 @@ export class GithubEntityProvider implements EntityProvider, EventSubscriber {
       logger: LoggerService;
       schedule?: SchedulerServiceTaskRunner;
       scheduler?: SchedulerService;
-      githubCredentialsProvider?: GithubCredentialsProvider;
     },
   ): GithubEntityProvider[];
   getProviderName(): string;

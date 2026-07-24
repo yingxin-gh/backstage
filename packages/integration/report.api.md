@@ -5,7 +5,6 @@
 ```ts
 import { AnonymousCredential } from '@azure/storage-blob';
 import { Config } from '@backstage/config';
-import type { ConnectionsService } from '@backstage/connections';
 import { ConsumedResponse } from '@backstage/errors';
 import { RestEndpointMethodTypes } from '@octokit/rest';
 import { StorageSharedKeyCredential } from '@azure/storage-blob';
@@ -296,11 +295,6 @@ export function buildGerritGitilesArchiveUrlFromLocation(
   config: GerritIntegrationConfig,
   url: string,
 ): string;
-
-// @alpha
-export const createGitHubCredentialsProviderFromConnection: (
-  connections: ConnectionsService,
-) => DefaultGithubCredentialsProvider;
 
 // @public
 export class DefaultAzureCredentialsManager implements AzureCredentialsManager {

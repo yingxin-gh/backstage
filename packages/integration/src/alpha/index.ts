@@ -13,15 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ConnectionsService } from '@backstage/connections';
-import { DefaultGithubCredentialsProvider } from './DefaultGithubCredentialsProvider';
-
-/**
- * Creates a credentials provider backed by the connections service.
- *
- * @param connections - The connections service used to resolve GitHub credentials.
- * @alpha
- */
-export const createGitHubCredentialsProviderFromConnection = (
-  connections: ConnectionsService,
-) => DefaultGithubCredentialsProvider.experimentalFromConnections(connections);
+export { createGitHubCredentialsProviderFromConnection } from './github/createGitHubCredentialsProviderFromConnection';
